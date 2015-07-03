@@ -1,0 +1,40 @@
+.idea/
+*.log
+*.iml
+local.properties
+*.DS_Store
+external_data/
+target/
+gen/
+classes/
+.classpath
+.project
+gen-external-apklibs/
+.settings/
+tmp/
+
+.DS_Store
+# built application files
+*.apk
+*.ap_
+
+# files for the dex VM
+*.dex
+
+# Java class files
+*.class
+
+# generated files
+bin/
+
+# Android Studio
+.gradle
+/*/local.properties
+/*/out
+/*/*/build
+/*/*/production
+*.iws
+*.ipr
+*~
+*.swp
+build/
