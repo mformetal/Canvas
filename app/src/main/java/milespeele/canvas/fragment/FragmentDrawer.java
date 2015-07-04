@@ -38,6 +38,8 @@ public class FragmentDrawer extends Fragment {
         // TO DO
     }
 
-    public void changeColor(int color) { drawer.changeColor(color); }
+    public void changeColor(int color) {
+        drawer.changeColor(color);
+    }
 
 }

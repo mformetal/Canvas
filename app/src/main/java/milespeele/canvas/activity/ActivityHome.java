@@ -10,13 +10,13 @@ import milespeele.canvas.R;
 import milespeele.canvas.fragment.FragmentColorPicker;
 import milespeele.canvas.fragment.FragmentDrawer;
 import milespeele.canvas.fragment.FragmentListener;
-import milespeele.canvas.util.Logger;
 
 
 public class ActivityHome extends AppCompatActivity
     implements FragmentListener {
 
     private final static String TAG_FRAGMENTDRAWER = "fragd";
+    private final static String TAG_FRAGMENTCOLOR = "color";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,12 +80,11 @@ public class ActivityHome extends AppCompatActivity
 
     private void showColorPicker() {
         FragmentColorPicker picker = FragmentColorPicker.newInstance();
-        picker.show(getFragmentManager(), "TEST");
+        picker.show(getFragmentManager(), TAG_FRAGMENTCOLOR);
     }
 
     @Override
     public void onColorChosen(int color) {
-        Logger.log("CHOSEN COLOR: " + color);
         if (color != -1) {
             tellFragmentToChangeColor(color);
         }

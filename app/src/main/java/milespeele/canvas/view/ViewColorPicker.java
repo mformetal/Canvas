@@ -3,6 +3,7 @@ package milespeele.canvas.view;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BlurMaskFilter;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.ComposeShader;
@@ -267,6 +268,7 @@ public class ViewColorPicker extends View {
         ComposeShader composeShader = new ComposeShader(sweepGradient, radialGradient, PorterDuff.Mode.SRC_OVER);
 
         colorWheelPaint.setShader(composeShader);
+        colorWheelPaint.setMaskFilter(new BlurMaskFilter(5, BlurMaskFilter.Blur.NORMAL));
 
         Canvas canvas = new Canvas(bitmap);
         canvas.drawCircle(width / 2, height / 2, colorWheelRadius, colorWheelPaint);

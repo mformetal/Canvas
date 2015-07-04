@@ -10,6 +10,7 @@
         <item name="titleTextStyle">@style/LightRedActionBarTextStyle</item>
         <item name="android:background"  tools:ignore="NewApi">@color/primaryColor</item>
         <item name="background">@color/primaryColor</item>
+        <item name="windowActionBarOverlay">true</item>
     </style>
 
     <style name="LightRedActionBarTextStyle" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
