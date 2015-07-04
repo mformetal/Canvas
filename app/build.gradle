@@ -25,4 +25,6 @@ dependencies {
     provided 'org.glassfish:javax.annotation:10.0-b28'
     compile 'com.google.dagger:dagger:2.0'
     compile 'com.jakewharton:butterknife:6.1.0'
+    compile 'com.parse.bolts:bolts-android:1.+'
+    compile fileTree(dir: 'libs', include: '*.jar')
 }

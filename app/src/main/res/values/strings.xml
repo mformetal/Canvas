@@ -1,8 +1,10 @@
 <resources>
     <string name="app_name">Canvas</string>
-    <string name="start_new">New</string>
-    <string name="brush">Brush</string>
-    <string name="erase">Erase</string>
-    <string name="save">Save</string>
-    <string name="paint">Paint</string>
+    <string name="parse_application_id">QE5ZD9Q1OkUXhR3S7dRea1ubKIYA60LUrGUOgOfv</string>
+    <string name="parse_client_key">mbBzw87p4hrBgtIOSsX3WTSSV4CkXHgG7bNU96aR</string>
+
+    <string-array name="activity_home_drawer_choices">
+        <item>Color</item>
+        <item>Save</item>
+    </string-array>
 </resources>

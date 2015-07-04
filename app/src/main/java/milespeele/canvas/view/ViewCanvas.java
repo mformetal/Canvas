@@ -13,7 +13,7 @@ import android.view.View;
 /**
  * Created by milespeele on 7/2/15.
  */
-public class DrawingView extends View {
+public class ViewCanvas extends View {
 
     public int width;
     public int height;
@@ -25,14 +25,12 @@ public class DrawingView extends View {
     private float mX, mY;
     private static final float TOLERANCE = 5;
 
-    public DrawingView(Context c, AttributeSet attrs) {
+    public ViewCanvas(Context c, AttributeSet attrs) {
         super(c, attrs);
         context = c;
 
-        // we set a new Path
         mPath = new Path();
 
-        // and we set a new Paint with the desired attributes
         mPaint = new Paint();
         mPaint.setAntiAlias(true);
         mPaint.setColor(Color.BLACK);
@@ -41,32 +39,27 @@ public class DrawingView extends View {
         mPaint.setStrokeWidth(4f);
     }
 
-    // override onSizeChanged
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-
-        // your Canvas will draw onto the defined Bitmap
+        width = w;
+        height = h;
         mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
         mCanvas = new Canvas(mBitmap);
     }
 
-    // override onDraw
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        // draw the mPath with the mPaint on the canvas when onDraw
         canvas.drawPath(mPath, mPaint);
     }
 
-    // when ACTION_DOWN start touch according to the x,y values
     private void startTouch(float x, float y) {
         mPath.moveTo(x, y);
         mX = x;
         mY = y;
     }
 
-    // when ACTION_MOVE move touch according to the x,y values
     private void moveTouch(float x, float y) {
         float dx = Math.abs(x - mX);
         float dy = Math.abs(y - mY);
@@ -82,12 +75,14 @@ public class DrawingView extends View {
         invalidate();
     }
 
-    // when ACTION_UP stop touch
+    public void changeColor(int color) {
+        mPaint.setColor(color);
+    }
+
     private void upTouch() {
         mPath.lineTo(mX, mY);
     }
 
-    //override the onTouchEvent
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         float x = event.getX();
