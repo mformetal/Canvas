@@ -1,14 +1,20 @@
 package milespeele.canvas.view;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
+
+import java.util.ArrayList;
+
+import milespeele.canvas.util.Logger;
 
 /**
  * Created by milespeele on 7/2/15.
@@ -19,33 +25,52 @@ public class ViewCanvas extends View {
     private static final float HALF_STROKE_WIDTH = STROKE_WIDTH / 2;
 
     private Paint paint = new Paint();
-    private Path path = new Path();
+    private Bitmap mBitmap;
+    private Canvas mCanvas;
+    private PaintPath mPath;
     private float lastTouchX;
     private float lastTouchY;
+    private Matrix scaleMatrix;
     private final RectF dirtyRect = new RectF();
+    private ArrayList<PaintPath> mPaths;
+    private int currentColor;
 
     public ViewCanvas(Context context, AttributeSet attrs) {
         super(context, attrs);
 
+        currentColor = Color.BLACK;
+
         paint.setAntiAlias(true);
-        paint.setColor(Color.BLACK);
+        paint.setColor(currentColor);
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeJoin(Paint.Join.ROUND);
         paint.setStrokeWidth(STROKE_WIDTH);
+
+        scaleMatrix = new Matrix();
+
+        mPath = new PaintPath(paint);
+
+        mPaths = new ArrayList<>();
+        mPaths.add(mPath);
     }
 
-    public void clearCanvas() {
-        path.reset();
-        invalidate();
-    }
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
 
-    public void changeColor(int color) {
-        paint.setColor(color);
+        scaleMatrix.reset();
+        scaleMatrix.setScale(w, h);
+
+        mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+        mCanvas = new Canvas(mBitmap);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
-        canvas.drawPath(path, paint);
+        super.onDraw(canvas);
+        for (PaintPath p: mPaths) {
+            canvas.drawPath(p, p.getPaint());
+        }
     }
 
     @Override
@@ -86,14 +111,14 @@ public class ViewCanvas extends View {
             float historicalX = event.getHistoricalX(i);
             float historicalY = event.getHistoricalY(i);
             expandDirtyRect(historicalX, historicalY);
-            path.lineTo(historicalX, historicalY);
+            mPath.lineTo(historicalX, historicalY);
         }
 
-        path.lineTo(eventX, eventY);
+        mPath.lineTo(eventX, eventY);
     }
 
     private void onTouchDown(float eventX, float eventY) {
-        path.moveTo(eventX, eventY);
+        mPath.moveTo(eventX, eventY);
         lastTouchX = eventX;
         lastTouchY = eventY;
     }
@@ -116,5 +141,67 @@ public class ViewCanvas extends View {
         dirtyRect.right = Math.max(lastTouchX, eventX);
         dirtyRect.top = Math.min(lastTouchY, eventY);
         dirtyRect.bottom = Math.max(lastTouchY, eventY);
+    }
+
+    public void clearCanvas() {
+        for (PaintPath p: mPaths) {
+            p.reset();
+        }
+        mPaths.clear();
+        invalidate();
+    }
+
+    public void changeColor(int color) {
+        currentColor = color;
+        mPath = new PaintPath(generatePaintWithColor(currentColor));
+        mPaths.add(mPath);
+    }
+
+    private PaintPath getLatestPath() {
+        if (mPaths.size() > 1) {
+            return mPaths.get(mPaths.size() - 1);
+        } else if (mPaths.size() == 1) {
+            return mPaths.get(0);
+        } else {
+            return null;
+        }
+    }
+
+    public void undo() {
+        Logger.log("PATHS: " + mPaths.size());
+        PaintPath path = getLatestPath();
+        if (path != null) {
+            path.reset();
+            mPaths.remove(path);
+            invalidate();
+        }
+
+        if (mPaths.isEmpty()) {
+            mPath = new PaintPath(generatePaintWithColor(currentColor));
+            mPaths.add(mPath);
+        }
+    }
+
+    private Paint generatePaintWithColor(int color) {
+        Paint mPaint = new Paint();
+        mPaint.setAntiAlias(true);
+        mPaint.setStyle(Paint.Style.STROKE);
+        mPaint.setStrokeJoin(Paint.Join.ROUND);
+        mPaint.setColor(color);
+        mPaint.setStrokeWidth(4f);
+        return mPaint;
+    }
+
+    private class PaintPath extends Path {
+
+        private Paint paint;
+
+        public PaintPath(Paint paint) {
+            this.paint = paint;
+        }
+
+        public Paint getPaint() {
+            return paint;
+        }
     }
 }

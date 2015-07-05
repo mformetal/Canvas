@@ -43,7 +43,7 @@ public class FragmentDrawer extends Fragment {
     }
 
     public void undo() {
-        //drawer.undo();
+        drawer.undo();
     }
 
 }
