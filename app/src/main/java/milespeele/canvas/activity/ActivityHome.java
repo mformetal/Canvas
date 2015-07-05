@@ -5,11 +5,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import javax.inject.Inject;
+
 import butterknife.ButterKnife;
+import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
 import milespeele.canvas.fragment.FragmentColorPicker;
 import milespeele.canvas.fragment.FragmentDrawer;
 import milespeele.canvas.fragment.FragmentListener;
+import milespeele.canvas.util.ParseUtils;
 
 
 public class ActivityHome extends AppCompatActivity
@@ -18,13 +22,19 @@ public class ActivityHome extends AppCompatActivity
     private final static String TAG_FRAGMENTDRAWER = "fragd";
     private final static String TAG_FRAGMENTCOLOR = "color";
 
+    @Inject ParseUtils parseUtils;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         ButterKnife.inject(this);
 
+        ((MainApp) getApplication()).getApplicationComponent().inject(this);
+
         addDrawerFragment();
+
+        parseUtils.checkActiveUser();
     }
 
     @Override

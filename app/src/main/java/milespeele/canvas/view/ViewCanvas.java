@@ -26,7 +26,7 @@ public class ViewCanvas extends View {
     private static final float TOLERANCE = 5;
     private ArrayList<PaintPath> mPaths;
     private Matrix scaleMatrix;
-    LruCache<String, ArrayList<PaintPath>> mMemoryCache;
+    private LruCache<String, ArrayList<PaintPath>> mMemoryCache;
 
     public ViewCanvas(Context c, AttributeSet attrs) {
         super(c, attrs);

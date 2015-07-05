@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.stanfy.android.apt'
 
 android {
     compileSdkVersion 22
