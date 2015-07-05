@@ -7,13 +7,13 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.os.Parcelable;
 import android.util.AttributeSet;
+import android.util.LruCache;
 import android.view.MotionEvent;
 import android.view.View;
 
 import java.util.ArrayList;
-
-import milespeele.canvas.util.Logger;
 
 /**
  * Created by milespeele on 7/2/15.
@@ -22,15 +22,14 @@ public class ViewCanvas extends View {
 
     private Bitmap mBitmap;
     private Canvas mCanvas;
-    Context context;
     private float mX, mY;
     private static final float TOLERANCE = 5;
     private ArrayList<PaintPath> mPaths;
     private Matrix scaleMatrix;
+    LruCache<String, Bitmap> mMemoryCache;
 
     public ViewCanvas(Context c, AttributeSet attrs) {
         super(c, attrs);
-        context = c;
 
         scaleMatrix = new Matrix();
 
@@ -52,7 +51,6 @@ public class ViewCanvas extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        Logger.log("SIZE: " + mPaths.size());
         for (PaintPath p: mPaths) {
             canvas.drawPath(p, p.getPaint());
         }
@@ -101,9 +99,14 @@ public class ViewCanvas extends View {
         return true;
     }
 
+    public void changeToEraser() {
+        // TO DO
+    }
+
     public void clearCanvas() {
         for (PaintPath p: mPaths) {
             p.reset();
+            mPaths.remove(p);
         }
         invalidate();
     }
@@ -126,6 +129,33 @@ public class ViewCanvas extends View {
         return mPaint;
     }
 
+    @Override
+    protected Parcelable onSaveInstanceState() {
+        final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
+
+        // Use 1/8th of the available memory for this memory cache.
+        final int cacheSize = maxMemory / 8;
+
+        mMemoryCache = new LruCache<String, Bitmap>(cacheSize) {
+            @Override
+            protected int sizeOf(String key, Bitmap bitmap) {
+                // The cache size will be measured in kilobytes rather than
+                // number of items.
+                return bitmap.getByteCount() / 1024;
+            }
+        };
+        mMemoryCache.put("test", mBitmap);
+        return super.onSaveInstanceState();
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Parcelable state) {
+        mBitmap = mMemoryCache.get("test");
+        mCanvas = new Canvas(mBitmap);
+        mCanvas.drawBitmap(mBitmap, scaleMatrix, new Paint(Color.BLACK));
+        super.onRestoreInstanceState(state);
+    }
+
     private class PaintPath extends Path {
 
         private Paint paint;
@@ -137,5 +167,7 @@ public class ViewCanvas extends View {
         public Paint getPaint() {
             return paint;
         }
+
+        public int getColor() { return paint.getColor(); }
     }
 }

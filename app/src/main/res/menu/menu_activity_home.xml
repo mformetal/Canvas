@@ -11,12 +11,6 @@
         app:showAsAction="ifRoom" />
 
     <item
-        android:id="@+id/menu_activity_home_erase"
-        android:title="Erase"
-        android:icon="@drawable/ic_label_black_18dp"
-        app:showAsAction="ifRoom" />
-
-    <item
         android:id="@+id/menu_activity_home_pick_color"
         android:title="Choose Color"
         android:icon="@drawable/ic_color_lens_white_18dp"

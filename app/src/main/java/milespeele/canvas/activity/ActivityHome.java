@@ -40,10 +40,6 @@ public class ActivityHome extends AppCompatActivity
                 tellFragmentToClearCanvas();
                 break;
 
-            case R.id.menu_activity_home_erase:
-                tellFragmentToStartErasing();
-                break;
-
             case R.id.menu_activity_home_pick_color:
                 showColorPicker();
                 break;
