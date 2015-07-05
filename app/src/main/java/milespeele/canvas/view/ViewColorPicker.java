@@ -249,7 +249,6 @@ public class ViewColorPicker extends View {
     }
 
     private Bitmap createColorWheelBitmap(int width, int height) {
-
         Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
 
         int colorCount = 12;
@@ -268,7 +267,7 @@ public class ViewColorPicker extends View {
         ComposeShader composeShader = new ComposeShader(sweepGradient, radialGradient, PorterDuff.Mode.SRC_OVER);
 
         colorWheelPaint.setShader(composeShader);
-        colorWheelPaint.setMaskFilter(new BlurMaskFilter(5, BlurMaskFilter.Blur.NORMAL));
+        colorWheelPaint.setMaskFilter(new BlurMaskFilter(3, BlurMaskFilter.Blur.NORMAL));
 
         Canvas canvas = new Canvas(bitmap);
         canvas.drawCircle(width / 2, height / 2, colorWheelRadius, colorWheelPaint);

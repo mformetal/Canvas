@@ -4,8 +4,10 @@ import android.app.Application;
 
 import com.parse.FindCallback;
 import com.parse.ParseException;
+import com.parse.ParseFile;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 import com.parse.SignUpCallback;
 
 import java.util.List;
@@ -14,6 +16,8 @@ import java.util.UUID;
 import javax.inject.Inject;
 
 import milespeele.canvas.MainApp;
+import milespeele.canvas.activity.ActivityHome;
+import milespeele.canvas.model.Masterpiece;
 
 /**
  * Created by milespeele on 7/4/15.
@@ -63,6 +67,43 @@ public class ParseUtils {
                     ParseErrorHandler.handleParseError(e);
                 }
             }
+        });
+    }
+
+    public void saveImage(ActivityHome activity, byte[] result) {
+        final ParseFile photoFile = new ParseFile(ParseUser.getCurrentUser().getUsername(), result);
+        photoFile.saveInBackground(new SaveCallback() {
+
+            @Override
+            public void done(ParseException e) {
+                if (e == null) {
+                    final Masterpiece art = new Masterpiece();
+                    art.setImage(photoFile);
+                    art.saveEventually(new SaveCallback() {
+                        @Override
+                        public void done(ParseException e) {
+                            if (e == null) {
+                                ParseUser.getCurrentUser().getRelation("Masterpieces").add(art);
+                                ParseUser.getCurrentUser().saveEventually(new SaveCallback() {
+                                    @Override
+                                    public void done(ParseException e) {
+                                        if (e == null) {
+                                            Logger.log("SAVED ART AND USER");
+                                        } else {
+                                            ParseErrorHandler.handleParseError(e);
+                                        }
+                                    }
+                                });
+                            } else {
+                                ParseErrorHandler.handleParseError(e);
+                            }
+                        }
+                    });
+                } else {
+                    ParseErrorHandler.handleParseError(e);
+                }
+            }
+
         });
     }
 }

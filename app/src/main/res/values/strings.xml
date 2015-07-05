@@ -6,4 +6,5 @@
     <string name="menu_activity_home_trash">Clear Canvas</string>
     <string name="menu_activity_home_color">Change Color</string>
     <string name="menu_activity_home_undo">Undo Last Action</string>
+    <string name="menu_activity_home_save">Save Masterpiece</string>
 </resources>

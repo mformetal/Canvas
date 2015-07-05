@@ -2,6 +2,7 @@ package milespeele.canvas.fragment;
 
 
 import android.app.Fragment;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,6 +37,10 @@ public class FragmentDrawer extends Fragment {
 
     public void startErasing() {
         //drawer.changeToEraser();
+    }
+
+    public Bitmap giveBitmapToActivity() {
+        return drawer.getBitmap();
     }
 
     public void changeColor(int color) {

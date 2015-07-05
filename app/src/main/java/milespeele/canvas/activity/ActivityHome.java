@@ -1,5 +1,7 @@
 package milespeele.canvas.activity;
 
+import android.graphics.Bitmap;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -10,6 +12,7 @@ import javax.inject.Inject;
 import butterknife.ButterKnife;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
+import milespeele.canvas.asynctask.AsyncSave;
 import milespeele.canvas.fragment.FragmentColorPicker;
 import milespeele.canvas.fragment.FragmentDrawer;
 import milespeele.canvas.fragment.FragmentListener;
@@ -57,8 +60,21 @@ public class ActivityHome extends AppCompatActivity
             case R.id.menu_activity_home_undo:
                 tellFragmentToUndo();
                 break;
+
+            case R.id.menu_activity_home_save:
+                saveImage();
+                break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void saveImage() {
+        FragmentDrawer frag = (FragmentDrawer) getFragmentManager().findFragmentByTag(TAG_FRAGMENTDRAWER);
+        if (frag != null) {
+            Bitmap art = frag.giveBitmapToActivity();
+            Integer[] dimens = getScreenDimens();
+            new AsyncSave(this, dimens[0], dimens[1]).execute(art);
+        }
     }
 
     private void tellFragmentToClearCanvas() {
@@ -105,5 +121,13 @@ public class ActivityHome extends AppCompatActivity
         if (color != -1) {
             tellFragmentToChangeColor(color);
         }
+    }
+
+    private Integer[] getScreenDimens() {
+        Point mPoint = new Point();
+        getWindowManager().getDefaultDisplay().getSize(mPoint);
+        int width = mPoint.x;
+        int height = mPoint.y;
+        return new Integer[] {width, height};
     }
 }
