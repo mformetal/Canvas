@@ -35,7 +35,7 @@ public class FragmentDrawer extends Fragment {
     }
 
     public void startErasing() {
-        drawer.changeToEraser();
+        //drawer.changeToEraser();
     }
 
     public void changeColor(int color) {
@@ -43,7 +43,7 @@ public class FragmentDrawer extends Fragment {
     }
 
     public void undo() {
-        drawer.undo();
+        //drawer.undo();
     }
 
 }
