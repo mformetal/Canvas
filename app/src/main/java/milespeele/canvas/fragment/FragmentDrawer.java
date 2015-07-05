@@ -42,4 +42,8 @@ public class FragmentDrawer extends Fragment {
         drawer.changeColor(color);
     }
 
+    public void undo() {
+        drawer.undo();
+    }
+
 }

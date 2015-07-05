@@ -46,25 +46,23 @@ public class ParseUtils {
     }
 
     private void signupNewUser() {
-        if (ParseUser.getCurrentUser() == null) {
-            final String username = UUID.randomUUID().toString();
-            final String password = UUID.randomUUID().toString();
+        final String username = UUID.randomUUID().toString();
+        final String password = UUID.randomUUID().toString();
 
-            final ParseUser user = new ParseUser();
-            user.setUsername(username);
-            user.setPassword(password);
-            user.signUpInBackground(new SignUpCallback() {
-                @Override
-                public void done(ParseException e) {
-                    if (e == null) {
-                        datastore.setUsername(username);
-                        datastore.setPassword(password);
-                        user.pinInBackground(PINNED_USER);
-                    } else {
-                        ParseErrorHandler.handleParseError(e);
-                    }
+        final ParseUser user = new ParseUser();
+        user.setUsername(username);
+        user.setPassword(password);
+        user.signUpInBackground(new SignUpCallback() {
+            @Override
+            public void done(ParseException e) {
+                if (e == null) {
+                    datastore.setUsername(username);
+                    datastore.setPassword(password);
+                    user.pinInBackground(PINNED_USER);
+                } else {
+                    ParseErrorHandler.handleParseError(e);
                 }
-            });
-        }
+            }
+        });
     }
 }

@@ -53,6 +53,10 @@ public class ActivityHome extends AppCompatActivity
             case R.id.menu_activity_home_pick_color:
                 showColorPicker();
                 break;
+
+            case R.id.menu_activity_home_undo:
+                tellFragmentToUndo();
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -75,6 +79,13 @@ public class ActivityHome extends AppCompatActivity
         FragmentDrawer frag = (FragmentDrawer) getFragmentManager().findFragmentByTag(TAG_FRAGMENTDRAWER);
         if (frag != null) {
             frag.startErasing();
+        }
+    }
+
+    private void tellFragmentToUndo() {
+        FragmentDrawer frag = (FragmentDrawer) getFragmentManager().findFragmentByTag(TAG_FRAGMENTDRAWER);
+        if (frag != null) {
+            frag.undo();
         }
     }
 
