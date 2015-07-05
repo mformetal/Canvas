@@ -26,7 +26,7 @@ public class ViewCanvas extends View {
     private static final float TOLERANCE = 5;
     private ArrayList<PaintPath> mPaths;
     private Matrix scaleMatrix;
-    LruCache<String, Bitmap> mMemoryCache;
+    LruCache<String, ArrayList<PaintPath>> mMemoryCache;
 
     public ViewCanvas(Context c, AttributeSet attrs) {
         super(c, attrs);
@@ -136,23 +136,24 @@ public class ViewCanvas extends View {
         // Use 1/8th of the available memory for this memory cache.
         final int cacheSize = maxMemory / 8;
 
-        mMemoryCache = new LruCache<String, Bitmap>(cacheSize) {
+        mMemoryCache = new LruCache<String, ArrayList<PaintPath>>(cacheSize) {
             @Override
-            protected int sizeOf(String key, Bitmap bitmap) {
+            protected int sizeOf(String key, ArrayList<PaintPath> paths) {
                 // The cache size will be measured in kilobytes rather than
                 // number of items.
-                return bitmap.getByteCount() / 1024;
+                return 5000;
             }
         };
-        mMemoryCache.put("test", mBitmap);
+        mMemoryCache.put("test", mPaths);
         return super.onSaveInstanceState();
     }
 
     @Override
     protected void onRestoreInstanceState(Parcelable state) {
-        mBitmap = mMemoryCache.get("test");
-        mCanvas = new Canvas(mBitmap);
-        mCanvas.drawBitmap(mBitmap, scaleMatrix, new Paint(Color.BLACK));
+        mPaths = mMemoryCache.get("test");
+        for (PaintPath p: mPaths) {
+            mCanvas.drawPath(p, p.getPaint());
+        }
         super.onRestoreInstanceState(state);
     }
 
