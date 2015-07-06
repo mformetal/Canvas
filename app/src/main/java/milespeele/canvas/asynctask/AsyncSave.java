@@ -62,9 +62,6 @@ public class AsyncSave extends AsyncTask<Bitmap, Void, byte[]> {
     @Override
     protected void onPostExecute(byte[] result) {
         super.onPostExecute(result);
-        ActivityHome activity = weakCxt.get();
-        if (activity != null) {
-            parseUtils.saveImage(activity, result);
-        }
+        parseUtils.saveImage(weakCxt, result);
     }
 }

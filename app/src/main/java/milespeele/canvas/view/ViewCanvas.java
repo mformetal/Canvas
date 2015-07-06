@@ -17,6 +17,8 @@ import android.view.View;
 
 import java.util.ArrayList;
 
+import milespeele.canvas.util.Logger;
+
 /**
  * Created by milespeele on 7/2/15.
  */
@@ -25,7 +27,6 @@ public class ViewCanvas extends View {
     private static float STROKE_WIDTH = 5f;
     private static float HALF_STROKE_WIDTH = STROKE_WIDTH / 2;
 
-    private LruCache<String, Bitmap> mMemoryCache;
     private final static String BITMAP_KEY = "bitmap";
 
     private Paint mPaint;
@@ -58,16 +59,6 @@ public class ViewCanvas extends View {
         mPaths = new ArrayList<>();
         mPaths.add(mPath);
         setDrawingCacheEnabled(true);
-
-        final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
-        final int cacheSize = maxMemory / 8;
-
-        mMemoryCache = new LruCache<String, Bitmap>(cacheSize) {
-            @Override
-            protected int sizeOf(String key, Bitmap bitmap) {
-                return bitmap.getByteCount() / 1024;
-            }
-        };
     }
 
     @Override
@@ -79,6 +70,9 @@ public class ViewCanvas extends View {
 
         mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
         mCanvas = new Canvas(mBitmap);
+        for (PaintPath p : mPaths) {
+            mCanvas.drawPath(p, p.getPaint());
+        }
     }
 
     @Override
@@ -87,7 +81,7 @@ public class ViewCanvas extends View {
         for (PaintPath p: mPaths) {
             canvas.drawPath(p, p.getPaint());
         }
-        canvas.drawBitmap(mBitmap, 0, 0, mPaint);
+        canvas.drawBitmap(mBitmap, scaleMatrix, null);
     }
 
     @Override
@@ -187,7 +181,7 @@ public class ViewCanvas extends View {
     }
 
     public Bitmap getBitmap() {
-        return mBitmap;
+        return getDrawingCache();
     }
 
     public void undo() {
@@ -212,15 +206,11 @@ public class ViewCanvas extends View {
 
     @Override
     protected void onRestoreInstanceState(Parcelable state) {
-        if (state instanceof Bundle) {
-            Bundle bundle = (Bundle) state;
-            mBitmap = bundle.getParcelable(BITMAP_KEY);
-            mCanvas = new Canvas(mBitmap);
-            mCanvas.drawBitmap(mBitmap, 0, 0, mPaint);
-            super.onRestoreInstanceState(bundle.getParcelable("super"));
-        } else {
-            super.onRestoreInstanceState(state);
-        }
+        Bundle bundle = (Bundle) state;
+        super.onRestoreInstanceState(bundle.getParcelable("super"));
+        mBitmap = bundle.getParcelable(BITMAP_KEY);
+        mCanvas = new Canvas(mBitmap);
+        mCanvas.drawBitmap(mBitmap, 0, 0, mPaint);
     }
 
     private Paint generatePaintWithColor(int color) {

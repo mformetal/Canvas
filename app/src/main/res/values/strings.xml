@@ -3,8 +3,12 @@
     <string name="parse_application_id">QE5ZD9Q1OkUXhR3S7dRea1ubKIYA60LUrGUOgOfv</string>
     <string name="parse_client_key">mbBzw87p4hrBgtIOSsX3WTSSV4CkXHgG7bNU96aR</string>
 
-    <string name="menu_activity_home_trash">Clear Canvas</string>
-    <string name="menu_activity_home_color">Change Color</string>
-    <string name="menu_activity_home_undo">Undo Last Action</string>
-    <string name="menu_activity_home_save">Save Masterpiece</string>
+    <string name="menu_drawer_items_gallery">Gallery</string>
+    <string name="menu_drawer_items_canvas_options">Canvas Options</string>
+    <string name="menu_drawer_items_canvas_options_save">Save Canvas</string>
+    <string name="menu_drawer_items_canvas_options_color">Change Color</string>
+    <string name="menu_drawer_items_canvas_options_erase">Erase Canvas</string>
+    <string name="menu_drawer_items_canvas_options_undo">Undo</string>
+
+    <string name="navigation_header_text">Welcome Home.</string>
 </resources>

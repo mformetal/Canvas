@@ -1,6 +1,7 @@
 package milespeele.canvas.util;
 
 import android.app.Application;
+import android.widget.Toast;
 
 import com.parse.FindCallback;
 import com.parse.ParseException;
@@ -10,6 +11,7 @@ import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.parse.SignUpCallback;
 
+import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.UUID;
 
@@ -70,7 +72,7 @@ public class ParseUtils {
         });
     }
 
-    public void saveImage(ActivityHome activity, byte[] result) {
+    public void saveImage(final WeakReference<ActivityHome> weakCxt, byte[] result) {
         final ParseFile photoFile = new ParseFile(ParseUser.getCurrentUser().getUsername(), result);
         photoFile.saveInBackground(new SaveCallback() {
 
@@ -88,7 +90,12 @@ public class ParseUtils {
                                     @Override
                                     public void done(ParseException e) {
                                         if (e == null) {
-                                            Logger.log("SAVED ART AND USER");
+                                            ActivityHome activityHome = weakCxt.get();
+                                            if (activityHome != null) {
+                                                Toast.makeText(activityHome,
+                                                        "Saved :)",
+                                                        Toast.LENGTH_SHORT).show();
+                                            }
                                         } else {
                                             ParseErrorHandler.handleParseError(e);
                                         }
