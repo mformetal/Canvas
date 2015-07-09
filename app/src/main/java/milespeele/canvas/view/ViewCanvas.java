@@ -3,7 +3,6 @@ package milespeele.canvas.view;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.RectF;
@@ -31,37 +30,40 @@ public class ViewCanvas extends View {
     private Paint mPaint;
     private Bitmap mBitmap;
     private Canvas mCanvas;
-    private PaintPath mPath;
     private float lastTouchX, lastTouchY;
     private Matrix scaleMatrix;
     private final RectF dirtyRect = new RectF();
+    private PaintPath mPath;
     private Stack<PaintPath> mPaths;
-    private int currentColor;
+
+    private int width, height;
 
     public ViewCanvas(Context context, AttributeSet attrs) {
         super(context, attrs);
 
-        currentColor = Color.BLACK;
-
         mPaint = new Paint();
         mPaint.setAntiAlias(true);
-        mPaint.setColor(currentColor);
+        mPaint.setColor(mPaint.getColor());
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setStrokeJoin(Paint.Join.ROUND);
         mPaint.setStrokeWidth(STROKE_WIDTH);
 
         scaleMatrix = new Matrix();
 
-        mPath = new PaintPath(currentColor);
+        mPath = new PaintPath(mPaint.getColor());
 
         mPaths = new Stack<>();
         mPaths.push(mPath);
+
         setDrawingCacheEnabled(true);
     }
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
+
+        width = w;
+        height = h;
 
         scaleMatrix.reset();
         scaleMatrix.setScale(w, h);
@@ -88,10 +90,11 @@ public class ViewCanvas extends View {
     public boolean onTouchEvent(MotionEvent event) {
         float eventX = event.getX();
         float eventY = event.getY();
+        float time = event.getDownTime();
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                onTouchDown(eventX, eventY);
+                onTouchDown(eventX, eventY, time);
                 return true;
 
             case MotionEvent.ACTION_MOVE:
@@ -114,8 +117,8 @@ public class ViewCanvas extends View {
         return true;
     }
 
-    private void onTouchDown(float eventX, float eventY) {
-        mPath = new PaintPath(currentColor);
+    private void onTouchDown(float eventX, float eventY, float time) {
+        mPath = new PaintPath(mPaint.getColor());
         mPaths.push(mPath);
         mPath.moveTo(eventX, eventY);
         lastTouchX = eventX;
@@ -162,13 +165,22 @@ public class ViewCanvas extends View {
         }
         mPaths.clear();
         invalidate();
-        mPath = new PaintPath(currentColor);
+
+        mBitmap.recycle();
+        mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        mCanvas = new Canvas(mBitmap);
+        for (PaintPath p : mPaths) {
+            mPaint.setColor(p.getColor());
+            mCanvas.drawPath(p, mPaint);
+        }
+
+        mPath = new PaintPath(mPaint.getColor());
         mPaths.push(mPath);
     }
 
     public void changeColor(int color) {
-        currentColor = color;
-        mPath = new PaintPath(currentColor);
+        mPaint.setColor(color);
+        mPath = new PaintPath(mPaint.getColor());
         mPaths.push(mPath);
     }
 
@@ -208,15 +220,5 @@ public class ViewCanvas extends View {
         mBitmap = bundle.getParcelable(BITMAP_KEY);
         mCanvas = new Canvas(mBitmap);
         mCanvas.drawBitmap(mBitmap, 0, 0, mPaint);
-    }
-
-    private Paint generatePaintWithColor(int color) {
-        Paint mPaint = new Paint();
-        mPaint.setAntiAlias(true);
-        mPaint.setStyle(Paint.Style.STROKE);
-        mPaint.setStrokeJoin(Paint.Join.ROUND);
-        mPaint.setColor(color);
-        mPaint.setStrokeWidth(STROKE_WIDTH);
-        return mPaint;
     }
 }

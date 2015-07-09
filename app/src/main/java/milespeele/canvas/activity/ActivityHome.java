@@ -54,6 +54,7 @@ public class ActivityHome extends AppCompatActivity
 
         parseUtils.checkActiveUser();
 
+        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
         setupDrawerContent(navigationView);
     }
 
@@ -103,6 +104,7 @@ public class ActivityHome extends AppCompatActivity
                 tellFragmentToClearCanvas();
                 break;
         }
+        drawerLayout.closeDrawer(GravityCompat.START);
     }
 
     private void saveImage() {
