@@ -6,7 +6,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.graphics.RectF;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -14,7 +13,10 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
-import java.util.ArrayList;
+import java.util.EmptyStackException;
+import java.util.Stack;
+
+import milespeele.canvas.viewutils.PaintPath;
 
 /**
  * Created by milespeele on 7/2/15.
@@ -33,7 +35,7 @@ public class ViewCanvas extends View {
     private float lastTouchX, lastTouchY;
     private Matrix scaleMatrix;
     private final RectF dirtyRect = new RectF();
-    private ArrayList<PaintPath> mPaths;
+    private Stack<PaintPath> mPaths;
     private int currentColor;
 
     public ViewCanvas(Context context, AttributeSet attrs) {
@@ -50,10 +52,10 @@ public class ViewCanvas extends View {
 
         scaleMatrix = new Matrix();
 
-        mPath = new PaintPath(mPaint);
+        mPath = new PaintPath(currentColor);
 
-        mPaths = new ArrayList<>();
-        mPaths.add(mPath);
+        mPaths = new Stack<>();
+        mPaths.push(mPath);
         setDrawingCacheEnabled(true);
     }
 
@@ -67,7 +69,8 @@ public class ViewCanvas extends View {
         mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
         mCanvas = new Canvas(mBitmap);
         for (PaintPath p : mPaths) {
-            mCanvas.drawPath(p, p.getPaint());
+            mPaint.setColor(p.getColor());
+            mCanvas.drawPath(p, mPaint);
         }
     }
 
@@ -75,7 +78,8 @@ public class ViewCanvas extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         for (PaintPath p: mPaths) {
-            canvas.drawPath(p, p.getPaint());
+            mPaint.setColor(p.getColor());
+            canvas.drawPath(p, mPaint);
         }
         canvas.drawBitmap(mBitmap, scaleMatrix, null);
     }
@@ -110,6 +114,14 @@ public class ViewCanvas extends View {
         return true;
     }
 
+    private void onTouchDown(float eventX, float eventY) {
+        mPath = new PaintPath(currentColor);
+        mPaths.push(mPath);
+        mPath.moveTo(eventX, eventY);
+        lastTouchX = eventX;
+        lastTouchY = eventY;
+    }
+
     private void onTouchUp(MotionEvent event, float eventX, float eventY) {
         resetDirtyRect(eventX, eventY);
 
@@ -122,12 +134,6 @@ public class ViewCanvas extends View {
         }
 
         mPath.lineTo(eventX, eventY);
-    }
-
-    private void onTouchDown(float eventX, float eventY) {
-        mPath.moveTo(eventX, eventY);
-        lastTouchX = eventX;
-        lastTouchY = eventY;
     }
 
     private void expandDirtyRect(float historicalX, float historicalY) {
@@ -156,22 +162,20 @@ public class ViewCanvas extends View {
         }
         mPaths.clear();
         invalidate();
-        mPath = new PaintPath(generatePaintWithColor(currentColor));
-        mPaths.add(mPath);
+        mPath = new PaintPath(currentColor);
+        mPaths.push(mPath);
     }
 
     public void changeColor(int color) {
         currentColor = color;
-        mPath = new PaintPath(generatePaintWithColor(currentColor));
-        mPaths.add(mPath);
+        mPath = new PaintPath(currentColor);
+        mPaths.push(mPath);
     }
 
     private PaintPath getLatestPath() {
-        if (mPaths.size() > 1) {
-            return mPaths.get(mPaths.size() - 1);
-        } else if (mPaths.size() == 1) {
-            return mPaths.get(0);
-        } else {
+        try {
+            return mPaths.peek();
+        } catch (EmptyStackException e) {
             return null;
         }
     }
@@ -184,11 +188,8 @@ public class ViewCanvas extends View {
         PaintPath path = getLatestPath();
         if (path != null) {
             path.reset();
-            mPaths.remove(path);
+            mPaths.pop();
             invalidate();
-        } else {
-            mPath = new PaintPath(generatePaintWithColor(currentColor));
-            mPaths.add(mPath);
         }
     }
 
@@ -217,18 +218,5 @@ public class ViewCanvas extends View {
         mPaint.setColor(color);
         mPaint.setStrokeWidth(STROKE_WIDTH);
         return mPaint;
-    }
-
-    private class PaintPath extends Path {
-
-        private Paint paint;
-
-        public PaintPath(Paint paint) {
-            this.paint = paint;
-        }
-
-        public Paint getPaint() {
-            return paint;
-        }
     }
 }
