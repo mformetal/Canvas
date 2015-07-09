@@ -1,7 +1,6 @@
 package milespeele.canvas.activity;
 
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
@@ -10,9 +9,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.style.ForegroundColorSpan;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -26,7 +22,6 @@ import milespeele.canvas.asynctask.AsyncSave;
 import milespeele.canvas.fragment.FragmentColorPicker;
 import milespeele.canvas.fragment.FragmentDrawer;
 import milespeele.canvas.fragment.FragmentListener;
-import milespeele.canvas.util.Logger;
 import milespeele.canvas.util.ParseUtils;
 
 
@@ -108,11 +103,10 @@ public class ActivityHome extends AppCompatActivity
                 tellFragmentToClearCanvas();
                 break;
         }
-        // GET FEEDBACK ON DRAWER AUTO-CLOSING
-        //drawerLayout.closeDrawer(GravityCompat.START);
     }
 
     private void saveImage() {
+        // SHOW DIALOG FIRST
         FragmentDrawer frag = (FragmentDrawer) getFragmentManager().findFragmentByTag(TAG_FRAGMENT_DRAWER);
         if (frag != null) {
             Bitmap art = frag.giveBitmapToActivity();

@@ -11,13 +11,10 @@ import android.graphics.RectF;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.AttributeSet;
-import android.util.LruCache;
 import android.view.MotionEvent;
 import android.view.View;
 
 import java.util.ArrayList;
-
-import milespeele.canvas.util.Logger;
 
 /**
  * Created by milespeele on 7/2/15.
@@ -33,8 +30,7 @@ public class ViewCanvas extends View {
     private Bitmap mBitmap;
     private Canvas mCanvas;
     private PaintPath mPath;
-    private float lastTouchX;
-    private float lastTouchY;
+    private float lastTouchX, lastTouchY;
     private Matrix scaleMatrix;
     private final RectF dirtyRect = new RectF();
     private ArrayList<PaintPath> mPaths;
@@ -200,7 +196,7 @@ public class ViewCanvas extends View {
     protected Parcelable onSaveInstanceState() {
         Bundle state = new Bundle();
         state.putParcelable("super", super.onSaveInstanceState());
-        state.putParcelable(BITMAP_KEY, mBitmap);
+        state.putParcelable(BITMAP_KEY, getDrawingCache());
         return state;
     }
 

@@ -4,6 +4,8 @@ package milespeele.canvas.fragment;
 import android.app.Fragment;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +18,8 @@ import milespeele.canvas.view.ViewCanvas;
 public class FragmentDrawer extends Fragment {
 
     @InjectView(R.id.fragment_drawer_canvas) ViewCanvas drawer;
+    @InjectView(R.id.fragment_drawer_fab) FloatingActionButton showPalette;
+    @InjectView(R.id.fragment_drawer_coordinator) CoordinatorLayout parent;
 
     public FragmentDrawer() {}
 
@@ -50,5 +54,4 @@ public class FragmentDrawer extends Fragment {
     public void undo() {
         drawer.undo();
     }
-
 }
