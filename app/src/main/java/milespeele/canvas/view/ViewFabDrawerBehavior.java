@@ -1,6 +1,7 @@
 package milespeele.canvas.view;
 
 import android.content.Context;
+import android.os.Handler;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.MotionEventCompat;
@@ -19,6 +20,8 @@ public class ViewFabDrawerBehavior extends FloatingActionButton.Behavior {
 
     private boolean mIsAnimatingOut;
     private boolean mIsAnimatingIn;
+    private boolean mIsMoving;
+    private final static int MOVING_DELAY = 600;
 
     private final static Interpolator INTERPOLATOR = new BounceInterpolator();
 
@@ -26,21 +29,37 @@ public class ViewFabDrawerBehavior extends FloatingActionButton.Behavior {
         super();
     }
 
+    private static final Handler handler = new Handler();
+
     @Override
     public boolean onInterceptTouchEvent (CoordinatorLayout parent, FloatingActionButton child, MotionEvent ev) {
         final int action = MotionEventCompat.getActionMasked(ev);
         switch (action) {
             case MotionEvent.ACTION_MOVE:
-                animateOut(child);
+                mIsMoving = true;
+                ifStillMoving(child);
                 break;
             case MotionEvent.ACTION_UP:
+                mIsMoving = false;
                 animateIn(child);
                 break;
             case MotionEvent.ACTION_CANCEL:
+                mIsMoving = false;
                 animateIn(child);
                 break;
         }
         return false;
+    }
+
+    private void ifStillMoving(final FloatingActionButton child) {
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (mIsMoving) {
+                    animateOut(child);
+                }
+            }
+        }, MOVING_DELAY);
     }
 
     private void animateOut(final FloatingActionButton button) {
@@ -91,5 +110,4 @@ public class ViewFabDrawerBehavior extends FloatingActionButton.Behavior {
                 })
                 .start();
     }
-
 }

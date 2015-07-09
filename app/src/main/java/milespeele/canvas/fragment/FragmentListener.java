@@ -6,4 +6,6 @@ package milespeele.canvas.fragment;
 public interface FragmentListener {
 
     void onColorChosen(int color);
+
+    void onPaletteClicked();
 }

@@ -17,7 +17,11 @@
         android:layout_height="wrap_content"
         android:layout_gravity="end|bottom"
         android:src="@drawable/ic_color_lens_white_48dp"
+        android:layout_margin="@dimen/fab_margin"
+        app:rippleColor="@color/primary_dark"
         app:fabSize="normal"
+        app:layout_anchor="@id/fragment_drawer_canvas"
+        app:layout_anchorGravity="bottom|right|end"
         app:layout_behavior="milespeele.canvas.view.ViewFabDrawerBehavior" />
 
 </android.support.design.widget.CoordinatorLayout>

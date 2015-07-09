@@ -162,6 +162,11 @@ public class ActivityHome extends AppCompatActivity
         }
     }
 
+    @Override
+    public void onPaletteClicked() {
+
+    }
+
     private Integer[] getScreenDimens() {
         Point mPoint = new Point();
         getWindowManager().getDefaultDisplay().getSize(mPoint);
