@@ -25,7 +25,7 @@ public class AsyncSave extends AsyncTask<Bitmap, Void, byte[]> {
 
     public AsyncSave(ActivityHome activity, int screenWidth, int screenHeight) {
         ((MainApp) activity.getApplication()).getApplicationComponent().inject(this);
-        weakCxt = new WeakReference<ActivityHome>(activity);
+        weakCxt = new WeakReference<>(activity);
         this.screenWidth = screenWidth;
         this.screenHeight = screenHeight;
     }

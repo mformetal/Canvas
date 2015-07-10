@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools" >
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat.Light">
         <item name="android:colorPrimary" tools:ignore="NewApi">@color/primary</item>
         <item name="colorPrimary">@color/primary</item>
         <item name="android:colorPrimaryDark" tools:ignore="NewApi">@color/primary_dark</item>
@@ -13,6 +13,12 @@
         <item name="android:textColorSecondary">@color/secondary_text</item>
         <item name="android:divider">@color/divider</item>
         <item name="android:icon">@color/icons</item>
+        <item name="android:windowActionBarOverlay">true</item>
+    </style>
+
+    <style name="DialogAnimation">
+        <item name="android:windowEnterAnimation">@anim/fade_in</item>
+        <item name="android:windowExitAnimation">@anim/fade_out</item>
     </style>
 
 </resources>

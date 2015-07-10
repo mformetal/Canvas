@@ -21,7 +21,7 @@ public class ViewFabDrawerBehavior extends FloatingActionButton.Behavior {
     private boolean mIsAnimatingOut;
     private boolean mIsAnimatingIn;
     private boolean mIsMoving;
-    private final static int MOVING_DELAY = 600;
+    private final static int MOVING_DELAY = 500;
 
     private final static Interpolator INTERPOLATOR = new BounceInterpolator();
 

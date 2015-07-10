@@ -9,26 +9,4 @@
             android:title="@string/menu_drawer_items_gallery" />
     </group>
 
-    <item
-        android:title="@string/menu_drawer_items_canvas_options">
-        <menu>
-            <item
-                android:id="@+id/menu_drawer_color"
-                android:title="@string/menu_drawer_items_canvas_options_color"
-                android:icon="@drawable/ic_color_lens_white_48dp" />
-            <item
-                android:id="@+id/menu_drawer_undo"
-                android:title="@string/menu_drawer_items_canvas_options_undo"
-                android:icon="@drawable/ic_rotate_left_white_48dp" />
-            <item
-                android:id="@+id/menu_drawer_save"
-                android:title="@string/menu_drawer_items_canvas_options_save"
-                android:icon="@drawable/ic_file_download_white_48dp" />
-            <item
-                android:id="@+id/menu_drawer_erase"
-                android:title="@string/menu_drawer_items_canvas_options_erase"
-                android:icon="@drawable/ic_delete_white_48dp" />
-        </menu>
-    </item>
-
 </menu>

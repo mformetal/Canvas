@@ -7,5 +7,7 @@ public interface FragmentListener {
 
     void onColorChosen(int color);
 
-    void onPaletteClicked();
+    void showColorPicker();
+
+    void showWidthPicker();
 }

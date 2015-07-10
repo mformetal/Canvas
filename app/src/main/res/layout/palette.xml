@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/palette_root" >
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/palette_brush_size"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:src="@drawable/ic_brush_white_48dp"
+        android:layout_margin="@dimen/fab_margin"
+        app:rippleColor="@color/primary_dark"
+        app:fabSize="normal" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/palette_color"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:src="@drawable/ic_invert_colors_black_24dp"
+        android:layout_margin="@dimen/fab_margin"
+        app:rippleColor="@color/primary_dark"
+        app:fabSize="normal" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/palette_trash"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:src="@drawable/ic_delete_white_48dp"
+        android:layout_margin="@dimen/fab_margin"
+        app:rippleColor="@color/primary_dark"
+        app:fabSize="normal" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/palette_undo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:src="@drawable/undo"
+        android:layout_margin="@dimen/fab_margin"
+        app:rippleColor="@color/primary_dark"
+        app:fabSize="normal" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/palette_redo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:src="@drawable/redo"
+        android:layout_margin="@dimen/fab_margin"
+        app:rippleColor="@color/primary_dark"
+        app:fabSize="normal" />
+
+</LinearLayout>

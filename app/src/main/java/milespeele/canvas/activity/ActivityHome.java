@@ -3,14 +3,21 @@ package milespeele.canvas.activity;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 import javax.inject.Inject;
 
@@ -22,20 +29,24 @@ import milespeele.canvas.asynctask.AsyncSave;
 import milespeele.canvas.fragment.FragmentColorPicker;
 import milespeele.canvas.fragment.FragmentDrawer;
 import milespeele.canvas.fragment.FragmentListener;
+import milespeele.canvas.util.Logger;
 import milespeele.canvas.util.ParseUtils;
 
 
 public class ActivityHome extends AppCompatActivity
     implements FragmentListener {
 
-    @InjectView(R.id.activity_home_toolbar) Toolbar toolbar;
     @InjectView(R.id.activity_home_drawer_layout) DrawerLayout drawerLayout;
     @InjectView(R.id.activity_home_navigation_drawer) NavigationView navigationView;
 
     private final static String TAG_FRAGMENT_DRAWER = "fragd";
     private final static String TAG_FRAGMENT_COLOR = "color";
+    private final static String TAG_BITMAP_FILE_DIR = "bitmap";
+    private final static String TAG_BITMAP_FILE_NAME = "canvas.png";
 
     @Inject ParseUtils parseUtils;
+
+    private ActionBarDrawerToggle toggle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,15 +58,22 @@ public class ActivityHome extends AppCompatActivity
 
         addDrawerFragment();
 
-        setSupportActionBar(toolbar);
         final ActionBar ab = getSupportActionBar();
-        ab.setHomeAsUpIndicator(R.drawable.ic_brush_white_18dp);
+        ab.setHomeAsUpIndicator(R.drawable.brush);
         ab.setDisplayHomeAsUpEnabled(true);
 
-        parseUtils.checkActiveUser();
+        toggle = new ActionBarDrawerToggle(this, drawerLayout,
+                R.string.menu_drawer_items_canvas_options, R.string.menu_drawer_items_canvas_options_undo);
+        drawerLayout.setDrawerListener(toggle);
+        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
 
-        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-        setupDrawerContent(navigationView);
+        parseUtils.checkActiveUser();
+    }
+
+    @Override
+    protected void onPostCreate (Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        toggle.syncState();
     }
 
     @Override
@@ -65,62 +83,52 @@ public class ActivityHome extends AppCompatActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // The action bar home/up action should open or close the drawerLayout.
         switch (item.getItemId()) {
             case android.R.id.home:
-                drawerLayout.openDrawer(GravityCompat.START);
+                if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                    drawerLayout.closeDrawer(GravityCompat.START);
+                } else {
+                    drawerLayout.openDrawer(GravityCompat.START);
+                }
                 return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
-    private void setupDrawerContent(NavigationView navigationView) {
-        navigationView.setNavigationItemSelectedListener(
-                new NavigationView.OnNavigationItemSelectedListener() {
-                    @Override
-                    public boolean onNavigationItemSelected(MenuItem menuItem) {
-                        selectDrawerItem(menuItem);
-                        return true;
-                    }
-                });
+    @Override
+    public void onDestroy() {
+        //saveImageToTempDir();
+        super.onDestroy();
     }
 
-    public void selectDrawerItem(MenuItem menuItem) {
-        switch (menuItem.getItemId()) {
-            case R.id.menu_drawer_color:
-                showColorPicker();
-                break;
+    private void saveImageToTempDir() {
+        FragmentDrawer frag = (FragmentDrawer) getFragmentManager().findFragmentByTag(TAG_FRAGMENT_DRAWER);
+        if (frag != null) {
+            Bitmap bmp = frag.giveBitmapToActivity();
+            String file_path = Environment.getExternalStorageDirectory().getAbsolutePath() + TAG_BITMAP_FILE_DIR;
+            File dir = new File(file_path);
+            if (!dir.exists())
+                dir.mkdirs();
+            File file = new File(dir,TAG_BITMAP_FILE_NAME);
+            FileOutputStream fOut = null;
+            try {
+                fOut = new FileOutputStream(file);
+                bmp.compress(Bitmap.CompressFormat.PNG, 85, fOut);
+                fOut.flush();
+                fOut.close();
+            } catch (IOException e) {
 
-            case R.id.menu_drawer_undo:
-                tellFragmentToUndo();
-                break;
-
-            case R.id.menu_drawer_save:
-                saveImage();
-                break;
-
-            case R.id.menu_drawer_erase:
-                tellFragmentToClearCanvas();
-                break;
+            }
         }
-        drawerLayout.closeDrawer(GravityCompat.START);
     }
 
-    private void saveImage() {
-        // SHOW DIALOG FIRST
+    private void saveImageToParse() {
         FragmentDrawer frag = (FragmentDrawer) getFragmentManager().findFragmentByTag(TAG_FRAGMENT_DRAWER);
         if (frag != null) {
             Bitmap art = frag.giveBitmapToActivity();
             Integer[] dimens = getScreenDimens();
             new AsyncSave(this, dimens[0], dimens[1]).execute(art);
-        }
-    }
-
-    private void tellFragmentToClearCanvas() {
-        FragmentDrawer frag = (FragmentDrawer) getFragmentManager().findFragmentByTag(TAG_FRAGMENT_DRAWER);
-        if (frag != null) {
-            frag.clearCanvas();
         }
     }
 
@@ -132,29 +140,21 @@ public class ActivityHome extends AppCompatActivity
         }
     }
 
-    private void tellFragmentToStartErasing() {
-        FragmentDrawer frag = (FragmentDrawer) getFragmentManager().findFragmentByTag(TAG_FRAGMENT_DRAWER);
-        if (frag != null) {
-            frag.startErasing();
-        }
-    }
-
-    private void tellFragmentToUndo() {
-        FragmentDrawer frag = (FragmentDrawer) getFragmentManager().findFragmentByTag(TAG_FRAGMENT_DRAWER);
-        if (frag != null) {
-            frag.undo();
-        }
-    }
-
     private void addDrawerFragment() {
         getFragmentManager().beginTransaction()
                 .add(R.id.activity_home_fragment_frame, FragmentDrawer.newInstance(), TAG_FRAGMENT_DRAWER)
                 .commit();
     }
 
-    private void showColorPicker() {
+    @Override
+    public void showColorPicker() {
         FragmentColorPicker picker = FragmentColorPicker.newInstance();
         picker.show(getFragmentManager(), TAG_FRAGMENT_COLOR);
+    }
+
+    @Override
+    public void showWidthPicker() {
+
     }
 
     @Override
@@ -162,11 +162,6 @@ public class ActivityHome extends AppCompatActivity
         if (color != -1) {
             tellFragmentToChangeColor(color);
         }
-    }
-
-    @Override
-    public void onPaletteClicked() {
-
     }
 
     private Integer[] getScreenDimens() {

@@ -3,8 +3,10 @@ package milespeele.canvas.view;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.RectF;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -15,6 +17,7 @@ import android.view.View;
 import java.util.EmptyStackException;
 import java.util.Stack;
 
+import milespeele.canvas.util.Logger;
 import milespeele.canvas.viewutils.PaintPath;
 
 /**
@@ -35,33 +38,44 @@ public class ViewCanvas extends View {
     private final RectF dirtyRect = new RectF();
     private PaintPath mPath;
     private Stack<PaintPath> mPaths;
+    private Stack<PaintPath> redoPaths;
 
     private int width, height;
 
+    public ViewCanvas(Context context) {
+        super(context);
+        init();
+    }
+
     public ViewCanvas(Context context, AttributeSet attrs) {
         super(context, attrs);
+        init();
+    }
 
+    public void init() {
         mPaint = new Paint();
         mPaint.setAntiAlias(true);
-        mPaint.setColor(mPaint.getColor());
+        mPaint.setColor(Color.BLACK);
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setStrokeJoin(Paint.Join.ROUND);
         mPaint.setStrokeWidth(STROKE_WIDTH);
+        mPaint.setStrokeCap(Paint.Cap.ROUND);
 
         scaleMatrix = new Matrix();
 
         mPath = new PaintPath(mPaint.getColor());
-
         mPaths = new Stack<>();
+        redoPaths = new Stack<>();
+
         mPaths.push(mPath);
 
+        setWillNotDraw(false);
         setDrawingCacheEnabled(true);
     }
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-
         width = w;
         height = h;
 
@@ -164,18 +178,15 @@ public class ViewCanvas extends View {
             p.reset();
         }
         mPaths.clear();
+
+        mPath = new PaintPath(mPaint.getColor());
+        mPaths.push(mPath);
+
         invalidate();
 
         mBitmap.recycle();
         mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         mCanvas = new Canvas(mBitmap);
-        for (PaintPath p : mPaths) {
-            mPaint.setColor(p.getColor());
-            mCanvas.drawPath(p, mPaint);
-        }
-
-        mPath = new PaintPath(mPaint.getColor());
-        mPaths.push(mPath);
     }
 
     public void changeColor(int color) {
@@ -199,14 +210,25 @@ public class ViewCanvas extends View {
     public void undo() {
         PaintPath path = getLatestPath();
         if (path != null) {
-            path.reset();
+            PaintPath redo = new PaintPath(mPaint.getColor());
+            redo.set(path);
+            redoPaths.push(redo);
+            path.rewind();
             mPaths.pop();
+            invalidate();
+        }
+    }
+
+    public void redo() {
+        if (!redoPaths.isEmpty()) {
+            mPaths.push(redoPaths.pop());
             invalidate();
         }
     }
 
     @Override
     protected Parcelable onSaveInstanceState() {
+        Logger.log("ON SAVE");
         Bundle state = new Bundle();
         state.putParcelable("super", super.onSaveInstanceState());
         state.putParcelable(BITMAP_KEY, getDrawingCache());
@@ -215,6 +237,7 @@ public class ViewCanvas extends View {
 
     @Override
     protected void onRestoreInstanceState(Parcelable state) {
+        Logger.log("ON RESTORE");
         Bundle bundle = (Bundle) state;
         super.onRestoreInstanceState(bundle.getParcelable("super"));
         mBitmap = bundle.getParcelable(BITMAP_KEY);

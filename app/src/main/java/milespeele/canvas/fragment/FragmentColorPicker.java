@@ -1,12 +1,16 @@
 package milespeele.canvas.fragment;
 
+import android.animation.Animator;
+import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +19,7 @@ import android.view.Window;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import milespeele.canvas.R;
+import milespeele.canvas.util.Logger;
 import milespeele.canvas.view.ViewColorPicker;
 
 /**
@@ -56,5 +61,11 @@ public class FragmentColorPicker extends DialogFragment {
     public void onDismiss(final DialogInterface dialog) {
         listener.onColorChosen(picker.getColor());
         super.onDismiss(dialog);
+    }
+
+    @Override
+    public void onActivityCreated(Bundle arg0) {
+        super.onActivityCreated(arg0);
+        getDialog().getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
     }
 }
