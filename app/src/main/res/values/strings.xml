@@ -4,6 +4,8 @@
     <string name="parse_application_id">QE5ZD9Q1OkUXhR3S7dRea1ubKIYA60LUrGUOgOfv</string>
     <string name="parse_client_key">mbBzw87p4hrBgtIOSsX3WTSSV4CkXHgG7bNU96aR</string>
 
+    <string name="menu_activity_home_show_palette">Show Canvas Actions</string>
+
     <string name="menu_drawer_items_header_text">Welcome Home.</string>
     <string name="menu_drawer_items_gallery">Gallery</string>
     <string name="menu_drawer_items_canvas_options">Canvas Options</string>

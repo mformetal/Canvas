@@ -7,18 +7,11 @@
     android:id="@+id/activity_home_drawer_layout"
     tools:context=".ActivityHome" >
 
-    <LinearLayout
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical" >
-
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/activity_home_fragment_frame"
-            tools:ignore="RtlSymmetry" />
-
-    </LinearLayout>
+        android:id="@+id/activity_home_fragment_frame"
+        tools:ignore="RtlSymmetry" />
 
     <android.support.design.widget.NavigationView
         app:headerLayout="@layout/navigation_drawer_header"

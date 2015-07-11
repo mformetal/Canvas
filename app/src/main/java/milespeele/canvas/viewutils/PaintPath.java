@@ -1,5 +1,6 @@
 package milespeele.canvas.viewutils;
 
+import android.graphics.Bitmap;
 import android.graphics.Path;
 
 /**

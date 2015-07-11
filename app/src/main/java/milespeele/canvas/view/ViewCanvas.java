@@ -228,7 +228,6 @@ public class ViewCanvas extends View {
 
     @Override
     protected Parcelable onSaveInstanceState() {
-        Logger.log("ON SAVE");
         Bundle state = new Bundle();
         state.putParcelable("super", super.onSaveInstanceState());
         state.putParcelable(BITMAP_KEY, getDrawingCache());
@@ -237,7 +236,6 @@ public class ViewCanvas extends View {
 
     @Override
     protected void onRestoreInstanceState(Parcelable state) {
-        Logger.log("ON RESTORE");
         Bundle bundle = (Bundle) state;
         super.onRestoreInstanceState(bundle.getParcelable("super"));
         mBitmap = bundle.getParcelable(BITMAP_KEY);
