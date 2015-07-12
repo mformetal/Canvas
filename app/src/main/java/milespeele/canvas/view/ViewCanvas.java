@@ -15,6 +15,7 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import java.util.EmptyStackException;
+import java.util.Random;
 import java.util.Stack;
 
 import milespeele.canvas.util.Logger;
@@ -52,9 +53,12 @@ public class ViewCanvas extends View {
     }
 
     public void init() {
+        Random rnd = new Random();
+        int color = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
+
         mPaint = new Paint();
         mPaint.setAntiAlias(true);
-        mPaint.setColor(Color.BLACK);
+        mPaint.setColor(color);
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setStrokeJoin(Paint.Join.ROUND);
         mPaint.setStrokeWidth(STROKE_WIDTH);
@@ -173,7 +177,18 @@ public class ViewCanvas extends View {
     }
 
     public void fillCanvas(int color) {
-
+//        Paint mPaint = new Paint();
+//        mPaint.setAntiAlias(true);
+//        mPaint.setColor(color);
+//        mPaint.setStyle(Paint.Style.FILL);
+//        mPaint.setStrokeJoin(Paint.Join.ROUND);
+//        mPaint.setStrokeCap(Paint.Cap.ROUND);
+//        Path test = new Path();
+//        test.addRect(0, 0, getMeasuredWidth(), getMeasuredHeight(), Path.Direction.CW);
+//        mCanvas.drawPaint(mPaint);
+//        invalidate();
+        setBackgroundColor(color);
+        setDrawingCacheBackgroundColor(color);
     }
 
     public void clearCanvas() {

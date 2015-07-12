@@ -27,6 +27,11 @@ public class Datastore {
         return encryptedSharedPreferences;
     }
 
+    @SuppressWarnings("ConstantConditions")
+    public boolean hasUser() {
+        return getPrefs().getString(USERNAME_KEY, "").isEmpty();
+    }
+
     public void setUsername(String username) {
         SharedPreferences.Editor editor = getEditor();
         editor.putString(USERNAME_KEY, username);

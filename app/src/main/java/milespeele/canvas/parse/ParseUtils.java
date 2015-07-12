@@ -29,8 +29,7 @@ import rx.Observable;
  */
 public class ParseUtils {
 
-    @Inject
-    Datastore datastore;
+    @Inject Datastore datastore;
 
     private final static String PINNED_USER = "pinuser";
 
@@ -39,20 +38,9 @@ public class ParseUtils {
     }
 
     public void checkActiveUser() {
-        ParseQuery<ParseUser> userQuery = ParseUser.getQuery();
-        userQuery.fromLocalDatastore();
-        userQuery.findInBackground(new FindCallback<ParseUser>() {
-            @Override
-            public void done(List<ParseUser> list, ParseException e) {
-                if (e == null) {
-                    if (list.isEmpty()) {
-                        signupNewUser();
-                    }
-                } else {
-                    ParseErrorHandler.handleParseError(e);
-                }
-            }
-        });
+        if (!datastore.hasUser()) {
+            signupNewUser();
+        }
     }
 
     private void signupNewUser() {
@@ -62,80 +50,43 @@ public class ParseUtils {
         final ParseUser user = new ParseUser();
         user.setUsername(username);
         user.setPassword(password);
-        user.signUpInBackground(new SignUpCallback() {
-            @Override
-            public void done(ParseException e) {
-                if (e == null) {
-                    datastore.setUsername(username);
-                    datastore.setPassword(password);
-                    user.pinInBackground(PINNED_USER);
-                } else {
-                    ParseErrorHandler.handleParseError(e);
-                }
+        user.signUpInBackground(e -> {
+            if (e == null) {
+                datastore.setUsername(username);
+                datastore.setPassword(password);
+                user.pinInBackground(PINNED_USER);
+            } else {
+                ParseErrorHandler.handleParseError(e);
             }
         });
     }
 
-    public Observable<ParseFile> saveImage(byte[] result) throws ParseException {
-        final ParseFile photoFile = new ParseFile(ParseUser.getCurrentUser().getUsername(), result);
-        photoFile.save();
-        return Observable.just(photoFile);
-    }
-
-    public Observable<Masterpiece> saveMasterpieceWithImage(ParseFile file) throws ParseException {
-        final Masterpiece art = new Masterpiece();
-        art.setImage(file);
-        art.save();
-        return Observable.just(art);
-    }
-
-    public ParseUser saveUserWithMasterpiece(Masterpiece art) {
-        ParseUser.getCurrentUser().getRelation("Masterpieces").add(art);
-        try {
-            ParseUser.getCurrentUser().save();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return ParseUser.getCurrentUser();
-    }
-
     public void saveImage(final WeakReference<ActivityHome> weakCxt, byte[] result) {
         final ParseFile photoFile = new ParseFile(ParseUser.getCurrentUser().getUsername(), result);
-        photoFile.saveInBackground(new SaveCallback() {
-
-            @Override
-            public void done(ParseException e) {
-                if (e == null) {
-                    final Masterpiece art = new Masterpiece();
-                    art.setImage(photoFile);
-                    art.saveEventually(new SaveCallback() {
-                        @Override
-                        public void done(ParseException e) {
-                            if (e == null) {
-                                ParseUser.getCurrentUser().getRelation("Masterpieces").add(art);
-                                ParseUser.getCurrentUser().saveEventually(new SaveCallback() {
-                                    @Override
-                                    public void done(ParseException e) {
-                                        if (e == null) {
-                                            ActivityHome activityHome = weakCxt.get();
-                                            if (activityHome != null && !activityHome.isFinishing()) {
-                                                activityHome.showSavedImageSnackbar();
-                                            }
-                                        } else {
-                                            ParseErrorHandler.handleParseError(e);
-                                        }
-                                    }
-                                });
+        photoFile.saveInBackground((ParseException e) -> {
+            if (e == null) {
+                final Masterpiece art = new Masterpiece();
+                art.setImage(photoFile);
+                art.saveEventually(e1 -> {
+                    if (e1 == null) {
+                        ParseUser.getCurrentUser().getRelation("Masterpieces").add(art);
+                        ParseUser.getCurrentUser().saveEventually(e2 -> {
+                            if (e2 == null) {
+                                ActivityHome activityHome = weakCxt.get();
+                                if (activityHome != null && !activityHome.isFinishing()) {
+                                    activityHome.showSavedImageSnackbar();
+                                }
                             } else {
-                                ParseErrorHandler.handleParseError(e);
+                                ParseErrorHandler.handleParseError(e2);
                             }
-                        }
-                    });
-                } else {
-                    ParseErrorHandler.handleParseError(e);
-                }
+                        });
+                    } else {
+                        ParseErrorHandler.handleParseError(e1);
+                    }
+                });
+            } else {
+                ParseErrorHandler.handleParseError(e);
             }
-
         });
     }
 }

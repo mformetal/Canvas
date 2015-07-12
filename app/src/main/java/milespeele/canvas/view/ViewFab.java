@@ -81,7 +81,7 @@ public class ViewFab extends FloatingActionButton {
         return height;
     }
 
-    int calculateShadowWidth() {
+    private int calculateShadowWidth() {
         return hasShadow() ? getShadowX() * 2 : 0;
     }
 
