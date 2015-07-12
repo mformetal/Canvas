@@ -25,9 +25,6 @@ public class FragmentDrawer extends Fragment implements ViewFabMenu.FabMenuListe
     @InjectView(R.id.fragment_drawer_coordinator) CoordinatorLayout parent;
     @InjectView(R.id.fragment_drawer_palette) ViewFabMenu palette;
 
-    private final static AccelerateDecelerateInterpolator INTERPOLATOR = new AccelerateDecelerateInterpolator();
-    private static boolean isPaletteVisible = true;
-
     private FragmentListener listener;
 
     public FragmentDrawer() {}
@@ -74,11 +71,6 @@ public class FragmentDrawer extends Fragment implements ViewFabMenu.FabMenuListe
     }
 
     @Override
-    public void onClearClicked() {
-        drawer.clearCanvas();
-    }
-
-    @Override
     public void onUndoClicked() {
         drawer.undo();
     }
@@ -102,7 +94,7 @@ public class FragmentDrawer extends Fragment implements ViewFabMenu.FabMenuListe
     }
 
     public void fillCanvas(int color) {
-        // TODO
+        drawer.fillCanvas(color);
     }
 
     public void eraseCanvas() { drawer.clearCanvas(); }

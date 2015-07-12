@@ -2,6 +2,7 @@ package milespeele.canvas.view;
 
 import android.animation.ObjectAnimator;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.animation.LinearOutSlowInInterpolator;
@@ -10,26 +11,29 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Interpolator;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import milespeele.canvas.R;
+import milespeele.canvas.util.Logger;
 
 /**
  * Created by Miles Peele on 7/9/2015.
  */
 public class ViewFabMenu extends ViewGroup
-    implements View.OnClickListener {
+        implements View.OnClickListener {
 
     private static boolean isAnimatingOut = false;
     private static boolean menuVisible = true;
 
-    private FloatingActionButton toggle;
+    private ViewFab toggle;
     private LinearLayout menu;
 
     private final static Interpolator INTERPOLATOR = new LinearOutSlowInInterpolator();
 
     private float buttonMargin;
+    private float buttonSize;
     private int buttonWidth;
     private int buttonHeight;
 
@@ -37,7 +41,6 @@ public class ViewFabMenu extends ViewGroup
     public interface FabMenuListener {
         void onPaintColorClicked(int viewId);
         void onWidthClicked();
-        void onClearClicked();
         void onUndoClicked();
         void onRedoClicked();
         void onFillClicked(int viewId);
@@ -59,19 +62,53 @@ public class ViewFabMenu extends ViewGroup
     }
 
     private void init(Context context) {
-        buttonMargin = context.getResources().getDimension(R.dimen.fab_margin);
+        buttonMargin = getResources().getDimension(R.dimen.fab_margin);
+
+        if ((getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) == Configuration.SCREENLAYOUT_SIZE_LARGE) {
+            buttonSize = getResources().getDimension(R.dimen.fab_size_normal);
+        }
+        else if ((getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) == Configuration.SCREENLAYOUT_SIZE_NORMAL) {
+            buttonSize = getResources().getDimension(R.dimen.fab_size_mini);
+        }
+    }
+
+    @Override
+    public MarginLayoutParams generateLayoutParams(AttributeSet attrs) {
+        return new MarginLayoutParams(getContext(), attrs);
+    }
+
+    @Override
+    protected MarginLayoutParams generateLayoutParams(LayoutParams p) {
+        return new MarginLayoutParams(p);
+    }
+
+    @Override
+    protected MarginLayoutParams generateDefaultLayoutParams() {
+        return new MarginLayoutParams(MarginLayoutParams.WRAP_CONTENT,
+                MarginLayoutParams.MATCH_PARENT);
+    }
+
+    @Override
+    protected boolean checkLayoutParams(LayoutParams p) {
+        return p instanceof MarginLayoutParams;
     }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec){
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        for (int i = 0; i < getChildCount(); i++) {
+        final int count = getChildCount();
+
+        int maxHeight = 0;
+        for (int i = 0; i < count; i++) {
             View v = getChildAt(i);
-            v.measure(MeasureSpec.makeMeasureSpec(widthMeasureSpec, MeasureSpec.AT_MOST),
-                    MeasureSpec.makeMeasureSpec(heightMeasureSpec, MeasureSpec.AT_MOST));
+            v.measure(MeasureSpec.makeMeasureSpec(widthMeasureSpec, MeasureSpec.EXACTLY),
+                    MeasureSpec.makeMeasureSpec(heightMeasureSpec, MeasureSpec.EXACTLY));
+            measureChildWithMargins(v, widthMeasureSpec, 0, heightMeasureSpec, (int) buttonSize);
 
             buttonWidth = v.getMeasuredWidth();
             buttonHeight = v.getMeasuredHeight();
+
+            Logger.log("BUTTONHEIGHT: " + buttonHeight);
         }
     }
 
@@ -94,7 +131,7 @@ public class ViewFabMenu extends ViewGroup
     protected void onFinishInflate() {
         super.onFinishInflate();
         ButterKnife.inject(this);
-        toggle = (FloatingActionButton) getChildAt(getChildCount() - 1);
+        toggle = (ViewFab) getChildAt(getChildCount() - 1);
         rotateToShowMenuOpen();
     }
 

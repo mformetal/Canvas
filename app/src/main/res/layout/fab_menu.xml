@@ -4,69 +4,67 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="wrap_content"
     android:layout_height="match_parent"
-    android:id="@+id/palette_root" >
+    android:id="@+id/palette_root">
 
-    <android.support.design.widget.FloatingActionButton
+    <milespeele.canvas.view.ViewFab
         android:id="@+id/palette_shape"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_insert_emoticon_black_24dp"
-        android:layout_margin="@dimen/fab_margin"
         app:rippleColor="@color/primary_dark"
-        app:fabSize="normal" />
+        app:elevation="@dimen/fab_elevation"
+        app:borderWidth="0dp" />
 
-    <android.support.design.widget.FloatingActionButton
+    <milespeele.canvas.view.ViewFab
         android:id="@+id/palette_fill_canvas"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_format_color_fill_black_24dp"
-        android:layout_margin="@dimen/fab_margin"
         app:rippleColor="@color/primary_dark"
-        app:fabSize="normal" />
+        app:elevation="@dimen/fab_elevation"
+        app:borderWidth="0dp" />
 
-    <android.support.design.widget.FloatingActionButton
+    <milespeele.canvas.view.ViewFab
         android:id="@+id/palette_paint"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_format_paint_black_24dp"
-        android:layout_margin="@dimen/fab_margin"
         app:rippleColor="@color/primary_dark"
-        app:fabSize="normal" />
+        app:elevation="@dimen/fab_elevation"
+        app:borderWidth="0dp" />
 
-    <android.support.design.widget.FloatingActionButton
+    <milespeele.canvas.view.ViewFab
         android:id="@+id/palette_brush_size"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_brush_white_48dp"
-        android:layout_margin="@dimen/fab_margin"
-        app:rippleColor="@color/primary_dark"
-        app:fabSize="normal" />
+        app:elevation="@dimen/fab_elevation"
+        app:borderWidth="0dp" />
 
-    <android.support.design.widget.FloatingActionButton
+    <milespeele.canvas.view.ViewFab
         android:id="@+id/palette_undo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/undo"
-        android:layout_margin="@dimen/fab_margin"
-        app:rippleColor="@color/primary_dark"
-        app:fabSize="normal" />
+        app:elevation="@dimen/fab_elevation"
+        app:borderWidth="0dp" />
 
-    <android.support.design.widget.FloatingActionButton
+    <milespeele.canvas.view.ViewFab
         android:id="@+id/palette_redo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/redo"
-        android:layout_margin="@dimen/fab_margin"
-        app:rippleColor="@color/primary_dark"
-        app:fabSize="normal" />
+        app:elevation="@dimen/fab_elevation"
+        app:borderWidth="0dp"
+        app:rippleColor="@color/primary_dark" />
 
-    <android.support.design.widget.FloatingActionButton
+    <milespeele.canvas.view.ViewFab
         android:id="@+id/palette_show"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_add_black_24dp"
-        android:layout_margin="@dimen/fab_margin"
-        app:rippleColor="@color/primary_dark"
-        app:fabSize="normal" />
+        app:elevation="@dimen/fab_elevation"
+        app:borderWidth="-5dp"
+        app:rippleColor="@color/primary_dark" />
 
 </milespeele.canvas.view.ViewFabMenu>

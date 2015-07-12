@@ -172,6 +172,10 @@ public class ViewCanvas extends View {
         dirtyRect.bottom = Math.max(lastTouchY, eventY);
     }
 
+    public void fillCanvas(int color) {
+
+    }
+
     public void clearCanvas() {
         for (PaintPath p: mPaths) {
             p.reset();
