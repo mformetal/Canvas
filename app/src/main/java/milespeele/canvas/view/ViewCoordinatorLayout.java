@@ -68,37 +68,10 @@ public class ViewCoordinatorLayout extends CoordinatorLayout {
     }
 
     private void ifStillMoving() {
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (mIsMoving) {
-                    palette.animateOut();
-                }
+        handler.postDelayed(() -> {
+            if (mIsMoving) {
+                palette.animateOut();
             }
         }, MOVING_DELAY);
     }
-
-//    private void animateIn(ViewFabMenu button) {
-//        button.setVisibility(View.VISIBLE);
-//        ViewCompat.animate(button).scaleX(1.0F).scaleY(1.0F).alpha(1.0F)
-//                .setInterpolator(INTERPOLATOR)
-//                .withLayer()
-//                .setListener(new ViewPropertyAnimatorListener() {
-//                    @Override
-//                    public void onAnimationStart(View view) {
-//                        ViewCoordinatorLayout.this.mIsAnimatingIn = true;
-//                    }
-//
-//                    @Override
-//                    public void onAnimationEnd(View view) {
-//                        ViewCoordinatorLayout.this.mIsAnimatingIn = false;
-//                    }
-//
-//                    @Override
-//                    public void onAnimationCancel(View view) {
-//                        ViewCoordinatorLayout.this.mIsAnimatingIn = false;
-//                    }
-//                })
-//                .start();
-//    }
 }

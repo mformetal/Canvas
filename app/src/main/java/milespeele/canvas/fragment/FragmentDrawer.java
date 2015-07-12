@@ -64,8 +64,8 @@ public class FragmentDrawer extends Fragment implements ViewFabMenu.FabMenuListe
     }
 
     @Override
-    public void onColorClicked() {
-        listener.showColorPicker();
+    public void onPaintColorClicked(int viewId) {
+        listener.showColorPicker(viewId);
     }
 
     @Override
@@ -88,6 +88,11 @@ public class FragmentDrawer extends Fragment implements ViewFabMenu.FabMenuListe
         drawer.redo();
     }
 
+    @Override
+    public void onFillClicked(int viewId) {
+        listener.showColorPicker(viewId);
+    }
+
     public Bitmap giveBitmapToActivity() {
         return drawer.getBitmap();
     }
@@ -95,4 +100,10 @@ public class FragmentDrawer extends Fragment implements ViewFabMenu.FabMenuListe
     public void changeColor(int color) {
         drawer.changeColor(color);
     }
+
+    public void fillCanvas(int color) {
+        // TODO
+    }
+
+    public void eraseCanvas() { drawer.clearCanvas(); }
 }

@@ -18,7 +18,6 @@ import java.util.EmptyStackException;
 import java.util.Stack;
 
 import milespeele.canvas.util.Logger;
-import milespeele.canvas.viewutils.PaintPath;
 
 /**
  * Created by milespeele on 7/2/15.

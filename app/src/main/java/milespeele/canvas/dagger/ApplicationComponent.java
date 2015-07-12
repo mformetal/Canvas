@@ -5,7 +5,7 @@ import javax.inject.Singleton;
 import dagger.Component;
 import milespeele.canvas.activity.ActivityHome;
 import milespeele.canvas.asynctask.AsyncSave;
-import milespeele.canvas.util.ParseUtils;
+import milespeele.canvas.parse.ParseUtils;
 
 /**
  * Created by milespeele on 7/5/15.

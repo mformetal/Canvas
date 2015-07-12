@@ -2,16 +2,10 @@ package milespeele.canvas.view;
 
 import android.animation.ObjectAnimator;
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewCompat;
-import android.support.v4.view.ViewPropertyAnimatorListener;
 import android.support.v4.view.animation.LinearOutSlowInInterpolator;
 import android.util.AttributeSet;
-import android.util.Log;
-import android.view.Gravity;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Interpolator;
@@ -20,8 +14,6 @@ import android.widget.LinearLayout;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import milespeele.canvas.R;
-import milespeele.canvas.fragment.FragmentDrawer;
-import milespeele.canvas.util.Logger;
 
 /**
  * Created by Miles Peele on 7/9/2015.
@@ -43,11 +35,12 @@ public class ViewFabMenu extends ViewGroup
 
     private FabMenuListener mListener;
     public interface FabMenuListener {
-        void onColorClicked();
+        void onPaintColorClicked(int viewId);
         void onWidthClicked();
         void onClearClicked();
         void onUndoClicked();
         void onRedoClicked();
+        void onFillClicked(int viewId);
     }
 
     public ViewFabMenu(Context context) {
@@ -106,21 +99,21 @@ public class ViewFabMenu extends ViewGroup
     }
 
     @Override
-    @OnClick({R.id.palette_show, R.id.palette_color, R.id.palette_brush_size,
-            R.id.palette_trash, R.id.palette_undo, R.id.palette_redo})
+    @OnClick({R.id.palette_show, R.id.palette_paint, R.id.palette_brush_size,
+            R.id.palette_undo, R.id.palette_redo, R.id.palette_fill_canvas})
     public void onClick(View v) {
         switch (v.getId()) {
+            case R.id.palette_fill_canvas:
+                mListener.onFillClicked(v.getId());
+                break;
             case R.id.palette_show:
                 showOrHideMenu();
                 break;
-            case R.id.palette_color:
-                mListener.onColorClicked();
+            case R.id.palette_paint:
+                mListener.onPaintColorClicked(v.getId());
                 break;
             case R.id.palette_brush_size:
                 mListener.onWidthClicked();
-                break;
-            case R.id.palette_trash:
-                mListener.onClearClicked();
                 break;
             case R.id.palette_undo:
                 mListener.onUndoClicked();

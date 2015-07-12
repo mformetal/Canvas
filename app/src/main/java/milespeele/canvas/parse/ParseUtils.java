@@ -1,4 +1,4 @@
-package milespeele.canvas.util;
+package milespeele.canvas.parse;
 
 import android.app.Application;
 import android.widget.Toast;
@@ -6,6 +6,7 @@ import android.widget.Toast;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseFile;
+import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
@@ -20,13 +21,16 @@ import javax.inject.Inject;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.activity.ActivityHome;
 import milespeele.canvas.model.Masterpiece;
+import milespeele.canvas.util.Datastore;
+import rx.Observable;
 
 /**
  * Created by milespeele on 7/4/15.
  */
 public class ParseUtils {
 
-    @Inject Datastore datastore;
+    @Inject
+    Datastore datastore;
 
     private final static String PINNED_USER = "pinuser";
 
@@ -72,6 +76,29 @@ public class ParseUtils {
         });
     }
 
+    public Observable<ParseFile> saveImage(byte[] result) throws ParseException {
+        final ParseFile photoFile = new ParseFile(ParseUser.getCurrentUser().getUsername(), result);
+        photoFile.save();
+        return Observable.just(photoFile);
+    }
+
+    public Observable<Masterpiece> saveMasterpieceWithImage(ParseFile file) throws ParseException {
+        final Masterpiece art = new Masterpiece();
+        art.setImage(file);
+        art.save();
+        return Observable.just(art);
+    }
+
+    public ParseUser saveUserWithMasterpiece(Masterpiece art) {
+        ParseUser.getCurrentUser().getRelation("Masterpieces").add(art);
+        try {
+            ParseUser.getCurrentUser().save();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return ParseUser.getCurrentUser();
+    }
+
     public void saveImage(final WeakReference<ActivityHome> weakCxt, byte[] result) {
         final ParseFile photoFile = new ParseFile(ParseUser.getCurrentUser().getUsername(), result);
         photoFile.saveInBackground(new SaveCallback() {
@@ -91,10 +118,8 @@ public class ParseUtils {
                                     public void done(ParseException e) {
                                         if (e == null) {
                                             ActivityHome activityHome = weakCxt.get();
-                                            if (activityHome != null) {
-                                                Toast.makeText(activityHome,
-                                                        "Saved :)",
-                                                        Toast.LENGTH_SHORT).show();
+                                            if (activityHome != null && !activityHome.isFinishing()) {
+                                                activityHome.showSavedImageSnackbar();
                                             }
                                         } else {
                                             ParseErrorHandler.handleParseError(e);

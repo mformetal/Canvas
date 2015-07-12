@@ -12,7 +12,7 @@
         android:id="@+id/fragment_drawer_canvas" />
 
     <include
-        layout="@layout/palette"
+        layout="@layout/fab_menu"
         android:id="@+id/fragment_drawer_palette"
         android:layout_width="wrap_content"
         android:layout_height="match_parent" />

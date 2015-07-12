@@ -5,9 +5,9 @@ package milespeele.canvas.fragment;
  */
 public interface FragmentListener {
 
-    void onColorChosen(int color);
+    void onColorChosen(int color, String whichColor);
 
-    void showColorPicker();
+    void showColorPicker(int viewId);
 
     void showWidthPicker();
 }

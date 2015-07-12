@@ -11,7 +11,7 @@ import javax.inject.Inject;
 
 import milespeele.canvas.MainApp;
 import milespeele.canvas.activity.ActivityHome;
-import milespeele.canvas.util.ParseUtils;
+import milespeele.canvas.parse.ParseUtils;
 
 /**
  * Created by milespeele on 7/5/15.

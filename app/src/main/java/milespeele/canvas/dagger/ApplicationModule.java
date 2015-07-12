@@ -7,7 +7,7 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 import milespeele.canvas.util.Datastore;
-import milespeele.canvas.util.ParseUtils;
+import milespeele.canvas.parse.ParseUtils;
 
 /**
  * Created by milespeele on 7/5/15.

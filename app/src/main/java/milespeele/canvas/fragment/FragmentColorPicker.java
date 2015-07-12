@@ -5,6 +5,7 @@ import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.app.Fragment;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.Point;
@@ -15,9 +16,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.Button;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import butterknife.OnClick;
 import milespeele.canvas.R;
 import milespeele.canvas.util.Logger;
 import milespeele.canvas.view.ViewColorPicker;
@@ -25,13 +28,24 @@ import milespeele.canvas.view.ViewColorPicker;
 /**
  * Created by milespeele on 7/3/15.
  */
-public class FragmentColorPicker extends DialogFragment {
+public class FragmentColorPicker extends DialogFragment
+    implements View.OnClickListener {
 
     @InjectView(R.id.fragment_color_picker_view) ViewColorPicker picker;
+    @InjectView(R.id.fragment_color_picker_select) Button select;
+
     private FragmentListener listener;
 
-    public static FragmentColorPicker newInstance() {
-        return new FragmentColorPicker();
+    private final static String TAG = "which";
+
+    public FragmentColorPicker(){}
+
+    public static FragmentColorPicker newInstance(String whichColor) {
+        FragmentColorPicker fragment = new FragmentColorPicker();
+        Bundle args = new Bundle();
+        args.putString(TAG, whichColor);
+        fragment.setArguments(args);
+        return fragment;
     }
 
     @Override
@@ -58,14 +72,14 @@ public class FragmentColorPicker extends DialogFragment {
     }
 
     @Override
-    public void onDismiss(final DialogInterface dialog) {
-        listener.onColorChosen(picker.getColor());
-        super.onDismiss(dialog);
-    }
-
-    @Override
     public void onActivityCreated(Bundle arg0) {
         super.onActivityCreated(arg0);
         getDialog().getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+    }
+
+    @Override
+    @OnClick(R.id.fragment_color_picker_select)
+    public void onClick(View v) {
+        listener.onColorChosen(picker.getColor(), getArguments().getString(TAG));
     }
 }

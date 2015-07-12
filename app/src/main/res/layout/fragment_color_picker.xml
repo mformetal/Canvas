@@ -1,6 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
- <milespeele.canvas.view.ViewColorPicker
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:id="@+id/fragment_color_picker_view" />
+    android:layout_height="match_parent">
+
+    <milespeele.canvas.view.ViewColorPicker
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/fragment_color_picker_view" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/fragment_color_picker_choose"
+        android:id="@+id/fragment_color_picker_select"
+        android:layout_below="@+id/fragment_color_picker_view"
+        android:layout_centerHorizontal="true" />
+
+</RelativeLayout>
