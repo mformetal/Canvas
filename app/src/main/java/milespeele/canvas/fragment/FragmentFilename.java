@@ -3,12 +3,17 @@ package milespeele.canvas.fragment;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ImageView;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -52,7 +57,13 @@ public class FragmentFilename extends DialogFragment implements View.OnClickList
     }
 
     @Override
-    @OnClick({R.id.fragment_filename_pos_button, R.id.fragment_filename_neg_button, R.id.fragment_filename_lazy_button})
+    public void onActivityCreated(Bundle arg0) {
+        super.onActivityCreated(arg0);
+        getDialog().getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+    }
+
+    @Override
+    @OnClick({R.id.fragment_filename_pos_button, R.id.fragment_filename_neg_button})
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.fragment_filename_pos_button:
@@ -60,9 +71,6 @@ public class FragmentFilename extends DialogFragment implements View.OnClickList
                 break;
             case R.id.fragment_filename_neg_button:
                 mListener.onFilenameChosen("");
-                break;
-            case R.id.fragment_filename_lazy_button:
-                mListener.onFilenameChosen(null);
                 break;
         }
     }

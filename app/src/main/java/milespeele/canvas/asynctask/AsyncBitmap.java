@@ -6,17 +6,19 @@ import android.os.AsyncTask;
 
 import java.io.ByteArrayOutputStream;
 import java.lang.ref.WeakReference;
+import java.nio.ByteBuffer;
 
 import javax.inject.Inject;
 
 import milespeele.canvas.MainApp;
 import milespeele.canvas.activity.ActivityHome;
 import milespeele.canvas.parse.ParseUtils;
+import milespeele.canvas.util.Logger;
 
 /**
  * Created by milespeele on 7/5/15.
  */
-public class AsyncSave extends AsyncTask<Bitmap, Void, byte[]> {
+public class AsyncBitmap extends AsyncTask<Bitmap, Void, byte[]> {
 
     private int screenWidth;
     private int screenHeight;
@@ -25,7 +27,7 @@ public class AsyncSave extends AsyncTask<Bitmap, Void, byte[]> {
     private String where;
     private String file;
 
-    public AsyncSave(String where, String file, ActivityHome activity, int screenWidth, int screenHeight) {
+    public AsyncBitmap(String where, String file, ActivityHome activity, int screenWidth, int screenHeight) {
         ((MainApp) activity.getApplication()).getApplicationComponent().inject(this);
         weakCxt = new WeakReference<>(activity);
         this.screenWidth = screenWidth;
@@ -39,11 +41,16 @@ public class AsyncSave extends AsyncTask<Bitmap, Void, byte[]> {
         final int width = options.outWidth;
         int inSampleSize = 1;
 
+        Logger.log("WIDTH: " + width);
+        Logger.log("HEIGHT: " + height);
+
         if (height > reqHeight || width > reqWidth) {
             final int heightRatio = Math.round((float) height / (float) reqHeight);
             final int widthRatio = Math.round((float) width / (float) reqWidth);
             inSampleSize = heightRatio < widthRatio ? heightRatio : widthRatio;
         }
+
+        Logger.log("SAMPLE SIZE: " + inSampleSize);
         return inSampleSize;
     }
 
@@ -51,11 +58,11 @@ public class AsyncSave extends AsyncTask<Bitmap, Void, byte[]> {
     protected byte[] doInBackground(Bitmap... params) {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inSampleSize = calculateInSampleSize(options, screenWidth, screenHeight);
-        Bitmap scaledImage = Bitmap.createScaledBitmap(params[0], screenWidth, screenHeight, false);
 
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        scaledImage.compress(Bitmap.CompressFormat.PNG, 100, bos);
-        return bos.toByteArray();
+        Bitmap scaledImage = Bitmap.createScaledBitmap(params[0], screenWidth, screenHeight, false);
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        scaledImage.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+        return stream.toByteArray();
     }
 
     @Override

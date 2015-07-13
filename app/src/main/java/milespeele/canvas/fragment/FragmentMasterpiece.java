@@ -11,6 +11,7 @@ import android.widget.ImageView;
 
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import javax.inject.Inject;
 
@@ -26,7 +27,7 @@ import milespeele.canvas.util.Logger;
  */
 public class FragmentMasterpiece extends Fragment {
 
-    @InjectView(R.id.fragment_gallery_photo) ImageView view;
+    @InjectView(R.id.fragment_gallery_photo) Target view;
 
     @Inject Picasso picasso;
 
@@ -51,6 +52,7 @@ public class FragmentMasterpiece extends Fragment {
         View v = inflater.inflate(R.layout.fragment_masterpiece, container, false);
         ButterKnife.inject(this, v);
         picasso.load(masterpiece.getImage().getUrl())
+                .placeholder(R.drawable.rotate)
                 .into(view);
         return v;
     }

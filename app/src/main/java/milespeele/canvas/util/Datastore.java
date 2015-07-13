@@ -29,7 +29,7 @@ public class Datastore {
 
     @SuppressWarnings("ConstantConditions")
     public boolean hasUser() {
-        return getPrefs().getString(USERNAME_KEY, "").isEmpty();
+        return !getPrefs().getString(USERNAME_KEY, "").isEmpty();
     }
 
     public void setUsername(String username) {
@@ -48,7 +48,7 @@ public class Datastore {
         editor.apply();
     }
 
-    public String getPasswordKey() {
+    public String getPassword() {
         return getPrefs().getString(PASSWORD_KEY, "");
     }
 }

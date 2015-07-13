@@ -8,18 +8,12 @@ import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
-import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.view.animation.LinearInterpolator;
-import android.widget.ImageView;
 
 import java.lang.ref.WeakReference;
 
@@ -29,7 +23,7 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
-import milespeele.canvas.asynctask.AsyncSave;
+import milespeele.canvas.asynctask.AsyncBitmap;
 import milespeele.canvas.fragment.FragmentColorPicker;
 import milespeele.canvas.fragment.FragmentDrawer;
 import milespeele.canvas.fragment.FragmentFilename;
@@ -37,7 +31,6 @@ import milespeele.canvas.fragment.FragmentListener;
 import milespeele.canvas.fragment.FragmentMasterpiece;
 import milespeele.canvas.parse.Masterpiece;
 import milespeele.canvas.parse.ParseUtils;
-import milespeele.canvas.util.Logger;
 
 public class ActivityHome extends AppCompatActivity implements FragmentListener {
 
@@ -58,7 +51,7 @@ public class ActivityHome extends AppCompatActivity implements FragmentListener 
 
     private ActionBarDrawerToggle toggle;
 
-    private AsyncSave asyncSave;
+    private AsyncBitmap asyncBitmap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -171,11 +164,11 @@ public class ActivityHome extends AppCompatActivity implements FragmentListener 
     }
 
     private boolean checkAsyncStatus() {
-        if (asyncSave == null)  {
+        if (asyncBitmap == null)  {
             return true;
         }
 
-        AsyncTask.Status status = asyncSave.getStatus();
+        AsyncTask.Status status = asyncBitmap.getStatus();
         return status != AsyncTask.Status.RUNNING && status != AsyncTask.Status.PENDING;
     }
 
@@ -184,8 +177,8 @@ public class ActivityHome extends AppCompatActivity implements FragmentListener 
         if (frag != null && checkAsyncStatus()) {
             Bitmap art = frag.giveBitmapToActivity();
             Integer[] dimens = getScreenDimens();
-            asyncSave = new AsyncSave(whereSaving, filename, this, dimens[0], dimens[1]);
-            asyncSave.execute(art);
+            asyncBitmap = new AsyncBitmap(whereSaving, filename, this, dimens[0], dimens[1]);
+            asyncBitmap.execute(art);
         }
     }
 
@@ -259,7 +252,7 @@ public class ActivityHome extends AppCompatActivity implements FragmentListener 
     @Override
     public void onFilenameChosen(String fileName) {
         ((FragmentFilename) getFragmentManager().findFragmentByTag(TAG_FRAGMENT_FILENAME)).dismiss();
-        if (fileName != null && !fileName.isEmpty()) {
+        if (!fileName.isEmpty()) {
             imageToByteArray(TAG_SERVER_SAVE, fileName);
         }
     }

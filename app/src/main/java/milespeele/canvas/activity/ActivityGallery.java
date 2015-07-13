@@ -1,6 +1,7 @@
 package milespeele.canvas.activity;
 
 import android.app.Activity;
+import android.app.Application;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.os.Bundle;
@@ -14,9 +15,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.ParseQueryAdapter;
 
+import java.io.IOException;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -74,10 +77,15 @@ public class ActivityGallery extends AppCompatActivity {
     }
 
     private void getMasterpieces() {
-        parseUtils.getSavedMasterpieces()
-                .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.trampoline())
-                .subscribe(this::onGetMasterpieces, this::onError);
+        try {
+            parseUtils.getSavedMasterpieces()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(Schedulers.trampoline())
+                    .subscribe(this::onGetMasterpieces, this::onError);
+        } catch (ParseException e) {
+            empty.setVisibility(View.VISIBLE);
+            parseUtils.handleParseError(e);
+        }
     }
 
     public void onGetMasterpieces(List<Masterpiece> masterpieces) {

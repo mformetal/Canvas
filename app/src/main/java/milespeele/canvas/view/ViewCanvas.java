@@ -75,6 +75,7 @@ public class ViewCanvas extends View {
 
         setDrawingCacheEnabled(true);
         setSaveEnabled(true);
+        setBackgroundColor(Color.WHITE);
     }
 
     @Override

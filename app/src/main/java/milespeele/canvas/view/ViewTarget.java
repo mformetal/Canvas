@@ -11,6 +11,8 @@ import android.widget.ImageView;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
+import milespeele.canvas.util.Logger;
+
 /**
  * Created by Miles Peele on 7/13/2015.
  */
@@ -35,16 +37,16 @@ public class ViewTarget extends ImageView implements Target {
 
     @Override
     public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-
+        setImageBitmap(bitmap);
     }
 
     @Override
     public void onBitmapFailed(Drawable errorDrawable) {
-
+        Logger.log("ON BITMAP FAILED");
     }
 
     @Override
     public void onPrepareLoad(Drawable placeHolderDrawable) {
-
+        Logger.log("ON PREPARE");
     }
 }

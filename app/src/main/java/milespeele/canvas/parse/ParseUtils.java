@@ -2,14 +2,10 @@ package milespeele.canvas.parse;
 
 import android.app.Application;
 
-import com.parse.CountCallback;
-import com.parse.DeleteCallback;
-import com.parse.FindCallback;
-import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseObject;
-import com.parse.ParseQuery;
+import com.parse.ParseRelation;
 import com.parse.ParseUser;
 
 import java.lang.ref.WeakReference;
@@ -39,17 +35,23 @@ public class ParseUtils {
     }
 
     public void checkActiveUser() {
-        ParseQuery<ParseUser> userQuery = ParseUser.getQuery();
-        userQuery.fromLocalDatastore();
-        userQuery.findInBackground((list, e) -> {
-            if (e == null) {
-                if (list.isEmpty()) {
-                    signupNewUser();
-                }
-            } else {
-                handleParseError(e);
-            }
-        });
+//        ParseQuery<ParseUser> userQuery = ParseUser.getQuery();
+//        userQuery.fromLocalDatastore();
+//        userQuery.findInBackground((list, e) -> {
+//            if (e == null) {
+//                if (list.isEmpty()) {
+//                    signupNewUser();
+//                }
+//            } else {
+//                handleParseError(e);
+//            }
+//        });
+        if (!datastore.hasUser()) {
+            Logger.log("NEW USER");
+            signupNewUser();
+        } else {
+            loginUser();
+        }
     }
 
     private void signupNewUser() {
@@ -71,6 +73,7 @@ public class ParseUtils {
     }
 
     private void loginUser() {
+        ParseUser.logInInBackground(datastore.getUsername(), datastore.getPassword());
     }
 
     public void saveImageToServer(String filename, final WeakReference<ActivityHome> weakCxt, byte[] result) {
@@ -126,23 +129,22 @@ public class ParseUtils {
         });
     }
 
-    public Observable<List<Masterpiece>> getSavedMasterpieces() {
-        ParseQuery<Masterpiece> query = ParseQuery.getQuery(Masterpiece.class);
-        query.setLimit(30);
-        try {
-            return Observable.just(query.find());
-        } catch (ParseException e) {
-            handleParseError(e);
-            return null;
-        }
+    public Observable<List<Masterpiece>> getSavedMasterpieces() throws ParseException {
+        ParseRelation<Masterpiece> relation = ParseUser.getCurrentUser().getRelation("Masterpieces");
+        return Observable.just(relation.getQuery().find());
     }
 
 
     public void handleParseError(ParseException e) {
-        switch (e.getCode()) {
-            default:
-                Logger.log("UNHANDLED PARSE EXCEPTION: " + e.getCode());
-                e.printStackTrace();
+        if (e != null) {
+            switch (e.getCode()) {
+                case ParseException.INVALID_SESSION_TOKEN:
+                    loginUser();
+                    break;
+                default:
+                    Logger.log("UNHANDLED PARSE EXCEPTION: " + e.getCode());
+                    e.printStackTrace();
+            }
         }
     }
 }
