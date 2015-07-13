@@ -1,12 +1,14 @@
 package milespeele.canvas.activity;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Point;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -14,10 +16,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.LinearInterpolator;
+import android.widget.ImageView;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.lang.ref.WeakReference;
 
 import javax.inject.Inject;
 
@@ -28,13 +32,14 @@ import milespeele.canvas.R;
 import milespeele.canvas.asynctask.AsyncSave;
 import milespeele.canvas.fragment.FragmentColorPicker;
 import milespeele.canvas.fragment.FragmentDrawer;
+import milespeele.canvas.fragment.FragmentFilename;
 import milespeele.canvas.fragment.FragmentListener;
+import milespeele.canvas.fragment.FragmentMasterpiece;
+import milespeele.canvas.parse.Masterpiece;
 import milespeele.canvas.parse.ParseUtils;
 import milespeele.canvas.util.Logger;
 
-
-public class ActivityHome extends AppCompatActivity
-    implements FragmentListener, View.OnClickListener {
+public class ActivityHome extends AppCompatActivity implements FragmentListener {
 
     @InjectView(R.id.activity_home_drawer_layout) DrawerLayout drawerLayout;
     @InjectView(R.id.activity_home_navigation_drawer) NavigationView navigationView;
@@ -42,12 +47,18 @@ public class ActivityHome extends AppCompatActivity
     private final static String TAG_FRAGMENT_DRAWER = "fragd";
     private final static String TAG_FRAGMENT_STROKE = "stroke";
     private final static String TAG_FRAGMENT_FILL = "fill";
-    private final static String TAG_BITMAP_FILE_DIR = "bitmap";
-    private final static String TAG_BITMAP_FILE_NAME = "canvas.png";
+    private final static String TAG_FRAGMENT_SHAPE = "shape";
+    private final static String TAG_FRAGMENT_MASTERPIECE = "art";
+    private final static String TAG_FRAGMENT_FILENAME = "name";
+
+    private final static String TAG_SERVER_SAVE = "there";
+    private final static String TAG_LOCAL_SAVE = "here";
 
     @Inject ParseUtils parseUtils;
 
     private ActionBarDrawerToggle toggle;
+
+    private AsyncSave asyncSave;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,14 +78,25 @@ public class ActivityHome extends AppCompatActivity
                 R.string.activity_home_actionbar_toggle_open, R.string.activity_home_actionbar_toggle_close);
         drawerLayout.setDrawerListener(toggle);
         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+        setupDrawerContent(navigationView);
 
         parseUtils.checkActiveUser();
     }
 
     @Override
+    public void onBackPressed() {
+        int count = getFragmentManager().getBackStackEntryCount();
+        if (count == 0) {
+            super.onBackPressed();
+        } else {
+            getFragmentManager().popBackStackImmediate();
+        }
+    }
+
+    @Override
     public void onPause() {
         super.onPause();
-        saveImageToTempDir();
+        imageToByteArray(TAG_LOCAL_SAVE, null);
     }
 
     @Override
@@ -100,7 +122,7 @@ public class ActivityHome extends AppCompatActivity
                 }
                 return true;
             case R.id.menu_activity_home_save_canvas:
-                saveImageToParse();
+                addFilenameFragment();
                 break;
             case R.id.menu_activity_home_erase_canvas:
                 tellFragmentToEraseCanvas();
@@ -110,9 +132,20 @@ public class ActivityHome extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onClick(View v) {
-        Logger.log("ON CLICK");
+    private void setupDrawerContent(NavigationView navigationView) {
+        navigationView.setNavigationItemSelectedListener(
+                menuItem -> {
+                    selectDrawerItem(menuItem);
+                    return true;
+                });
+    }
+
+    public void selectDrawerItem(MenuItem menuItem) {
+        switch (menuItem.getItemId()) {
+            case R.id.menu_drawer_gallery:
+                startGalleryActivity();
+                break;
+        }
     }
 
     private void addDrawerFragment() {
@@ -121,39 +154,57 @@ public class ActivityHome extends AppCompatActivity
                 .commit();
     }
 
-    private void saveImageToTempDir() {
-        FragmentDrawer frag = (FragmentDrawer) getFragmentManager().findFragmentByTag(TAG_FRAGMENT_DRAWER);
-        if (frag != null) {
-            Bitmap bmp = frag.giveBitmapToActivity();
-            String file_path = Environment.getExternalStorageDirectory().getAbsolutePath() + TAG_BITMAP_FILE_DIR;
-            File dir = new File(file_path);
-            if (!dir.exists())
-                dir.mkdirs();
-            File file = new File(dir,TAG_BITMAP_FILE_NAME);
-            FileOutputStream fOut;
-            try {
-                fOut = new FileOutputStream(file);
-                bmp.compress(Bitmap.CompressFormat.PNG, 85, fOut);
-                fOut.flush();
-                fOut.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+    private void addFragmentMasterpiece(Masterpiece object) {
+        getFragmentManager().beginTransaction()
+                .replace(R.id.activity_home_fragment_frame, FragmentMasterpiece.newInstance(object), TAG_FRAGMENT_MASTERPIECE)
+                .addToBackStack(TAG_FRAGMENT_MASTERPIECE)
+                .commit();
     }
 
-    private void saveImageToParse() {
+    private void addFilenameFragment() {
+        FragmentFilename.newInstance().show(getFragmentManager(), TAG_FRAGMENT_FILENAME);
+    }
+
+    private void startGalleryActivity() {
+        Intent gallery = new Intent(this, ActivityGallery.class);
+        startActivity(gallery);
+    }
+
+    private boolean checkAsyncStatus() {
+        if (asyncSave == null)  {
+            return true;
+        }
+
+        AsyncTask.Status status = asyncSave.getStatus();
+        return status != AsyncTask.Status.RUNNING && status != AsyncTask.Status.PENDING;
+    }
+
+    private void imageToByteArray(String whereSaving, String filename) {
         FragmentDrawer frag = (FragmentDrawer) getFragmentManager().findFragmentByTag(TAG_FRAGMENT_DRAWER);
-        if (frag != null) {
+        if (frag != null && checkAsyncStatus()) {
             Bitmap art = frag.giveBitmapToActivity();
             Integer[] dimens = getScreenDimens();
-            new AsyncSave(this, dimens[0], dimens[1]).execute(art);
+            asyncSave = new AsyncSave(whereSaving, filename, this, dimens[0], dimens[1]);
+            asyncSave.execute(art);
         }
     }
 
-    public void showSavedImageSnackbar() {
+    public void onByteArrayReceived(String whereToSave, byte[] result, String filename) {
+        switch (whereToSave) {
+            case TAG_SERVER_SAVE:
+                parseUtils.saveImageToServer(filename, new WeakReference<>(this), result);
+                break;
+            case TAG_LOCAL_SAVE:
+                parseUtils.saveImageToLocalDatastore(result);
+                break;
+        }
+    }
+
+    public void showSavedImageSnackbar(Masterpiece object) {
         Snackbar.make(drawerLayout, R.string.snackbar_activity_home_image_saved_title, Snackbar.LENGTH_LONG)
-                .setAction(R.string.snackbar_activity_home_imaged_saved_body, this)
+                .setAction(R.string.snackbar_activity_home_imaged_saved_body, v -> {
+                    addFragmentMasterpiece(object);
+                })
                 .show();
     }
 
@@ -194,8 +245,23 @@ public class ActivityHome extends AppCompatActivity
     }
 
     @Override
+    public void showShapePicker() {
+//        FragmentShapePicker picker = FragmentShapePicker.newInstance();
+//        picker.show(getFragmentManager(), TAG_FRAGMENT_SHAPE);
+        // TODO
+    }
+
+    @Override
     public void showWidthPicker() {
 
+    }
+
+    @Override
+    public void onFilenameChosen(String fileName) {
+        ((FragmentFilename) getFragmentManager().findFragmentByTag(TAG_FRAGMENT_FILENAME)).dismiss();
+        if (fileName != null && !fileName.isEmpty()) {
+            imageToByteArray(TAG_SERVER_SAVE, fileName);
+        }
     }
 
     @Override

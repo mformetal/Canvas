@@ -64,7 +64,7 @@
         android:layout_height="wrap_content"
         android:src="@drawable/ic_add_black_24dp"
         app:elevation="@dimen/fab_elevation"
-        app:borderWidth="-5dp"
+        app:borderWidth="0dp"
         app:rippleColor="@color/primary_dark" />
 
 </milespeele.canvas.view.ViewFabMenu>

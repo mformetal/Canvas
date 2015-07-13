@@ -8,7 +8,7 @@ import com.parse.ParseObject;
 import milespeele.canvas.dagger.ApplicationComponent;
 import milespeele.canvas.dagger.ApplicationModule;
 import milespeele.canvas.dagger.DaggerApplicationComponent;
-import milespeele.canvas.model.Masterpiece;
+import milespeele.canvas.parse.Masterpiece;
 
 /**
  * Created by milespeele on 7/3/15.

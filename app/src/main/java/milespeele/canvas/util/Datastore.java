@@ -38,9 +38,17 @@ public class Datastore {
         editor.apply();
     }
 
+    public String getUsername() {
+        return getPrefs().getString(USERNAME_KEY, "");
+    }
+
     public void setPassword(String password) {
         SharedPreferences.Editor editor = getEditor();
         editor.putString(PASSWORD_KEY, password);
         editor.apply();
+    }
+
+    public String getPasswordKey() {
+        return getPrefs().getString(PASSWORD_KEY, "");
     }
 }

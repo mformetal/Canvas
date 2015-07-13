@@ -1,16 +1,16 @@
 package milespeele.canvas.parse;
 
 import android.app.Application;
-import android.widget.Toast;
 
+import com.parse.CountCallback;
+import com.parse.DeleteCallback;
 import com.parse.FindCallback;
+import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
-import com.parse.SaveCallback;
-import com.parse.SignUpCallback;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
@@ -20,8 +20,8 @@ import javax.inject.Inject;
 
 import milespeele.canvas.MainApp;
 import milespeele.canvas.activity.ActivityHome;
-import milespeele.canvas.model.Masterpiece;
 import milespeele.canvas.util.Datastore;
+import milespeele.canvas.util.Logger;
 import rx.Observable;
 
 /**
@@ -32,15 +32,24 @@ public class ParseUtils {
     @Inject Datastore datastore;
 
     private final static String PINNED_USER = "pinuser";
+    private final static String PINNED_MASTERPIECE = "yeah";
 
     public ParseUtils(Application mApplication) {
         ((MainApp) mApplication).getApplicationComponent().inject(this);
     }
 
     public void checkActiveUser() {
-        if (!datastore.hasUser()) {
-            signupNewUser();
-        }
+        ParseQuery<ParseUser> userQuery = ParseUser.getQuery();
+        userQuery.fromLocalDatastore();
+        userQuery.findInBackground((list, e) -> {
+            if (e == null) {
+                if (list.isEmpty()) {
+                    signupNewUser();
+                }
+            } else {
+                handleParseError(e);
+            }
+        });
     }
 
     private void signupNewUser() {
@@ -56,17 +65,21 @@ public class ParseUtils {
                 datastore.setPassword(password);
                 user.pinInBackground(PINNED_USER);
             } else {
-                ParseErrorHandler.handleParseError(e);
+                handleParseError(e);
             }
         });
     }
 
-    public void saveImage(final WeakReference<ActivityHome> weakCxt, byte[] result) {
+    private void loginUser() {
+    }
+
+    public void saveImageToServer(String filename, final WeakReference<ActivityHome> weakCxt, byte[] result) {
         final ParseFile photoFile = new ParseFile(ParseUser.getCurrentUser().getUsername(), result);
         photoFile.saveInBackground((ParseException e) -> {
             if (e == null) {
                 final Masterpiece art = new Masterpiece();
                 art.setImage(photoFile);
+                art.setName(filename);
                 art.saveEventually(e1 -> {
                     if (e1 == null) {
                         ParseUser.getCurrentUser().getRelation("Masterpieces").add(art);
@@ -74,19 +87,62 @@ public class ParseUtils {
                             if (e2 == null) {
                                 ActivityHome activityHome = weakCxt.get();
                                 if (activityHome != null && !activityHome.isFinishing()) {
-                                    activityHome.showSavedImageSnackbar();
+                                    activityHome.showSavedImageSnackbar(art);
                                 }
                             } else {
-                                ParseErrorHandler.handleParseError(e2);
+                                handleParseError(e2);
                             }
                         });
                     } else {
-                        ParseErrorHandler.handleParseError(e1);
+                        handleParseError(e1);
                     }
                 });
             } else {
-                ParseErrorHandler.handleParseError(e);
+                handleParseError(e);
             }
         });
+    }
+
+    public void saveImageToLocalDatastore(byte[] result) {
+        ParseObject.unpinAllInBackground(PINNED_MASTERPIECE, e -> {
+            if (e == null) {
+                final ParseFile photoFile = new ParseFile(ParseUser.getCurrentUser().getUsername(), result);
+                photoFile.saveInBackground((ParseException e1) -> {
+                    if (e1 == null) {
+                        final Masterpiece art = new Masterpiece();
+                        art.setImage(photoFile);
+                        art.pinInBackground(e2 -> {
+                            if (e2 != null) {
+                                handleParseError(e1);
+                            }
+                        });
+                    } else {
+                        handleParseError(e);
+                    }
+                });
+            } else {
+                handleParseError(e);
+            }
+        });
+    }
+
+    public Observable<List<Masterpiece>> getSavedMasterpieces() {
+        ParseQuery<Masterpiece> query = ParseQuery.getQuery(Masterpiece.class);
+        query.setLimit(30);
+        try {
+            return Observable.just(query.find());
+        } catch (ParseException e) {
+            handleParseError(e);
+            return null;
+        }
+    }
+
+
+    public void handleParseError(ParseException e) {
+        switch (e.getCode()) {
+            default:
+                Logger.log("UNHANDLED PARSE EXCEPTION: " + e.getCode());
+                e.printStackTrace();
+        }
     }
 }

@@ -4,6 +4,9 @@
     <string name="parse_application_id">QE5ZD9Q1OkUXhR3S7dRea1ubKIYA60LUrGUOgOfv</string>
     <string name="parse_client_key">mbBzw87p4hrBgtIOSsX3WTSSV4CkXHgG7bNU96aR</string>
 
+    <string name="title_activity_gallery">Gallery</string>
+    <string name="activity_gallery_empty">No Masterpieces Saved Yet!</string>
+
     <string name="fragment_color_picker_choose">Choose Color</string>
 
     <string name="activity_home_actionbar_toggle_open">Canvas</string>
@@ -16,5 +19,11 @@
 
     <string name="snackbar_activity_home_image_saved_title">Saved Your Masterpiece!</string>
     <string name="snackbar_activity_home_imaged_saved_body">View</string>
+
+    <string name="fragment_filename_title">Name Your Masterpiece</string>
+    <string name="fragment_filename_edittext_hint">Enter name</string>
+    <string name="fragment_filename_pos_button_text">Save</string>
+    <string name="fragment_filename_neg_button_text">Nah</string>
+    <string name="fragment_filename_lazy_button_text">Autogen</string>
 
 </resources>

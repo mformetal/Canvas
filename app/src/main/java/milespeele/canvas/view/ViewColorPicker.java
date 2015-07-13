@@ -26,9 +26,6 @@ import android.view.View;
  */
 public class ViewColorPicker extends View {
 
-    /**
-     * Customizable display parameters (in percents)
-     */
     private final int paramOuterPadding = 2; // outer padding of the whole color picker view
     private final int paramInnerPadding = 5; // distance between value slider wheel and inner color wheel
     private final int paramValueSliderWidth = 10; // width of the value slider
@@ -314,24 +311,5 @@ public class ViewColorPicker extends View {
 
     public int getColor() {
         return Color.HSVToColor(colorHSV);
-    }
-
-    @Override
-    protected Parcelable onSaveInstanceState() {
-        Bundle state = new Bundle();
-        state.putFloatArray("color", colorHSV);
-        state.putParcelable("super", super.onSaveInstanceState());
-        return state;
-    }
-
-    @Override
-    protected void onRestoreInstanceState(Parcelable state) {
-        if (state instanceof Bundle) {
-            Bundle bundle = (Bundle) state;
-            colorHSV = bundle.getFloatArray("color");
-            super.onRestoreInstanceState(bundle.getParcelable("super"));
-        } else {
-            super.onRestoreInstanceState(state);
-        }
     }
 }

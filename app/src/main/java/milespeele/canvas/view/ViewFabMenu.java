@@ -24,21 +24,19 @@ import milespeele.canvas.util.Logger;
 public class ViewFabMenu extends ViewGroup
         implements View.OnClickListener {
 
-    private static boolean isAnimatingOut = false;
-    private static boolean menuVisible = true;
+    private boolean menuVisible = true;
 
     private ViewFab toggle;
-    private LinearLayout menu;
 
     private final static Interpolator INTERPOLATOR = new LinearOutSlowInInterpolator();
 
     private float buttonMargin;
-    private float buttonSize;
     private int buttonWidth;
     private int buttonHeight;
 
     private FabMenuListener mListener;
     public interface FabMenuListener {
+        void onShapeClicked();
         void onPaintColorClicked(int viewId);
         void onWidthClicked();
         void onUndoClicked();
@@ -63,13 +61,6 @@ public class ViewFabMenu extends ViewGroup
 
     private void init(Context context) {
         buttonMargin = getResources().getDimension(R.dimen.fab_margin);
-
-        if ((getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) == Configuration.SCREENLAYOUT_SIZE_LARGE) {
-            buttonSize = getResources().getDimension(R.dimen.fab_size_normal);
-        }
-        else if ((getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) == Configuration.SCREENLAYOUT_SIZE_NORMAL) {
-            buttonSize = getResources().getDimension(R.dimen.fab_size_mini);
-        }
     }
 
     @Override
@@ -103,12 +94,9 @@ public class ViewFabMenu extends ViewGroup
             View v = getChildAt(i);
             v.measure(MeasureSpec.makeMeasureSpec(widthMeasureSpec, MeasureSpec.EXACTLY),
                     MeasureSpec.makeMeasureSpec(heightMeasureSpec, MeasureSpec.EXACTLY));
-            measureChildWithMargins(v, widthMeasureSpec, 0, heightMeasureSpec, (int) buttonSize);
 
             buttonWidth = v.getMeasuredWidth();
             buttonHeight = v.getMeasuredHeight();
-
-            Logger.log("BUTTONHEIGHT: " + buttonHeight);
         }
     }
 
@@ -137,9 +125,11 @@ public class ViewFabMenu extends ViewGroup
 
     @Override
     @OnClick({R.id.palette_show, R.id.palette_paint, R.id.palette_brush_size,
-            R.id.palette_undo, R.id.palette_redo, R.id.palette_fill_canvas})
+            R.id.palette_undo, R.id.palette_redo, R.id.palette_fill_canvas, R.id.palette_shape})
     public void onClick(View v) {
         switch (v.getId()) {
+            case R.id.palette_shape:
+                mListener.onShapeClicked();
             case R.id.palette_fill_canvas:
                 mListener.onFillClicked(v.getId());
                 break;

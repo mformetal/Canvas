@@ -9,5 +9,9 @@ public interface FragmentListener {
 
     void showColorPicker(int viewId);
 
+    void showShapePicker();
+
     void showWidthPicker();
+
+    void onFilenameChosen(String fileName);
 }

@@ -34,6 +34,8 @@ dependencies {
     compile 'com.jakewharton:butterknife:6.1.0'
     compile 'com.parse.bolts:bolts-android:1.+'
     compile 'com.android.support:design:22.2.0'
-    compile 'io.reactivex:rxandroid:0.25.0'
+    compile 'io.reactivex:rxjava:1.0.10'
+    compile 'com.squareup.picasso:picasso:2.5.2'
+    compile 'com.android.support:support-v13:21.0.+'
     compile fileTree(dir: 'libs', include: '*.jar')
 }

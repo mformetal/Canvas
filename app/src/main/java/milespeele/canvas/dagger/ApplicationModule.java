@@ -2,6 +2,8 @@ package milespeele.canvas.dagger;
 
 import android.app.Application;
 
+import com.squareup.picasso.Picasso;
+
 import javax.inject.Singleton;
 
 import dagger.Module;
@@ -40,6 +42,12 @@ public class ApplicationModule {
     @Singleton
     public ParseUtils getParseUtils(Application mApplication) {
         return new ParseUtils(mApplication);
+    }
+
+    @Provides
+    @Singleton
+    public Picasso getPicasso(Application mApplication) {
+        return Picasso.with(mApplication);
     }
 
 }

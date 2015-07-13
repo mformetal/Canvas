@@ -22,12 +22,16 @@ public class AsyncSave extends AsyncTask<Bitmap, Void, byte[]> {
     private int screenHeight;
     private WeakReference<ActivityHome> weakCxt;
     @Inject ParseUtils parseUtils;
+    private String where;
+    private String file;
 
-    public AsyncSave(ActivityHome activity, int screenWidth, int screenHeight) {
+    public AsyncSave(String where, String file, ActivityHome activity, int screenWidth, int screenHeight) {
         ((MainApp) activity.getApplication()).getApplicationComponent().inject(this);
         weakCxt = new WeakReference<>(activity);
         this.screenWidth = screenWidth;
         this.screenHeight = screenHeight;
+        this.where = where;
+        this.file = file;
     }
 
     private int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
@@ -36,13 +40,8 @@ public class AsyncSave extends AsyncTask<Bitmap, Void, byte[]> {
         int inSampleSize = 1;
 
         if (height > reqHeight || width > reqWidth) {
-            // Calculate ratios of height and width to requested height and width
             final int heightRatio = Math.round((float) height / (float) reqHeight);
             final int widthRatio = Math.round((float) width / (float) reqWidth);
-
-            // Choose the smallest ratio as inSampleSize value, this will guarantee
-            // a final image with both dimensions larger than or equal to the
-            // requested height and width.
             inSampleSize = heightRatio < widthRatio ? heightRatio : widthRatio;
         }
         return inSampleSize;
@@ -62,6 +61,9 @@ public class AsyncSave extends AsyncTask<Bitmap, Void, byte[]> {
     @Override
     protected void onPostExecute(byte[] result) {
         super.onPostExecute(result);
-        parseUtils.saveImage(weakCxt, result);
+        ActivityHome activityHome = weakCxt.get();
+        if (activityHome != null && !activityHome.isFinishing()) {
+            activityHome.onByteArrayReceived(where, result, file);
+        }
     }
 }

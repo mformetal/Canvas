@@ -11,6 +11,7 @@ import android.graphics.RectF;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.AttributeSet;
+import android.util.LruCache;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -72,8 +73,8 @@ public class ViewCanvas extends View {
 
         mPaths.push(mPath);
 
-        setWillNotDraw(false);
         setDrawingCacheEnabled(true);
+        setSaveEnabled(true);
     }
 
     @Override
@@ -177,16 +178,6 @@ public class ViewCanvas extends View {
     }
 
     public void fillCanvas(int color) {
-//        Paint mPaint = new Paint();
-//        mPaint.setAntiAlias(true);
-//        mPaint.setColor(color);
-//        mPaint.setStyle(Paint.Style.FILL);
-//        mPaint.setStrokeJoin(Paint.Join.ROUND);
-//        mPaint.setStrokeCap(Paint.Cap.ROUND);
-//        Path test = new Path();
-//        test.addRect(0, 0, getMeasuredWidth(), getMeasuredHeight(), Path.Direction.CW);
-//        mCanvas.drawPaint(mPaint);
-//        invalidate();
         setBackgroundColor(color);
         setDrawingCacheBackgroundColor(color);
     }
@@ -197,6 +188,8 @@ public class ViewCanvas extends View {
         }
         mPaths.clear();
 
+        destroyDrawingCache();
+
         mPath = new PaintPath(mPaint.getColor());
         mPaths.push(mPath);
 
@@ -205,6 +198,7 @@ public class ViewCanvas extends View {
         mBitmap.recycle();
         mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         mCanvas = new Canvas(mBitmap);
+        buildDrawingCache(true);
     }
 
     public void changeColor(int color) {
@@ -222,7 +216,7 @@ public class ViewCanvas extends View {
     }
 
     public Bitmap getBitmap() {
-        return getDrawingCache();
+        return Bitmap.createBitmap(getDrawingCache(true));
     }
 
     public void undo() {
@@ -246,18 +240,20 @@ public class ViewCanvas extends View {
 
     @Override
     protected Parcelable onSaveInstanceState() {
+        Logger.log("ONSAVE");
         Bundle state = new Bundle();
         state.putParcelable("super", super.onSaveInstanceState());
-        state.putParcelable(BITMAP_KEY, getDrawingCache());
+        state.putParcelable(BITMAP_KEY, Bitmap.createBitmap(getDrawingCache(true)));
         return state;
     }
 
     @Override
     protected void onRestoreInstanceState(Parcelable state) {
+        Logger.log("ON RESUME");
         Bundle bundle = (Bundle) state;
         super.onRestoreInstanceState(bundle.getParcelable("super"));
         mBitmap = bundle.getParcelable(BITMAP_KEY);
         mCanvas = new Canvas(mBitmap);
-        mCanvas.drawBitmap(mBitmap, 0, 0, mPaint);
+        mCanvas.drawBitmap(mBitmap, scaleMatrix, mPaint);
     }
 }

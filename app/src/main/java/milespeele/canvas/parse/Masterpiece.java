@@ -1,4 +1,4 @@
-package milespeele.canvas.model;
+package milespeele.canvas.parse;
 
 import com.parse.ParseClassName;
 import com.parse.ParseFile;
@@ -11,6 +11,7 @@ import com.parse.ParseObject;
 public class Masterpiece extends ParseObject {
 
     private final static String IMAGE_KEY = "image";
+    private final static String TITLE_KEY = "title";
 
     public Masterpiece() {}
 
@@ -21,4 +22,6 @@ public class Masterpiece extends ParseObject {
     public void setImage(ParseFile file) {
         put(IMAGE_KEY, file);
     }
+
+    public void setName(String name) { put(TITLE_KEY, name); }
 }

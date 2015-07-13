@@ -33,14 +33,17 @@ public class ViewCoordinatorLayout extends CoordinatorLayout {
 
     public ViewCoordinatorLayout(Context context) {
         super(context);
+        setSaveEnabled(true);
     }
 
     public ViewCoordinatorLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
+        setSaveEnabled(true);
     }
 
     public ViewCoordinatorLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        setSaveEnabled(true);
     }
 
     @Override
@@ -64,7 +67,7 @@ public class ViewCoordinatorLayout extends CoordinatorLayout {
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        palette = (ViewFabMenu) getChildAt(1);
+        palette = (ViewFabMenu) getChildAt(1); // lol
     }
 
     private void ifStillMoving() {

@@ -1,16 +1,20 @@
 package milespeele.canvas.fragment;
 
 
+import android.animation.Animator;
+import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.app.Fragment;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v4.view.ViewCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.BounceInterpolator;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -58,6 +62,11 @@ public class FragmentDrawer extends Fragment implements ViewFabMenu.FabMenuListe
     public void onDestroyView() {
         super.onDestroyView();
         ButterKnife.reset(this);
+    }
+
+    @Override
+    public void onShapeClicked() {
+        listener.showShapePicker();
     }
 
     @Override
