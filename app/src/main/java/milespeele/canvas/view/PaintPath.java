@@ -23,6 +23,8 @@ public class PaintPath extends Path implements Parcelable {
         readFromParcel(in);
     }
 
+    public PaintPath(PaintPath path) { set(path); }
+
     public void setColor(int color) {
         this.color = color;
     }

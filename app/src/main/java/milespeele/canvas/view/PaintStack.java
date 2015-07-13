@@ -27,13 +27,17 @@ public class PaintStack extends Stack<PaintPath> implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeArray(toArray());
+        PaintPath[] a = (PaintPath[]) PaintStack.CREATOR.newArray(this.size());
+        int i = 0;
+        for (PaintPath path: this) {
+            a[i] = new PaintPath(path);
+        }
+        dest.writeArray(a);
     }
 
     public void readFromParcel(Parcel in) {
         PaintPath[] array = (PaintPath[]) in.readArray(PaintPath.class.getClassLoader());
         for (PaintPath path: array) {
-            Logger.log("READ FROM PARCEL COLOR: " + path.getColor());
             push(path);
         }
     }
@@ -42,7 +46,10 @@ public class PaintStack extends Stack<PaintPath> implements Parcelable {
         public PaintStack createFromParcel(Parcel in) {return new PaintStack(in);}
 
         @Override
-        public PaintPath[] newArray(int size) { return new PaintPath[size]; }
+        public PaintPath[] newArray(int size) {
+            return new PaintPath[size];
+        }
+
     };
 
 }

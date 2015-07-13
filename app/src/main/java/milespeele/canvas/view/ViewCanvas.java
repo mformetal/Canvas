@@ -238,27 +238,27 @@ public class ViewCanvas extends View {
 
     @Override
     protected Parcelable onSaveInstanceState() {
-        Parcelable superState = super.onSaveInstanceState();
-        return new SavedState(superState, mPath);
+//        Parcelable superState = super.onSaveInstanceState();
+//        return new SavedState(superState, mPaths);
+        return super.onSaveInstanceState();
     }
 
     @Override
     protected void onRestoreInstanceState(Parcelable state) {
-        SavedState ss = (SavedState) state;
-        super.onRestoreInstanceState(ss.getSuperState());
-        restoreState(ss);
+        //SavedState ss = (SavedState) state;
+        //restoreState(ss);
+        super.onRestoreInstanceState(state);
     }
 
     private void restoreState(SavedState ss) {
-        mPath = ss.path;
-        mPaths.push(mPath);
+        mPaths = ss.path;
         invalidate();
     }
 
     static class SavedState extends BaseSavedState {
-        PaintPath path;
+        PaintStack path;
 
-        SavedState(Parcelable superState, PaintPath path) {
+        SavedState(Parcelable superState, PaintStack path) {
             super(superState);
             this.path = path;
         }

@@ -84,8 +84,15 @@ public class ActivityHome extends AppCompatActivity implements FragmentListener 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         FragmentDrawer frag = (FragmentDrawer) getFragmentManager().findFragmentByTag(TAG_FRAGMENT_DRAWER);
-        getFragmentManager().putFragment(outState, "drawer", frag);
+        getFragmentManager().putFragment(outState, TAG_FRAGMENT_DRAWER, frag);
         super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void onRestoreInstanceState(Bundle inState) {
+        FragmentDrawer frag = (FragmentDrawer) getFragmentManager().getFragment(inState, TAG_FRAGMENT_DRAWER);
+        getFragmentManager().beginTransaction().show(frag).commit();
+        super.onRestoreInstanceState(inState);
     }
 
     @Override
@@ -157,6 +164,7 @@ public class ActivityHome extends AppCompatActivity implements FragmentListener 
         getFragmentManager().beginTransaction()
                 .replace(R.id.activity_home_fragment_frame, FragmentMasterpiece.newInstance(object), TAG_FRAGMENT_MASTERPIECE)
                 .addToBackStack(TAG_FRAGMENT_MASTERPIECE)
+                .setCustomAnimations(R.anim.fab_in, R.anim.fade_out)
                 .commit();
     }
 
