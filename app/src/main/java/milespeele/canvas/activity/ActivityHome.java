@@ -59,9 +59,14 @@ public class ActivityHome extends AppCompatActivity implements FragmentListener 
         setContentView(R.layout.activity_home);
         ButterKnife.inject(this);
 
-        ((MainApp) getApplication()).getApplicationComponent().inject(this);
+        if (savedInstanceState != null) {
+            FragmentDrawer frag = (FragmentDrawer) getFragmentManager().getFragment(savedInstanceState, "drawer");
+            getFragmentManager().beginTransaction().show(frag).commit();
+        } else {
+            addDrawerFragment();
+        }
 
-        addDrawerFragment();
+        ((MainApp) getApplication()).getApplicationComponent().inject(this);
 
         final ActionBar ab = getSupportActionBar();
         ab.setHomeAsUpIndicator(R.drawable.brush);
@@ -77,6 +82,13 @@ public class ActivityHome extends AppCompatActivity implements FragmentListener 
     }
 
     @Override
+    public void onSaveInstanceState(Bundle outState) {
+        FragmentDrawer frag = (FragmentDrawer) getFragmentManager().findFragmentByTag(TAG_FRAGMENT_DRAWER);
+        getFragmentManager().putFragment(outState, "drawer", frag);
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
     public void onBackPressed() {
         int count = getFragmentManager().getBackStackEntryCount();
         if (count == 0) {
@@ -84,12 +96,6 @@ public class ActivityHome extends AppCompatActivity implements FragmentListener 
         } else {
             getFragmentManager().popBackStackImmediate();
         }
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        imageToByteArray(TAG_LOCAL_SAVE, null);
     }
 
     @Override
@@ -177,20 +183,13 @@ public class ActivityHome extends AppCompatActivity implements FragmentListener 
         if (frag != null && checkAsyncStatus()) {
             Bitmap art = frag.giveBitmapToActivity();
             Integer[] dimens = getScreenDimens();
-            asyncBitmap = new AsyncBitmap(whereSaving, filename, this, dimens[0], dimens[1]);
+            asyncBitmap = new AsyncBitmap(filename, this, dimens[0], dimens[1]);
             asyncBitmap.execute(art);
         }
     }
 
-    public void onByteArrayReceived(String whereToSave, byte[] result, String filename) {
-        switch (whereToSave) {
-            case TAG_SERVER_SAVE:
-                parseUtils.saveImageToServer(filename, new WeakReference<>(this), result);
-                break;
-            case TAG_LOCAL_SAVE:
-                parseUtils.saveImageToLocalDatastore(result);
-                break;
-        }
+    public void onByteArrayReceived(byte[] result, String filename) {
+        parseUtils.saveImageToServer(filename, new WeakReference<>(this), result);
     }
 
     public void showSavedImageSnackbar(Masterpiece object) {

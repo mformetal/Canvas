@@ -9,7 +9,8 @@
     <milespeele.canvas.view.ViewCanvas
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/fragment_drawer_canvas" />
+        android:id="@+id/fragment_drawer_canvas"
+        android:saveEnabled="true" />
 
     <include
         layout="@layout/fab_menu"

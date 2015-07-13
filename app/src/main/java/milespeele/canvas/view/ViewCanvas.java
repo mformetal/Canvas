@@ -9,8 +9,10 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
 import android.os.Bundle;
+import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.LruCache;
 import android.view.MotionEvent;
 import android.view.View;
@@ -38,7 +40,7 @@ public class ViewCanvas extends View {
     private Matrix scaleMatrix;
     private final RectF dirtyRect = new RectF();
     private PaintPath mPath;
-    private Stack<PaintPath> mPaths;
+    private PaintStack mPaths;
     private Stack<PaintPath> redoPaths;
 
     private int width, height;
@@ -68,7 +70,7 @@ public class ViewCanvas extends View {
         scaleMatrix = new Matrix();
 
         mPath = new PaintPath(mPaint.getColor());
-        mPaths = new Stack<>();
+        mPaths = new PaintStack();
         redoPaths = new Stack<>();
 
         mPaths.push(mPath);
@@ -89,10 +91,6 @@ public class ViewCanvas extends View {
 
         mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
         mCanvas = new Canvas(mBitmap);
-        for (PaintPath p : mPaths) {
-            mPaint.setColor(p.getColor());
-            mCanvas.drawPath(p, mPaint);
-        }
     }
 
     @Override
@@ -102,7 +100,6 @@ public class ViewCanvas extends View {
             mPaint.setColor(p.getColor());
             canvas.drawPath(p, mPaint);
         }
-        canvas.drawBitmap(mBitmap, scaleMatrix, null);
     }
 
     @Override
@@ -241,20 +238,51 @@ public class ViewCanvas extends View {
 
     @Override
     protected Parcelable onSaveInstanceState() {
-        Logger.log("ONSAVE");
-        Bundle state = new Bundle();
-        state.putParcelable("super", super.onSaveInstanceState());
-        state.putParcelable(BITMAP_KEY, Bitmap.createBitmap(getDrawingCache(true)));
-        return state;
+        Parcelable superState = super.onSaveInstanceState();
+        return new SavedState(superState, mPath);
     }
 
     @Override
     protected void onRestoreInstanceState(Parcelable state) {
-        Logger.log("ON RESUME");
-        Bundle bundle = (Bundle) state;
-        super.onRestoreInstanceState(bundle.getParcelable("super"));
-        mBitmap = bundle.getParcelable(BITMAP_KEY);
-        mCanvas = new Canvas(mBitmap);
-        mCanvas.drawBitmap(mBitmap, scaleMatrix, mPaint);
+        SavedState ss = (SavedState) state;
+        super.onRestoreInstanceState(ss.getSuperState());
+        restoreState(ss);
+    }
+
+    private void restoreState(SavedState ss) {
+        mPath = ss.path;
+        mPaths.push(mPath);
+        invalidate();
+    }
+
+    static class SavedState extends BaseSavedState {
+        PaintPath path;
+
+        SavedState(Parcelable superState, PaintPath path) {
+            super(superState);
+            this.path = path;
+        }
+
+        private SavedState(Parcel in) {
+            super(in);
+            path = in.readParcelable(PaintPath.class.getClassLoader());
+        }
+
+        @Override
+        public void writeToParcel(Parcel out, int flags) {
+            super.writeToParcel(out, flags);
+            out.writeParcelable(path, flags);
+        }
+
+        public static final Parcelable.Creator<SavedState> CREATOR
+                = new Parcelable.Creator<SavedState>() {
+            public SavedState createFromParcel(Parcel in) {
+                return new SavedState(in);
+            }
+
+            public SavedState[] newArray(int size) {
+                return new SavedState[size];
+            }
+        };
     }
 }

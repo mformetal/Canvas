@@ -38,6 +38,12 @@ public class FragmentDrawer extends Fragment implements ViewFabMenu.FabMenuListe
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true);
+    }
+
+    @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         listener = (FragmentListener) activity;
@@ -56,12 +62,6 @@ public class FragmentDrawer extends Fragment implements ViewFabMenu.FabMenuListe
         ButterKnife.inject(this, v);
         palette.setListener(this);
         return v;
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        ButterKnife.reset(this);
     }
 
     @Override
