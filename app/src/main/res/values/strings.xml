@@ -24,6 +24,8 @@
     <string name="fragment_filename_edittext_hint">Enter name</string>
     <string name="fragment_filename_pos_button_text">Save!</string>
     <string name="fragment_filename_neg_button_text">No thanks</string>
-    <string name="fragment_filename_lazy_button_text">Autogen</string>
+
+    <string name="fragment_brush_picker_title">Choose Stroke Size</string>
+    <string name="fragment_brush_picker_pos_button_text">Set!</string>
 
 </resources>

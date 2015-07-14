@@ -2,14 +2,11 @@ package milespeele.canvas.fragment;
 
 import android.app.Activity;
 import android.app.Fragment;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 
-import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
@@ -20,7 +17,6 @@ import butterknife.InjectView;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
 import milespeele.canvas.parse.Masterpiece;
-import milespeele.canvas.util.Logger;
 
 /**
  * Created by Miles Peele on 7/12/2015.

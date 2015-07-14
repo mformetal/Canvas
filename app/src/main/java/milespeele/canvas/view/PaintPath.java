@@ -1,23 +1,17 @@
 package milespeele.canvas.view;
 
-import android.graphics.Bitmap;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.os.Parcel;
 import android.os.Parcelable;
-
-import java.io.Serializable;
 
 /**
  * Created by milespeele on 7/9/15.
  */
 public class PaintPath extends Path implements Parcelable {
 
+    private Paint paint;
     private int color;
-
-    public PaintPath(int color) {
-        this.color = color;
-    }
 
     public PaintPath(Parcel in) {
         readFromParcel(in);
@@ -25,13 +19,16 @@ public class PaintPath extends Path implements Parcelable {
 
     public PaintPath(PaintPath path) { set(path); }
 
-    public void setColor(int color) {
-        this.color = color;
+    public PaintPath(Paint paint) {
+        this.paint = paint;
+        this.color = paint.getColor();
     }
 
-    public int getColor() {
-        return color;
-    }
+    public Paint getPaint() { return paint; }
+
+    public int getColor() { return color; }
+
+    public void setColor(int color) { paint.setColor(color); }
 
     @Override
     public int describeContents() {
@@ -41,12 +38,10 @@ public class PaintPath extends Path implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeParcelable(this, flags);
-        dest.writeInt(color);
     }
 
     public void readFromParcel(Parcel in) {
         set(in.readParcelable(PaintPath.class.getClassLoader()));
-        color = in.readInt();
     }
 
     public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {

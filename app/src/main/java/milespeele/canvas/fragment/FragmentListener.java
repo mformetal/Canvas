@@ -11,7 +11,9 @@ public interface FragmentListener {
 
     void showShapePicker();
 
-    void showWidthPicker();
+    void showBrushPicker(float currentWidth);
+
+    void onBrushSizeChosen(float size);
 
     void onFilenameChosen(String fileName);
 }

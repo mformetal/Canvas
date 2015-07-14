@@ -6,14 +6,10 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.graphics.RectF;
-import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.AttributeSet;
-import android.util.Log;
-import android.util.LruCache;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -31,9 +27,7 @@ public class ViewCanvas extends View {
     private static float STROKE_WIDTH = 5f;
     private static float HALF_STROKE_WIDTH = STROKE_WIDTH / 2;
 
-    private final static String BITMAP_KEY = "bitmap";
-
-    private Paint mPaint;
+    private Paint curPaint;
     private Bitmap mBitmap;
     private Canvas mCanvas;
     private float lastTouchX, lastTouchY;
@@ -59,22 +53,22 @@ public class ViewCanvas extends View {
         Random rnd = new Random();
         int color = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
 
-        mPaint = new Paint();
-        mPaint.setAntiAlias(true);
-        mPaint.setColor(color);
-        mPaint.setStyle(Paint.Style.STROKE);
-        mPaint.setStrokeJoin(Paint.Join.ROUND);
-        mPaint.setStrokeWidth(STROKE_WIDTH);
-        mPaint.setStrokeCap(Paint.Cap.ROUND);
+        curPaint = new Paint();
+        curPaint.setAntiAlias(true);
+        curPaint.setColor(color);
+        curPaint.setStyle(Paint.Style.STROKE);
+        curPaint.setStrokeJoin(Paint.Join.ROUND);
+        curPaint.setStrokeWidth(STROKE_WIDTH);
+        curPaint.setStrokeCap(Paint.Cap.ROUND);
 
         scaleMatrix = new Matrix();
 
-        mPath = new PaintPath(mPaint.getColor());
+        mPath = new PaintPath(curPaint);
         mPaths = new PaintStack();
-        redoPaths = new Stack<>();
-
+        redoPaths = new PaintStack();
         mPaths.push(mPath);
 
+        setWillNotDraw(false);
         setDrawingCacheEnabled(true);
         setSaveEnabled(true);
         setBackgroundColor(Color.WHITE);
@@ -97,8 +91,8 @@ public class ViewCanvas extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         for (PaintPath p: mPaths) {
-            mPaint.setColor(p.getColor());
-            canvas.drawPath(p, mPaint);
+            curPaint.setColor(p.getColor());
+            canvas.drawPath(p, curPaint);
         }
     }
 
@@ -134,7 +128,7 @@ public class ViewCanvas extends View {
     }
 
     private void onTouchDown(float eventX, float eventY, float time) {
-        mPath = new PaintPath(mPaint.getColor());
+        mPath = new PaintPath(curPaint);
         mPaths.push(mPath);
         mPath.moveTo(eventX, eventY);
         lastTouchX = eventX;
@@ -188,7 +182,7 @@ public class ViewCanvas extends View {
 
         destroyDrawingCache();
 
-        mPath = new PaintPath(mPaint.getColor());
+        mPath = new PaintPath(curPaint);
         mPaths.push(mPath);
 
         invalidate();
@@ -200,9 +194,7 @@ public class ViewCanvas extends View {
     }
 
     public void changeColor(int color) {
-        mPaint.setColor(color);
-        mPath = new PaintPath(mPaint.getColor());
-        mPaths.push(mPath);
+        curPaint.setColor(color);
     }
 
     private PaintPath getLatestPath() {
@@ -213,6 +205,14 @@ public class ViewCanvas extends View {
         }
     }
 
+    public float getBrushWidth() { return STROKE_WIDTH; }
+
+    public void setBrushWidth(float width) {
+        Logger.log("BRUSH WIDTH: " + width);
+        STROKE_WIDTH = width;
+        curPaint.setStrokeWidth(width);
+    }
+
     public Bitmap getBitmap() {
         return Bitmap.createBitmap(getDrawingCache(true));
     }
@@ -220,7 +220,7 @@ public class ViewCanvas extends View {
     public void undo() {
         PaintPath path = getLatestPath();
         if (path != null) {
-            PaintPath redo = new PaintPath(mPaint.getColor());
+            PaintPath redo = new PaintPath(curPaint);
             redo.set(path);
             redoPaths.push(redo);
             path.rewind();

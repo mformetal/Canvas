@@ -1,12 +1,6 @@
 package milespeele.canvas.activity;
 
-import android.app.Activity;
-import android.app.Application;
-import android.app.Fragment;
-import android.app.FragmentManager;
 import android.os.Bundle;
-import android.support.v13.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NavUtils;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -16,10 +10,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.parse.ParseException;
-import com.parse.ParseQuery;
-import com.parse.ParseQueryAdapter;
 
-import java.io.IOException;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -29,13 +20,8 @@ import butterknife.InjectView;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
 import milespeele.canvas.adapter.MasterpieceAdapter;
-import milespeele.canvas.fragment.FragmentMasterpiece;
 import milespeele.canvas.parse.Masterpiece;
 import milespeele.canvas.parse.ParseUtils;
-import milespeele.canvas.util.Logger;
-import rx.Observable;
-import rx.Subscriber;
-import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
 /**

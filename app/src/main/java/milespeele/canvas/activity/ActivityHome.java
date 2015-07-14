@@ -24,6 +24,7 @@ import butterknife.InjectView;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
 import milespeele.canvas.asynctask.AsyncBitmap;
+import milespeele.canvas.fragment.FragmentBrushPicker;
 import milespeele.canvas.fragment.FragmentColorPicker;
 import milespeele.canvas.fragment.FragmentDrawer;
 import milespeele.canvas.fragment.FragmentFilename;
@@ -43,9 +44,9 @@ public class ActivityHome extends AppCompatActivity implements FragmentListener 
     private final static String TAG_FRAGMENT_SHAPE = "shape";
     private final static String TAG_FRAGMENT_MASTERPIECE = "art";
     private final static String TAG_FRAGMENT_FILENAME = "name";
+    private final static String TAG_FRAGMENT_BRUSH = "brush";
 
     private final static String TAG_SERVER_SAVE = "there";
-    private final static String TAG_LOCAL_SAVE = "here";
 
     @Inject ParseUtils parseUtils;
 
@@ -246,14 +247,24 @@ public class ActivityHome extends AppCompatActivity implements FragmentListener 
 
     @Override
     public void showShapePicker() {
-//        FragmentShapePicker picker = FragmentShapePicker.newInstance();
-//        picker.show(getFragmentManager(), TAG_FRAGMENT_SHAPE);
-        // TODO
+
     }
 
     @Override
-    public void showWidthPicker() {
+    public void showBrushPicker(float currentWidth) {
+        FragmentBrushPicker picker = FragmentBrushPicker.newInstance(currentWidth);
+        picker.show(getFragmentManager(), TAG_FRAGMENT_BRUSH);
+    }
 
+    @Override
+    public void onBrushSizeChosen(float size) {
+        ((FragmentBrushPicker) getFragmentManager().findFragmentByTag(TAG_FRAGMENT_BRUSH)).dismiss();
+        if (size != 0) {
+            FragmentDrawer frag = (FragmentDrawer) getFragmentManager().findFragmentByTag(TAG_FRAGMENT_DRAWER);
+            if (frag != null) {
+                frag.setBrushWidth(size);
+            }
+        }
     }
 
     @Override

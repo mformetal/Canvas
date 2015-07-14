@@ -2,14 +2,12 @@ package milespeele.canvas.adapter;
 
 import android.app.Fragment;
 import android.app.FragmentManager;
-import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v13.app.FragmentStatePagerAdapter;
 
 import java.util.List;
 
 import milespeele.canvas.fragment.FragmentMasterpiece;
 import milespeele.canvas.parse.Masterpiece;
-import milespeele.canvas.util.Logger;
 
 /**
  * Created by Miles Peele on 7/12/2015.

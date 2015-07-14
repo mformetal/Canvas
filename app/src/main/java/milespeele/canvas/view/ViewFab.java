@@ -2,33 +2,10 @@ package milespeele.canvas.view;
 
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.content.res.ColorStateList;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.ColorFilter;
-import android.graphics.Outline;
-import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
-import android.graphics.RectF;
-import android.graphics.Xfermode;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.LayerDrawable;
-import android.graphics.drawable.RippleDrawable;
-import android.graphics.drawable.ShapeDrawable;
-import android.graphics.drawable.StateListDrawable;
-import android.graphics.drawable.shapes.OvalShape;
-import android.graphics.drawable.shapes.Shape;
 import android.os.Build;
-import android.os.SystemClock;
 import android.support.design.widget.FloatingActionButton;
 import android.util.AttributeSet;
-import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewOutlineProvider;
-import android.view.animation.Animation;
-import android.widget.ImageButton;
 
 import milespeele.canvas.R;
 import milespeele.canvas.util.Util;
@@ -72,13 +49,11 @@ public class ViewFab extends FloatingActionButton {
     }
 
     private int calculateMeasuredWidth() {
-        int width = getCircleSize() + calculateShadowWidth();
-        return width;
+        return getCircleSize() + calculateShadowWidth();
     }
 
     private int calculateMeasuredHeight() {
-        int height = getCircleSize() + calculateShadowHeight();
-        return height;
+        return getCircleSize() + calculateShadowHeight();
     }
 
     private int calculateShadowWidth() {

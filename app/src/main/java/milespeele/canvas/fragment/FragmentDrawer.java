@@ -1,24 +1,17 @@
 package milespeele.canvas.fragment;
 
 
-import android.animation.Animator;
-import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.app.Fragment;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.Snackbar;
-import android.support.v4.view.ViewCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.BounceInterpolator;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import butterknife.OnClick;
 import milespeele.canvas.R;
 import milespeele.canvas.view.ViewCanvas;
 import milespeele.canvas.view.ViewFabMenu;
@@ -75,9 +68,7 @@ public class FragmentDrawer extends Fragment implements ViewFabMenu.FabMenuListe
     }
 
     @Override
-    public void onWidthClicked() {
-        // TODO
-    }
+    public void onBrushClicked() { listener.showBrushPicker(drawer.getBrushWidth()); }
 
     @Override
     public void onUndoClicked() {
@@ -107,4 +98,6 @@ public class FragmentDrawer extends Fragment implements ViewFabMenu.FabMenuListe
     }
 
     public void eraseCanvas() { drawer.clearCanvas(); }
+
+    public void setBrushWidth(float width) { drawer.setBrushWidth(width); }
 }

@@ -2,21 +2,16 @@ package milespeele.canvas.view;
 
 import android.animation.ObjectAnimator;
 import android.content.Context;
-import android.content.res.Configuration;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.animation.LinearOutSlowInInterpolator;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Interpolator;
-import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import milespeele.canvas.R;
-import milespeele.canvas.util.Logger;
 
 /**
  * Created by Miles Peele on 7/9/2015.
@@ -38,7 +33,7 @@ public class ViewFabMenu extends ViewGroup
     public interface FabMenuListener {
         void onShapeClicked();
         void onPaintColorClicked(int viewId);
-        void onWidthClicked();
+        void onBrushClicked();
         void onUndoClicked();
         void onRedoClicked();
         void onFillClicked(int viewId);
@@ -140,7 +135,7 @@ public class ViewFabMenu extends ViewGroup
                 mListener.onPaintColorClicked(v.getId());
                 break;
             case R.id.palette_brush_size:
-                mListener.onWidthClicked();
+                mListener.onBrushClicked();
                 break;
             case R.id.palette_undo:
                 mListener.onUndoClicked();
