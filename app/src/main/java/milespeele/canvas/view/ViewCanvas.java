@@ -7,8 +7,6 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.RectF;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -218,7 +216,8 @@ public class ViewCanvas extends View {
     public void undo() {
         PaintPath path = getLatestPath();
         if (path != null) {
-            PaintPath redo = new PaintPath(path);
+            PaintPath redo = new PaintPath(path.getPaint());
+            redo.set(path);
             redoPaths.push(redo);
             path.rewind();
             mPaths.pop();
@@ -242,55 +241,5 @@ public class ViewCanvas extends View {
         paint.setStrokeWidth(STROKE_WIDTH);
         paint.setStrokeCap(Paint.Cap.ROUND);
         return paint;
-    }
-
-    @Override
-    protected Parcelable onSaveInstanceState() {
-//        Parcelable superState = super.onSaveInstanceState();
-//        return new SavedState(superState, mPaths);
-        return super.onSaveInstanceState();
-    }
-
-    @Override
-    protected void onRestoreInstanceState(Parcelable state) {
-        //SavedState ss = (SavedState) state;
-        //restoreState(ss);
-        super.onRestoreInstanceState(state);
-    }
-
-    private void restoreState(SavedState ss) {
-        mPaths = ss.path;
-        invalidate();
-    }
-
-    static class SavedState extends BaseSavedState {
-        PaintStack path;
-
-        SavedState(Parcelable superState, PaintStack path) {
-            super(superState);
-            this.path = path;
-        }
-
-        private SavedState(Parcel in) {
-            super(in);
-            path = in.readParcelable(PaintPath.class.getClassLoader());
-        }
-
-        @Override
-        public void writeToParcel(Parcel out, int flags) {
-            super.writeToParcel(out, flags);
-            out.writeParcelable(path, flags);
-        }
-
-        public static final Parcelable.Creator<SavedState> CREATOR
-                = new Parcelable.Creator<SavedState>() {
-            public SavedState createFromParcel(Parcel in) {
-                return new SavedState(in);
-            }
-
-            public SavedState[] newArray(int size) {
-                return new SavedState[size];
-            }
-        };
     }
 }

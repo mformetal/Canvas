@@ -3,6 +3,7 @@ package milespeele.canvas.view;
 import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.support.v4.view.ViewCompat;
+import android.support.v4.view.ViewPropertyAnimatorListener;
 import android.support.v4.view.animation.LinearOutSlowInInterpolator;
 import android.util.AttributeSet;
 import android.view.View;
@@ -168,6 +169,22 @@ public class ViewFabMenu extends ViewGroup
                         .scaleY(0)
                         .alpha(0)
                         .setInterpolator(INTERPOLATOR)
+                        .setListener(new ViewPropertyAnimatorListener() {
+                            @Override
+                            public void onAnimationStart(View view) {
+
+                            }
+
+                            @Override
+                            public void onAnimationEnd(View view) {
+                                view.setVisibility(View.GONE);
+                            }
+
+                            @Override
+                            public void onAnimationCancel(View view) {
+
+                            }
+                        })
                         .start();
             }
         }
@@ -182,6 +199,22 @@ public class ViewFabMenu extends ViewGroup
                     .scaleY(1)
                     .alpha(1)
                     .setInterpolator(INTERPOLATOR)
+                    .setListener(new ViewPropertyAnimatorListener() {
+                        @Override
+                        public void onAnimationStart(View view) {
+
+                        }
+
+                        @Override
+                        public void onAnimationEnd(View view) {
+                            view.setVisibility(View.VISIBLE);
+                        }
+
+                        @Override
+                        public void onAnimationCancel(View view) {
+
+                        }
+                    })
                     .start();
         }
     }
