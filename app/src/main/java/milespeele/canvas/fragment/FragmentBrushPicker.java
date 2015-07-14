@@ -15,7 +15,6 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
 import milespeele.canvas.R;
-import milespeele.canvas.util.Logger;
 import milespeele.canvas.view.ViewBrushSize;
 
 /**
@@ -60,6 +59,7 @@ public class FragmentBrushPicker extends DialogFragment
         View v = inflater.inflate(R.layout.fragment_brush_picker, container, false);
         ButterKnife.inject(this, v);
         line.onThicknessChanged(Math.round(getArguments().getFloat(THICKNESS)));
+        seek.setProgress(Math.round(getArguments().getFloat(THICKNESS)));
         seek.setOnSeekBarChangeListener(this);
         return v;
     }
@@ -67,7 +67,6 @@ public class FragmentBrushPicker extends DialogFragment
     @Override
     @OnClick(R.id.fragment_brush_picker_pos)
     public void onClick(View v) {
-        Logger.log("ONCLICK: " + thickness);
         if (thickness != getArguments().getFloat(THICKNESS)) {
             mListener.onBrushSizeChosen(thickness);
         } else {

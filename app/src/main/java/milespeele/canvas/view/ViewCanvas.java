@@ -17,8 +17,6 @@ import java.util.EmptyStackException;
 import java.util.Random;
 import java.util.Stack;
 
-import milespeele.canvas.util.Logger;
-
 /**
  * Created by milespeele on 7/2/15.
  */
@@ -27,6 +25,7 @@ public class ViewCanvas extends View {
     private static float STROKE_WIDTH = 5f;
     private static float HALF_STROKE_WIDTH = STROKE_WIDTH / 2;
 
+    private int currentColor;
     private Paint curPaint;
     private Bitmap mBitmap;
     private Canvas mCanvas;
@@ -51,11 +50,11 @@ public class ViewCanvas extends View {
 
     public void init() {
         Random rnd = new Random();
-        int color = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
+        currentColor = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
 
         curPaint = new Paint();
         curPaint.setAntiAlias(true);
-        curPaint.setColor(color);
+        curPaint.setColor(currentColor);
         curPaint.setStyle(Paint.Style.STROKE);
         curPaint.setStrokeJoin(Paint.Join.ROUND);
         curPaint.setStrokeWidth(STROKE_WIDTH);
@@ -91,8 +90,7 @@ public class ViewCanvas extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         for (PaintPath p: mPaths) {
-            curPaint.setColor(p.getColor());
-            canvas.drawPath(p, curPaint);
+            canvas.drawPath(p, p.getPaint());
         }
     }
 
@@ -128,7 +126,7 @@ public class ViewCanvas extends View {
     }
 
     private void onTouchDown(float eventX, float eventY, float time) {
-        mPath = new PaintPath(curPaint);
+        mPath = new PaintPath(currentStyle());
         mPaths.push(mPath);
         mPath.moveTo(eventX, eventY);
         lastTouchX = eventX;
@@ -182,7 +180,7 @@ public class ViewCanvas extends View {
 
         destroyDrawingCache();
 
-        mPath = new PaintPath(curPaint);
+        mPath = new PaintPath(currentStyle());
         mPaths.push(mPath);
 
         invalidate();
@@ -194,7 +192,8 @@ public class ViewCanvas extends View {
     }
 
     public void changeColor(int color) {
-        curPaint.setColor(color);
+        currentColor = color;
+        curPaint.setColor(currentColor);
     }
 
     private PaintPath getLatestPath() {
@@ -208,7 +207,6 @@ public class ViewCanvas extends View {
     public float getBrushWidth() { return STROKE_WIDTH; }
 
     public void setBrushWidth(float width) {
-        Logger.log("BRUSH WIDTH: " + width);
         STROKE_WIDTH = width;
         curPaint.setStrokeWidth(width);
     }
@@ -220,8 +218,7 @@ public class ViewCanvas extends View {
     public void undo() {
         PaintPath path = getLatestPath();
         if (path != null) {
-            PaintPath redo = new PaintPath(curPaint);
-            redo.set(path);
+            PaintPath redo = new PaintPath(path);
             redoPaths.push(redo);
             path.rewind();
             mPaths.pop();
@@ -234,6 +231,17 @@ public class ViewCanvas extends View {
             mPaths.push(redoPaths.pop());
             invalidate();
         }
+    }
+
+    public Paint currentStyle() {
+        Paint paint = new Paint();
+        paint.setAntiAlias(true);
+        paint.setColor(currentColor);
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeJoin(Paint.Join.ROUND);
+        paint.setStrokeWidth(STROKE_WIDTH);
+        paint.setStrokeCap(Paint.Cap.ROUND);
+        return paint;
     }
 
     @Override

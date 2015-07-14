@@ -4,7 +4,6 @@ import android.app.Application;
 
 import com.parse.ParseException;
 import com.parse.ParseFile;
-import com.parse.ParseObject;
 import com.parse.ParseRelation;
 import com.parse.ParseUser;
 
@@ -106,34 +105,10 @@ public class ParseUtils {
         });
     }
 
-    public void saveImageToLocalDatastore(byte[] result) {
-        ParseObject.unpinAllInBackground(PINNED_MASTERPIECE, e -> {
-            if (e == null) {
-                final ParseFile photoFile = new ParseFile(ParseUser.getCurrentUser().getUsername(), result);
-                photoFile.saveInBackground((ParseException e1) -> {
-                    if (e1 == null) {
-                        final Masterpiece art = new Masterpiece();
-                        art.setImage(photoFile);
-                        art.pinInBackground(e2 -> {
-                            if (e2 != null) {
-                                handleParseError(e1);
-                            }
-                        });
-                    } else {
-                        handleParseError(e);
-                    }
-                });
-            } else {
-                handleParseError(e);
-            }
-        });
-    }
-
     public Observable<List<Masterpiece>> getSavedMasterpieces() throws ParseException {
         ParseRelation<Masterpiece> relation = ParseUser.getCurrentUser().getRelation("Masterpieces");
         return Observable.just(relation.getQuery().find());
     }
-
 
     public void handleParseError(ParseException e) {
         if (e != null) {

@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import milespeele.canvas.R;
+import milespeele.canvas.util.Logger;
 import milespeele.canvas.view.ViewCanvas;
 import milespeele.canvas.view.ViewFabMenu;
 
@@ -55,6 +56,20 @@ public class FragmentDrawer extends Fragment implements ViewFabMenu.FabMenuListe
         ButterKnife.inject(this, v);
         palette.setListener(this);
         return v;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        savedInstanceState.putParcelable("bitmap", drawer.getBitmap());
+        super.onSaveInstanceState(savedInstanceState);
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        if (savedInstanceState != null) {
+            Logger.log("HAS BITMAP");
+        }
     }
 
     @Override
