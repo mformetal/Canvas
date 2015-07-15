@@ -37,5 +37,7 @@ dependencies {
     compile 'io.reactivex:rxjava:1.0.10'
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.android.support:support-v13:21.0.+'
+    compile 'com.facebook.android:facebook-android-sdk:4.0.0'
+    compile project(':ParseLoginUI')
     compile fileTree(dir: 'libs', include: '*.jar')
 }

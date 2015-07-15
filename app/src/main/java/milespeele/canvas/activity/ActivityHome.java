@@ -1,6 +1,5 @@
 package milespeele.canvas.activity;
 
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.os.AsyncTask;
@@ -11,7 +10,6 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -33,7 +31,7 @@ import milespeele.canvas.fragment.FragmentMasterpiece;
 import milespeele.canvas.parse.Masterpiece;
 import milespeele.canvas.parse.ParseUtils;
 
-public class ActivityHome extends AppCompatActivity implements FragmentListener {
+public class ActivityHome extends ActivityBase implements FragmentListener {
 
     @InjectView(R.id.activity_home_drawer_layout) DrawerLayout drawerLayout;
     @InjectView(R.id.activity_home_navigation_drawer) NavigationView navigationView;
@@ -55,17 +53,10 @@ public class ActivityHome extends AppCompatActivity implements FragmentListener 
     private AsyncBitmap asyncBitmap;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         ButterKnife.inject(this);
-
-        if (savedInstanceState != null) {
-            FragmentDrawer frag = (FragmentDrawer) getFragmentManager().getFragment(savedInstanceState, "drawer");
-            getFragmentManager().beginTransaction().show(frag).commit();
-        } else {
-            addDrawerFragment();
-        }
 
         ((MainApp) getApplication()).getApplicationComponent().inject(this);
 
@@ -80,30 +71,8 @@ public class ActivityHome extends AppCompatActivity implements FragmentListener 
         setupDrawerContent(navigationView);
 
         parseUtils.checkActiveUser();
-    }
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        FragmentDrawer frag = (FragmentDrawer) getFragmentManager().findFragmentByTag(TAG_FRAGMENT_DRAWER);
-        getFragmentManager().putFragment(outState, TAG_FRAGMENT_DRAWER, frag);
-        super.onSaveInstanceState(outState);
-    }
-
-    @Override
-    public void onRestoreInstanceState(Bundle inState) {
-        FragmentDrawer frag = (FragmentDrawer) getFragmentManager().getFragment(inState, TAG_FRAGMENT_DRAWER);
-        getFragmentManager().beginTransaction().show(frag).commit();
-        super.onRestoreInstanceState(inState);
-    }
-
-    @Override
-    public void onBackPressed() {
-        int count = getFragmentManager().getBackStackEntryCount();
-        if (count == 0) {
-            super.onBackPressed();
-        } else {
-            getFragmentManager().popBackStackImmediate();
-        }
+        addDrawerFragment();
     }
 
     @Override
@@ -174,8 +143,8 @@ public class ActivityHome extends AppCompatActivity implements FragmentListener 
     }
 
     private void startGalleryActivity() {
-        Intent gallery = new Intent(this, ActivityGallery.class);
-        startActivity(gallery);
+//        Intent gallery = new Intent(this, ActivityGallery.class);
+//        startActivity(gallery);
     }
 
     private boolean checkAsyncStatus() {
@@ -204,7 +173,7 @@ public class ActivityHome extends AppCompatActivity implements FragmentListener 
     public void showSavedImageSnackbar(Masterpiece object) {
         Snackbar.make(drawerLayout, R.string.snackbar_activity_home_image_saved_title, Snackbar.LENGTH_LONG)
                 .setAction(R.string.snackbar_activity_home_imaged_saved_body, v -> {
-                    addFragmentMasterpiece(object);
+                    //addFragmentMasterpiece(object);
                 })
                 .show();
     }

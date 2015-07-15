@@ -3,7 +3,6 @@ package milespeele.canvas.activity;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -27,7 +26,7 @@ import rx.schedulers.Schedulers;
 /**
  * Created by Miles Peele on 7/12/2015.
  */
-public class ActivityGallery extends AppCompatActivity {
+public class ActivityGallery extends ActivityBase {
 
     @InjectView(R.id.activity_view_gallery_xml) ViewPager gallery;
     @InjectView(R.id.activity_gallery_none) TextView empty;
