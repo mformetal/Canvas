@@ -1,8 +1,7 @@
-apply plugin: 'android-library'
+apply plugin: 'com.android.library'
 
 dependencies {
-    compile 'com.parse.bolts:bolts-android:1.2.0'
-    compile 'com.android.support:support-v4:22.0.0'
+    compile 'com.android.support:support-v4:22.2.0'
     compile 'com.android.support:design:22.2.0'
 
     compile 'com.facebook.android:facebook-android-sdk:4.0.1'
@@ -14,7 +13,7 @@ dependencies {
     //
     // Since the dependency below is "provided" instead of "compile", your project's build.gradle
     // does not have to refer to the same Parse SDK instance that's in the ParseLoginUI/libs folder.
-    provided files("$rootProject.projectDir/ParseLoginUI/libs/Parse-1.9.1.jar")
+    provided files("$rootProject.projectDir/ParseLoginUI/libs/Parse-1.9.3.jar")
     provided files("$rootProject.projectDir/ParseLoginUI/libs/ParseFacebookUtilsV4-1.9.1.jar")
 }
 

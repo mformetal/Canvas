@@ -3,6 +3,8 @@ package milespeele.canvas;
 import android.app.Application;
 
 import com.parse.Parse;
+import com.parse.ParseCrashReporting;
+import com.parse.ParseFacebookUtils;
 import com.parse.ParseObject;
 
 import milespeele.canvas.dagger.ApplicationComponent;
@@ -22,6 +24,8 @@ public class MainApp extends Application {
         super.onCreate();
         ParseObject.registerSubclass(Masterpiece.class);
         Parse.enableLocalDatastore(this);
+        ParseCrashReporting.enable(this);
+        ParseFacebookUtils.initialize(this);
         Parse.initialize(this,
                 getResources().getString(R.string.parse_application_id),
                 getResources().getString(R.string.parse_client_key));

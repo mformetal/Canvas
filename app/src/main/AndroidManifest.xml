@@ -17,20 +17,16 @@
             android:screenOrientation="nosensor">
         </activity>
 
-        <activity
-            android:name=".activity.ActivityGallery"
-            android:label="@string/title_activity_gallery"
-            android:screenOrientation="nosensor"
-            android:parentActivityName=".activity.ActivityHome">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="milespeele.canvas.activity.ActivityHome" />
-        </activity>
-
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_app_id"/>
 
+        <activity
+            android:name="com.facebook.FacebookActivity"
+            android:configChanges=
+            "keyboard|keyboardHidden|screenLayout|screenSize|orientation"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:label="@string/app_name" />
         <activity
             android:name="com.parse.ui.ParseLoginActivity"
             android:label="@string/app_name"

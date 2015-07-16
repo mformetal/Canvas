@@ -32,12 +32,13 @@ dependencies {
     provided 'org.glassfish:javax.annotation:10.0-b28'
     compile 'com.google.dagger:dagger:2.0'
     compile 'com.jakewharton:butterknife:6.1.0'
-    compile 'com.parse.bolts:bolts-android:1.+'
     compile 'com.android.support:design:22.2.0'
     compile 'io.reactivex:rxjava:1.0.10'
     compile 'com.squareup.picasso:picasso:2.5.2'
-    compile 'com.android.support:support-v13:21.0.+'
-    compile 'com.facebook.android:facebook-android-sdk:4.0.0'
+    compile 'com.facebook.android:facebook-android-sdk:4.0.1'
     compile project(':ParseLoginUI')
-    compile fileTree(dir: 'libs', include: '*.jar')
+    compile 'com.parse.bolts:bolts-android:1.2.0'
+    compile files('libs/ParseCrashReporting-1.9.3.jar')
+    compile files('libs/Parse-1.9.3.jar')
+    compile files('libs/ParseFacebookUtilsV4-1.9.1.jar')
 }

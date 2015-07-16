@@ -30,13 +30,11 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.facebook.AccessToken;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
-
 import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
@@ -94,7 +92,7 @@ public class ParseLoginFragment extends ParseLoginFragmentBase {
 
     View v = inflater.inflate(R.layout.com_parse_ui_parse_login_fragment,
         parent, false);
-    ImageView appLogo = (ImageView) v.findViewById(R.id.app_logo);
+    TextView appLogo = (TextView) v.findViewById(R.id.app_logo);
     parseLogin = v.findViewById(R.id.parse_login);
     usernameField = (EditText) v.findViewById(R.id.login_username_input);
     passwordField = (EditText) v.findViewById(R.id.login_password_input);
@@ -104,9 +102,6 @@ public class ParseLoginFragment extends ParseLoginFragmentBase {
     facebookLoginButton = (Button) v.findViewById(R.id.facebook_login);
     twitterLoginButton = (Button) v.findViewById(R.id.twitter_login);
 
-    if (appLogo != null && config.getAppLogo() != null) {
-      appLogo.setImageResource(config.getAppLogo());
-    }
     if (allowParseLoginAndSignup()) {
       setUpParseLoginAndSignup();
     }
