@@ -27,7 +27,6 @@ import milespeele.canvas.fragment.FragmentColorPicker;
 import milespeele.canvas.fragment.FragmentDrawer;
 import milespeele.canvas.fragment.FragmentFilename;
 import milespeele.canvas.fragment.FragmentListener;
-import milespeele.canvas.fragment.FragmentMasterpiece;
 import milespeele.canvas.parse.Masterpiece;
 import milespeele.canvas.parse.ParseUtils;
 
@@ -43,8 +42,6 @@ public class ActivityHome extends ActivityBase implements FragmentListener {
     private final static String TAG_FRAGMENT_MASTERPIECE = "art";
     private final static String TAG_FRAGMENT_FILENAME = "name";
     private final static String TAG_FRAGMENT_BRUSH = "brush";
-
-    private final static String TAG_SERVER_SAVE = "there";
 
     @Inject ParseUtils parseUtils;
 
@@ -119,7 +116,6 @@ public class ActivityHome extends ActivityBase implements FragmentListener {
     public void selectDrawerItem(MenuItem menuItem) {
         switch (menuItem.getItemId()) {
             case R.id.menu_drawer_gallery:
-                startGalleryActivity();
                 break;
         }
     }
@@ -130,21 +126,8 @@ public class ActivityHome extends ActivityBase implements FragmentListener {
                 .commit();
     }
 
-    private void addFragmentMasterpiece(Masterpiece object) {
-        getFragmentManager().beginTransaction()
-                .replace(R.id.activity_home_fragment_frame, FragmentMasterpiece.newInstance(object), TAG_FRAGMENT_MASTERPIECE)
-                .addToBackStack(TAG_FRAGMENT_MASTERPIECE)
-                .setCustomAnimations(R.anim.fab_in, R.anim.fade_out)
-                .commit();
-    }
-
     private void addFilenameFragment() {
         FragmentFilename.newInstance().show(getFragmentManager(), TAG_FRAGMENT_FILENAME);
-    }
-
-    private void startGalleryActivity() {
-//        Intent gallery = new Intent(this, ActivityGallery.class);
-//        startActivity(gallery);
     }
 
     private boolean checkAsyncStatus() {
@@ -156,7 +139,7 @@ public class ActivityHome extends ActivityBase implements FragmentListener {
         return status != AsyncTask.Status.RUNNING && status != AsyncTask.Status.PENDING;
     }
 
-    private void imageToByteArray(String whereSaving, String filename) {
+    private void imageToByteArray(String filename) {
         FragmentDrawer frag = (FragmentDrawer) getFragmentManager().findFragmentByTag(TAG_FRAGMENT_DRAWER);
         if (frag != null && checkAsyncStatus()) {
             Bitmap art = frag.giveBitmapToActivity();
@@ -173,7 +156,6 @@ public class ActivityHome extends ActivityBase implements FragmentListener {
     public void showSavedImageSnackbar(Masterpiece object) {
         Snackbar.make(drawerLayout, R.string.snackbar_activity_home_image_saved_title, Snackbar.LENGTH_LONG)
                 .setAction(R.string.snackbar_activity_home_imaged_saved_body, v -> {
-                    //addFragmentMasterpiece(object);
                 })
                 .show();
     }
@@ -240,7 +222,7 @@ public class ActivityHome extends ActivityBase implements FragmentListener {
     public void onFilenameChosen(String fileName) {
         ((FragmentFilename) getFragmentManager().findFragmentByTag(TAG_FRAGMENT_FILENAME)).dismiss();
         if (!fileName.isEmpty()) {
-            imageToByteArray(TAG_SERVER_SAVE, fileName);
+            imageToByteArray(fileName);
         }
     }
 
