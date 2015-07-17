@@ -11,15 +11,32 @@
         android:name=".MainApp"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
+
         <activity
             android:name=".activity.ActivityHome"
             android:label="@string/app_name"
             android:screenOrientation="nosensor">
         </activity>
 
+        <activity
+            android:name=".activity.ActivityLoginDispatch"
+            android:label="@string/app_name"
+            android:screenOrientation="nosensor" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_app_id"/>
+        <meta-data
+            android:name="com.parse.APPLICATION_ID"
+            android:value="@string/parse_application_id" />
+        <meta-data
+            android:name="com.parse.CLIENT_KEY"
+            android:value="@string/parse_client_key" />
 
         <activity
             android:name="com.facebook.FacebookActivity"
@@ -27,6 +44,7 @@
             "keyboard|keyboardHidden|screenLayout|screenSize|orientation"
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
             android:label="@string/app_name" />
+
         <activity
             android:name="com.parse.ui.ParseLoginActivity"
             android:label="@string/app_name"

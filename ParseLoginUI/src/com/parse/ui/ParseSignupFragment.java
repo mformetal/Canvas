@@ -30,7 +30,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.parse.ParseException;
 import com.parse.ParseUser;
@@ -84,7 +84,7 @@ public class ParseSignupFragment extends ParseLoginFragmentBase implements OnCli
 
     View v = inflater.inflate(R.layout.com_parse_ui_parse_signup_fragment,
         parent, false);
-    ImageView appLogo = (ImageView) v.findViewById(R.id.app_logo);
+    TextView appLogo = (TextView) v.findViewById(R.id.app_logo);
     usernameField = (EditText) v.findViewById(R.id.signup_username_input);
     passwordField = (EditText) v.findViewById(R.id.signup_password_input);
     confirmPasswordField = (EditText) v
@@ -95,10 +95,6 @@ public class ParseSignupFragment extends ParseLoginFragmentBase implements OnCli
 
     usernameField.setText(username);
     passwordField.setText(password);
-
-    if (appLogo != null && config.getAppLogo() != null) {
-      appLogo.setImageResource(config.getAppLogo());
-    }
 
     if (config.isParseLoginEmailAsUsername()) {
       usernameField.setHint(R.string.com_parse_ui_email_input_hint);

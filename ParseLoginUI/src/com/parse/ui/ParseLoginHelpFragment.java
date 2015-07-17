@@ -29,7 +29,6 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.parse.ParseException;
@@ -68,15 +67,11 @@ public class ParseLoginHelpFragment extends ParseLoginFragmentBase implements On
 
     View v = inflater.inflate(R.layout.com_parse_ui_parse_login_help_fragment,
         parent, false);
-    ImageView appLogo = (ImageView) v.findViewById(R.id.app_logo);
+    TextView appLogo = (TextView) v.findViewById(R.id.app_logo);
     instructionsTextView = (TextView) v
         .findViewById(R.id.login_help_instructions);
     emailField = (EditText) v.findViewById(R.id.login_help_email_input);
     submitButton = (Button) v.findViewById(R.id.login_help_submit);
-
-    if (appLogo != null && config.getAppLogo() != null) {
-      appLogo.setImageResource(config.getAppLogo());
-    }
 
     submitButton.setOnClickListener(this);
     return v;
