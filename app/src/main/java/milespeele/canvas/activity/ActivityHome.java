@@ -1,8 +1,11 @@
 package milespeele.canvas.activity;
 
+import android.animation.ObjectAnimator;
+import android.annotation.TargetApi;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -10,8 +13,20 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.internal.view.menu.ActionMenuItemView;
+import android.transition.Explode;
+import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.BounceInterpolator;
+import android.view.animation.TranslateAnimation;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 
 import java.lang.ref.WeakReference;
 
@@ -28,12 +43,14 @@ import milespeele.canvas.fragment.FragmentFilename;
 import milespeele.canvas.fragment.FragmentListener;
 import milespeele.canvas.parse.Masterpiece;
 import milespeele.canvas.parse.ParseUtils;
+import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.Util;
+import milespeele.canvas.view.ViewFab;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
-public class ActivityHome extends ActivityBase implements FragmentListener {
+public class ActivityHome extends ActivityBase implements FragmentListener, View.OnClickListener {
 
     @InjectView(R.id.activity_home_drawer_layout) DrawerLayout drawerLayout;
     @InjectView(R.id.activity_home_navigation_drawer) NavigationView navigationView;
@@ -59,7 +76,6 @@ public class ActivityHome extends ActivityBase implements FragmentListener {
         ((MainApp) getApplication()).getApplicationComponent().inject(this);
 
         final ActionBar ab = getSupportActionBar();
-        ab.setHomeAsUpIndicator(R.drawable.brush);
         ab.setDisplayHomeAsUpEnabled(true);
 
         toggle = new ActionBarDrawerToggle(this, drawerLayout,
@@ -80,6 +96,8 @@ public class ActivityHome extends ActivityBase implements FragmentListener {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_activity_home, menu);
+        final MenuItem item = menu.findItem(R.id.menu_activity_home_save_canvas);
+        item.getActionView().setOnClickListener(this);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -93,9 +111,6 @@ public class ActivityHome extends ActivityBase implements FragmentListener {
                     drawerLayout.openDrawer(GravityCompat.START);
                 }
                 return true;
-            case R.id.menu_activity_home_save_canvas:
-                addFilenameFragment();
-                break;
             case R.id.menu_activity_home_erase_canvas:
                 tellFragmentToEraseCanvas();
                 break;
@@ -133,7 +148,6 @@ public class ActivityHome extends ActivityBase implements FragmentListener {
         FragmentDrawer frag = (FragmentDrawer) getFragmentManager().findFragmentByTag(TAG_FRAGMENT_DRAWER);
         if (frag != null) {
             Bitmap art = frag.giveBitmapToActivity();
-            Integer[] dimens = getScreenDimens();
             Util.compressBitmap(art)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
@@ -151,6 +165,7 @@ public class ActivityHome extends ActivityBase implements FragmentListener {
     }
 
     public void showSavedImageSnackbar(Masterpiece object) {
+        ((ImageView) findViewById(R.id.menu_activity_home_save_canvas)).setAnimation(null);
         Snackbar.make(drawerLayout, R.string.snackbar_activity_home_image_saved_title, Snackbar.LENGTH_LONG)
                 .setAction(R.string.snackbar_activity_home_imaged_saved_body, v -> {
                 })
@@ -219,6 +234,8 @@ public class ActivityHome extends ActivityBase implements FragmentListener {
     public void onFilenameChosen(String fileName) {
         ((FragmentFilename) getFragmentManager().findFragmentByTag(TAG_FRAGMENT_FILENAME)).dismiss();
         if (!fileName.isEmpty()) {
+            final ImageView pulse = (ImageView) findViewById(R.id.menu_activity_home_save_canvas);
+            pulse.startAnimation(AnimationUtils.loadAnimation(this, R.anim.pulse));
             imageToByteArray(fileName);
         }
     }
@@ -239,11 +256,8 @@ public class ActivityHome extends ActivityBase implements FragmentListener {
         }
     }
 
-    private Integer[] getScreenDimens() {
-        Point mPoint = new Point();
-        getWindowManager().getDefaultDisplay().getSize(mPoint);
-        int width = mPoint.x;
-        int height = mPoint.y;
-        return new Integer[] {width, height};
+    @Override
+    public void onClick(View v) {
+        addFilenameFragment();
     }
 }

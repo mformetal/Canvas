@@ -65,6 +65,12 @@ public class FragmentBrushPicker extends DialogFragment
     }
 
     @Override
+    public void onActivityCreated(Bundle arg0) {
+        super.onActivityCreated(arg0);
+        getDialog().getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+    }
+
+    @Override
     @OnClick({R.id.fragment_brush_picker_pos, R.id.fragment_brush_picker_cancel})
     public void onClick(View v) {
         switch (v.getId()) {

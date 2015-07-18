@@ -17,13 +17,9 @@
         <item name="android:windowActionBarOverlay">true</item>
     </style>
 
-    <style name="LoginActivity" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="android:windowBackground">@color/primary</item>
-    </style>
-
     <style name="DialogAnimation">
-        <item name="android:windowEnterAnimation">@anim/fade_in</item>
-        <item name="android:windowExitAnimation">@anim/fade_out</item>
+        <item name="android:windowEnterAnimation">@anim/scale_in</item>
+        <item name="android:windowExitAnimation">@anim/scale_out</item>
     </style>
 
     <style name="DialogTheme" parent="Theme.AppCompat.Light.Dialog">

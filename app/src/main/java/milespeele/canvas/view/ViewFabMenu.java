@@ -169,8 +169,7 @@ public class ViewFabMenu extends ViewGroup
             menuVisible = false;
             rotateToShowMenuClosed();
             for (int i = 0; i < getChildCount() - 1; i++) {
-                ViewFab v = (ViewFab) getChildAt(i);
-                v.hide();
+                ((ViewFab) getChildAt(i)).hide();
             }
         }
     }
@@ -179,8 +178,7 @@ public class ViewFabMenu extends ViewGroup
         menuVisible = true;
         rotateToShowMenuOpen();
         for (int i = 0; i < getChildCount() - 1; i++) {
-            ViewFab v = (ViewFab) getChildAt(i);
-            v.show();
+            ((ViewFab) getChildAt(i)).show();
         }
     }
 
