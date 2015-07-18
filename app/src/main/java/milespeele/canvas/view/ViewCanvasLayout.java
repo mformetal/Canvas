@@ -12,7 +12,7 @@ import milespeele.canvas.R;
 /**
  * Created by Miles Peele on 7/10/2015.
  */
-public class ViewCoordinatorLayout extends CoordinatorLayout {
+public class ViewCanvasLayout extends CoordinatorLayout {
 
     private ViewFabMenu palette;
     private boolean mIsMoving = false;
@@ -20,17 +20,17 @@ public class ViewCoordinatorLayout extends CoordinatorLayout {
     private static Handler handler = new Handler();
     private static final int MOVING_DELAY = 750;
 
-    public ViewCoordinatorLayout(Context context) {
+    public ViewCanvasLayout(Context context) {
         super(context);
         setSaveEnabled(true);
     }
 
-    public ViewCoordinatorLayout(Context context, AttributeSet attrs) {
+    public ViewCanvasLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
         setSaveEnabled(true);
     }
 
-    public ViewCoordinatorLayout(Context context, AttributeSet attrs, int defStyleAttr) {
+    public ViewCanvasLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         setSaveEnabled(true);
     }

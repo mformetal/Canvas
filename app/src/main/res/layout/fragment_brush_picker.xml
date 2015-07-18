@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
     <milespeele.canvas.view.ViewBrushSize
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:id="@+id/fragment_brush_picker_changes"
-        android:src="@drawable/ic_brush_white_48dp" />
+        android:padding="@dimen/activity_horizontal_margin"
+        android:id="@+id/fragment_brush_picker_changes" />
 
     <SeekBar
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="@dimen/activity_vertical_margin"
+        android:layout_below="@id/fragment_brush_picker_changes"
         android:id="@+id/fragment_brush_picker_seek" />
 
     <Button
@@ -25,6 +25,20 @@
         android:layout_height="wrap_content"
         android:id="@+id/fragment_brush_picker_pos"
         android:text="@string/fragment_brush_picker_pos_button_text"
-        android:layout_gravity="end" />
+        android:layout_gravity="end"
+        android:layout_below="@+id/fragment_brush_picker_seek"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
 
-</LinearLayout>
+    <Button
+        style="?borderlessButtonStyle"
+        android:textColor="@android:color/white"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/fragment_brush_picker_cancel"
+        android:text="@string/fragment_color_picker_nah"
+        android:layout_below="@+id/fragment_brush_picker_seek"
+        android:layout_toLeftOf="@+id/fragment_brush_picker_pos"
+        android:layout_toStartOf="@+id/fragment_brush_picker_pos" />
+
+</RelativeLayout>

@@ -4,8 +4,13 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.view.ViewCompat;
+import android.support.v4.view.ViewPropertyAnimatorListener;
+import android.support.v4.view.animation.LinearOutSlowInInterpolator;
 import android.util.AttributeSet;
+import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Interpolator;
 
 import milespeele.canvas.R;
 import milespeele.canvas.util.Util;
@@ -24,6 +29,8 @@ public class ViewFab extends FloatingActionButton {
 
     private boolean mUsingElevation;
     private boolean mUsingElevationCompat;
+
+    private final static Interpolator INTERPOLATOR = new LinearOutSlowInInterpolator();
 
     public ViewFab(Context context) {
         super(context);
@@ -124,4 +131,52 @@ public class ViewFab extends FloatingActionButton {
             mShowShadow = true;
         }
     }
+
+    public void show() {
+        ViewCompat.animate(this)
+                .scaleY(1)
+                .alpha(1)
+                .setInterpolator(INTERPOLATOR)
+                .setListener(new ViewPropertyAnimatorListener() {
+                    @Override
+                    public void onAnimationStart(View view) {
+                        view.setVisibility(View.VISIBLE);
+                    }
+
+                    @Override
+                    public void onAnimationEnd(View view) {
+                    }
+
+                    @Override
+                    public void onAnimationCancel(View view) {
+
+                    }
+                })
+                .start();
+    }
+
+    public void hide() {
+        ViewCompat.animate(this)
+                .scaleY(0)
+                .alpha(0)
+                .setInterpolator(INTERPOLATOR)
+                .setListener(new ViewPropertyAnimatorListener() {
+                    @Override
+                    public void onAnimationStart(View view) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(View view) {
+                        view.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(View view) {
+
+                    }
+                })
+                .start();
+    }
+
 }

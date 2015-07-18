@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.TextView;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -24,8 +25,8 @@ import milespeele.canvas.view.ViewColorPicker;
 public class FragmentColorPicker extends DialogFragment
     implements View.OnClickListener {
 
+    @InjectView(R.id.fragment_color_picker_which) TextView which;
     @InjectView(R.id.fragment_color_picker_view) ViewColorPicker picker;
-    @InjectView(R.id.fragment_color_picker_select) Button select;
 
     private FragmentListener listener;
 
@@ -61,6 +62,7 @@ public class FragmentColorPicker extends DialogFragment
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_color_picker, container, false);
         ButterKnife.inject(this, v);
+        which.setText(getArguments().getString(TAG));
         return v;
     }
 
@@ -71,8 +73,15 @@ public class FragmentColorPicker extends DialogFragment
     }
 
     @Override
-    @OnClick(R.id.fragment_color_picker_select)
+    @OnClick({R.id.fragment_color_picker_cancel, R.id.fragment_color_picker_select})
     public void onClick(View v) {
-        listener.onColorChosen(picker.getColor(), getArguments().getString(TAG));
+        switch (v.getId()) {
+            case R.id.fragment_color_picker_select:
+                listener.onColorChosen(picker.getColor(), getArguments().getString(TAG));
+                break;
+            case R.id.fragment_color_picker_cancel:
+                listener.onColorChosen(-1, getArguments().getString(TAG));
+                break;
+        }
     }
 }

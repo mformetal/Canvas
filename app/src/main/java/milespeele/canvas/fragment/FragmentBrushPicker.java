@@ -65,12 +65,19 @@ public class FragmentBrushPicker extends DialogFragment
     }
 
     @Override
-    @OnClick(R.id.fragment_brush_picker_pos)
+    @OnClick({R.id.fragment_brush_picker_pos, R.id.fragment_brush_picker_cancel})
     public void onClick(View v) {
-        if (thickness != getArguments().getFloat(THICKNESS)) {
-            mListener.onBrushSizeChosen(thickness);
-        } else {
-            mListener.onBrushSizeChosen(0);
+        switch (v.getId()) {
+            case R.id.fragment_brush_picker_pos:
+                if (thickness != getArguments().getFloat(THICKNESS)) {
+                    mListener.onBrushSizeChosen(thickness);
+                } else {
+                    mListener.onBrushSizeChosen(0);
+                }
+                break;
+            case R.id.fragment_brush_picker_cancel:
+                mListener.onBrushSizeChosen(0);
+                break;
         }
     }
 

@@ -9,14 +9,13 @@ import com.parse.ParseUser;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
-import java.util.UUID;
 
 import javax.inject.Inject;
 
 import milespeele.canvas.MainApp;
 import milespeele.canvas.activity.ActivityHome;
 import milespeele.canvas.util.Datastore;
-import milespeele.canvas.util.Logger;
+import milespeele.canvas.util.Logg;
 import rx.Observable;
 
 /**
@@ -31,48 +30,6 @@ public class ParseUtils {
 
     public ParseUtils(Application mApplication) {
         ((MainApp) mApplication).getApplicationComponent().inject(this);
-    }
-
-    public void checkActiveUser() {
-//        ParseQuery<ParseUser> userQuery = ParseUser.getQuery();
-//        userQuery.fromLocalDatastore();
-//        userQuery.findInBackground((list, e) -> {
-//            if (e == null) {
-//                if (list.isEmpty()) {
-//                    signupNewUser();
-//                }
-//            } else {
-//                handleParseError(e);
-//            }
-//        });
-        if (!datastore.hasUser()) {
-            Logger.log("NEW USER");
-            signupNewUser();
-        } else {
-            loginUser();
-        }
-    }
-
-    private void signupNewUser() {
-        final String username = UUID.randomUUID().toString();
-        final String password = UUID.randomUUID().toString();
-
-        final ParseUser user = new ParseUser();
-        user.setUsername(username);
-        user.setPassword(password);
-        user.signUpInBackground(e -> {
-            if (e == null) {
-                datastore.setUsername(username);
-                datastore.setPassword(password);
-                user.pinInBackground(PINNED_USER);
-            } else {
-                handleParseError(e);
-            }
-        });
-    }
-
-    private void loginUser() {
-        ParseUser.logInInBackground(datastore.getUsername(), datastore.getPassword());
     }
 
     public void saveImageToServer(String filename, final WeakReference<ActivityHome> weakCxt, byte[] result) {
@@ -113,11 +70,8 @@ public class ParseUtils {
     public void handleParseError(ParseException e) {
         if (e != null) {
             switch (e.getCode()) {
-                case ParseException.INVALID_SESSION_TOKEN:
-                    loginUser();
-                    break;
                 default:
-                    Logger.log("UNHANDLED PARSE EXCEPTION: " + e.getCode());
+                    Logg.log("UNHANDLED PARSE EXCEPTION: " + e.getCode());
                     e.printStackTrace();
             }
         }

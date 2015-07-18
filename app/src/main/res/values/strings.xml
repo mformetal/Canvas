@@ -10,7 +10,8 @@
     <string name="title_activity_gallery">Gallery</string>
     <string name="activity_gallery_empty">No Masterpieces Saved Yet!</string>
 
-    <string name="fragment_color_picker_choose">Choose Color</string>
+    <string name="fragment_color_picker_choose">Choose</string>
+    <string name="fragment_color_picker_nah">Cancel</string>
 
     <string name="activity_home_actionbar_toggle_open">Canvas</string>
     <string name="activity_home_actionbar_toggle_close">Close</string>

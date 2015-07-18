@@ -21,7 +21,6 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
-import milespeele.canvas.asynctask.AsyncBitmap;
 import milespeele.canvas.fragment.FragmentBrushPicker;
 import milespeele.canvas.fragment.FragmentColorPicker;
 import milespeele.canvas.fragment.FragmentDrawer;
@@ -29,6 +28,10 @@ import milespeele.canvas.fragment.FragmentFilename;
 import milespeele.canvas.fragment.FragmentListener;
 import milespeele.canvas.parse.Masterpiece;
 import milespeele.canvas.parse.ParseUtils;
+import milespeele.canvas.util.Util;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
+import rx.schedulers.Schedulers;
 
 public class ActivityHome extends ActivityBase implements FragmentListener {
 
@@ -36,8 +39,8 @@ public class ActivityHome extends ActivityBase implements FragmentListener {
     @InjectView(R.id.activity_home_navigation_drawer) NavigationView navigationView;
 
     private final static String TAG_FRAGMENT_DRAWER = "fragd";
-    private final static String TAG_FRAGMENT_STROKE = "stroke";
-    private final static String TAG_FRAGMENT_FILL = "fill";
+    private final static String TAG_FRAGMENT_STROKE = "Stroke Color";
+    private final static String TAG_FRAGMENT_FILL = "Background Color";
     private final static String TAG_FRAGMENT_SHAPE = "shape";
     private final static String TAG_FRAGMENT_MASTERPIECE = "art";
     private final static String TAG_FRAGMENT_FILENAME = "name";
@@ -46,8 +49,6 @@ public class ActivityHome extends ActivityBase implements FragmentListener {
     @Inject ParseUtils parseUtils;
 
     private ActionBarDrawerToggle toggle;
-
-    private AsyncBitmap asyncBitmap;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -66,8 +67,6 @@ public class ActivityHome extends ActivityBase implements FragmentListener {
         drawerLayout.setDrawerListener(toggle);
         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
         setupDrawerContent(navigationView);
-
-        parseUtils.checkActiveUser();
 
         addDrawerFragment();
     }
@@ -130,27 +129,25 @@ public class ActivityHome extends ActivityBase implements FragmentListener {
         FragmentFilename.newInstance().show(getFragmentManager(), TAG_FRAGMENT_FILENAME);
     }
 
-    private boolean checkAsyncStatus() {
-        if (asyncBitmap == null)  {
-            return true;
-        }
-
-        AsyncTask.Status status = asyncBitmap.getStatus();
-        return status != AsyncTask.Status.RUNNING && status != AsyncTask.Status.PENDING;
-    }
-
     private void imageToByteArray(String filename) {
         FragmentDrawer frag = (FragmentDrawer) getFragmentManager().findFragmentByTag(TAG_FRAGMENT_DRAWER);
-        if (frag != null && checkAsyncStatus()) {
+        if (frag != null) {
             Bitmap art = frag.giveBitmapToActivity();
             Integer[] dimens = getScreenDimens();
-            asyncBitmap = new AsyncBitmap(filename, this, dimens[0], dimens[1]);
-            asyncBitmap.execute(art);
+            Util.compressBitmap(art)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(bytes -> onByteArrayReceived(bytes, filename),
+                            this::onErrorReceived);
         }
     }
 
     public void onByteArrayReceived(byte[] result, String filename) {
         parseUtils.saveImageToServer(filename, new WeakReference<>(this), result);
+    }
+
+    public void onErrorReceived(Throwable error) {
+        error.printStackTrace();
     }
 
     public void showSavedImageSnackbar(Masterpiece object) {

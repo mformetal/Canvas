@@ -30,6 +30,9 @@ public class ViewFabMenu extends ViewGroup
     private int buttonWidth;
     private int buttonHeight;
 
+    private ObjectAnimator rotateOpen;
+    private ObjectAnimator rotateClose;
+
     private FabMenuListener mListener;
     public interface FabMenuListener {
         void onShapeClicked();
@@ -116,6 +119,8 @@ public class ViewFabMenu extends ViewGroup
         super.onFinishInflate();
         ButterKnife.inject(this);
         toggle = (ViewFab) getChildAt(getChildCount() - 1);
+        rotateOpen = ObjectAnimator.ofFloat(toggle, "rotation", 0f, 135f);
+        rotateClose = ObjectAnimator.ofFloat(toggle, "rotation", 135f, 270f);
         rotateToShowMenuOpen();
     }
 
@@ -164,28 +169,8 @@ public class ViewFabMenu extends ViewGroup
             menuVisible = false;
             rotateToShowMenuClosed();
             for (int i = 0; i < getChildCount() - 1; i++) {
-                View v = getChildAt(i);
-                ViewCompat.animate(v)
-                        .scaleY(0)
-                        .alpha(0)
-                        .setInterpolator(INTERPOLATOR)
-                        .setListener(new ViewPropertyAnimatorListener() {
-                            @Override
-                            public void onAnimationStart(View view) {
-
-                            }
-
-                            @Override
-                            public void onAnimationEnd(View view) {
-                                view.setVisibility(View.GONE);
-                            }
-
-                            @Override
-                            public void onAnimationCancel(View view) {
-
-                            }
-                        })
-                        .start();
+                ViewFab v = (ViewFab) getChildAt(i);
+                v.hide();
             }
         }
     }
@@ -194,40 +179,16 @@ public class ViewFabMenu extends ViewGroup
         menuVisible = true;
         rotateToShowMenuOpen();
         for (int i = 0; i < getChildCount() - 1; i++) {
-            View v = getChildAt(i);
-            ViewCompat.animate(v)
-                    .scaleY(1)
-                    .alpha(1)
-                    .setInterpolator(INTERPOLATOR)
-                    .setListener(new ViewPropertyAnimatorListener() {
-                        @Override
-                        public void onAnimationStart(View view) {
-
-                        }
-
-                        @Override
-                        public void onAnimationEnd(View view) {
-                            view.setVisibility(View.VISIBLE);
-                        }
-
-                        @Override
-                        public void onAnimationCancel(View view) {
-
-                        }
-                    })
-                    .start();
+            ViewFab v = (ViewFab) getChildAt(i);
+            v.show();
         }
     }
 
     private void rotateToShowMenuOpen() {
-        ObjectAnimator imageViewObjectAnimator = ObjectAnimator.ofFloat(toggle,
-                "rotation", 0f, 135f);
-        imageViewObjectAnimator.start();
+        rotateOpen.start();
     }
 
     private void rotateToShowMenuClosed() {
-        ObjectAnimator imageViewObjectAnimator = ObjectAnimator.ofFloat(toggle,
-                "rotation", 135f, 270f);
-        imageViewObjectAnimator.start();
+        rotateClose.start();
     }
 }

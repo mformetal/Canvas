@@ -9,13 +9,14 @@ import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
 
+import milespeele.canvas.util.Logg;
+
 /**
  * Created by milespeele on 7/13/15.
  */
 public class ViewBrushSize extends View {
 
     private Paint curPaint;
-    private PaintPath path;
 
     public ViewBrushSize(Context context) {
         super(context);
@@ -40,7 +41,9 @@ public class ViewBrushSize extends View {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        setMeasuredDimension(100, 100);
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        int width = getMeasuredWidth();
+        setMeasuredDimension(width, width / 4);
     }
 
 
@@ -51,8 +54,6 @@ public class ViewBrushSize extends View {
         curPaint.setStyle(Paint.Style.STROKE);
             curPaint.setStrokeJoin(Paint.Join.ROUND);
         curPaint.setStrokeCap(Paint.Cap.ROUND);
-
-        path = new PaintPath(curPaint);
     }
 
     public void onThicknessChanged(int thickness) {
@@ -63,7 +64,8 @@ public class ViewBrushSize extends View {
     @Override
     public void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        path.lineTo(0, getHeight());
-        canvas.drawPath(path, curPaint);
+        canvas.drawLine(getPaddingLeft() + getPaddingRight(), canvas.getHeight() / 2,
+                canvas.getWidth() - getPaddingLeft() - getPaddingRight(), canvas.getHeight() / 2,
+                curPaint);
     }
 }

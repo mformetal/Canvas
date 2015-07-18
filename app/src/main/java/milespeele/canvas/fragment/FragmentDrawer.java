@@ -13,7 +13,7 @@ import android.view.ViewGroup;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import milespeele.canvas.R;
-import milespeele.canvas.util.Logger;
+import milespeele.canvas.util.Logg;
 import milespeele.canvas.view.ViewCanvas;
 import milespeele.canvas.view.ViewFabMenu;
 
@@ -68,7 +68,7 @@ public class FragmentDrawer extends Fragment implements ViewFabMenu.FabMenuListe
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         if (savedInstanceState != null) {
-            Logger.log("HAS BITMAP");
+            Logg.log("HAS BITMAP");
         }
     }
 

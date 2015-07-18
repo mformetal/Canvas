@@ -4,7 +4,6 @@ import javax.inject.Singleton;
 
 import dagger.Component;
 import milespeele.canvas.activity.ActivityHome;
-import milespeele.canvas.asynctask.AsyncBitmap;
 import milespeele.canvas.fragment.FragmentMasterpiece;
 import milespeele.canvas.parse.ParseUtils;
 
@@ -17,6 +16,5 @@ public interface ApplicationComponent {
 
     void inject(ParseUtils utils);
     void inject(ActivityHome activityHome);
-    void inject(AsyncBitmap asyncBitmap);
     void inject(FragmentMasterpiece fragmentMasterpiece);
 }

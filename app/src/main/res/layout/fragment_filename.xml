@@ -33,6 +33,7 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:textColor="@android:color/white"
+        android:paddingBottom="@dimen/activity_horizontal_margin"
         style="?android:attr/borderlessButtonStyle" />
 
     <Button
@@ -46,6 +47,7 @@
         android:layout_toStartOf="@id/fragment_filename_pos_button"
         android:layout_toLeftOf="@id/fragment_filename_pos_button"
         android:textColor="@android:color/white"
+        android:paddingBottom="@dimen/activity_horizontal_margin"
         style="?android:attr/borderlessButtonStyle" />
 
 </RelativeLayout>
