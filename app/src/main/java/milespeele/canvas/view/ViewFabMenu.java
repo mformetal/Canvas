@@ -2,8 +2,6 @@ package milespeele.canvas.view;
 
 import android.animation.ObjectAnimator;
 import android.content.Context;
-import android.support.v4.view.ViewCompat;
-import android.support.v4.view.ViewPropertyAnimatorListener;
 import android.support.v4.view.animation.LinearOutSlowInInterpolator;
 import android.util.AttributeSet;
 import android.view.View;
@@ -35,7 +33,7 @@ public class ViewFabMenu extends ViewGroup
 
     private FabMenuListener mListener;
     public interface FabMenuListener {
-        void onShapeClicked();
+        void onEraseClicked();
         void onPaintColorClicked(int viewId);
         void onBrushClicked();
         void onUndoClicked();
@@ -130,7 +128,7 @@ public class ViewFabMenu extends ViewGroup
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.palette_shape:
-                mListener.onShapeClicked();
+                mListener.onEraseClicked();
             case R.id.palette_fill_canvas:
                 mListener.onFillClicked(v.getId());
                 break;

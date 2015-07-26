@@ -73,8 +73,8 @@ public class FragmentDrawer extends Fragment implements ViewFabMenu.FabMenuListe
     }
 
     @Override
-    public void onShapeClicked() {
-        listener.showShapePicker();
+    public void onEraseClicked() {
+        drawer.changeToEraser();
     }
 
     @Override
@@ -112,7 +112,7 @@ public class FragmentDrawer extends Fragment implements ViewFabMenu.FabMenuListe
         drawer.fillCanvas(color);
     }
 
-    public void eraseCanvas() { drawer.clearCanvas(); }
+    public void clearCanvas() { drawer.clearCanvas(); }
 
     public void setBrushWidth(float width) { drawer.setBrushWidth(width); }
 }

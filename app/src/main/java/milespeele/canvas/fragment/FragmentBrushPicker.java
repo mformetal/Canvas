@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 
@@ -23,8 +24,10 @@ import milespeele.canvas.view.ViewBrushSize;
 public class FragmentBrushPicker extends DialogFragment
         implements View.OnClickListener, OnSeekBarChangeListener {
 
+    @InjectView(R.id.fragment_brush_picker_reveal_layout) RelativeLayout container;
     @InjectView(R.id.fragment_brush_picker_seek) SeekBar seek;
     @InjectView(R.id.fragment_brush_picker_changes) ViewBrushSize line;
+
     private int thickness = 0;
     private static final String THICKNESS = "thick";
 
@@ -65,12 +68,6 @@ public class FragmentBrushPicker extends DialogFragment
     }
 
     @Override
-    public void onActivityCreated(Bundle arg0) {
-        super.onActivityCreated(arg0);
-        getDialog().getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
-    }
-
-    @Override
     @OnClick({R.id.fragment_brush_picker_pos, R.id.fragment_brush_picker_cancel})
     public void onClick(View v) {
         switch (v.getId()) {
@@ -85,6 +82,12 @@ public class FragmentBrushPicker extends DialogFragment
                 mListener.onBrushSizeChosen(0);
                 break;
         }
+    }
+
+    @Override
+    public void onActivityCreated(Bundle arg0) {
+        super.onActivityCreated(arg0);
+        getDialog().getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
     }
 
     @Override

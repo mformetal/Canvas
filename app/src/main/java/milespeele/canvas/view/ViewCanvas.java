@@ -6,7 +6,10 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.graphics.RectF;
+import android.graphics.drawable.ColorDrawable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -15,6 +18,10 @@ import java.util.EmptyStackException;
 import java.util.Random;
 import java.util.Stack;
 
+import milespeele.canvas.paint.PaintPath;
+import milespeele.canvas.paint.PaintStack;
+import milespeele.canvas.util.Logg;
+
 /**
  * Created by milespeele on 7/2/15.
  */
@@ -22,6 +29,7 @@ public class ViewCanvas extends View {
 
     private static float STROKE_WIDTH = 5f;
     private static float HALF_STROKE_WIDTH = STROKE_WIDTH / 2;
+    private boolean shouldErase = false;
 
     private int currentColor;
     private Paint curPaint;
@@ -68,7 +76,8 @@ public class ViewCanvas extends View {
         setWillNotDraw(false);
         setDrawingCacheEnabled(true);
         setSaveEnabled(true);
-        setBackgroundColor(Color.WHITE);
+        setBackgroundColor(0xFF);
+        setDrawingCacheBackgroundColor(0xFF);
     }
 
     @Override
@@ -88,8 +97,9 @@ public class ViewCanvas extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         for (PaintPath p: mPaths) {
-            canvas.drawPath(p, p.getPaint());
+            mCanvas.drawPath(p, p.getPaint());
         }
+        canvas.drawBitmap(mBitmap, 0, 0, null);
     }
 
     @Override
@@ -165,12 +175,17 @@ public class ViewCanvas extends View {
         dirtyRect.bottom = Math.max(lastTouchY, eventY);
     }
 
+    public void changeToEraser() {
+        shouldErase = true;
+    }
+
     public void fillCanvas(int color) {
         setBackgroundColor(color);
         setDrawingCacheBackgroundColor(color);
     }
 
     public void clearCanvas() {
+        shouldErase = false;
         for (PaintPath p: mPaths) {
             p.reset();
         }
@@ -190,6 +205,7 @@ public class ViewCanvas extends View {
     }
 
     public void changeColor(int color) {
+        shouldErase = false;
         currentColor = color;
         curPaint.setColor(currentColor);
     }
@@ -235,7 +251,12 @@ public class ViewCanvas extends View {
     public Paint currentStyle() {
         Paint paint = new Paint();
         paint.setAntiAlias(true);
-        paint.setColor(currentColor);
+        if (shouldErase) {
+            paint.setColor(0xFF);
+            paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+        } else {
+            paint.setColor(currentColor);
+        }
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeJoin(Paint.Join.ROUND);
         paint.setStrokeWidth(STROKE_WIDTH);

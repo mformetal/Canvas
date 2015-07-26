@@ -7,13 +7,11 @@ public interface FragmentListener {
 
     void onColorChosen(int color, String whichColor);
 
-    void showColorPicker(int viewId);
-
-    void showShapePicker();
-
-    void showBrushPicker(float currentWidth);
-
     void onBrushSizeChosen(float size);
 
     void onFilenameChosen(String fileName);
+
+    void showColorPicker(int viewId);
+
+    void showBrushPicker(float currentWidth);
 }
