@@ -187,8 +187,12 @@ public class ViewCanvas extends View {
 
     public void fillCanvas(int color) {
         currentBackgroundColor = color;
+        for (PaintPath p: mPaths) {
+            p.reset();
+        }
         setBackgroundColor(color);
         setDrawingCacheBackgroundColor(color);
+        shouldRedraw = true;
         invalidate();
     }
 
@@ -201,6 +205,10 @@ public class ViewCanvas extends View {
 
         mPath = new PaintPath(currentStyle());
         mPaths.push(mPath);
+
+        mBitmap.recycle();
+        mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        mCanvas = new Canvas(mBitmap);
 
         currentBackgroundColor = TRANSPARENT;
         setBackgroundColor(TRANSPARENT);
@@ -237,7 +245,6 @@ public class ViewCanvas extends View {
     public void redo() {
         if (!redoPaths.isEmpty()) {
             PaintPath redo = redoPaths.pop();
-            if (redo.isEraser()) redo.setColor(currentBackgroundColor);
             mPaths.push(redo);
             shouldRedraw = true;
             invalidate();
@@ -248,6 +255,7 @@ public class ViewCanvas extends View {
         if (shouldErase) {
             return PaintStyles.eraserPaint(currentBackgroundColor, STROKE_WIDTH);
         } else {
+            shouldRedraw = false;
             return new Paint(curPaint);
         }
     }

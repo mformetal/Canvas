@@ -1,7 +1,10 @@
 package milespeele.canvas.paint;
 
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+
+import milespeele.canvas.util.Logg;
 
 /**
  * Created by milespeele on 7/9/15.
@@ -25,7 +28,7 @@ public class PaintPath extends Path {
         paint.setColor(color);
     }
 
-    public boolean isEraser() {
-        return getPaint().getXfermode() != null;
+    public void setErasingColorIfNeeded(int erasingColorIfNeeded) {
+
     }
 }

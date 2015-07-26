@@ -8,6 +8,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -169,6 +170,8 @@ public class ActivityHome extends ActivityBase implements FragmentListener, View
     }
 
     private void tellFragmentToEraseCanvas() {
+//        AlertDialog alertDialog = new AlertDialog.Builder(this)
+
         FragmentDrawer frag = (FragmentDrawer) getFragmentManager().findFragmentByTag(TAG_FRAGMENT_DRAWER);
         if (frag != null) {
             frag.clearCanvas();
