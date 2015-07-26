@@ -6,13 +6,16 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.RectF;
-import android.graphics.drawable.ColorDrawable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+
+import com.facebook.internal.Logger;
 
 import java.util.EmptyStackException;
 import java.util.Random;
@@ -20,6 +23,7 @@ import java.util.Stack;
 
 import milespeele.canvas.paint.PaintPath;
 import milespeele.canvas.paint.PaintStack;
+import milespeele.canvas.paint.PaintStyles;
 import milespeele.canvas.util.Logg;
 
 /**
@@ -29,19 +33,21 @@ public class ViewCanvas extends View {
 
     private static float STROKE_WIDTH = 5f;
     private static float HALF_STROKE_WIDTH = STROKE_WIDTH / 2;
+    private static int TRANSPARENT = 0xFF;
     private boolean shouldErase = false;
+    private boolean shouldRedraw = false;
 
-    private int currentColor;
+    private int currentStrokeColor;
+    private int currentBackgroundColor;
     private Paint curPaint;
     private Bitmap mBitmap;
     private Canvas mCanvas;
-    private float lastTouchX, lastTouchY;
     private Matrix scaleMatrix;
+    private float lastTouchX, lastTouchY;
     private final RectF dirtyRect = new RectF();
     private PaintPath mPath;
     private PaintStack mPaths;
-    private Stack<PaintPath> redoPaths;
-
+    private PaintStack redoPaths;
     private int width, height;
 
     public ViewCanvas(Context context) {
@@ -56,28 +62,22 @@ public class ViewCanvas extends View {
 
     public void init() {
         Random rnd = new Random();
-        currentColor = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
+        currentStrokeColor = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
+        currentBackgroundColor = TRANSPARENT;
 
-        curPaint = new Paint();
-        curPaint.setAntiAlias(true);
-        curPaint.setColor(currentColor);
-        curPaint.setStyle(Paint.Style.STROKE);
-        curPaint.setStrokeJoin(Paint.Join.ROUND);
-        curPaint.setStrokeWidth(STROKE_WIDTH);
-        curPaint.setStrokeCap(Paint.Cap.ROUND);
-
-        scaleMatrix = new Matrix();
+        curPaint = PaintStyles.randomStyle(currentStrokeColor, STROKE_WIDTH);
 
         mPath = new PaintPath(curPaint);
         mPaths = new PaintStack();
         redoPaths = new PaintStack();
         mPaths.push(mPath);
 
+        scaleMatrix = new Matrix();
+
         setWillNotDraw(false);
-        setDrawingCacheEnabled(true);
         setSaveEnabled(true);
-        setBackgroundColor(0xFF);
-        setDrawingCacheBackgroundColor(0xFF);
+        setBackgroundColor(currentBackgroundColor);
+        setLayerType(LAYER_TYPE_HARDWARE, null);
     }
 
     @Override
@@ -95,11 +95,13 @@ public class ViewCanvas extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
-        for (PaintPath p: mPaths) {
-            mCanvas.drawPath(p, p.getPaint());
+        if (shouldRedraw) {
+            for (PaintPath p: mPaths) {
+                canvas.drawPath(p, p.getPaint());
+            }
+        } else {
+            canvas.drawBitmap(mBitmap, 0, 0, null);
         }
-        canvas.drawBitmap(mBitmap, 0, 0, null);
     }
 
     @Override
@@ -114,6 +116,9 @@ public class ViewCanvas extends View {
                 return true;
 
             case MotionEvent.ACTION_MOVE:
+//                if (shouldErase) {
+//                    curPaint.setColor(mBitmap.getPixel((int) eventX, (int) eventY));
+//                }
             case MotionEvent.ACTION_UP:
                 onTouchUp(event, eventX, eventY);
                 break;
@@ -134,11 +139,11 @@ public class ViewCanvas extends View {
     }
 
     private void onTouchDown(float eventX, float eventY, float time) {
+        lastTouchX = eventX;
+        lastTouchY = eventY;
         mPath = new PaintPath(currentStyle());
         mPaths.push(mPath);
         mPath.moveTo(eventX, eventY);
-        lastTouchX = eventX;
-        lastTouchY = eventY;
     }
 
     private void onTouchUp(MotionEvent event, float eventX, float eventY) {
@@ -153,6 +158,7 @@ public class ViewCanvas extends View {
         }
 
         mPath.lineTo(eventX, eventY);
+        mCanvas.drawPath(mPath, mPath.getPaint());
     }
 
     private void expandDirtyRect(float historicalX, float historicalY) {
@@ -180,8 +186,10 @@ public class ViewCanvas extends View {
     }
 
     public void fillCanvas(int color) {
+        currentBackgroundColor = color;
         setBackgroundColor(color);
         setDrawingCacheBackgroundColor(color);
+        invalidate();
     }
 
     public void clearCanvas() {
@@ -191,31 +199,19 @@ public class ViewCanvas extends View {
         }
         mPaths.clear();
 
-        destroyDrawingCache();
-
         mPath = new PaintPath(currentStyle());
         mPaths.push(mPath);
 
+        currentBackgroundColor = TRANSPARENT;
+        setBackgroundColor(TRANSPARENT);
+        setDrawingCacheBackgroundColor(currentBackgroundColor);
         invalidate();
-
-        mBitmap.recycle();
-        mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        mCanvas = new Canvas(mBitmap);
-        buildDrawingCache(true);
     }
 
     public void changeColor(int color) {
         shouldErase = false;
-        currentColor = color;
-        curPaint.setColor(currentColor);
-    }
-
-    private PaintPath getLatestPath() {
-        try {
-            return mPaths.peek();
-        } catch (EmptyStackException e) {
-            return null;
-        }
+        currentStrokeColor = color;
+        curPaint.setColor(currentStrokeColor);
     }
 
     public float getBrushWidth() { return STROKE_WIDTH; }
@@ -226,41 +222,33 @@ public class ViewCanvas extends View {
     }
 
     public Bitmap getBitmap() {
-        return Bitmap.createBitmap(getDrawingCache(true));
+        return mBitmap;
     }
 
     public void undo() {
-        PaintPath path = getLatestPath();
-        if (path != null) {
-            PaintPath redo = new PaintPath(path.getPaint());
-            redo.set(path);
-            redoPaths.push(redo);
-            path.rewind();
-            mPaths.pop();
+        if (!mPaths.isEmpty()) {
+            PaintPath undo = mPaths.pop();
+            redoPaths.push(undo);
+            shouldRedraw = true;
             invalidate();
         }
     }
 
     public void redo() {
         if (!redoPaths.isEmpty()) {
-            mPaths.push(redoPaths.pop());
+            PaintPath redo = redoPaths.pop();
+            if (redo.isEraser()) redo.setColor(currentBackgroundColor);
+            mPaths.push(redo);
+            shouldRedraw = true;
             invalidate();
         }
     }
 
     public Paint currentStyle() {
-        Paint paint = new Paint();
-        paint.setAntiAlias(true);
         if (shouldErase) {
-            paint.setColor(0xFF);
-            paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+            return PaintStyles.eraserPaint(currentBackgroundColor, STROKE_WIDTH);
         } else {
-            paint.setColor(currentColor);
+            return new Paint(curPaint);
         }
-        paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeJoin(Paint.Join.ROUND);
-        paint.setStrokeWidth(STROKE_WIDTH);
-        paint.setStrokeCap(Paint.Cap.ROUND);
-        return paint;
     }
 }

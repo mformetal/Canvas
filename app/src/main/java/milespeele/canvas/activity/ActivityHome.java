@@ -64,7 +64,7 @@ public class ActivityHome extends ActivityBase implements FragmentListener, View
         toggle = new ActionBarDrawerToggle(this, drawerLayout,
                 R.string.activity_home_actionbar_toggle_open, R.string.activity_home_actionbar_toggle_close);
         drawerLayout.setDrawerListener(toggle);
-        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
         setupDrawerContent(navigationView);
 
         addDrawerFragment();
@@ -219,16 +219,19 @@ public class ActivityHome extends ActivityBase implements FragmentListener, View
 
     @Override
     public void onColorChosen(int color, String whichColor) {
-        ((FragmentColorPicker) getFragmentManager().findFragmentByTag(whichColor)).dismiss();
-        if (color != -1) {
-            switch (whichColor) {
-                case TAG_FRAGMENT_FILL:
-                    tellFragmentToFillCanvas(color);
-                    break;
+        FragmentColorPicker picker = (FragmentColorPicker) getFragmentManager().findFragmentByTag(whichColor);
+        if (picker != null) {
+            picker.dismiss();
+            if (color != 0) {
+                switch (whichColor) {
+                    case TAG_FRAGMENT_FILL:
+                        tellFragmentToFillCanvas(color);
+                        break;
 
-                case TAG_FRAGMENT_STROKE:
-                    tellFragmentToChangeColor(color);
-                    break;
+                    case TAG_FRAGMENT_STROKE:
+                        tellFragmentToChangeColor(color);
+                        break;
+                }
             }
         }
     }

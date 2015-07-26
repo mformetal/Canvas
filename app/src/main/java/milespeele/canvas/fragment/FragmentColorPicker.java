@@ -22,6 +22,7 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
 import milespeele.canvas.R;
+import milespeele.canvas.util.Logg;
 import milespeele.canvas.view.ViewColorPicker;
 
 /**
@@ -82,10 +83,14 @@ public class FragmentColorPicker extends DialogFragment
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.fragment_color_picker_select:
-                listener.onColorChosen(picker.getColor(), getArguments().getString(TAG));
+                if (picker.getColor() == -1) {
+                    listener.onColorChosen(Color.WHITE, getArguments().getString(TAG));
+                } else {
+                    listener.onColorChosen(picker.getColor(), getArguments().getString(TAG));
+                }
                 break;
             case R.id.fragment_color_picker_cancel:
-                listener.onColorChosen(-1, getArguments().getString(TAG));
+                listener.onColorChosen(0, getArguments().getString(TAG));
                 break;
         }
     }

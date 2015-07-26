@@ -20,5 +20,12 @@ public class PaintPath extends Path {
 
     public int getColor() { return color; }
 
-    public void setColor(int color) { paint.setColor(color); }
+    public void setColor(int color) {
+        this.color = color;
+        paint.setColor(color);
+    }
+
+    public boolean isEraser() {
+        return getPaint().getXfermode() != null;
+    }
 }
