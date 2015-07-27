@@ -13,7 +13,6 @@ import android.view.ViewGroup;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import milespeele.canvas.R;
-import milespeele.canvas.util.Logg;
 import milespeele.canvas.view.ViewCanvas;
 import milespeele.canvas.view.ViewFabMenu;
 
@@ -96,8 +95,6 @@ public class FragmentDrawer extends Fragment implements ViewFabMenu.FabMenuListe
     public void fillCanvas(int color) {
         drawer.fillCanvas(color);
     }
-
-    public void clearCanvas() { drawer.clearCanvas(); }
 
     public void setBrushWidth(float width) { drawer.setBrushWidth(width); }
 }

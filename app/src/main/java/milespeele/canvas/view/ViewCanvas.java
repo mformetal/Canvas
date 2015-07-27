@@ -6,25 +6,16 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.Path;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
 import android.graphics.RectF;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
-import com.facebook.internal.Logger;
-
-import java.util.EmptyStackException;
 import java.util.Random;
-import java.util.Stack;
 
 import milespeele.canvas.paint.PaintPath;
 import milespeele.canvas.paint.PaintStack;
 import milespeele.canvas.paint.PaintStyles;
-import milespeele.canvas.util.Logg;
 
 /**
  * Created by milespeele on 7/2/15.
@@ -185,17 +176,6 @@ public class ViewCanvas extends View {
     }
 
     public void fillCanvas(int color) {
-        currentBackgroundColor = color;
-        for (PaintPath p: mPaths) {
-            p.reset();
-        }
-        setBackgroundColor(color);
-        setDrawingCacheBackgroundColor(color);
-        shouldRedraw = true;
-        invalidate();
-    }
-
-    public void clearCanvas() {
         shouldErase = false;
         for (PaintPath p: mPaths) {
             p.reset();
@@ -209,7 +189,7 @@ public class ViewCanvas extends View {
         mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         mCanvas = new Canvas(mBitmap);
 
-        currentBackgroundColor = Color.WHITE;
+        currentBackgroundColor = color;
         setBackgroundColor(currentBackgroundColor);
         setDrawingCacheBackgroundColor(currentBackgroundColor);
         invalidate();
