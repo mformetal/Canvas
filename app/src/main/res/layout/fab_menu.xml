@@ -4,22 +4,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="wrap_content"
     android:layout_height="match_parent"
-    android:id="@+id/palette_root">
+    android:id="@+id/palette_root" >
 
     <milespeele.canvas.view.ViewFab
-        android:id="@+id/palette_shape"
+        android:id="@+id/palette_colorize"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_label_outline_black_24dp"
-        app:rippleColor="@color/primary_dark"
-        app:elevation="@dimen/fab_elevation"
-        app:borderWidth="0dp" />
-
-    <milespeele.canvas.view.ViewFab
-        android:id="@+id/palette_fill_canvas"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ic_format_color_fill_black_24dp"
+        android:src="@drawable/ic_colorize_black_24dp"
         app:rippleColor="@color/primary_dark"
         app:elevation="@dimen/fab_elevation"
         app:borderWidth="0dp" />
@@ -37,7 +28,7 @@
         android:id="@+id/palette_brush_size"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_brush_white_48dp"
+        android:src="@drawable/ic_brush_black_24dp"
         app:elevation="@dimen/fab_elevation"
         app:borderWidth="0dp" />
 
@@ -57,6 +48,15 @@
         app:elevation="@dimen/fab_elevation"
         app:borderWidth="0dp"
         app:rippleColor="@color/primary_dark" />
+
+    <milespeele.canvas.view.ViewFab
+        android:id="@+id/palette_erase"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_label_outline_black_24dp"
+        app:rippleColor="@color/primary_dark"
+        app:elevation="@dimen/fab_elevation"
+        app:borderWidth="0dp" />
 
     <milespeele.canvas.view.ViewFab
         android:id="@+id/palette_show"

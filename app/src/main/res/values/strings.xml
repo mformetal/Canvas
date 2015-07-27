@@ -15,6 +15,7 @@
 
     <string name="activity_home_actionbar_toggle_open">Canvas</string>
     <string name="activity_home_actionbar_toggle_close">Close</string>
+
     <string name="menu_drawer_items_header_text">Welcome Home.</string>
     <string name="menu_drawer_items_gallery">Gallery</string>
 
@@ -29,8 +30,11 @@
     <string name="fragment_filename_pos_button_text">Save!</string>
     <string name="fragment_filename_neg_button_text">No thanks</string>
 
-    <string name="fragment_brush_picker_title">Choose Stroke Size</string>
+    <string name="fragment_brush_picker_title">Choose Brush Style</string>
     <string name="fragment_brush_picker_pos_button_text">Set!</string>
+
+    <string name="paint_example_neon">Neon</string>
+    <string name="paint_example_dashed">Dashed</string>
 
     <string name="title_activity_login">Login</string>
 

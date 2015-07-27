@@ -1,5 +1,7 @@
 package milespeele.canvas.paint;
 
+import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.BlurMaskFilter;
 import android.graphics.Color;
 import android.graphics.DashPathEffect;
@@ -11,6 +13,7 @@ import android.graphics.PorterDuffXfermode;
 
 import java.util.Random;
 
+import milespeele.canvas.R;
 import milespeele.canvas.util.Logg;
 
 /**
@@ -22,14 +25,25 @@ public class PaintStyles {
     private static EmbossMaskFilter EMBOSS_MASK_FILTER = new EmbossMaskFilter(new float[]{1, 1, 1}, 1f, 0, 3);
     private static PathEffect DASHED_PASH_EFFECT = new DashPathEffect(new float[] {10,20}, 0);
 
+    public static Paint getStyleFromAttrs(String type, Context context) {
+        Resources resources = context.getResources();
+        if (type == resources.getString(R.string.paint_example_dashed)) {
+            return dashedPaint(Color.WHITE, 5f);
+        } else if (type == resources.getString(R.string.paint_example_neon)) {
+            return neonPaint(Color.WHITE, 5f);
+        } else {
+            return normalPaint(Color.WHITE, 5f);
+        }
+    }
+
     public static Paint randomStyle(int currentColor, float width) {
         Random random = new Random();
         int randomNum = random.nextInt(10);
         if (randomNum <= 1) {
             return normalPaint(currentColor, width);
 //        } else if (randomNum <= 3) {
-//        } else if (randomNum <= 5) {
-//            return  neonPaint(currentColor, width);
+        } else if (randomNum <= 5) {
+            return  neonPaint(currentColor, width);
         } else if (randomNum <= 7) {
             return dashedPaint(currentColor, width);
         } else {
@@ -61,18 +75,18 @@ public class PaintStyles {
 //        return paint;
 //    }
 
-//    public static Paint neonPaint(int currentColor, float width) {
-//        Paint paint = new Paint();
-//        paint.setAntiAlias(true);
-//        paint.setDither(true);
-//        paint.setColor(currentColor);
-//        paint.setStrokeWidth(width);
-//        paint.setStyle(Paint.Style.STROKE);
-//        paint.setStrokeJoin(Paint.Join.ROUND);
-//        paint.setStrokeCap(Paint.Cap.ROUND);
-//        paint.setMaskFilter(EMBOSS_MASK_FILTER);
-//        return paint;
-//    }
+    public static Paint neonPaint(int currentColor, float width) {
+        Paint paint = new Paint();
+        paint.setAntiAlias(true);
+        paint.setDither(true);
+        paint.setColor(currentColor);
+        paint.setStrokeWidth(width);
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeJoin(Paint.Join.ROUND);
+        paint.setStrokeCap(Paint.Cap.ROUND);
+        paint.setMaskFilter(EMBOSS_MASK_FILTER);
+        return paint;
+    }
 
     public static Paint dashedPaint(int currentColor, float width) {
         Paint paint = new Paint();

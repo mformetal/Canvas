@@ -8,7 +8,6 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AlertDialog;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -41,7 +40,7 @@ public class ActivityHome extends ActivityBase implements FragmentListener, View
 
     private final static String TAG_FRAGMENT_DRAWER = "fragd";
     private final static String TAG_FRAGMENT_STROKE = "Stroke Color";
-    private final static String TAG_FRAGMENT_FILL = "Background Color";
+    private final static String TAG_FRAGMENT_FILL = "New Canvas Color";
     private final static String TAG_FRAGMENT_SHAPE = "shape";
     private final static String TAG_FRAGMENT_MASTERPIECE = "art";
     private final static String TAG_FRAGMENT_FILENAME = "name";
@@ -95,8 +94,8 @@ public class ActivityHome extends ActivityBase implements FragmentListener, View
                     drawerLayout.openDrawer(GravityCompat.START);
                 }
                 return true;
-            case R.id.menu_activity_home_erase_canvas:
-                tellFragmentToEraseCanvas();
+            case R.id.menu_activity_home_new_canvas:
+                showNewCanvasFragment();
                 break;
         }
 
@@ -124,7 +123,7 @@ public class ActivityHome extends ActivityBase implements FragmentListener, View
                 .commit();
     }
 
-    private void addFilenameFragment() {
+    private void showFilenameFragment() {
         FragmentFilename.newInstance().show(getFragmentManager(), TAG_FRAGMENT_FILENAME);
     }
 
@@ -169,28 +168,15 @@ public class ActivityHome extends ActivityBase implements FragmentListener, View
         }
     }
 
-    private void tellFragmentToEraseCanvas() {
-//        AlertDialog alertDialog = new AlertDialog.Builder(this)
-
-        FragmentDrawer frag = (FragmentDrawer) getFragmentManager().findFragmentByTag(TAG_FRAGMENT_DRAWER);
-        if (frag != null) {
-            frag.clearCanvas();
-        }
+    private void showNewCanvasFragment() {
+        FragmentColorPicker picker = FragmentColorPicker.newInstance(TAG_FRAGMENT_FILL);
+        picker.show(getFragmentManager(), TAG_FRAGMENT_FILL);
     }
 
     @Override
     public void showColorPicker(int viewId) {
-        FragmentColorPicker picker;
-        switch (viewId) {
-            case R.id.palette_fill_canvas:
-                picker = FragmentColorPicker.newInstance(TAG_FRAGMENT_FILL);
-                picker.show(getFragmentManager(), TAG_FRAGMENT_FILL);
-                break;
-            case R.id.palette_paint:
-                picker = FragmentColorPicker.newInstance(TAG_FRAGMENT_STROKE);
-                picker.show(getFragmentManager(), TAG_FRAGMENT_STROKE);
-                break;
-        }
+        FragmentColorPicker picker = FragmentColorPicker.newInstance(TAG_FRAGMENT_STROKE);
+        picker.show(getFragmentManager(), TAG_FRAGMENT_STROKE);
     }
 
     @Override
@@ -230,7 +216,6 @@ public class ActivityHome extends ActivityBase implements FragmentListener, View
                     case TAG_FRAGMENT_FILL:
                         tellFragmentToFillCanvas(color);
                         break;
-
                     case TAG_FRAGMENT_STROKE:
                         tellFragmentToChangeColor(color);
                         break;
@@ -241,6 +226,6 @@ public class ActivityHome extends ActivityBase implements FragmentListener, View
 
     @Override
     public void onClick(View v) {
-        addFilenameFragment();
+        showFilenameFragment();
     }
 }

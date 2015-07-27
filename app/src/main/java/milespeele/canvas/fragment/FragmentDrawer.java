@@ -50,8 +50,7 @@ public class FragmentDrawer extends Fragment implements ViewFabMenu.FabMenuListe
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_drawer, container, false);
         ButterKnife.inject(this, v);
         palette.setListener(this);
@@ -59,17 +58,8 @@ public class FragmentDrawer extends Fragment implements ViewFabMenu.FabMenuListe
     }
 
     @Override
-    public void onSaveInstanceState(Bundle savedInstanceState) {
-        savedInstanceState.putParcelable("bitmap", drawer.getBitmap());
-        super.onSaveInstanceState(savedInstanceState);
-    }
+    public void onColorizeClicked() {
 
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        if (savedInstanceState != null) {
-            Logg.log("HAS BITMAP");
-        }
     }
 
     @Override
@@ -93,11 +83,6 @@ public class FragmentDrawer extends Fragment implements ViewFabMenu.FabMenuListe
     @Override
     public void onRedoClicked() {
         drawer.redo();
-    }
-
-    @Override
-    public void onFillClicked(int viewId) {
-        listener.showColorPicker(viewId);
     }
 
     public Bitmap giveBitmapToActivity() {

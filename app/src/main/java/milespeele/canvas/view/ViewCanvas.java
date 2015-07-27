@@ -33,7 +33,6 @@ public class ViewCanvas extends View {
 
     private static float STROKE_WIDTH = 5f;
     private static float HALF_STROKE_WIDTH = STROKE_WIDTH / 2;
-    private static int TRANSPARENT = 0xFF;
     private boolean shouldErase = false;
     private boolean shouldRedraw = false;
 
@@ -63,7 +62,7 @@ public class ViewCanvas extends View {
     public void init() {
         Random rnd = new Random();
         currentStrokeColor = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
-        currentBackgroundColor = TRANSPARENT;
+        currentBackgroundColor = Color.WHITE;
 
         curPaint = PaintStyles.randomStyle(currentStrokeColor, STROKE_WIDTH);
 
@@ -210,8 +209,8 @@ public class ViewCanvas extends View {
         mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         mCanvas = new Canvas(mBitmap);
 
-        currentBackgroundColor = TRANSPARENT;
-        setBackgroundColor(TRANSPARENT);
+        currentBackgroundColor = Color.WHITE;
+        setBackgroundColor(currentBackgroundColor);
         setDrawingCacheBackgroundColor(currentBackgroundColor);
         invalidate();
     }

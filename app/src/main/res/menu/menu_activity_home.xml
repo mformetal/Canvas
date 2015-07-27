@@ -11,10 +11,10 @@
         app:showAsAction="ifRoom" />
 
     <item
-        android:id="@+id/menu_activity_home_erase_canvas"
+        android:id="@+id/menu_activity_home_new_canvas"
         android:title="@string/menu_activity_home_erase"
         android:orderInCategory="2"
-        android:icon="@drawable/ic_delete_black_24dp"
+        android:icon="@drawable/ic_format_color_fill_black_24dp"
         app:showAsAction="ifRoom" />
 
 </menu>

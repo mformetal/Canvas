@@ -33,12 +33,12 @@ public class ViewFabMenu extends ViewGroup
 
     private FabMenuListener mListener;
     public interface FabMenuListener {
+        void onColorizeClicked();
         void onEraseClicked();
         void onPaintColorClicked(int viewId);
         void onBrushClicked();
         void onUndoClicked();
         void onRedoClicked();
-        void onFillClicked(int viewId);
     }
 
     public ViewFabMenu(Context context) {
@@ -124,14 +124,14 @@ public class ViewFabMenu extends ViewGroup
 
     @Override
     @OnClick({R.id.palette_show, R.id.palette_paint, R.id.palette_brush_size,
-            R.id.palette_undo, R.id.palette_redo, R.id.palette_fill_canvas, R.id.palette_shape})
+            R.id.palette_undo, R.id.palette_redo, R.id.palette_erase})
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.palette_shape:
-                mListener.onEraseClicked();
-            case R.id.palette_fill_canvas:
-                mListener.onFillClicked(v.getId());
+            case R.id.palette_colorize:
+                mListener.onColorizeClicked();
                 break;
+            case R.id.palette_erase:
+                mListener.onEraseClicked();
             case R.id.palette_show:
                 showOrHideMenu();
                 break;

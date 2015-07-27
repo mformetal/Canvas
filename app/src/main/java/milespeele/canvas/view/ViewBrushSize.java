@@ -43,7 +43,7 @@ public class ViewBrushSize extends View {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         int width = getMeasuredWidth();
-        setMeasuredDimension(width, width / 4);
+        setMeasuredDimension(width, width / 5);
     }
 
 
