@@ -28,7 +28,21 @@ public class PaintPath extends Path {
         paint.setColor(color);
     }
 
-    public void setErasingColorIfNeeded(int erasingColorIfNeeded) {
+    private void addPoint(float x, float y) {
 
+    }
+
+    @Override
+    public void moveTo(float x, float y) {
+        super.moveTo(x, y);
+    }
+
+    private class Point {
+        float x, y;
+
+        Point(float x, float y) {
+            this.x = x;
+            this.y = y;
+        }
     }
 }
