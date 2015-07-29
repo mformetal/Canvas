@@ -90,13 +90,14 @@ public class ViewCanvas extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
         if (shouldRedraw) {
             for (PaintPath p: mPaths) {
                 canvas.drawPath(p, p.getPaint());
             }
-            shouldRedraw = false;
         } else {
             canvas.drawBitmap(mBitmap, 0, 0, null);
+            shouldRedraw = false;
         }
     }
 
@@ -192,14 +193,11 @@ public class ViewCanvas extends View {
         mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         mCanvas = new Canvas(mBitmap);
 
-        Integer colorFrom = currentBackgroundColor;
-        Integer colorTo = color;
-
         final ObjectAnimator backgroundColorAnimator = ObjectAnimator.ofObject(this,
                 "backgroundColor",
                 new ArgbEvaluator(),
-                colorFrom,
-                colorTo);
+                currentBackgroundColor,
+                color);
         backgroundColorAnimator.setDuration(450);
         backgroundColorAnimator.start();
 
@@ -247,7 +245,6 @@ public class ViewCanvas extends View {
         if (shouldErase) {
             return PaintStyles.eraserPaint(currentBackgroundColor, STROKE_WIDTH);
         } else {
-            shouldRedraw = false;
             return new Paint(curPaint);
         }
     }
