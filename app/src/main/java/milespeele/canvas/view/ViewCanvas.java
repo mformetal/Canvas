@@ -218,7 +218,7 @@ public class ViewCanvas extends View {
             PaintPath undo = mPaths.pop();
             redoPaths.push(undo);
             shouldRedraw = true;
-            invalidate();
+            invalidate(undo.getLeft(), undo.getTop(), undo.getRight(), undo.getBottom());
         }
     }
 
@@ -227,7 +227,7 @@ public class ViewCanvas extends View {
             PaintPath redo = redoPaths.pop();
             mPaths.push(redo);
             shouldRedraw = true;
-            invalidate();
+            invalidate(redo.getLeft(), redo.getTop(), redo.getRight(), redo.getBottom());
         }
     }
 
