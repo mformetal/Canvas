@@ -1,11 +1,15 @@
 package milespeele.canvas.view;
 
+import android.animation.ArgbEvaluator;
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Picture;
 import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -13,6 +17,7 @@ import android.view.View;
 
 import java.util.Random;
 
+import milespeele.canvas.R;
 import milespeele.canvas.paint.PaintPath;
 import milespeele.canvas.paint.PaintStack;
 import milespeele.canvas.paint.PaintStyles;
@@ -107,9 +112,6 @@ public class ViewCanvas extends View {
                 return true;
 
             case MotionEvent.ACTION_MOVE:
-//                if (shouldErase) {
-//                    curPaint.setColor(mBitmap.getPixel((int) eventX, (int) eventY));
-//                }
             case MotionEvent.ACTION_UP:
                 onTouchUp(event, eventX, eventY);
                 break;
@@ -190,8 +192,18 @@ public class ViewCanvas extends View {
         mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         mCanvas = new Canvas(mBitmap);
 
+        Integer colorFrom = currentBackgroundColor;
+        Integer colorTo = color;
+
+        final ObjectAnimator backgroundColorAnimator = ObjectAnimator.ofObject(this,
+                "backgroundColor",
+                new ArgbEvaluator(),
+                colorFrom,
+                colorTo);
+        backgroundColorAnimator.setDuration(450);
+        backgroundColorAnimator.start();
+
         currentBackgroundColor = color;
-        setBackgroundColor(currentBackgroundColor);
         setDrawingCacheBackgroundColor(currentBackgroundColor);
         invalidate();
     }

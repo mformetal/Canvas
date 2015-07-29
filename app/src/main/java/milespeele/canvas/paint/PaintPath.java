@@ -11,7 +11,6 @@ import milespeele.canvas.util.Logg;
 public class PaintPath extends Path {
 
     private Paint paint;
-    private int color;
     private int left = 0;
     private int right = 0;
     private int top = 0;
@@ -19,15 +18,13 @@ public class PaintPath extends Path {
 
     public PaintPath(Paint paint) {
         this.paint = paint;
-        this.color = paint.getColor();
     }
 
     public Paint getPaint() { return paint; }
 
-    public int getColor() { return color; }
+    public int getColor() { return paint.getColor(); }
 
     public void setColor(int color) {
-        this.color = color;
         paint.setColor(color);
     }
 
@@ -60,8 +57,6 @@ public class PaintPath extends Path {
             bottom = top;
             top = roundedY;
         }
-
-        printPoints();
     }
 
     public int getLeft() { return left; }
