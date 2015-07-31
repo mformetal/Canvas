@@ -122,10 +122,10 @@ public class ViewCanvas extends View {
         }
 
         invalidate(
-                (int) (dirtyRect.left - HALF_STROKE_WIDTH),
-                (int) (dirtyRect.top - HALF_STROKE_WIDTH),
-                (int) (dirtyRect.right + HALF_STROKE_WIDTH),
-                (int) (dirtyRect.bottom + HALF_STROKE_WIDTH));
+                Math.round(dirtyRect.left - HALF_STROKE_WIDTH),
+                Math.round(dirtyRect.top - HALF_STROKE_WIDTH),
+                Math.round(dirtyRect.right + HALF_STROKE_WIDTH),
+                Math.round(dirtyRect.bottom + HALF_STROKE_WIDTH));
 
         lastTouchX = eventX;
         lastTouchY = eventY;
@@ -243,7 +243,7 @@ public class ViewCanvas extends View {
 
     public Paint currentStyle() {
         if (shouldErase) {
-            return PaintStyles.eraserPaint(currentBackgroundColor, STROKE_WIDTH);
+            return (curPaint = PaintStyles.eraserPaint(currentBackgroundColor, STROKE_WIDTH));
         } else {
             return new Paint(curPaint);
         }

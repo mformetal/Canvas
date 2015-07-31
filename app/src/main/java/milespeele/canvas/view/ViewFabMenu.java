@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.view.animation.Interpolator;
 
 import butterknife.ButterKnife;
+import butterknife.InjectView;
 import butterknife.OnClick;
 import milespeele.canvas.R;
 
@@ -20,8 +21,6 @@ public class ViewFabMenu extends ViewGroup
 
     private boolean menuVisible = true;
 
-    private ViewFab toggle;
-
     private final static Interpolator INTERPOLATOR = new LinearOutSlowInInterpolator();
 
     private float buttonMargin;
@@ -30,6 +29,9 @@ public class ViewFabMenu extends ViewGroup
 
     private ObjectAnimator rotateOpen;
     private ObjectAnimator rotateClose;
+
+    @InjectView(R.id.palette_show) ViewFab toggle;
+    @InjectView(R.id.palette_erase) ViewFab eraser;
 
     private FabMenuListener mListener;
     public interface FabMenuListener {
@@ -116,7 +118,6 @@ public class ViewFabMenu extends ViewGroup
     protected void onFinishInflate() {
         super.onFinishInflate();
         ButterKnife.inject(this);
-        toggle = (ViewFab) getChildAt(getChildCount() - 1);
         rotateOpen = ObjectAnimator.ofFloat(toggle, "rotation", 0f, 135f);
         rotateClose = ObjectAnimator.ofFloat(toggle, "rotation", 135f, 270f);
         rotateToShowMenuOpen();
@@ -132,6 +133,7 @@ public class ViewFabMenu extends ViewGroup
                 break;
             case R.id.palette_erase:
                 mListener.onEraseClicked();
+                break;
             case R.id.palette_show:
                 showOrHideMenu();
                 break;

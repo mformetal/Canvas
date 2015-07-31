@@ -53,7 +53,7 @@ public class ViewFab extends FloatingActionButton {
                 ObjectAnimator.ofFloat(this, "alpha", 0, 1));
 
         animateOut = new AnimatorSet();
-        animateOut.playTogether(ObjectAnimator.ofFloat(this, "rotation", 360f, 0f),
+        animateOut.playTogether(ObjectAnimator.ofFloat(this, "rotation", 0f, 360f),
                 ObjectAnimator.ofFloat(this, "alpha", 1, 0));
     }
 
