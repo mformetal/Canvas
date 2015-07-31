@@ -6,16 +6,27 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-    <milespeele.canvas.view.ViewCanvas
+    <com.flipboard.bottomsheet.BottomSheetLayout
+        android:id="@+id/fragment_drawer_bottom_sheet"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/fragment_drawer_canvas"
-        android:saveEnabled="true" />
+        android:layout_height="match_parent" >
 
-    <include
-        layout="@layout/fab_menu"
-        android:id="@+id/fragment_drawer_palette"
+        <milespeele.canvas.view.ViewCanvas
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/fragment_drawer_canvas" />
+
+    </com.flipboard.bottomsheet.BottomSheetLayout>
+
+    <milespeele.canvas.view.ViewFab
+        android:id="@+id/fragment_drawer_show_menu"
         android:layout_width="wrap_content"
-        android:layout_height="match_parent" />
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_add_black_24dp"
+        android:layout_margin="@dimen/fab_margin"
+        app:layout_anchorGravity="bottom|right|end"
+        app:layout_anchor="@id/fragment_drawer_canvas"
+        app:elevation="@dimen/fab_elevation"
+        app:rippleColor="@color/primary_dark" />
 
 </milespeele.canvas.view.ViewCanvasLayout>

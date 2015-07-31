@@ -1,192 +1,30 @@
 package milespeele.canvas.view;
 
-import android.animation.ObjectAnimator;
 import android.content.Context;
-import android.support.v4.view.animation.LinearOutSlowInInterpolator;
+import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.animation.Interpolator;
-
-import butterknife.ButterKnife;
-import butterknife.InjectView;
-import butterknife.OnClick;
-import milespeele.canvas.R;
 
 /**
- * Created by Miles Peele on 7/9/2015.
+ * Created by milespeele on 7/30/15.
  */
-public class ViewFabMenu extends ViewGroup
-        implements View.OnClickListener {
-
-    private boolean menuVisible = true;
-
-    private final static Interpolator INTERPOLATOR = new LinearOutSlowInInterpolator();
-
-    private float buttonMargin;
-    private int buttonWidth;
-    private int buttonHeight;
-
-    private ObjectAnimator rotateOpen;
-    private ObjectAnimator rotateClose;
-
-    @InjectView(R.id.palette_show) ViewFab toggle;
-    @InjectView(R.id.palette_erase) ViewFab eraser;
-
-    private FabMenuListener mListener;
-    public interface FabMenuListener {
-        void onColorizeClicked();
-        void onEraseClicked();
-        void onPaintColorClicked(int viewId);
-        void onBrushClicked();
-        void onUndoClicked();
-        void onRedoClicked();
-    }
+public class ViewFabMenu extends RecyclerView {
 
     public ViewFabMenu(Context context) {
         super(context);
-        init(context);
+        init();
     }
 
     public ViewFabMenu(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init(context);
+        init();
     }
 
     public ViewFabMenu(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        init(context);
+        init();
     }
 
-    private void init(Context context) {
-        buttonMargin = getResources().getDimension(R.dimen.fab_margin);
-    }
-
-    @Override
-    public MarginLayoutParams generateLayoutParams(AttributeSet attrs) {
-        return new MarginLayoutParams(getContext(), attrs);
-    }
-
-    @Override
-    protected MarginLayoutParams generateLayoutParams(LayoutParams p) {
-        return new MarginLayoutParams(p);
-    }
-
-    @Override
-    protected MarginLayoutParams generateDefaultLayoutParams() {
-        return new MarginLayoutParams(MarginLayoutParams.WRAP_CONTENT,
-                MarginLayoutParams.MATCH_PARENT);
-    }
-
-    @Override
-    protected boolean checkLayoutParams(LayoutParams p) {
-        return p instanceof MarginLayoutParams;
-    }
-
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec){
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        final int count = getChildCount();
-
-        int maxHeight = 0;
-        for (int i = 0; i < count; i++) {
-            View v = getChildAt(i);
-            v.measure(MeasureSpec.makeMeasureSpec(widthMeasureSpec, MeasureSpec.EXACTLY),
-                    MeasureSpec.makeMeasureSpec(heightMeasureSpec, MeasureSpec.EXACTLY));
-
-            buttonWidth = v.getMeasuredWidth();
-            buttonHeight = v.getMeasuredHeight();
-        }
-    }
-
-    @Override
-    protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        final int count = getChildCount();
-
-        int left = (int) (l + getMeasuredWidth() - buttonMargin - buttonWidth);
-        int right = (int) (r - buttonMargin);
-        int currentBottom = (int) (b - buttonMargin);
-
-        for (int i = count - 1; i >= 0; i--) {
-            View child = getChildAt(i);
-            child.layout(left, currentBottom - buttonHeight, right, currentBottom);
-            currentBottom -= buttonHeight + buttonMargin;
-        }
-    }
-
-    @Override
-    protected void onFinishInflate() {
-        super.onFinishInflate();
-        ButterKnife.inject(this);
-        rotateOpen = ObjectAnimator.ofFloat(toggle, "rotation", 0f, 135f);
-        rotateClose = ObjectAnimator.ofFloat(toggle, "rotation", 135f, 270f);
-        rotateToShowMenuOpen();
-    }
-
-    @Override
-    @OnClick({R.id.palette_show, R.id.palette_paint, R.id.palette_brush_size,
-            R.id.palette_undo, R.id.palette_redo, R.id.palette_erase})
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.palette_colorize:
-                mListener.onColorizeClicked();
-                break;
-            case R.id.palette_erase:
-                mListener.onEraseClicked();
-                break;
-            case R.id.palette_show:
-                showOrHideMenu();
-                break;
-            case R.id.palette_paint:
-                mListener.onPaintColorClicked(v.getId());
-                break;
-            case R.id.palette_brush_size:
-                mListener.onBrushClicked();
-                break;
-            case R.id.palette_undo:
-                mListener.onUndoClicked();
-                break;
-            case R.id.palette_redo:
-                mListener.onRedoClicked();
-                break;
-        }
-    }
-
-    public void setListener(FabMenuListener drawer) {
-        mListener = drawer;
-    }
-
-    private void showOrHideMenu() {
-        if (menuVisible) {
-            animateOut();
-        } else {
-            animateIn();
-        }
-    }
-
-    public void animateOut() {
-        if (menuVisible) {
-            menuVisible = false;
-            rotateToShowMenuClosed();
-            for (int i = 0; i < getChildCount() - 1; i++) {
-                ((ViewFab) getChildAt(i)).hide();
-            }
-        }
-    }
-
-    private void animateIn() {
-        menuVisible = true;
-        rotateToShowMenuOpen();
-        for (int i = 0; i < getChildCount() - 1; i++) {
-            ((ViewFab) getChildAt(i)).show();
-        }
-    }
-
-    private void rotateToShowMenuOpen() {
-        rotateOpen.start();
-    }
-
-    private void rotateToShowMenuClosed() {
-        rotateClose.start();
+    private void init() {
+        setLayoutManager(new ViewFabMenuLayoutManager());
     }
 }

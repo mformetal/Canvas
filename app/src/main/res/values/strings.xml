@@ -38,4 +38,11 @@
 
     <string name="title_activity_login">Login</string>
 
+    <string name="view_fab_action_erase">Erase</string>
+    <string name="view_fab_action_undo">Undo</string>
+    <string name="view_fab_action_redo">Redo</string>
+    <string name="view_fab_action_brush">Brush</string>
+    <string name="view_fab_action_stroke_color">Color</string>
+    <string name="view_fab_action_colorize">Colorize</string>
+
 </resources>

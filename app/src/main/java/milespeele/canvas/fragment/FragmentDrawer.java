@@ -1,6 +1,5 @@
 package milespeele.canvas.fragment;
 
-
 import android.app.Activity;
 import android.app.Fragment;
 import android.graphics.Bitmap;
@@ -14,13 +13,11 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import milespeele.canvas.R;
 import milespeele.canvas.view.ViewCanvas;
-import milespeele.canvas.view.ViewFabMenu;
 
-public class FragmentDrawer extends Fragment implements ViewFabMenu.FabMenuListener {
+public class FragmentDrawer extends Fragment {
 
     @InjectView(R.id.fragment_drawer_canvas) ViewCanvas drawer;
     @InjectView(R.id.fragment_drawer_coordinator) CoordinatorLayout parent;
-    @InjectView(R.id.fragment_drawer_palette) ViewFabMenu palette;
 
     private FragmentListener listener;
 
@@ -51,37 +48,8 @@ public class FragmentDrawer extends Fragment implements ViewFabMenu.FabMenuListe
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_drawer, container, false);
-        ButterKnife.inject(this, v);
-        palette.setListener(this);
+        ButterKnife.inject(this, v);;
         return v;
-    }
-
-    @Override
-    public void onColorizeClicked() {
-
-    }
-
-    @Override
-    public void onEraseClicked() {
-        drawer.changeToEraser();
-    }
-
-    @Override
-    public void onPaintColorClicked(int viewId) {
-        listener.showColorPicker(viewId);
-    }
-
-    @Override
-    public void onBrushClicked() { listener.showBrushPicker(drawer.getBrushWidth()); }
-
-    @Override
-    public void onUndoClicked() {
-        drawer.undo();
-    }
-
-    @Override
-    public void onRedoClicked() {
-        drawer.redo();
     }
 
     public Bitmap giveBitmapToActivity() {
