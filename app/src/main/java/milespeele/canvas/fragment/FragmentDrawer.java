@@ -83,6 +83,7 @@ public class FragmentDrawer extends Fragment implements ViewSheetView.FabMenuLis
 
     @Override
     public void onEraseClicked() {
+        parent.dismissSheet();
         drawer.changeToEraser();
     }
 

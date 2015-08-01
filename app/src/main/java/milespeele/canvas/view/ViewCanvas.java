@@ -8,13 +8,16 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ImageView;
 
 import java.util.Random;
 
+import milespeele.canvas.R;
 import milespeele.canvas.paint.PaintPath;
 import milespeele.canvas.paint.PaintStack;
 import milespeele.canvas.paint.PaintStyles;
@@ -102,16 +105,17 @@ public class ViewCanvas extends View {
         float eventX = event.getX();
         float eventY = event.getY();
         float time = event.getDownTime();
-        int pointerCount = event.getPointerCount();
 
         switch (event.getAction()) {
-            case MotionEvent.ACTION_POINTER_DOWN:
-                onTouchDown(eventX, eventY, time);
             case MotionEvent.ACTION_DOWN:
                 onTouchDown(eventX, eventY, time);
                 return true;
 
             case MotionEvent.ACTION_MOVE:
+                if (shouldErase) {
+                    mPath.setColor(Color.BLACK);
+                    mPath.addCircle(eventX, eventY, 10, Path.Direction.CCW);
+                }
             case MotionEvent.ACTION_UP:
                 onTouchUp(event, eventX, eventY);
                 break;
