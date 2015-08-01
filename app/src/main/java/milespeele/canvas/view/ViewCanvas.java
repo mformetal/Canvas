@@ -103,6 +103,7 @@ public class ViewCanvas extends View {
         float eventX = event.getX();
         float eventY = event.getY();
         float time = event.getDownTime();
+        int pointerCount = event.getPointerCount();
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:

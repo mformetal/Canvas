@@ -2,69 +2,75 @@
 <milespeele.canvas.view.ViewFabMenu
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="wrap_content"
+    app:columnCount="5"
+    android:layout_margin="@dimen/fab_margin"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/palette_root" >
 
     <milespeele.canvas.view.ViewFab
-        android:id="@+id/palette_colorize"
+        android:id="@+id/fab_menu_colorize"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_colorize_black_24dp"
+        android:layout_margin="@dimen/fab_margin"
+        app:fabSize="mini"
         app:rippleColor="@color/primary_dark"
         app:elevation="@dimen/fab_elevation"
         app:borderWidth="0dp" />
 
     <milespeele.canvas.view.ViewFab
-        android:id="@+id/palette_paint"
+        android:id="@+id/fab_menu_stroke_color"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_format_paint_black_24dp"
+        android:layout_margin="@dimen/fab_margin"
+        app:fabSize="mini"
         app:rippleColor="@color/primary_dark"
         app:elevation="@dimen/fab_elevation"
         app:borderWidth="0dp" />
 
     <milespeele.canvas.view.ViewFab
-        android:id="@+id/palette_brush_size"
+        android:id="@+id/fab_menu_brush"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_brush_black_24dp"
-        app:elevation="@dimen/fab_elevation"
-        app:borderWidth="0dp" />
-
-    <milespeele.canvas.view.ViewFab
-        android:id="@+id/palette_undo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/undo"
-        app:elevation="@dimen/fab_elevation"
-        app:borderWidth="0dp" />
-
-    <milespeele.canvas.view.ViewFab
-        android:id="@+id/palette_redo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/redo"
-        app:elevation="@dimen/fab_elevation"
-        app:borderWidth="0dp"
-        app:rippleColor="@color/primary_dark" />
-
-    <milespeele.canvas.view.ViewFab
-        android:id="@+id/palette_erase"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ic_label_outline_black_24dp"
+        android:layout_margin="@dimen/fab_margin"
+        app:fabSize="mini"
         app:rippleColor="@color/primary_dark"
         app:elevation="@dimen/fab_elevation"
         app:borderWidth="0dp" />
 
     <milespeele.canvas.view.ViewFab
-        android:id="@+id/palette_show"
+        android:id="@+id/fab_menu_undo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_add_black_24dp"
+        android:src="@drawable/undo"
+        android:layout_margin="@dimen/fab_margin"
+        app:fabSize="mini"
+        app:elevation="@dimen/fab_elevation"
+        app:borderWidth="0dp" />
+
+    <milespeele.canvas.view.ViewFab
+        android:id="@+id/fab_menu_redo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/redo"
+        android:layout_margin="@dimen/fab_margin"
+        app:fabSize="mini"
         app:elevation="@dimen/fab_elevation"
         app:borderWidth="0dp"
         app:rippleColor="@color/primary_dark" />
+
+    <milespeele.canvas.view.ViewFab
+        android:id="@+id/fab_menu_erase"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_label_outline_black_24dp"
+        android:layout_margin="@dimen/fab_margin"
+        app:rippleColor="@color/primary_dark"
+        app:fabSize="mini"
+        app:elevation="@dimen/fab_elevation"
+        app:borderWidth="0dp" />
 
 </milespeele.canvas.view.ViewFabMenu>
