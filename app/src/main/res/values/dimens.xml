@@ -4,5 +4,9 @@
 
     <dimen name="fab_margin">12dp</dimen>
 
-    <dimen name="dialog_title_text_size">20dp</dimen>
+    <dimen name="padding_button_top">20dp</dimen>
+
+    <dimen name="dialog_title_text_size">20sp</dimen>
+    <dimen name="dialog_title_text_bottom_margin">20dp</dimen>
+    <dimen name="dialog_title_text_top_margin">20dp</dimen>
 </resources>

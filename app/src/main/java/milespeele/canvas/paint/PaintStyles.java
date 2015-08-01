@@ -62,18 +62,18 @@ public class PaintStyles {
         return paint;
     }
 
-//    public static Paint fadePaint(int currentColor, float width) {
-//        Paint paint = new Paint();
-//        paint.setAntiAlias(true);
-//        paint.setDither(true);
-//        paint.setColor(currentColor);
-//        paint.setStrokeWidth(width);
-//        paint.setStyle(Paint.Style.STROKE);
-//        paint.setStrokeJoin(Paint.Join.ROUND);
-//        paint.setStrokeCap(Paint.Cap.ROUND);
-//        paint.setMaskFilter(BLUR_MASK_FILTER);
-//        return paint;
-//    }
+    public static Paint fadePaint(int currentColor, float width) {
+        Paint paint = new Paint();
+        paint.setAntiAlias(true);
+        paint.setDither(true);
+        paint.setColor(currentColor);
+        paint.setStrokeWidth(width);
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeJoin(Paint.Join.ROUND);
+        paint.setStrokeCap(Paint.Cap.ROUND);
+        paint.setMaskFilter(BLUR_MASK_FILTER);
+        return paint;
+    }
 
     public static Paint neonPaint(int currentColor, float width) {
         Paint paint = new Paint();

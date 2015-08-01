@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-    <com.flipboard.bottomsheet.BottomSheetLayout
+    <milespeele.canvas.view.ViewBottomSheet
         android:id="@+id/fragment_drawer_bottom_sheet"
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
@@ -16,7 +16,7 @@
             android:layout_height="match_parent"
             android:id="@+id/fragment_drawer_canvas" />
 
-    </com.flipboard.bottomsheet.BottomSheetLayout>
+    </milespeele.canvas.view.ViewBottomSheet>
 
     <milespeele.canvas.view.ViewFab
         android:id="@+id/fragment_drawer_show_menu"

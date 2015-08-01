@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
@@ -51,9 +52,8 @@ public class FragmentBrushPicker extends DialogFragment
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        Dialog dialog = new AppCompatDialog(getActivity(), R.style.DialogTheme);
-        dialog.getWindow().setTitle(getResources().getString(R.string.fragment_brush_picker_title));
-        dialog.setCanceledOnTouchOutside(true);
+        Dialog dialog = super.onCreateDialog(savedInstanceState);
+        dialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
         return dialog;
     }
 

@@ -6,9 +6,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/fragment_brush_picker_title"
+        android:text="@string/fragment_brush_picker_title"
+        style="@style/DialogTitleText" />
+
     <milespeele.canvas.view.ViewBrushSize
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@id/fragment_brush_picker_title"
         android:padding="@dimen/activity_horizontal_margin"
         android:id="@+id/fragment_brush_picker_changes" />
 

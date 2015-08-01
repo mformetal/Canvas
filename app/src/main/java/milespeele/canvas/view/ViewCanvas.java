@@ -94,7 +94,6 @@ public class ViewCanvas extends View {
             }
         } else {
             canvas.drawBitmap(mBitmap, 0, 0, null);
-            shouldRedraw = false;
         }
     }
 
@@ -106,6 +105,8 @@ public class ViewCanvas extends View {
         int pointerCount = event.getPointerCount();
 
         switch (event.getAction()) {
+            case MotionEvent.ACTION_POINTER_DOWN:
+                onTouchDown(eventX, eventY, time);
             case MotionEvent.ACTION_DOWN:
                 onTouchDown(eventX, eventY, time);
                 return true;
