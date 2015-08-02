@@ -1,5 +1,6 @@
 package milespeele.canvas.view;
 
+import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -9,7 +10,6 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.flipboard.bottomsheet.BottomSheetLayout;
-import com.flipboard.bottomsheet.OnSheetDismissedListener;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -21,30 +21,37 @@ import milespeele.canvas.fragment.FragmentDrawer;
  * Created by Miles Peele on 8/1/2015.
  */
 public class ViewBottomSheet extends BottomSheetLayout
-        implements View.OnClickListener, OnSheetDismissedListener {
+        implements View.OnClickListener {
 
     @InjectView(R.id.fragment_drawer_canvas) ViewCanvas drawer;
     @InjectView(R.id.fragment_drawer_show_menu) ViewFab toggle;
+    @InjectView(R.id.fragment_drawer_coordinator) ViewCanvasLayout coordinator;
     private ViewBottomSheetMenu menu;
 
-    private ObjectAnimator rotateOpen;
-    private ObjectAnimator rotateClose;
-    private ObjectAnimator moveDown;
+    private static AnimatorSet close;
+    private static AnimatorSet open;
 
     public ViewBottomSheet(Context context) {
         super(context);
+        init();
     }
 
     public ViewBottomSheet(Context context, AttributeSet attrs) {
         super(context, attrs);
+        init();
     }
 
     public ViewBottomSheet(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        init();
     }
 
     public ViewBottomSheet(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
+        init();
+    }
+
+    private void init() {
     }
 
     @Override
@@ -70,9 +77,17 @@ public class ViewBottomSheet extends BottomSheetLayout
     protected void onFinishInflate() {
         super.onFinishInflate();
         ButterKnife.inject(this);
-        rotateOpen = ObjectAnimator.ofFloat(toggle, "rotation", 0f, 135f);
-        rotateClose = ObjectAnimator.ofFloat(toggle, "rotation", 135f, 270f);
-        moveDown = ObjectAnimator.ofFloat(toggle, "translationY", 12);
+        open = new AnimatorSet();
+        close = new AnimatorSet();
+        close.playTogether(ObjectAnimator.ofFloat(toggle, "rotation", 135f, 270f),
+                ObjectAnimator.ofFloat(toggle, "translationY", 12));
+    }
+
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        open.playTogether(ObjectAnimator.ofFloat(toggle, "translationY", -(h / 3)),
+                ObjectAnimator.ofFloat(toggle, "rotation", 0f, 135f));
     }
 
     @Override
@@ -80,28 +95,30 @@ public class ViewBottomSheet extends BottomSheetLayout
     public void onClick(View v) {
         if (isSheetShowing()) {
             dismissSheet();
-            rotateClose.start();
-            moveDown.start();
         } else {
-            ObjectAnimator.ofFloat(toggle, "translationY", -500).start();
-            showWithSheetView(menu, null, this);
-            rotateOpen.start();
+            showWithSheetView(menu);
         }
     }
 
     public void inflateMenu(FragmentDrawer drawer) {
         if (menu == null) {
-            menu = (ViewBottomSheetMenu) LayoutInflater.from(getContext()).inflate(R.layout.bottom_sheet_menu,
-                    null, true);
+            menu = (ViewBottomSheetMenu) LayoutInflater.from(getContext())
+                    .inflate(R.layout.bottom_sheet_menu, null, false);
             menu.setListener(drawer);
         }
     }
 
     @Override
-    public void onDismissed(BottomSheetLayout bottomSheetLayout) {
-        if (!moveDown.isRunning()) {
-            moveDown.start();
-            rotateClose.start();
-        }
+    public void showWithSheetView(View sheetView) {
+        open.start();
+        super.showWithSheetView(sheetView);
     }
+
+
+    @Override
+    public void dismissSheet() {
+        close.start();
+        super.dismissSheet();
+    }
+
 }

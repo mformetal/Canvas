@@ -7,18 +7,21 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import milespeele.canvas.R;
 import milespeele.canvas.view.ViewBottomSheet;
-import milespeele.canvas.view.ViewCanvas;
 import milespeele.canvas.view.ViewBottomSheetMenu;
+import milespeele.canvas.view.ViewCanvas;
 
 public class FragmentDrawer extends Fragment implements ViewBottomSheetMenu.FabMenuListener {
 
     @InjectView(R.id.fragment_drawer_canvas) ViewCanvas drawer;
     @InjectView(R.id.fragment_drawer_bottom_sheet) ViewBottomSheet parent;
+    @InjectView(R.id.fragment_drawer_eraser) ImageView eraser;
+    @InjectView(R.id.fragment_drawer_ink) ImageView ink;
 
     private FragmentListener listener;
 
@@ -77,12 +80,13 @@ public class FragmentDrawer extends Fragment implements ViewBottomSheetMenu.FabM
     @Override
     public void onColorizeClicked() {
         parent.dismissSheet();
+        drawer.showInk(ink);
     }
 
     @Override
     public void onEraseClicked() {
         parent.dismissSheet();
-        drawer.changeToEraser();
+        drawer.changeToEraser(eraser);
     }
 
     @Override

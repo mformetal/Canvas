@@ -12,6 +12,7 @@
         android:layout_height="wrap_content"
         android:paddingTop="@dimen/padding_button_top"
         android:text="@string/sheet_view_ink"
+        android:textColor="@android:color/white"
         android:gravity="bottom|center_horizontal"
         android:drawableTop="@drawable/ic_colorize_black_24dp"
         android:background="?android:selectableItemBackground"/>
@@ -22,6 +23,7 @@
         android:layout_height="wrap_content"
         android:paddingTop="@dimen/padding_button_top"
         android:text="@string/sheet_view_stroke"
+        android:textColor="@android:color/white"
         android:gravity="bottom|center_horizontal"
         android:drawableTop="@drawable/ic_format_paint_black_24dp"
         android:background="?android:selectableItemBackground"/>
@@ -33,6 +35,7 @@
         android:paddingTop="@dimen/padding_button_top"
         android:gravity="bottom|center_horizontal"
         android:text="@string/sheet_view_brush"
+        android:textColor="@android:color/white"
         android:drawableTop="@drawable/ic_brush_black_24dp"
         android:background="?android:selectableItemBackground"/>
 
@@ -43,6 +46,7 @@
         android:paddingTop="@dimen/padding_button_top"
         android:gravity="bottom|center_horizontal"
         android:text="@string/sheet_view_undo"
+        android:textColor="@android:color/white"
         android:drawableTop="@drawable/undo"
         android:background="?android:selectableItemBackground"/>
 
@@ -53,6 +57,7 @@
         android:paddingTop="@dimen/padding_button_top"
         android:gravity="bottom|center_horizontal"
         android:text="@string/sheet_view_redo"
+        android:textColor="@android:color/white"
         android:drawableTop="@drawable/redo"
         android:background="?android:selectableItemBackground"/>
 
@@ -63,6 +68,7 @@
         android:paddingTop="@dimen/padding_button_top"
         android:gravity="bottom|center_horizontal"
         android:text="@string/sheet_view_erase"
+        android:textColor="@android:color/white"
         android:drawableTop="@drawable/ic_label_outline_black_24dp"
         android:background="?android:selectableItemBackground"/>
 

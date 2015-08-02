@@ -25,9 +25,6 @@ public class ParseUtils {
 
     @Inject Datastore datastore;
 
-    private final static String PINNED_USER = "pinuser";
-    private final static String PINNED_MASTERPIECE = "yeah";
-
     public ParseUtils(Application mApplication) {
         ((MainApp) mApplication).getApplicationComponent().inject(this);
     }

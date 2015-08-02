@@ -7,12 +7,12 @@
     <string name="twitter_consumer_key">rV9zSspMD92DWkxHrNijzrff0</string>
     <string name="twitter_consumer_secret">bVNZxVLt7LuDMPPEQa6TKR53u0H0BGM3TtgwAag3pvbPVJEx4g</string>
 
-    <string name="sheet_view_ink">Ink</string>
-    <string name="sheet_view_stroke">Color</string>
-    <string name="sheet_view_brush">Brush</string>
-    <string name="sheet_view_undo">Undo</string>
-    <string name="sheet_view_redo">Redo</string>
-    <string name="sheet_view_erase">Eraser</string>
+    <string name="sheet_view_ink">INK</string>
+    <string name="sheet_view_stroke">COLOR</string>
+    <string name="sheet_view_brush">BRUSH</string>
+    <string name="sheet_view_undo">UNDO</string>
+    <string name="sheet_view_redo">REDO</string>
+    <string name="sheet_view_erase">ERASER</string>
 
     <string name="title_activity_gallery">Gallery</string>
     <string name="activity_gallery_empty">No Masterpieces Saved Yet!</string>
@@ -44,12 +44,5 @@
     <string name="paint_example_dashed">Dashed</string>
 
     <string name="title_activity_login">Login</string>
-
-    <string name="view_fab_action_erase">Erase</string>
-    <string name="view_fab_action_undo">Undo</string>
-    <string name="view_fab_action_redo">Redo</string>
-    <string name="view_fab_action_brush">Brush</string>
-    <string name="view_fab_action_stroke_color">Color</string>
-    <string name="view_fab_action_colorize">Colorize</string>
 
 </resources>

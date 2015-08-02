@@ -16,6 +16,20 @@
             android:layout_height="match_parent"
             android:id="@+id/fragment_drawer_canvas" />
 
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/fragment_drawer_eraser"
+            android:src="@drawable/eraser"
+            android:visibility="gone" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/fragment_drawer_ink"
+            android:src="@drawable/ic_colorize_black_24dp"
+            android:visibility="gone" />
+
         <milespeele.canvas.view.ViewFab
             android:id="@+id/fragment_drawer_show_menu"
             android:layout_width="wrap_content"
@@ -23,7 +37,7 @@
             android:src="@drawable/ic_add_black_24dp"
             android:layout_margin="@dimen/fab_margin"
             app:layout_anchorGravity="bottom|right|end"
-            app:layout_anchor="@id/fragment_drawer_canvas"
+            app:layout_anchor="@id/fragment_drawer_coordinator"
             app:elevation="@dimen/fab_elevation"
             app:rippleColor="@color/primary_dark" />
 

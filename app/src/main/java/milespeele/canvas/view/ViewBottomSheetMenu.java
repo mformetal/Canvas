@@ -1,7 +1,6 @@
 package milespeele.canvas.view;
 
 import android.content.Context;
-import android.graphics.PorterDuff;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
@@ -145,7 +144,7 @@ public class ViewBottomSheetMenu extends ViewGroup implements View.OnClickListen
 
     @Override
     @OnClick({R.id.fab_menu_stroke_color, R.id.fab_menu_brush,
-            R.id.fab_menu_undo, R.id.fab_menu_redo, R.id.fab_menu_erase})
+            R.id.fab_menu_undo, R.id.fab_menu_redo, R.id.fab_menu_erase, R.id.fab_menu_colorize})
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.fab_menu_colorize:

@@ -9,16 +9,17 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.support.v4.view.MotionEventCompat;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ImageView;
 
 import java.util.Random;
 
 import milespeele.canvas.paint.PaintPath;
 import milespeele.canvas.paint.PaintStack;
 import milespeele.canvas.paint.PaintStyles;
-import milespeele.canvas.util.Logg;
 
 /**
  * Created by milespeele on 7/2/15.
@@ -28,6 +29,7 @@ public class ViewCanvas extends View {
     private static float STROKE_WIDTH = 5f;
     private boolean shouldErase = false;
     private boolean shouldRedraw = false;
+    private boolean shouldInk = false;
     private int currentStrokeColor;
     private int currentBackgroundColor;
     private float lastTouchX, lastTouchY;
@@ -41,6 +43,8 @@ public class ViewCanvas extends View {
     private Bitmap mBitmap;
     private Canvas mCanvas;
     private Matrix scaleMatrix;
+    private ImageView eraser;
+    private ImageView ink;
 
     public ViewCanvas(Context context) {
         super(context);
@@ -70,6 +74,7 @@ public class ViewCanvas extends View {
         setSaveEnabled(true);
         setBackgroundColor(currentBackgroundColor);
         setLayerType(LAYER_TYPE_HARDWARE, null);
+        setDrawingCacheQuality(DRAWING_CACHE_QUALITY_HIGH);
     }
 
     @Override
@@ -93,6 +98,7 @@ public class ViewCanvas extends View {
             }
         } else {
             canvas.drawBitmap(mBitmap, 0, 0, null);
+            shouldRedraw = false;
         }
     }
 
@@ -100,15 +106,19 @@ public class ViewCanvas extends View {
     public boolean onTouchEvent(MotionEvent event) {
         float eventX = event.getX();
         float eventY = event.getY();
-        float time = event.getDownTime();
+        int actionMasked = MotionEventCompat.getActionMasked(event);
 
-        switch (event.getAction()) {
+        switch (actionMasked & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
-                onTouchDown(eventX, eventY, time);
-                return true;
+            case MotionEvent.ACTION_POINTER_DOWN:
+                onTouchDown(event, eventX, eventY);
+                break;
 
             case MotionEvent.ACTION_MOVE:
+                onTouchMove(event, eventX, eventY);
+                break;
             case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_POINTER_UP:
                 onTouchUp(event, eventX, eventY);
                 break;
         }
@@ -123,16 +133,21 @@ public class ViewCanvas extends View {
         return true;
     }
 
-    private void onTouchDown(float eventX, float eventY, float time) {
+    private void onTouchDown(MotionEvent event, float eventX, float eventY) {
         lastTouchX = eventX;
         lastTouchY = eventY;
         mPath = new PaintPath(currentStyle());
         mPaths.push(mPath);
         mPath.moveTo(eventX, eventY);
+
+        setInkPosition(event, eventX, eventY);
+        setEraserPosition(event, eventX, eventY);
     }
 
-    private void onTouchUp(MotionEvent event, float eventX, float eventY) {
+    private void onTouchMove(MotionEvent event, float eventX, float eventY) {
         resetDirtyRect(eventX, eventY);
+        setInkPosition(event, eventX, eventY);
+        setEraserPosition(event, eventX, eventY);
 
         int historySize = event.getHistorySize();
         for (int i = 0; i < historySize; i++) {
@@ -144,6 +159,11 @@ public class ViewCanvas extends View {
 
         mPath.lineTo(eventX, eventY);
         mCanvas.drawPath(mPath, mPath.getPaint());
+    }
+
+    private void onTouchUp(MotionEvent event, float eventX, float eventY) {
+        setEraserPosition(event, eventX, eventY);
+        setInkPosition(event, eventX, eventY);
     }
 
     private void expandDirtyRect(float historicalX, float historicalY) {
@@ -166,8 +186,67 @@ public class ViewCanvas extends View {
         dirtyRect.bottom = Math.max(lastTouchY, eventY);
     }
 
-    public void changeToEraser() {
+    private void setEraserPosition(MotionEvent event, float eventX, float eventY) {
+        if (shouldErase && eraser != null) {
+            eraser.setTranslationX(eventX);
+            eraser.setTranslationY(eventY);
+
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    eraser.setVisibility(View.VISIBLE);
+                    break;
+                case MotionEvent.ACTION_UP:
+                    eraser.setVisibility(View.GONE);
+                    break;
+            }
+        }
+    }
+
+    private void setInkPosition(MotionEvent event, float eventX, float eventY) {
+        if (shouldInk && ink != null) {
+            if (eventsInRange(eventX, eventY)) {
+                int color = mBitmap.getPixel((int) eventX, (int) eventY);
+                ink.setBackgroundColor(color);
+
+                ink.setTranslationX(eventX);
+                ink.setTranslationY(eventY);
+
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        ink.setVisibility(View.VISIBLE);
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        ink.setVisibility(View.GONE);
+                        shouldInk = false;
+                        if (color != currentBackgroundColor && currentBackgroundColor != -1)  {
+                            curPaint.setColor(color);
+                        } else {
+                            curPaint.setColor(currentStrokeColor);
+                        }
+                        break;
+                }
+            }
+        }
+    }
+
+    private boolean eventsInRange(float eventX, float eventY) {
+        int x = Math.round(eventX), y = Math.round(eventY);
+        return (x >= 0 && x <= mBitmap.getWidth() &&
+                (y >= 0 && y <= mBitmap.getHeight()));
+    }
+
+    public void changeToEraser(ImageView eraser) {
+        this.eraser = eraser;
         shouldErase = true;
+        shouldInk = false;
+    }
+
+    public void showInk(ImageView ink) {
+        this.ink = ink;
+        shouldErase = false;
+        shouldInk = true;
+        shouldRedraw = false;
+        curPaint.setColor(Color.TRANSPARENT);
     }
 
     public void fillCanvas(int color) {
@@ -198,7 +277,9 @@ public class ViewCanvas extends View {
     }
 
     public void changeColor(int color) {
+        shouldInk = false;
         shouldErase = false;
+        shouldRedraw = false;
         currentStrokeColor = color;
         curPaint.setColor(currentStrokeColor);
     }
@@ -206,6 +287,7 @@ public class ViewCanvas extends View {
     public float getBrushWidth() { return STROKE_WIDTH; }
 
     public void setBrushWidth(float width) {
+        shouldInk = false;
         STROKE_WIDTH = width;
         curPaint.setStrokeWidth(width);
     }
@@ -232,7 +314,7 @@ public class ViewCanvas extends View {
         }
     }
 
-    public Paint currentStyle() {
+    private Paint currentStyle() {
         if (shouldErase) {
             return (curPaint = PaintStyles.eraserPaint(currentBackgroundColor, STROKE_WIDTH));
         } else {
