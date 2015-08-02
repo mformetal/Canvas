@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<milespeele.canvas.view.ViewSheetView
+<milespeele.canvas.view.ViewBottomSheetMenu
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/primary_dark"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:id="@+id/palette_root" >
+    android:id="@+id/palette_root">
 
-    <Button
+    <milespeele.canvas.view.ViewBottomSheetMenuButton
         android:id="@+id/fab_menu_colorize"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -17,7 +16,7 @@
         android:drawableTop="@drawable/ic_colorize_black_24dp"
         android:background="?android:selectableItemBackground"/>
 
-    <Button
+    <milespeele.canvas.view.ViewBottomSheetMenuButton
         android:id="@+id/fab_menu_stroke_color"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -27,7 +26,7 @@
         android:drawableTop="@drawable/ic_format_paint_black_24dp"
         android:background="?android:selectableItemBackground"/>
 
-    <Button
+    <milespeele.canvas.view.ViewBottomSheetMenuButton
         android:id="@+id/fab_menu_brush"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -37,7 +36,7 @@
         android:drawableTop="@drawable/ic_brush_black_24dp"
         android:background="?android:selectableItemBackground"/>
 
-    <Button
+    <milespeele.canvas.view.ViewBottomSheetMenuButton
         android:id="@+id/fab_menu_undo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -47,7 +46,7 @@
         android:drawableTop="@drawable/undo"
         android:background="?android:selectableItemBackground"/>
 
-    <Button
+    <milespeele.canvas.view.ViewBottomSheetMenuButton
         android:id="@+id/fab_menu_redo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -57,7 +56,7 @@
         android:drawableTop="@drawable/redo"
         android:background="?android:selectableItemBackground"/>
 
-    <Button
+    <milespeele.canvas.view.ViewBottomSheetMenuButton
         android:id="@+id/fab_menu_erase"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -67,4 +66,4 @@
         android:drawableTop="@drawable/ic_label_outline_black_24dp"
         android:background="?android:selectableItemBackground"/>
 
-</milespeele.canvas.view.ViewSheetView>
+</milespeele.canvas.view.ViewBottomSheetMenu>

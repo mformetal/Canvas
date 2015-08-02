@@ -6,9 +6,11 @@
         android:width="3dp"
         android:color="@android:color/black" />
 
-    <solid android:color="@android:color/transparent" />
+    <solid
+        android:color="@android:color/transparent" />
 
-    <size android:height="40dp"
-        android:width="40dp" />
+    <size
+        android:height="30dp"
+        android:width="30dp" />
 
 </shape>

@@ -1,28 +1,21 @@
 package milespeele.canvas.fragment;
 
-import android.animation.Animator;
-import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.graphics.Color;
-import android.graphics.Point;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.view.animation.AccelerateDecelerateInterpolator;
-import android.widget.Button;
 import android.widget.TextView;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
 import milespeele.canvas.R;
-import milespeele.canvas.util.Logg;
 import milespeele.canvas.view.ViewColorPicker;
 
 /**

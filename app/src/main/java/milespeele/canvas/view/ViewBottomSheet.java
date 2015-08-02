@@ -4,7 +4,6 @@ import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -17,7 +16,6 @@ import butterknife.InjectView;
 import butterknife.OnClick;
 import milespeele.canvas.R;
 import milespeele.canvas.fragment.FragmentDrawer;
-import milespeele.canvas.util.Logg;
 
 /**
  * Created by Miles Peele on 8/1/2015.
@@ -27,7 +25,7 @@ public class ViewBottomSheet extends BottomSheetLayout
 
     @InjectView(R.id.fragment_drawer_canvas) ViewCanvas drawer;
     @InjectView(R.id.fragment_drawer_show_menu) ViewFab toggle;
-    private ViewSheetView menu;
+    private ViewBottomSheetMenu menu;
 
     private ObjectAnimator rotateOpen;
     private ObjectAnimator rotateClose;
@@ -93,7 +91,7 @@ public class ViewBottomSheet extends BottomSheetLayout
 
     public void inflateMenu(FragmentDrawer drawer) {
         if (menu == null) {
-            menu = (ViewSheetView) LayoutInflater.from(getContext()).inflate(R.layout.sheet_view,
+            menu = (ViewBottomSheetMenu) LayoutInflater.from(getContext()).inflate(R.layout.bottom_sheet_menu,
                     null, true);
             menu.setListener(drawer);
         }

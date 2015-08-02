@@ -9,8 +9,6 @@ import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
 
-import milespeele.canvas.util.Logg;
-
 /**
  * Created by milespeele on 7/13/15.
  */

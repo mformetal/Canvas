@@ -18,6 +18,7 @@ import java.util.Random;
 import milespeele.canvas.paint.PaintPath;
 import milespeele.canvas.paint.PaintStack;
 import milespeele.canvas.paint.PaintStyles;
+import milespeele.canvas.util.Logg;
 
 /**
  * Created by milespeele on 7/2/15.
@@ -25,22 +26,21 @@ import milespeele.canvas.paint.PaintStyles;
 public class ViewCanvas extends View {
 
     private static float STROKE_WIDTH = 5f;
-    private static float HALF_STROKE_WIDTH = STROKE_WIDTH / 2;
     private boolean shouldErase = false;
     private boolean shouldRedraw = false;
-
     private int currentStrokeColor;
     private int currentBackgroundColor;
-    private Paint curPaint;
-    private Bitmap mBitmap;
-    private Canvas mCanvas;
-    private Matrix scaleMatrix;
     private float lastTouchX, lastTouchY;
+    private int width, height;
+
     private final RectF dirtyRect = new RectF();
     private PaintPath mPath;
     private PaintStack mPaths;
     private PaintStack redoPaths;
-    private int width, height;
+    private Paint curPaint;
+    private Bitmap mBitmap;
+    private Canvas mCanvas;
+    private Matrix scaleMatrix;
 
     public ViewCanvas(Context context) {
         super(context);
@@ -87,7 +87,6 @@ public class ViewCanvas extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
         if (shouldRedraw) {
             for (PaintPath p: mPaths) {
                 canvas.drawPath(p, p.getPaint());
@@ -112,16 +111,12 @@ public class ViewCanvas extends View {
             case MotionEvent.ACTION_UP:
                 onTouchUp(event, eventX, eventY);
                 break;
-
-            default:
-                return false;
         }
 
-        invalidate(
-                Math.round(dirtyRect.left - HALF_STROKE_WIDTH),
-                Math.round(dirtyRect.top - HALF_STROKE_WIDTH),
-                Math.round(dirtyRect.right + HALF_STROKE_WIDTH),
-                Math.round(dirtyRect.bottom + HALF_STROKE_WIDTH));
+        invalidate(Math.round(dirtyRect.left - STROKE_WIDTH / 2),
+                Math.round(dirtyRect.top - STROKE_WIDTH / 2),
+                Math.round(dirtyRect.right + STROKE_WIDTH / 2),
+                Math.round(dirtyRect.bottom + STROKE_WIDTH / 2));
 
         lastTouchX = eventX;
         lastTouchY = eventY;
@@ -146,8 +141,6 @@ public class ViewCanvas extends View {
             expandDirtyRect(historicalX, historicalY);
             mPath.lineTo(historicalX, historicalY);
         }
-
-        //erase.setVisibility(View.INVISIBLE);
 
         mPath.lineTo(eventX, eventY);
         mCanvas.drawPath(mPath, mPath.getPaint());

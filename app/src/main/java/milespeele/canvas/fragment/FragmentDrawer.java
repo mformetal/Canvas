@@ -13,10 +13,9 @@ import butterknife.InjectView;
 import milespeele.canvas.R;
 import milespeele.canvas.view.ViewBottomSheet;
 import milespeele.canvas.view.ViewCanvas;
-import milespeele.canvas.view.ViewCanvasLayout;
-import milespeele.canvas.view.ViewSheetView;
+import milespeele.canvas.view.ViewBottomSheetMenu;
 
-public class FragmentDrawer extends Fragment implements ViewSheetView.FabMenuListener {
+public class FragmentDrawer extends Fragment implements ViewBottomSheetMenu.FabMenuListener {
 
     @InjectView(R.id.fragment_drawer_canvas) ViewCanvas drawer;
     @InjectView(R.id.fragment_drawer_bottom_sheet) ViewBottomSheet parent;
@@ -77,7 +76,7 @@ public class FragmentDrawer extends Fragment implements ViewSheetView.FabMenuLis
 
     @Override
     public void onColorizeClicked() {
-
+        parent.dismissSheet();
     }
 
     @Override

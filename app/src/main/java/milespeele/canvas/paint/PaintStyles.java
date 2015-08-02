@@ -8,13 +8,10 @@ import android.graphics.DashPathEffect;
 import android.graphics.EmbossMaskFilter;
 import android.graphics.Paint;
 import android.graphics.PathEffect;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
 
 import java.util.Random;
 
 import milespeele.canvas.R;
-import milespeele.canvas.util.Logg;
 
 /**
  * Created by Miles Peele on 7/26/2015.
@@ -103,9 +100,8 @@ public class PaintStyles {
 
     public static Paint eraserPaint(int color, float width) {
         Paint eraser = new Paint();
-        eraser.setAntiAlias(true);
         eraser.setColor(color);
-        eraser.setStrokeWidth(width * 3f);
+        eraser.setStrokeWidth(width * 5f);
         eraser.setStrokeJoin(Paint.Join.ROUND);
         eraser.setStrokeCap(Paint.Cap.ROUND);
         eraser.setStyle(Paint.Style.STROKE);

@@ -1,19 +1,8 @@
 package milespeele.canvas.view;
 
 import android.content.Context;
-import android.graphics.BlurMaskFilter;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.ComposeShader;
-import android.graphics.Paint;
 import android.graphics.PorterDuff;
-import android.graphics.RadialGradient;
-import android.graphics.Shader;
-import android.graphics.SweepGradient;
-import android.os.Build;
-import android.support.v7.widget.GridLayout;
 import android.util.AttributeSet;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -21,13 +10,11 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import milespeele.canvas.R;
 import milespeele.canvas.fragment.FragmentDrawer;
-import milespeele.canvas.paint.PaintStyles;
-import milespeele.canvas.util.Logg;
 
 /**
  * Created by milespeele on 8/1/15.
  */
-public class ViewSheetView extends ViewGroup implements View.OnClickListener {
+public class ViewBottomSheetMenu extends ViewGroup implements View.OnClickListener {
 
     private int mSize = 5;
     private int mSquareDimensions = 1;
@@ -42,17 +29,17 @@ public class ViewSheetView extends ViewGroup implements View.OnClickListener {
         void onRedoClicked();
     }
 
-    public ViewSheetView(Context context) {
+    public ViewBottomSheetMenu(Context context) {
         super(context);
         init();
     }
 
-    public ViewSheetView(Context context, AttributeSet attrs) {
+    public ViewBottomSheetMenu(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
     }
 
-    public ViewSheetView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public ViewBottomSheetMenu(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init();
     }
