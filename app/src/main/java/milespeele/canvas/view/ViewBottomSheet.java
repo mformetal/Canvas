@@ -1,19 +1,37 @@
 package milespeele.canvas.view;
 
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
+import android.view.View;
 
 import com.flipboard.bottomsheet.BottomSheetLayout;
+import com.flipboard.bottomsheet.OnSheetDismissedListener;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+import butterknife.OnClick;
+import milespeele.canvas.R;
+import milespeele.canvas.fragment.FragmentDrawer;
 import milespeele.canvas.util.Logg;
 
 /**
  * Created by Miles Peele on 8/1/2015.
  */
-public class ViewBottomSheet extends BottomSheetLayout {
+public class ViewBottomSheet extends BottomSheetLayout
+        implements View.OnClickListener, OnSheetDismissedListener {
+
+    @InjectView(R.id.fragment_drawer_canvas) ViewCanvas drawer;
+    @InjectView(R.id.fragment_drawer_show_menu) ViewFab toggle;
+    private ViewSheetView menu;
+
+    private ObjectAnimator rotateOpen;
+    private ObjectAnimator rotateClose;
+    private ObjectAnimator moveDown;
 
     public ViewBottomSheet(Context context) {
         super(context);
@@ -48,5 +66,44 @@ public class ViewBottomSheet extends BottomSheetLayout {
 
     public float getSheetHeight() {
         return getSheetView() != null ? getSheetView().getTranslationY() : 0;
+    }
+
+    @Override
+    protected void onFinishInflate() {
+        super.onFinishInflate();
+        ButterKnife.inject(this);
+        rotateOpen = ObjectAnimator.ofFloat(toggle, "rotation", 0f, 135f);
+        rotateClose = ObjectAnimator.ofFloat(toggle, "rotation", 135f, 270f);
+        moveDown = ObjectAnimator.ofFloat(toggle, "translationY", 12);
+    }
+
+    @Override
+    @OnClick(R.id.fragment_drawer_show_menu)
+    public void onClick(View v) {
+        if (isSheetShowing()) {
+            dismissSheet();
+            rotateClose.start();
+            moveDown.start();
+        } else {
+            ObjectAnimator.ofFloat(toggle, "translationY", -500).start();
+            showWithSheetView(menu, null, this);
+            rotateOpen.start();
+        }
+    }
+
+    public void inflateMenu(FragmentDrawer drawer) {
+        if (menu == null) {
+            menu = (ViewSheetView) LayoutInflater.from(getContext()).inflate(R.layout.sheet_view,
+                    null, true);
+            menu.setListener(drawer);
+        }
+    }
+
+    @Override
+    public void onDismissed(BottomSheetLayout bottomSheetLayout) {
+        if (!moveDown.isRunning()) {
+            moveDown.start();
+            rotateClose.start();
+        }
     }
 }

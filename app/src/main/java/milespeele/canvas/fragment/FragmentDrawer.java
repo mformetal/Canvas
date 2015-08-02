@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import milespeele.canvas.R;
+import milespeele.canvas.view.ViewBottomSheet;
 import milespeele.canvas.view.ViewCanvas;
 import milespeele.canvas.view.ViewCanvasLayout;
 import milespeele.canvas.view.ViewSheetView;
@@ -18,11 +19,9 @@ import milespeele.canvas.view.ViewSheetView;
 public class FragmentDrawer extends Fragment implements ViewSheetView.FabMenuListener {
 
     @InjectView(R.id.fragment_drawer_canvas) ViewCanvas drawer;
-    @InjectView(R.id.fragment_drawer_coordinator) ViewCanvasLayout parent;
+    @InjectView(R.id.fragment_drawer_bottom_sheet) ViewBottomSheet parent;
 
     private FragmentListener listener;
-
-    private static float translation;
 
     public FragmentDrawer() {}
 
