@@ -9,10 +9,10 @@
 
     <string name="sheet_view_ink">INK</string>
     <string name="sheet_view_stroke">COLOR</string>
-    <string name="sheet_view_brush">BRUSH</string>
+    <string name="sheet_view_brush">WIDTH</string>
     <string name="sheet_view_undo">UNDO</string>
     <string name="sheet_view_redo">REDO</string>
-    <string name="sheet_view_erase">ERASER</string>
+    <string name="sheet_view_erase">ERASE</string>
 
     <string name="title_activity_gallery">Gallery</string>
     <string name="activity_gallery_empty">No Masterpieces Saved Yet!</string>
@@ -37,7 +37,7 @@
     <string name="fragment_filename_pos_button_text">Save!</string>
     <string name="fragment_filename_neg_button_text">No thanks</string>
 
-    <string name="fragment_brush_picker_title">Choose Brush Style</string>
+    <string name="fragment_brush_picker_title">Set Stroke Width</string>
     <string name="fragment_brush_picker_pos_button_text">Set!</string>
 
     <string name="paint_example_neon">Neon</string>

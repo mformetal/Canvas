@@ -98,7 +98,6 @@ public class ViewCanvas extends View {
             }
         } else {
             canvas.drawBitmap(mBitmap, 0, 0, null);
-            shouldRedraw = false;
         }
     }
 
@@ -134,11 +133,13 @@ public class ViewCanvas extends View {
     }
 
     private void onTouchDown(MotionEvent event, float eventX, float eventY) {
-        lastTouchX = eventX;
-        lastTouchY = eventY;
-        mPath = new PaintPath(currentStyle());
-        mPaths.push(mPath);
-        mPath.moveTo(eventX, eventY);
+        if (!shouldInk) {
+            lastTouchX = eventX;
+            lastTouchY = eventY;
+            mPath = new PaintPath(currentStyle());
+            mPaths.push(mPath);
+            mPath.moveTo(eventX, eventY);
+        }
 
         setInkPosition(event, eventX, eventY);
         setEraserPosition(event, eventX, eventY);
@@ -149,16 +150,17 @@ public class ViewCanvas extends View {
         setInkPosition(event, eventX, eventY);
         setEraserPosition(event, eventX, eventY);
 
-        int historySize = event.getHistorySize();
-        for (int i = 0; i < historySize; i++) {
-            float historicalX = event.getHistoricalX(i);
-            float historicalY = event.getHistoricalY(i);
-            expandDirtyRect(historicalX, historicalY);
-            mPath.lineTo(historicalX, historicalY);
-        }
+        if (!shouldInk) {
+            for (int i = 0; i < event.getHistorySize(); i++) {
+                float historicalX = event.getHistoricalX(i);
+                float historicalY = event.getHistoricalY(i);
+                expandDirtyRect(historicalX, historicalY);
+                mPath.lineTo(historicalX, historicalY);
+            }
 
-        mPath.lineTo(eventX, eventY);
-        mCanvas.drawPath(mPath, mPath.getPaint());
+            mPath.lineTo(eventX, eventY);
+            mCanvas.drawPath(mPath, mPath.getPaint());
+        }
     }
 
     private void onTouchUp(MotionEvent event, float eventX, float eventY) {
@@ -218,8 +220,8 @@ public class ViewCanvas extends View {
                     case MotionEvent.ACTION_UP:
                         ink.setVisibility(View.GONE);
                         shouldInk = false;
-                        if (color != currentBackgroundColor && currentBackgroundColor != -1)  {
-                            curPaint.setColor(color);
+                        if (color != currentBackgroundColor)  {
+                            curPaint.setColor((color == 0) ? currentStrokeColor : color);
                         } else {
                             curPaint.setColor(currentStrokeColor);
                         }
@@ -236,17 +238,42 @@ public class ViewCanvas extends View {
     }
 
     public void changeToEraser(ImageView eraser) {
+        if (ink != null) {
+            ink.setVisibility(View.GONE);
+        }
         this.eraser = eraser;
+        eraser.setVisibility(View.VISIBLE);
+        eraser.setX((float) getWidth() / 2);
+        eraser.setY((float) getHeight() / 2);
         shouldErase = true;
         shouldInk = false;
     }
 
-    public void showInk(ImageView ink) {
+    public void changeToInk(ImageView ink) {
+        if (eraser != null) {
+            eraser.setVisibility(View.GONE);
+        }
         this.ink = ink;
-        shouldErase = false;
+        ink.setX((float) getWidth() / 2);
+        ink.setY((float) getHeight() / 2);
+        ink.setBackgroundColor(mBitmap.getPixel(getWidth() / 2, getHeight() / 2));
+        ink.setVisibility(View.VISIBLE);
         shouldInk = true;
         shouldRedraw = false;
-        curPaint.setColor(Color.TRANSPARENT);
+    }
+
+    public void changeColor(int color) {
+        if (ink != null) {
+            ink.setVisibility(View.GONE);
+        }
+
+        if (eraser != null) {
+            eraser.setVisibility(View.GONE);
+        }
+        shouldInk = false;
+        shouldErase = false;
+        currentStrokeColor = color;
+        curPaint.setColor(currentStrokeColor);
     }
 
     public void fillCanvas(int color) {
@@ -274,14 +301,6 @@ public class ViewCanvas extends View {
         currentBackgroundColor = color;
         setDrawingCacheBackgroundColor(currentBackgroundColor);
         invalidate();
-    }
-
-    public void changeColor(int color) {
-        shouldInk = false;
-        shouldErase = false;
-        shouldRedraw = false;
-        currentStrokeColor = color;
-        curPaint.setColor(currentStrokeColor);
     }
 
     public float getBrushWidth() { return STROKE_WIDTH; }

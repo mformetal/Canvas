@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-    <milespeele.canvas.view.ViewCanvasLayout
+    <android.support.design.widget.CoordinatorLayout
         android:id="@+id/fragment_drawer_coordinator"
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
@@ -27,7 +27,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/fragment_drawer_ink"
-            android:src="@drawable/ic_colorize_black_24dp"
+            android:src="@drawable/eraser"
             android:visibility="gone" />
 
         <milespeele.canvas.view.ViewFab
@@ -41,6 +41,6 @@
             app:elevation="@dimen/fab_elevation"
             app:rippleColor="@color/primary_dark" />
 
-    </milespeele.canvas.view.ViewCanvasLayout>
+    </android.support.design.widget.CoordinatorLayout>
 
 </milespeele.canvas.view.ViewBottomSheet>

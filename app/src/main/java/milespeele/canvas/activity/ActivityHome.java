@@ -149,9 +149,12 @@ public class ActivityHome extends ActivityBase implements FragmentListener, View
 
     public void showSavedImageSnackbar(Masterpiece object) {
         findViewById(R.id.menu_activity_home_save_canvas).setAnimation(null);
-        Snackbar.make(drawerLayout, R.string.snackbar_activity_home_image_saved_title, Snackbar.LENGTH_LONG)
-                .setAction(R.string.snackbar_activity_home_imaged_saved_body, v -> {})
-                .show();
+        FragmentDrawer frag = (FragmentDrawer) getFragmentManager().findFragmentByTag(TAG_FRAGMENT_DRAWER);
+        if (frag != null) {
+            Snackbar.make(frag.getView(), R.string.snackbar_activity_home_image_saved_title, Snackbar.LENGTH_LONG)
+                    .setAction(R.string.snackbar_activity_home_imaged_saved_body, v -> {})
+                    .show();
+        }
     }
 
     private void tellFragmentToChangeColor(int color) {

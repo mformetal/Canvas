@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +21,7 @@ public class FragmentDrawer extends Fragment implements ViewBottomSheetMenu.FabM
 
     @InjectView(R.id.fragment_drawer_canvas) ViewCanvas drawer;
     @InjectView(R.id.fragment_drawer_bottom_sheet) ViewBottomSheet parent;
+    @InjectView(R.id.fragment_drawer_coordinator) CoordinatorLayout coordinatorLayout;
     @InjectView(R.id.fragment_drawer_eraser) ImageView eraser;
     @InjectView(R.id.fragment_drawer_ink) ImageView ink;
 
@@ -57,6 +59,7 @@ public class FragmentDrawer extends Fragment implements ViewBottomSheetMenu.FabM
         return v;
     }
 
+    public CoordinatorLayout giveCoordinatorToActivity() { return coordinatorLayout; }
 
     public Bitmap giveBitmapToActivity() {
         return drawer.getBitmap();
@@ -80,7 +83,7 @@ public class FragmentDrawer extends Fragment implements ViewBottomSheetMenu.FabM
     @Override
     public void onColorizeClicked() {
         parent.dismissSheet();
-        drawer.showInk(ink);
+        drawer.changeToInk(ink);
     }
 
     @Override

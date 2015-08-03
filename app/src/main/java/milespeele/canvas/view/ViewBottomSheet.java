@@ -4,10 +4,13 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.design.widget.CoordinatorLayout;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.Interpolator;
 
 import com.flipboard.bottomsheet.BottomSheetLayout;
 
@@ -25,11 +28,12 @@ public class ViewBottomSheet extends BottomSheetLayout
 
     @InjectView(R.id.fragment_drawer_canvas) ViewCanvas drawer;
     @InjectView(R.id.fragment_drawer_show_menu) ViewFab toggle;
-    @InjectView(R.id.fragment_drawer_coordinator) ViewCanvasLayout coordinator;
+    @InjectView(R.id.fragment_drawer_coordinator) CoordinatorLayout coordinator;
     private ViewBottomSheetMenu menu;
 
     private static AnimatorSet close;
     private static AnimatorSet open;
+    private final static Interpolator INTERPOLATOR = new AccelerateDecelerateInterpolator();
 
     public ViewBottomSheet(Context context) {
         super(context);
@@ -78,16 +82,19 @@ public class ViewBottomSheet extends BottomSheetLayout
         super.onFinishInflate();
         ButterKnife.inject(this);
         open = new AnimatorSet();
+        open.setInterpolator(INTERPOLATOR);
+
         close = new AnimatorSet();
         close.playTogether(ObjectAnimator.ofFloat(toggle, "rotation", 135f, 270f),
                 ObjectAnimator.ofFloat(toggle, "translationY", 12));
+        close.setInterpolator(INTERPOLATOR);
     }
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        open.playTogether(ObjectAnimator.ofFloat(toggle, "translationY", -(h / 3)),
-                ObjectAnimator.ofFloat(toggle, "rotation", 0f, 135f));
+        open.playTogether(ObjectAnimator.ofFloat(toggle, "rotation", 0f, 135f),
+                ObjectAnimator.ofFloat(toggle, "translationY", -(h / 3)));
     }
 
     @Override
@@ -117,7 +124,9 @@ public class ViewBottomSheet extends BottomSheetLayout
 
     @Override
     public void dismissSheet() {
-        close.start();
+        if (isSheetShowing()) {
+            close.start();
+        }
         super.dismissSheet();
     }
 

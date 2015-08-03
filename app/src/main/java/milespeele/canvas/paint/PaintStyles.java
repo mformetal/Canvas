@@ -102,7 +102,7 @@ public class PaintStyles {
     public static Paint eraserPaint(int color, float width) {
         Paint eraser = new Paint();
         eraser.setColor(color);
-        eraser.setStrokeWidth(width);
+        eraser.setStrokeWidth(width * 3f);
         eraser.setStrokeJoin(Paint.Join.ROUND);
         eraser.setStrokeCap(Paint.Cap.ROUND);
         eraser.setStyle(Paint.Style.STROKE);
