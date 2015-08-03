@@ -3,8 +3,6 @@ package milespeele.canvas.paint;
 import android.graphics.Paint;
 import android.graphics.Path;
 
-import milespeele.canvas.util.Logg;
-
 /**
  * Created by milespeele on 7/9/15.
  */
@@ -64,10 +62,4 @@ public class PaintPath extends Path {
     public int getBottom() { return bottom; }
     public int getTop() { return top; }
 
-    private void printPoints() {
-        Logg.log("LEFT: " + left);
-        Logg.log("RIGHT: " + right);
-        Logg.log("TOP: " + top);
-        Logg.log("BOTTOM: " + bottom);
-    }
 }

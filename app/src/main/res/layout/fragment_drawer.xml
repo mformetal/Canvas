@@ -27,7 +27,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/fragment_drawer_ink"
-            android:src="@drawable/eraser"
+            android:src="@drawable/ic_colorize_black_24dp"
             android:visibility="gone" />
 
         <milespeele.canvas.view.ViewFab
