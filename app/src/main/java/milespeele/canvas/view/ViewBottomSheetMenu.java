@@ -105,9 +105,8 @@ public class ViewBottomSheetMenu extends ViewGroup implements View.OnClickListen
             }
         }
 
-        setMeasuredDimension(
-                mw == MeasureSpec.EXACTLY ? sw : sp + pw,
-                mh == MeasureSpec.EXACTLY ? sh : sp + ph);
+        int setWidth = mw == MeasureSpec.EXACTLY ? sw : sp + pw;
+        setMeasuredDimension(setWidth, sh);
         mSquareDimensions = sp;
     }
 
@@ -136,8 +135,7 @@ public class ViewBottomSheetMenu extends ViewGroup implements View.OnClickListen
                 View child = getChildAt(y * mSize + x);
                 if (child == null) return;
                 MarginLayoutParams lps = (MarginLayoutParams) child.getLayoutParams();
-                child.layout(
-                        l + (s *  x) / size + lps.leftMargin,
+                child.layout(l + (s *  x) / size + lps.leftMargin,
                         t + (s *  y) / size,
                         l + (s * (x + 1)) / size - lps.rightMargin,
                         t + (s * (y + 1)) / size);
