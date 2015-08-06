@@ -1,16 +1,12 @@
 package milespeele.canvas.view;
 
 import android.content.Context;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.LinearGradient;
-import android.graphics.Paint;
-import android.graphics.Shader;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 
 import butterknife.ButterKnife;
+import butterknife.InjectView;
 import butterknife.OnClick;
 import milespeele.canvas.R;
 import milespeele.canvas.fragment.FragmentDrawer;
@@ -23,7 +19,8 @@ public class ViewBottomSheetMenu extends ViewGroup implements View.OnClickListen
     private int mSize = 5;
     private int mSquareDimensions = 1;
 
-    private Paint test;
+    @InjectView(R.id.fab_menu_erase) ViewBottomSheetMenuButton eraseButton;
+    @InjectView(R.id.fab_menu_colorize) ViewBottomSheetMenuButton colorizeButton;
 
     private FabMenuListener mListener;
     public interface FabMenuListener {
@@ -130,14 +127,6 @@ public class ViewBottomSheetMenu extends ViewGroup implements View.OnClickListen
     }
 
     @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        super.onSizeChanged(w, h, oldw, oldh);
-        test = new Paint();
-        test.setShader(new LinearGradient(0f, (float) h * .8f, (float) w, h,
-                getResources().getColor(R.color.primary_dark), Color.WHITE, Shader.TileMode.CLAMP));
-    }
-
-    @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         final int s = mSquareDimensions;
 
@@ -148,18 +137,12 @@ public class ViewBottomSheetMenu extends ViewGroup implements View.OnClickListen
                 if (child == null) return;
                 MarginLayoutParams lps = (MarginLayoutParams) child.getLayoutParams();
                 child.layout(
-                        l + (s *  x   ) / size + lps.leftMargin,
-                        t + (s *  y   ) / size,
-                        l + (s * (x+1)) / size - lps.rightMargin,
-                        t + (s * (y+1)) / size);
+                        l + (s *  x) / size + lps.leftMargin,
+                        t + (s *  y) / size,
+                        l + (s * (x + 1)) / size - lps.rightMargin,
+                        t + (s * (y + 1)) / size);
             }
         }
-    }
-
-    @Override
-    protected void dispatchDraw(Canvas canvas) {
-        canvas.drawPaint(test);
-        super.dispatchDraw(canvas);
     }
 
     @Override
@@ -168,12 +151,15 @@ public class ViewBottomSheetMenu extends ViewGroup implements View.OnClickListen
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.fab_menu_colorize:
+                eraseButton.setSelected(false);
                 mListener.onColorizeClicked();
                 break;
             case R.id.fab_menu_erase:
+                eraseButton.toggleSelected();
                 mListener.onEraseClicked();
                 break;
             case R.id.fab_menu_stroke_color:
+                eraseButton.setSelected(false);
                 mListener.onPaintColorClicked(v.getId());
                 break;
             case R.id.fab_menu_brush:

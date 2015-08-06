@@ -110,7 +110,7 @@ public class ViewBottomSheet extends BottomSheetLayout
     public void inflateMenu(FragmentDrawer drawer) {
         if (menu == null) {
             menu = (ViewBottomSheetMenu) LayoutInflater.from(getContext())
-                    .inflate(R.layout.bottom_sheet_menu, null, false);
+                    .inflate(R.layout.bottom_sheet_menu, this       , false);
             menu.setListener(drawer);
         }
     }

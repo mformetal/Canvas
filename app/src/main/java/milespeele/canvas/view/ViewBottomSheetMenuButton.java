@@ -10,6 +10,7 @@ import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.Rect;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.Gravity;
@@ -26,7 +27,11 @@ public class ViewBottomSheetMenuButton extends Button {
 
     private Path path;
     private Paint paint;
+    private Paint backgroundPaint;
+    private Rect selectedRect;
+
     private static float offset;
+    private boolean isSelected = false;
 
     public ViewBottomSheetMenuButton(Context context) {
         super(context);
@@ -52,6 +57,7 @@ public class ViewBottomSheetMenuButton extends Button {
     private void init() {
         setPadding(0, Math.round(getResources().getDimension(R.dimen.padding_button_top)), 0, 0);
         setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL);
+        setTextColor(Color.WHITE);
 
         int[] attrs = new int[]{R.attr.selectableItemBackground};
         TypedArray typedArray = getContext().obtainStyledAttributes(attrs);
@@ -59,7 +65,6 @@ public class ViewBottomSheetMenuButton extends Button {
         setBackgroundResource(backgroundResource);
         typedArray.recycle();
 
-        setTextColor(Color.WHITE);
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             setTextSize(15f);
             setTypeface(Util.getStaticTypeFace(getContext(), "Roboto.ttf"));
@@ -72,6 +77,11 @@ public class ViewBottomSheetMenuButton extends Button {
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
         offset = w / 20;
+        selectedRect = new Rect(0, 0, w, h);
+
+        backgroundPaint = PaintStyles.normalPaint(getResources().getColor(R.color.primary_dark),
+                offset);
+
         paint = PaintStyles.normalPaint(Color.WHITE, offset);
         paint.setColorFilter(createDimFilter());
     }
@@ -99,6 +109,12 @@ public class ViewBottomSheetMenuButton extends Button {
         path.lineTo(width - offset, height - offset);
         path.lineTo(width - offset * 2, height - offset);
         canvas.drawPath(path, paint);
+
+        if (isSelected) {
+            canvas.drawRect(selectedRect, paint);
+        } else {
+            canvas.drawRect(selectedRect, backgroundPaint);
+        }
     }
 
     private ColorFilter createDimFilter() {
@@ -107,5 +123,17 @@ public class ViewBottomSheetMenuButton extends Button {
         float scale = 0.5f;
         colorMatrix.setScale(scale, scale, scale, 1f);
         return new ColorMatrixColorFilter(colorMatrix);
+    }
+
+    public void toggleSelected() {
+        if (isSelected) {
+            isSelected = false;
+        } else {
+            isSelected = true;
+        }
+    }
+
+    public void setSelected(boolean bool) {
+        isSelected = bool;
     }
 }

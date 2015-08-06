@@ -9,10 +9,10 @@ import android.graphics.Path;
 public class PaintPath extends Path {
 
     private Paint paint;
-    private int left = 0;
-    private int right = 0;
-    private int top = 0;
-    private int bottom = 0;
+    private float left = 0;
+    private float right = 0;
+    private float top = 0;
+    private float bottom = 0;
 
     public PaintPath(Paint paint) {
         this.paint = paint;
@@ -57,9 +57,8 @@ public class PaintPath extends Path {
         }
     }
 
-    public int getLeft() { return left; }
-    public int getRight() { return right; }
-    public int getBottom() { return bottom; }
-    public int getTop() { return top; }
-
+    public float getLeft() { return left; }
+    public float getRight() { return right; }
+    public float getBottom() { return bottom; }
+    public float getTop() { return top; }
 }

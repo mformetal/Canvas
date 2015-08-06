@@ -9,7 +9,7 @@
 
     <string name="sheet_view_ink">INK</string>
     <string name="sheet_view_stroke">COLOR</string>
-    <string name="sheet_view_brush">WIDTH</string>
+    <string name="sheet_view_brush">SIZE</string>
     <string name="sheet_view_undo">UNDO</string>
     <string name="sheet_view_redo">REDO</string>
     <string name="sheet_view_erase">ERASE</string>
