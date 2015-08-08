@@ -9,6 +9,8 @@ import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Interpolator;
+import android.view.animation.OvershootInterpolator;
 
 import java.util.List;
 
@@ -41,11 +43,15 @@ public class ViewFabMenu extends ViewGroup
 
     private static ObjectAnimator close;
     private static ObjectAnimator open;
+    private static final Interpolator INTERPOLATOR = new OvershootInterpolator();
 
     private boolean isMenuShowing = true;
     private boolean isAnimating = false;
     private int fabMargin;
     private float centreX, centreY;
+    private static int DELAY = 20;
+    private static final int DURATION = 300;
+    private static final int DELAY_INCREMENT = 20;
 
     public ViewFabMenu(Context context) {
         super(context);
@@ -218,7 +224,7 @@ public class ViewFabMenu extends ViewGroup
             isMenuShowing = true;
             open.start();
 
-            int delay = 20;
+            int delay = DELAY;
             for (ViewFab view: buttonsList) {
                 float diffX = view.getX() - centreX, diffY = view.getY() - centreY;
 
@@ -227,6 +233,7 @@ public class ViewFabMenu extends ViewGroup
                         ObjectAnimator.ofFloat(view, "translationY", diffY),
                         ObjectAnimator.ofFloat(view, "alpha", 0.0f, 1.0f));
                 out.setStartDelay(delay);
+                out.setInterpolator(INTERPOLATOR);
                 out.addListener(new Animator.AnimatorListener() {
                     @Override
                     public void onAnimationStart(Animator animation) {
@@ -251,7 +258,7 @@ public class ViewFabMenu extends ViewGroup
                     }
                 });
                 out.start();
-                delay += 20;
+                delay += DELAY_INCREMENT;
             }
         }
     }
@@ -262,7 +269,7 @@ public class ViewFabMenu extends ViewGroup
             isMenuShowing = false;
             close.start();
 
-            int delay = 20;
+            int delay = DELAY;
             for (ViewFab view: buttonsList) {
                 float diffX = view.getX() - centreX, diffY = view.getY() - centreY;
 
@@ -271,6 +278,8 @@ public class ViewFabMenu extends ViewGroup
                         ObjectAnimator.ofFloat(view, "translationX", -diffX),
                         ObjectAnimator.ofFloat(view, "alpha", 1.0f, 0.0f));
                 out.setStartDelay(delay);
+                out.setInterpolator(INTERPOLATOR);
+                out.setDuration(DURATION);
                 out.addListener(new Animator.AnimatorListener() {
                     @Override
                     public void onAnimationStart(Animator animation) {
@@ -295,7 +304,7 @@ public class ViewFabMenu extends ViewGroup
                     }
                 });
                 out.start();
-                delay += 20;
+                delay += DELAY_INCREMENT;
             }
         }
     }

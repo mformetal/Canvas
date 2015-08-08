@@ -41,8 +41,6 @@ public class ActivityHome extends ActivityBase {
     private final static String TAG_FRAGMENT_DRAWER = "fragd";
     private final static String TAG_FRAGMENT_STROKE = "Stroke Color";
     private final static String TAG_FRAGMENT_FILL = "New Canvas Color";
-    private final static String TAG_FRAGMENT_SHAPE = "shape";
-    private final static String TAG_FRAGMENT_MASTERPIECE = "art";
     private final static String TAG_FRAGMENT_FILENAME = "name";
     private final static String TAG_FRAGMENT_BRUSH = "brush";
 
@@ -103,6 +101,10 @@ public class ActivityHome extends ActivityBase {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void setupFragmentTags() {
+
     }
 
     private void setupDrawerContent(NavigationView navigationView) {

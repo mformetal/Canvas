@@ -13,27 +13,36 @@ import android.support.v4.view.MotionEventCompat;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import java.util.Random;
 
 import javax.inject.Inject;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
 import milespeele.canvas.event.EventBrushSizeChosen;
 import milespeele.canvas.event.EventColorChosen;
+import milespeele.canvas.event.EventColorize;
+import milespeele.canvas.event.EventErase;
 import milespeele.canvas.event.EventRedo;
 import milespeele.canvas.event.EventUndo;
 import milespeele.canvas.paint.PaintPath;
 import milespeele.canvas.paint.PaintStack;
 import milespeele.canvas.paint.PaintStyles;
+import milespeele.canvas.util.Logg;
 
 /**
  * Created by milespeele on 7/2/15.
  */
-public class ViewCanvas extends View {
+public class ViewCanvas extends FrameLayout {
+
+    @Bind(R.id.fragment_drawer_canvas_eraser) ImageView eraser;
+    @Bind(R.id.fragment_drawer_eraser_colorizer) ImageView colorizer;
 
     private static float STROKE_WIDTH = 5f;
     private boolean shouldErase = false;
@@ -52,8 +61,6 @@ public class ViewCanvas extends View {
     private Bitmap mBitmap;
     private Canvas mCanvas;
     private Matrix scaleMatrix;
-    private ImageView eraser;
-    private ImageView ink;
 
     @Inject EventBus bus;
 
@@ -102,6 +109,12 @@ public class ViewCanvas extends View {
 
         mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
         mCanvas = new Canvas(mBitmap);
+    }
+
+    @Override
+    protected void onFinishInflate() {
+        super.onFinishInflate();
+        ButterKnife.bind(this);
     }
 
     @Override
@@ -204,7 +217,7 @@ public class ViewCanvas extends View {
     }
 
     private void setEraserPosition(MotionEvent event, float eventX, float eventY) {
-        if (shouldErase && eraser != null) {
+        if (shouldErase) {
             eraser.setTranslationX(eventX);
             eraser.setTranslationY(eventY);
 
@@ -212,28 +225,25 @@ public class ViewCanvas extends View {
                 case MotionEvent.ACTION_DOWN:
                     eraser.setVisibility(View.VISIBLE);
                     break;
-                case MotionEvent.ACTION_UP:
-                    eraser.setVisibility(View.GONE);
-                    break;
             }
         }
     }
 
     private void setInkPosition(MotionEvent event, float eventX, float eventY) {
-        if (shouldInk && ink != null) {
+        if (shouldInk) {
             if (eventsInRange(eventX, eventY)) {
                 int color = mBitmap.getPixel((int) eventX, (int) eventY);
-                ink.setBackgroundColor(color);
+                colorizer.setBackgroundColor(color);
 
-                ink.setTranslationX(eventX);
-                ink.setTranslationY(eventY);
+                colorizer.setTranslationX(eventX);
+                colorizer.setTranslationY(eventY);
 
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
-                        ink.setVisibility(View.VISIBLE);
+                        colorizer.setVisibility(View.VISIBLE);
                         break;
                     case MotionEvent.ACTION_UP:
-                        ink.setVisibility(View.GONE);
+                        colorizer.setVisibility(View.GONE);
                         shouldInk = false;
                         if (color != currentBackgroundColor)  {
                             curPaint.setColor((color == 0) ? currentStrokeColor : color);
@@ -271,16 +281,56 @@ public class ViewCanvas extends View {
     }
 
     public void onEvent(EventRedo eventRedo) {
-        redo();
+        if (!redoPaths.isEmpty()) {
+            PaintPath redo = redoPaths.pop();
+            mPaths.push(redo);
+            shouldRedraw = true;
+            invalidate(Math.round(redo.getLeft() - STROKE_WIDTH),
+                    Math.round(redo.getTop() - STROKE_WIDTH),
+                    Math.round(redo.getRight() + STROKE_WIDTH),
+                    Math.round(redo.getBottom() + STROKE_WIDTH));
+        }
     }
 
     public void onEvent(EventUndo eventUndo) {
-        undo();
+        if (!mPaths.isEmpty()) {
+            PaintPath undo = mPaths.pop();
+            redoPaths.push(undo);
+            shouldRedraw = true;
+            invalidate(Math.round(undo.getLeft() - STROKE_WIDTH),
+                    Math.round(undo.getTop() - STROKE_WIDTH),
+                    Math.round(undo.getRight() + STROKE_WIDTH),
+                    Math.round(undo.getBottom() + STROKE_WIDTH));
+        }
+    }
+
+    public void onEvent(EventErase eventErase) {
+        if (eraser.getVisibility() == View.VISIBLE) {
+            eraser.setVisibility(View.GONE);
+            shouldErase = false;
+            shouldInk = false;
+        } else {
+            eraser.setVisibility(View.VISIBLE);
+            eraser.setX((float) getWidth() / 2);
+            eraser.setY((float) getHeight() / 2);
+            shouldErase = true;
+            shouldInk = false;
+        }
+    }
+
+    public void onEvent(EventColorize eventColorize) {
+        eraser.setVisibility(View.GONE);
+        colorizer.setX((float) getWidth() / 2);
+        colorizer.setY((float) getHeight() / 2);
+        colorizer.setBackgroundColor(mBitmap.getPixel(getWidth() / 2, getHeight() / 2));
+        colorizer.setVisibility(View.VISIBLE);
+        shouldInk = true;
+        shouldRedraw = false;
     }
 
     public void changeColor(int color) {
-        if (ink != null) {
-            ink.setVisibility(View.GONE);
+        if (colorizer != null) {
+            colorizer.setVisibility(View.GONE);
         }
 
         if (eraser != null) {
@@ -321,33 +371,9 @@ public class ViewCanvas extends View {
         return mBitmap;
     }
 
-    public void undo() {
-        if (!mPaths.isEmpty()) {
-            PaintPath undo = mPaths.pop();
-            redoPaths.push(undo);
-            shouldRedraw = true;
-            invalidate(Math.round(undo.getLeft() - STROKE_WIDTH),
-                    Math.round(undo.getTop() - STROKE_WIDTH),
-                    Math.round(undo.getRight() + STROKE_WIDTH),
-                    Math.round(undo.getBottom() + STROKE_WIDTH));
-        }
-    }
-
-    public void redo() {
-        if (!redoPaths.isEmpty()) {
-            PaintPath redo = redoPaths.pop();
-            mPaths.push(redo);
-            shouldRedraw = true;
-            invalidate(Math.round(redo.getLeft() - STROKE_WIDTH),
-                    Math.round(redo.getTop() - STROKE_WIDTH),
-                    Math.round(redo.getRight() + STROKE_WIDTH),
-                    Math.round(redo.getBottom() + STROKE_WIDTH));
-        }
-    }
-
     private Paint currentStyle() {
         if (shouldErase) {
-            return (curPaint = PaintStyles.eraserPaint(currentBackgroundColor, STROKE_WIDTH * 4));
+            return new Paint(PaintStyles.eraserPaint(currentBackgroundColor, eraser.getWidth()));
         } else {
             return new Paint(curPaint);
         }

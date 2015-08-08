@@ -6,24 +6,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-    <milespeele.canvas.view.ViewCanvas
+    <include
+        layout="@layout/fragment_drawer_canvas"
+        android:id="@+id/fragment_drawer_canvas"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/fragment_drawer_canvas" />
-
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/fragment_drawer_eraser"
-        android:src="@drawable/eraser"
-        android:visibility="gone" />
-
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/fragment_drawer_ink"
-        android:src="@drawable/ic_colorize_black_24dp"
-        android:visibility="gone" />
+        android:layout_height="match_parent" />
 
     <include
         layout="@layout/fragment_drawer_menu"
