@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.graphics.drawable.GradientDrawable;
 import android.support.v4.view.MotionEventCompat;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -34,7 +35,6 @@ import milespeele.canvas.event.EventUndo;
 import milespeele.canvas.paint.PaintPath;
 import milespeele.canvas.paint.PaintStack;
 import milespeele.canvas.paint.PaintStyles;
-import milespeele.canvas.util.Logg;
 
 /**
  * Created by milespeele on 7/2/15.
@@ -274,6 +274,8 @@ public class ViewCanvas extends FrameLayout {
 
     public void onEvent(EventBrushSizeChosen eventBrushSizeChosen) {
         if (eventBrushSizeChosen.thickness != 0) {
+            eraser.setVisibility(View.GONE);
+            shouldErase = false;
             shouldInk = false;
             STROKE_WIDTH = eventBrushSizeChosen.thickness;
             curPaint.setStrokeWidth(eventBrushSizeChosen.thickness);
@@ -310,6 +312,14 @@ public class ViewCanvas extends FrameLayout {
             shouldErase = false;
             shouldInk = false;
         } else {
+            double darkness = 1 - (0.299 * Color.red(currentBackgroundColor) +
+                    0.587 * Color.green(currentBackgroundColor) +
+                    0.114 * Color.blue(currentBackgroundColor)) / 255;
+            if (darkness < 0.5) {
+                ((GradientDrawable) eraser.getDrawable()).setColor(Color.BLACK);
+            } else {
+                ((GradientDrawable) eraser.getDrawable()).setColor(Color.WHITE);
+            }
             eraser.setVisibility(View.VISIBLE);
             eraser.setX((float) getWidth() / 2);
             eraser.setY((float) getHeight() / 2);
@@ -329,13 +339,8 @@ public class ViewCanvas extends FrameLayout {
     }
 
     public void changeColor(int color) {
-        if (colorizer != null) {
-            colorizer.setVisibility(View.GONE);
-        }
-
-        if (eraser != null) {
-            eraser.setVisibility(View.GONE);
-        }
+        colorizer.setVisibility(View.GONE);
+        eraser.setVisibility(View.GONE);
 
         shouldInk = false;
         shouldErase = false;
@@ -344,6 +349,9 @@ public class ViewCanvas extends FrameLayout {
     }
 
     public void fillCanvas(int color) {
+        colorizer.setVisibility(View.GONE);
+        eraser.setVisibility(View.GONE);
+
         shouldErase = false;
         for (PaintPath p: mPaths) {
             p.reset();

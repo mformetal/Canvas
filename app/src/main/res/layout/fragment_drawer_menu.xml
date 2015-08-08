@@ -29,7 +29,7 @@
         android:id="@+id/menu_size"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_format_size_black_24dp"
+        android:src="@drawable/ic_brush_black_24dp"
         app:borderWidth="0dp"
         app:elevation="@dimen/fab_elevation"
         app:rippleColor="@color/primary_dark"

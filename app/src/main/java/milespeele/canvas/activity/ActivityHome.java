@@ -139,13 +139,8 @@ public class ActivityHome extends ActivityBase {
             Util.compressBitmap(art)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(bytes -> onByteArrayReceived(bytes, filename),
-                            this::onErrorReceived);
+                    .subscribe(bytes -> parseUtils.saveImageToServer(filename, new WeakReference<>(this), bytes));
         }
-    }
-
-    public void onByteArrayReceived(byte[] result, String filename) {
-        parseUtils.saveImageToServer(filename, new WeakReference<>(this), result);
     }
 
     public void onErrorReceived(Throwable error) {
@@ -157,7 +152,8 @@ public class ActivityHome extends ActivityBase {
         FragmentDrawer frag = (FragmentDrawer) getFragmentManager().findFragmentByTag(TAG_FRAGMENT_DRAWER);
         if (frag != null) {
             Snackbar.make(frag.getView(), R.string.snackbar_activity_home_image_saved_title, Snackbar.LENGTH_LONG)
-                    .setAction(R.string.snackbar_activity_home_imaged_saved_body, v -> {})
+                    .setAction(R.string.snackbar_activity_home_imaged_saved_body, v -> {
+                    })
                     .show();
         }
     }
@@ -178,6 +174,8 @@ public class ActivityHome extends ActivityBase {
     }
 
     public void onEvent(EventFilenameChosen eventFilenameChosen) {
-        imageToByteArray(eventFilenameChosen.filename);
+        if (!eventFilenameChosen.filename.isEmpty()) {
+            imageToByteArray(eventFilenameChosen.filename);
+        }
     }
 }

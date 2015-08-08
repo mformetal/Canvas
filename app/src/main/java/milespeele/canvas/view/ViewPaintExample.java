@@ -7,7 +7,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.os.Build;
 import android.util.AttributeSet;
-import android.widget.FrameLayout;
+import android.view.View;
 import android.widget.TextView;
 
 import butterknife.Bind;
@@ -18,7 +18,7 @@ import milespeele.canvas.paint.PaintStyles;
 /**
  * Created by Miles Peele on 7/26/2015.
  */
-public class ViewPaintExample extends FrameLayout {
+public class ViewPaintExample extends View {
 
     @Bind(R.id.paint_example_name) TextView name;
 
@@ -47,7 +47,6 @@ public class ViewPaintExample extends FrameLayout {
     }
 
     private void init(Context context, AttributeSet attrs) {
-        inflate(context, R.layout.paint_example, this);
         if (attrs != null) {
             TypedArray typed = context.obtainStyledAttributes(attrs, R.styleable.ViewPantExample);
             which = typed.getString(R.styleable.ViewPantExample_paintType);

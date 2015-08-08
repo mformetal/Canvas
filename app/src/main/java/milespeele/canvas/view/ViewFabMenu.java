@@ -22,6 +22,7 @@ import butterknife.OnClick;
 import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
+import milespeele.canvas.event.EventColorChosen;
 import milespeele.canvas.event.EventColorize;
 import milespeele.canvas.event.EventErase;
 import milespeele.canvas.event.EventRedo;
@@ -36,6 +37,7 @@ public class ViewFabMenu extends ViewGroup
     implements View.OnClickListener {
 
     @Bind(R.id.menu_show) ViewFab toggle;
+    @Bind(R.id.menu_erase) ViewFab eraser;
     @Bind({R.id.menu_colorize, R.id.menu_size, R.id.menu_stroke_color, R.id.menu_undo,
     R.id.menu_redo, R.id.menu_erase}) List<ViewFab> buttonsList;
 
@@ -50,7 +52,7 @@ public class ViewFabMenu extends ViewGroup
     private int fabMargin;
     private float centreX, centreY;
     private static int DELAY = 20;
-    private static final int DURATION = 300;
+    private static final int DURATION = 350;
     private static final int DELAY_INCREMENT = 20;
 
     public ViewFabMenu(Context context) {
@@ -76,6 +78,7 @@ public class ViewFabMenu extends ViewGroup
 
     private void init() {
         ((MainApp) getContext().getApplicationContext()).getApplicationComponent().inject(this);
+        bus.register(this);
         fabMargin = Math.round(getResources().getDimension(R.dimen.fab_margin));
         setDescendantFocusability(FOCUS_AFTER_DESCENDANTS);
     }
@@ -133,8 +136,8 @@ public class ViewFabMenu extends ViewGroup
             }
         }
 
-        int setWidth = mw == MeasureSpec.EXACTLY ? sw : sp + pw;
-        setMeasuredDimension(setWidth, setWidth / 2);
+        int dimen = mw == MeasureSpec.EXACTLY ? sw : sp + pw;
+        setMeasuredDimension(dimen, dimen);
     }
 
     @Override
@@ -188,12 +191,15 @@ public class ViewFabMenu extends ViewGroup
                 toggleMenu();
                 break;
             case R.id.menu_colorize:
+                eraser.scaleDown();
                 bus.post(new EventColorize());
                 break;
             case R.id.menu_size:
+                eraser.scaleDown();
                 bus.post(new EventStrokeSize(((ViewCanvasLayout) getParent()).getBrushWidth()));
                 break;
             case R.id.menu_stroke_color:
+                eraser.scaleDown();
                 bus.post(new EventStrokeColor());
                 break;
             case R.id.menu_undo:
@@ -203,6 +209,7 @@ public class ViewFabMenu extends ViewGroup
                 bus.post(new EventRedo());
                 break;
             case R.id.menu_erase:
+                eraser.toggleScaled();
                 bus.post(new EventErase());
                 break;
         }
@@ -219,7 +226,7 @@ public class ViewFabMenu extends ViewGroup
     }
 
     public void show() {
-        if (!isMenuShowing) {
+        if (!isMenuShowing && !isAnimating) {
             isAnimating = true;
             isMenuShowing = true;
             open.start();
@@ -264,7 +271,7 @@ public class ViewFabMenu extends ViewGroup
     }
 
     public void hide() {
-        if (isMenuShowing) {
+        if (isMenuShowing && !isAnimating) {
             isAnimating = true;
             isMenuShowing = false;
             close.start();
@@ -305,6 +312,16 @@ public class ViewFabMenu extends ViewGroup
                 });
                 out.start();
                 delay += DELAY_INCREMENT;
+            }
+        }
+    }
+
+    public void onEvent(EventColorChosen eventColorChosen) {
+        if (eventColorChosen.color != 0) {
+            if (eventColorChosen.which.equals(getResources().getString(R.string.TAG_FRAGMENT_FILL))) {
+                eraser.scaleDown();
+            } else {
+                eraser.scaleDown();
             }
         }
     }

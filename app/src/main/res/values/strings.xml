@@ -37,7 +37,7 @@
     <string name="fragment_filename_pos_button_text">Save!</string>
     <string name="fragment_filename_neg_button_text">No thanks</string>
 
-    <string name="fragment_brush_picker_title">Set Stroke Width</string>
+    <string name="fragment_brush_picker_title">Set Brush Style</string>
     <string name="fragment_brush_picker_pos_button_text">Set!</string>
 
     <string name="paint_example_neon">Neon</string>
