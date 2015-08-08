@@ -8,6 +8,7 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
+import de.greenrobot.event.EventBus;
 import milespeele.canvas.parse.ParseUtils;
 import milespeele.canvas.util.Datastore;
 
@@ -17,8 +18,6 @@ import milespeele.canvas.util.Datastore;
 @Module
 @Singleton
 public class ApplicationModule {
-
-    private final String SHARED_PREFS_KEY = "prefs";
 
     private Application mApplication;
 
@@ -48,6 +47,12 @@ public class ApplicationModule {
     @Singleton
     public Picasso getPicasso(Application mApplication) {
         return Picasso.with(mApplication);
+    }
+
+    @Provides
+    @Singleton
+    public EventBus getEventBus() {
+        return new EventBus();
     }
 
 }

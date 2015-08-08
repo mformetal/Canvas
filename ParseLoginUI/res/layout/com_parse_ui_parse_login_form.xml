@@ -16,7 +16,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             style="@style/ParseLoginUI.EditText"
-            android:textColor="@color/secondary_text"
             android:hint="@string/com_parse_ui_username_input_hint" />
 
     </android.support.design.widget.TextInputLayout>
@@ -33,7 +32,6 @@
             style="@style/ParseLoginUI.EditText"
             android:layout_marginTop="@dimen/com_parse_ui_small_vertical_spacing"
             android:fontFamily="sans-serif"
-            android:textColor="@color/secondary_text"
             android:hint="@string/com_parse_ui_password_input_hint"
             android:inputType="textPassword"
             android:selectAllOnFocus="true" />

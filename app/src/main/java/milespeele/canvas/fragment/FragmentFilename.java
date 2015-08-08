@@ -10,19 +10,24 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.EditText;
 
+import javax.inject.Inject;
+
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import butterknife.OnClick;
+import de.greenrobot.event.EventBus;
+import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
+import milespeele.canvas.event.EventFilenameChosen;
 
 /**
  * Created by Miles Peele on 7/13/2015.
  */
 public class FragmentFilename extends DialogFragment implements View.OnClickListener {
 
-    @InjectView(R.id.fragment_filename_input) EditText input;
+    @Bind(R.id.fragment_filename_input) EditText input;
 
-    private FragmentListener mListener;
+    @Inject EventBus bus;
 
     public FragmentFilename(){}
 
@@ -40,14 +45,14 @@ public class FragmentFilename extends DialogFragment implements View.OnClickList
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_filename, container, false);
-        ButterKnife.inject(this, v);
+        ButterKnife.bind(this, v);
         return v;
     }
 
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        mListener = (FragmentListener) activity;
+        ((MainApp) activity.getApplicationContext()).getApplicationComponent().inject(this);
     }
 
     @Override
@@ -57,15 +62,22 @@ public class FragmentFilename extends DialogFragment implements View.OnClickList
     }
 
     @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        ButterKnife.unbind(this);
+    }
+
+    @Override
     @OnClick({R.id.fragment_filename_pos_button, R.id.fragment_filename_neg_button})
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.fragment_filename_pos_button:
-                mListener.onFilenameChosen(input.getText().toString());
+                bus.post(new EventFilenameChosen(input.getText().toString()));
                 break;
             case R.id.fragment_filename_neg_button:
-                mListener.onFilenameChosen("");
+                bus.post(new EventFilenameChosen(""));
                 break;
         }
+        dismiss();
     }
 }

@@ -12,10 +12,15 @@ import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 
+import javax.inject.Inject;
+
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import butterknife.OnClick;
+import de.greenrobot.event.EventBus;
+import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
+import milespeele.canvas.event.EventBrushSizeChosen;
 import milespeele.canvas.view.ViewBrushSize;
 
 /**
@@ -24,14 +29,14 @@ import milespeele.canvas.view.ViewBrushSize;
 public class FragmentBrushPicker extends DialogFragment
         implements View.OnClickListener, OnSeekBarChangeListener {
 
-    @InjectView(R.id.fragment_brush_picker_reveal_layout) RelativeLayout container;
-    @InjectView(R.id.fragment_brush_picker_seek) SeekBar seek;
-    @InjectView(R.id.fragment_brush_picker_changes) ViewBrushSize line;
+    @Bind(R.id.fragment_brush_picker_reveal_layout) RelativeLayout container;
+    @Bind(R.id.fragment_brush_picker_seek) SeekBar seek;
+    @Bind(R.id.fragment_brush_picker_changes) ViewBrushSize line;
+
+    @Inject EventBus bus;
 
     private int thickness = 0;
     private static final String THICKNESS = "thick";
-
-    private FragmentListener mListener;
 
     public FragmentBrushPicker() {}
 
@@ -46,7 +51,7 @@ public class FragmentBrushPicker extends DialogFragment
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        mListener = (FragmentListener) activity;
+        ((MainApp) activity.getApplicationContext()).getApplicationComponent().inject(this);
     }
 
     @Override
@@ -59,7 +64,7 @@ public class FragmentBrushPicker extends DialogFragment
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_brush_picker, container, false);
-        ButterKnife.inject(this, v);
+        ButterKnife.bind(this, v);
         line.onThicknessChanged(Math.round(getArguments().getFloat(THICKNESS)));
         seek.setProgress(Math.round(getArguments().getFloat(THICKNESS)));
         seek.setOnSeekBarChangeListener(this);
@@ -72,21 +77,28 @@ public class FragmentBrushPicker extends DialogFragment
         switch (v.getId()) {
             case R.id.fragment_brush_picker_pos:
                 if (thickness != getArguments().getFloat(THICKNESS)) {
-                    mListener.onBrushSizeChosen(thickness);
+                    bus.post(new EventBrushSizeChosen(thickness));
                 } else {
-                    mListener.onBrushSizeChosen(0);
+                    bus.post(new EventBrushSizeChosen(0));
                 }
                 break;
             case R.id.fragment_brush_picker_cancel:
-                mListener.onBrushSizeChosen(0);
+                bus.post(new EventBrushSizeChosen(0));
                 break;
         }
+        dismiss();
     }
 
     @Override
     public void onActivityCreated(Bundle arg0) {
         super.onActivityCreated(arg0);
         getDialog().getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        ButterKnife.unbind(this);
     }
 
     @Override

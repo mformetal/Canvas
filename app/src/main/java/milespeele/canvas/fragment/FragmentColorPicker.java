@@ -12,10 +12,15 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.TextView;
 
+import javax.inject.Inject;
+
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import butterknife.OnClick;
+import de.greenrobot.event.EventBus;
+import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
+import milespeele.canvas.event.EventColorChosen;
 import milespeele.canvas.view.ViewColorPicker;
 
 /**
@@ -24,10 +29,9 @@ import milespeele.canvas.view.ViewColorPicker;
 public class FragmentColorPicker extends DialogFragment
     implements View.OnClickListener {
 
-    @InjectView(R.id.fragment_color_picker_which) TextView which;
-    @InjectView(R.id.fragment_color_picker_view) ViewColorPicker picker;
-
-    private FragmentListener listener;
+    @Bind(R.id.fragment_color_picker_which) TextView which;
+    @Bind(R.id.fragment_color_picker_view) ViewColorPicker picker;
+    @Inject EventBus bus;
 
     private final static String TAG = "which";
 
@@ -44,7 +48,7 @@ public class FragmentColorPicker extends DialogFragment
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        listener = (FragmentListener) activity;
+        ((MainApp) activity.getApplicationContext()).getApplicationComponent().inject(this);
     }
 
     @Override
@@ -60,7 +64,7 @@ public class FragmentColorPicker extends DialogFragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_color_picker, container, false);
-        ButterKnife.inject(this, v);
+        ButterKnife.bind(this, v);
         which.setText(getArguments().getString(TAG));
         return v;
     }
@@ -72,19 +76,26 @@ public class FragmentColorPicker extends DialogFragment
     }
 
     @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        ButterKnife.unbind(this);
+    }
+
+    @Override
     @OnClick({R.id.fragment_color_picker_cancel, R.id.fragment_color_picker_select})
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.fragment_color_picker_select:
                 if (picker.getColor() == -1) {
-                    listener.onColorChosen(Color.WHITE, getArguments().getString(TAG));
+                    bus.post(new EventColorChosen(Color.WHITE, getArguments().getString(TAG)));
                 } else {
-                    listener.onColorChosen(picker.getColor(), getArguments().getString(TAG));
+                    bus.post(new EventColorChosen(picker.getColor(), getArguments().getString(TAG)));
                 }
                 break;
             case R.id.fragment_color_picker_cancel:
-                listener.onColorChosen(0, getArguments().getString(TAG));
+                bus.post(new EventColorChosen(0, getArguments().getString(TAG)));
                 break;
         }
+        dismiss();
     }
 }

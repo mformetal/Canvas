@@ -45,4 +45,7 @@
 
     <string name="title_activity_login">Login</string>
 
+    <string name="TAG_FRAGMENT_FILL">New Canvas Color</string>
+    <string name="TAG_FRAGMENT_STROKE">Stroke Color</string>
+
 </resources>

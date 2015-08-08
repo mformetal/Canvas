@@ -10,8 +10,8 @@ import android.util.AttributeSet;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import milespeele.canvas.R;
 import milespeele.canvas.paint.PaintStyles;
 
@@ -20,7 +20,7 @@ import milespeele.canvas.paint.PaintStyles;
  */
 public class ViewPaintExample extends FrameLayout {
 
-    @InjectView(R.id.paint_example_name) TextView name;
+    @Bind(R.id.paint_example_name) TextView name;
 
     private String which;
     private Paint paint;
@@ -57,7 +57,7 @@ public class ViewPaintExample extends FrameLayout {
     @Override
     public void onFinishInflate() {
         super.onFinishInflate();
-        ButterKnife.inject(this);
+        ButterKnife.bind(this);
         name.setText(which);
         paint = PaintStyles.getStyleFromAttrs(which, getContext());
     }

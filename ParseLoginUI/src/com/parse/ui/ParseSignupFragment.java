@@ -156,10 +156,6 @@ public class ParseSignupFragment extends ParseLoginFragmentBase implements OnCli
       }
     } else if (password.length() == 0) {
       showToast(R.string.com_parse_ui_no_password_toast);
-    } else if (password.length() < minPasswordLength) {
-      showToast(getResources().getQuantityString(
-          R.plurals.com_parse_ui_password_too_short_toast,
-          minPasswordLength, minPasswordLength));
     } else if (passwordAgain.length() == 0) {
       showToast(R.string.com_parse_ui_reenter_password_toast);
     } else if (!password.equals(passwordAgain)) {

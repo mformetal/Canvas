@@ -4,28 +4,23 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.support.design.widget.CoordinatorLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 
+import javax.inject.Inject;
+
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import de.greenrobot.event.EventBus;
+import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
-import milespeele.canvas.view.ViewBottomSheet;
-import milespeele.canvas.view.ViewBottomSheetMenu;
-import milespeele.canvas.view.ViewCanvas;
+import milespeele.canvas.view.ViewCanvasLayout;
 
-public class FragmentDrawer extends Fragment implements ViewBottomSheetMenu.FabMenuListener {
+public class FragmentDrawer extends Fragment {
 
-    @InjectView(R.id.fragment_drawer_canvas) ViewCanvas drawer;
-    @InjectView(R.id.fragment_drawer_bottom_sheet) ViewBottomSheet parent;
-    @InjectView(R.id.fragment_drawer_coordinator) CoordinatorLayout coordinatorLayout;
-    @InjectView(R.id.fragment_drawer_eraser) ImageView eraser;
-    @InjectView(R.id.fragment_drawer_ink) ImageView ink;
-
-    private FragmentListener listener;
+    @Bind(R.id.fragment_drawer_coordinator) ViewCanvasLayout coordinatorLayout;
+    @Inject EventBus bus;
 
     public FragmentDrawer() {}
 
@@ -42,73 +37,24 @@ public class FragmentDrawer extends Fragment implements ViewBottomSheetMenu.FabM
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        listener = (FragmentListener) activity;
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        listener = null;
+        ((MainApp) activity.getApplicationContext()).getApplicationComponent().inject(this);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_drawer, container, false);
-        ButterKnife.inject(this, v);
-        parent.inflateMenu(this);
+        ButterKnife.bind(this, v);
         return v;
     }
 
-    public CoordinatorLayout giveCoordinatorToActivity() { return coordinatorLayout; }
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        ButterKnife.unbind(this);
+    }
 
     public Bitmap giveBitmapToActivity() {
-        return drawer.getBitmap();
+        return coordinatorLayout.getDrawerBitmap();
     }
 
-    public void changeColor(int color) {
-        parent.dismissSheet();
-        drawer.changeColor(color);
-    }
-
-    public void fillCanvas(int color) {
-        parent.dismissSheet();
-        drawer.fillCanvas(color);
-    }
-
-    public void setBrushWidth(float width) {
-        parent.dismissSheet();
-        drawer.setBrushWidth(width);
-    }
-
-    @Override
-    public void onColorizeClicked() {
-        parent.dismissSheet();
-        drawer.changeToInk(ink);
-    }
-
-    @Override
-    public void onEraseClicked() {
-        parent.dismissSheet();
-        drawer.changeToEraser(eraser);
-    }
-
-    @Override
-    public void onPaintColorClicked(int viewId) {
-        listener.showColorPicker(viewId);
-    }
-
-    @Override
-    public void onBrushClicked() {
-        listener.showBrushPicker(drawer.getBrushWidth());
-    }
-
-    @Override
-    public void onUndoClicked() {
-        drawer.undo();
-    }
-
-    @Override
-    public void onRedoClicked() {
-        drawer.redo();
-    }
 }

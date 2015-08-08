@@ -1,46 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<milespeele.canvas.view.ViewBottomSheet
+<milespeele.canvas.view.ViewCanvasLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/fragment_drawer_bottom_sheet"
+    android:id="@+id/fragment_drawer_coordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-    <android.support.design.widget.CoordinatorLayout
-        android:id="@+id/fragment_drawer_coordinator"
+    <milespeele.canvas.view.ViewCanvas
         android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+        android:layout_height="match_parent"
+        android:id="@+id/fragment_drawer_canvas" />
 
-        <milespeele.canvas.view.ViewCanvas
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/fragment_drawer_canvas" />
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/fragment_drawer_eraser"
+        android:src="@drawable/eraser"
+        android:visibility="gone" />
 
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/fragment_drawer_eraser"
-            android:src="@drawable/eraser"
-            android:visibility="gone" />
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/fragment_drawer_ink"
+        android:src="@drawable/ic_colorize_black_24dp"
+        android:visibility="gone" />
 
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/fragment_drawer_ink"
-            android:src="@drawable/ic_colorize_black_24dp"
-            android:visibility="gone" />
+    <include
+        layout="@layout/fragment_drawer_menu"
+        android:id="@+id/fragment_drawer_menu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        app:layout_anchorGravity="bottom|center_horizontal"
+        app:layout_anchor="@id/fragment_drawer_coordinator" />
 
-        <milespeele.canvas.view.ViewFab
-            android:id="@+id/fragment_drawer_show_menu"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_add_black_24dp"
-            android:layout_margin="@dimen/fab_margin"
-            app:layout_anchorGravity="bottom|right|end"
-            app:layout_anchor="@id/fragment_drawer_coordinator"
-            app:elevation="@dimen/fab_elevation"
-            app:rippleColor="@color/primary_dark" />
-
-    </android.support.design.widget.CoordinatorLayout>
-
-</milespeele.canvas.view.ViewBottomSheet>
+</milespeele.canvas.view.ViewCanvasLayout>

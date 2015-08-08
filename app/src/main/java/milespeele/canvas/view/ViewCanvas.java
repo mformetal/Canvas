@@ -17,6 +17,15 @@ import android.widget.ImageView;
 
 import java.util.Random;
 
+import javax.inject.Inject;
+
+import de.greenrobot.event.EventBus;
+import milespeele.canvas.MainApp;
+import milespeele.canvas.R;
+import milespeele.canvas.event.EventBrushSizeChosen;
+import milespeele.canvas.event.EventColorChosen;
+import milespeele.canvas.event.EventRedo;
+import milespeele.canvas.event.EventUndo;
 import milespeele.canvas.paint.PaintPath;
 import milespeele.canvas.paint.PaintStack;
 import milespeele.canvas.paint.PaintStyles;
@@ -46,6 +55,8 @@ public class ViewCanvas extends View {
     private ImageView eraser;
     private ImageView ink;
 
+    @Inject EventBus bus;
+
     public ViewCanvas(Context context) {
         super(context);
         init();
@@ -57,6 +68,9 @@ public class ViewCanvas extends View {
     }
 
     public void init() {
+        ((MainApp) getContext().getApplicationContext()).getApplicationComponent().inject(this);
+        bus.register(this);
+
         Random rnd = new Random();
         currentStrokeColor = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
         currentBackgroundColor = Color.WHITE;
@@ -238,31 +252,30 @@ public class ViewCanvas extends View {
                 (y >= 0 && y <= mBitmap.getHeight()));
     }
 
-    public void changeToEraser(ImageView eraser) {
-        if (ink != null) { ink.setVisibility(View.GONE); }
-        this.eraser = eraser;
-        if (eraser.getVisibility() == View.VISIBLE) {
-            eraser.setVisibility(View.GONE);
-            shouldErase = false;
-            shouldInk = false;
-        } else {
-            eraser.setVisibility(View.VISIBLE);
-            eraser.setX((float) getWidth() / 2);
-            eraser.setY((float) getHeight() / 2);
-            shouldErase = true;
-            shouldInk = false;
+    public void onEvent(EventColorChosen eventColorChosen) {
+        if (eventColorChosen.color != 0) {
+            if (eventColorChosen.which.equals(getResources().getString(R.string.TAG_FRAGMENT_FILL))) {
+                fillCanvas(eventColorChosen.color);
+            } else {
+                changeColor(eventColorChosen.color);
+            }
         }
     }
 
-    public void changeToInk(ImageView ink) {
-        if (eraser != null) { eraser.setVisibility(View.GONE); }
-        this.ink = ink;
-        ink.setX((float) getWidth() / 2);
-        ink.setY((float) getHeight() / 2);
-        ink.setBackgroundColor(mBitmap.getPixel(getWidth() / 2, getHeight() / 2));
-        ink.setVisibility(View.VISIBLE);
-        shouldInk = true;
-        shouldRedraw = false;
+    public void onEvent(EventBrushSizeChosen eventBrushSizeChosen) {
+        if (eventBrushSizeChosen.thickness != 0) {
+            shouldInk = false;
+            STROKE_WIDTH = eventBrushSizeChosen.thickness;
+            curPaint.setStrokeWidth(eventBrushSizeChosen.thickness);
+        }
+    }
+
+    public void onEvent(EventRedo eventRedo) {
+        redo();
+    }
+
+    public void onEvent(EventUndo eventUndo) {
+        undo();
     }
 
     public void changeColor(int color) {
@@ -303,12 +316,6 @@ public class ViewCanvas extends View {
     }
 
     public float getBrushWidth() { return STROKE_WIDTH; }
-
-    public void setBrushWidth(float width) {
-        shouldInk = false;
-        STROKE_WIDTH = width;
-        curPaint.setStrokeWidth(width);
-    }
 
     public Bitmap getBitmap() {
         return mBitmap;

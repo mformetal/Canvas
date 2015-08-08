@@ -10,33 +10,33 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.animation.AnimationUtils;
-import android.widget.ImageView;
 
 import java.lang.ref.WeakReference;
 
 import javax.inject.Inject;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
+import milespeele.canvas.event.EventFilenameChosen;
+import milespeele.canvas.event.EventStrokeColor;
+import milespeele.canvas.event.EventStrokeSize;
 import milespeele.canvas.fragment.FragmentBrushPicker;
 import milespeele.canvas.fragment.FragmentColorPicker;
 import milespeele.canvas.fragment.FragmentDrawer;
 import milespeele.canvas.fragment.FragmentFilename;
-import milespeele.canvas.fragment.FragmentListener;
 import milespeele.canvas.parse.Masterpiece;
 import milespeele.canvas.parse.ParseUtils;
 import milespeele.canvas.util.Util;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
-public class ActivityHome extends ActivityBase implements FragmentListener, View.OnClickListener {
+public class ActivityHome extends ActivityBase {
 
-    @InjectView(R.id.activity_home_drawer_layout) DrawerLayout drawerLayout;
-    @InjectView(R.id.activity_home_navigation_drawer) NavigationView navigationView;
+    @Bind(R.id.activity_home_drawer_layout) DrawerLayout drawerLayout;
+    @Bind(R.id.activity_home_navigation_drawer) NavigationView navigationView;
 
     private final static String TAG_FRAGMENT_DRAWER = "fragd";
     private final static String TAG_FRAGMENT_STROKE = "Stroke Color";
@@ -47,6 +47,7 @@ public class ActivityHome extends ActivityBase implements FragmentListener, View
     private final static String TAG_FRAGMENT_BRUSH = "brush";
 
     @Inject ParseUtils parseUtils;
+    @Inject EventBus bus;
 
     private ActionBarDrawerToggle toggle;
 
@@ -54,9 +55,11 @@ public class ActivityHome extends ActivityBase implements FragmentListener, View
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-        ButterKnife.inject(this);
+        ButterKnife.bind(this);
 
         ((MainApp) getApplication()).getApplicationComponent().inject(this);
+
+        bus.register(this);
 
         final ActionBar ab = getSupportActionBar();
         ab.setDisplayHomeAsUpEnabled(true);
@@ -80,7 +83,7 @@ public class ActivityHome extends ActivityBase implements FragmentListener, View
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_activity_home, menu);
         final MenuItem item = menu.findItem(R.id.menu_activity_home_save_canvas);
-        item.getActionView().setOnClickListener(this);
+        item.getActionView().setOnClickListener(v -> showFilenameFragment());
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -157,78 +160,22 @@ public class ActivityHome extends ActivityBase implements FragmentListener, View
         }
     }
 
-    private void tellFragmentToChangeColor(int color) {
-        FragmentDrawer frag = (FragmentDrawer) getFragmentManager().findFragmentByTag(TAG_FRAGMENT_DRAWER);
-        if (frag != null) {
-            frag.changeColor(color);
-        }
-    }
-
-    private void tellFragmentToFillCanvas(int color) {
-        FragmentDrawer frag = (FragmentDrawer) getFragmentManager().findFragmentByTag(TAG_FRAGMENT_DRAWER);
-        if (frag != null) {
-            frag.fillCanvas(color);
-        }
-    }
-
     private void showNewCanvasFragment() {
         FragmentColorPicker picker = FragmentColorPicker.newInstance(TAG_FRAGMENT_FILL);
         picker.show(getFragmentManager(), TAG_FRAGMENT_FILL);
     }
 
-    @Override
-    public void showColorPicker(int viewId) {
+    public void onEvent(EventStrokeColor test) {
         FragmentColorPicker picker = FragmentColorPicker.newInstance(TAG_FRAGMENT_STROKE);
         picker.show(getFragmentManager(), TAG_FRAGMENT_STROKE);
     }
 
-    @Override
-    public void showBrushPicker(float currentWidth) {
-        FragmentBrushPicker picker = FragmentBrushPicker.newInstance(currentWidth);
+    public void onEvent(EventStrokeSize test) {
+        FragmentBrushPicker picker = FragmentBrushPicker.newInstance(test.size);
         picker.show(getFragmentManager(), TAG_FRAGMENT_BRUSH);
     }
 
-    @Override
-    public void onBrushSizeChosen(float size) {
-        ((FragmentBrushPicker) getFragmentManager().findFragmentByTag(TAG_FRAGMENT_BRUSH)).dismiss();
-        if (size != 0) {
-            FragmentDrawer frag = (FragmentDrawer) getFragmentManager().findFragmentByTag(TAG_FRAGMENT_DRAWER);
-            if (frag != null) {
-                frag.setBrushWidth(size);
-            }
-        }
-    }
-
-    @Override
-    public void onFilenameChosen(String fileName) {
-        ((FragmentFilename) getFragmentManager().findFragmentByTag(TAG_FRAGMENT_FILENAME)).dismiss();
-        if (!fileName.isEmpty()) {
-            final ImageView pulse = (ImageView) findViewById(R.id.menu_activity_home_save_canvas);
-            pulse.startAnimation(AnimationUtils.loadAnimation(this, R.anim.pulse));
-            imageToByteArray(fileName);
-        }
-    }
-
-    @Override
-    public void onColorChosen(int color, String whichColor) {
-        FragmentColorPicker picker = (FragmentColorPicker) getFragmentManager().findFragmentByTag(whichColor);
-        if (picker != null) {
-            picker.dismiss();
-            if (color != 0) {
-                switch (whichColor) {
-                    case TAG_FRAGMENT_FILL:
-                        tellFragmentToFillCanvas(color);
-                        break;
-                    case TAG_FRAGMENT_STROKE:
-                        tellFragmentToChangeColor(color);
-                        break;
-                }
-            }
-        }
-    }
-
-    @Override
-    public void onClick(View v) {
-        showFilenameFragment();
+    public void onEvent(EventFilenameChosen eventFilenameChosen) {
+        imageToByteArray(eventFilenameChosen.filename);
     }
 }
