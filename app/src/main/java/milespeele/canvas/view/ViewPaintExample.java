@@ -6,7 +6,6 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
@@ -23,11 +22,9 @@ import milespeele.canvas.paint.PaintStyles;
 public class ViewPaintExample extends View {
 
     private String which;
-    private int offset;
+    private int color;
 
-    private Path path;
     private Paint examplePaint;
-    private Paint demarcationPaint;
 
     public ViewPaintExample(Context context) {
         super(context);
@@ -56,14 +53,9 @@ public class ViewPaintExample extends View {
         typed.recycle();
 
         Random rnd = new Random();
-        examplePaint = PaintStyles.getStyleFromAttrs(which,
-                (Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256))),
-                getContext());
-        examplePaint.setStyle(Paint.Style.FILL_AND_STROKE);
-
-        path = new Path();
-
-        demarcationPaint = PaintStyles.normalPaint(Color.WHITE, 5f);
+        color = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
+        examplePaint = PaintStyles.getStyleFromAttrs(which, color, getContext());
+        examplePaint.setStyle(Paint.Style.STROKE);
     }
 
     @Override
@@ -73,35 +65,9 @@ public class ViewPaintExample extends View {
     }
 
     @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        super.onSizeChanged(w, h, oldw, oldh);
-        offset = w / 20;
-    }
-
-    @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        int width = canvas.getWidth(), height = canvas.getHeight();
-        path.moveTo(offset * 2, height - offset);
-        path.lineTo(offset, height - offset);
-        path.lineTo(offset, height - offset * 2);
-        canvas.drawPath(path, demarcationPaint);
-
-        path.moveTo(offset, offset * 2);
-        path.lineTo(offset, offset);
-        path.lineTo(offset * 2, offset);
-        canvas.drawPath(path, demarcationPaint);
-
-        path.moveTo(width - offset * 2, offset);
-        path.lineTo(width - offset, offset);
-        path.lineTo(width - offset, offset * 2);
-        canvas.drawPath(path, demarcationPaint);
-
-        path.moveTo(width - offset, height - offset * 2);
-        path.lineTo(width - offset, height - offset);
-        path.lineTo(width - offset * 2, height - offset);
-        canvas.drawPath(path, demarcationPaint);
-
-        canvas.drawCircle(canvas.getWidth() / 2, canvas.getHeight() / 2, canvas.getWidth() / 4, examplePaint);
+        canvas.drawLine(canvas.getWidth() / 4, canvas.getHeight() / 2,
+                Math.round(canvas.getWidth()  * .75), canvas.getHeight() / 2, examplePaint);
     }
 }

@@ -3,15 +3,12 @@ package milespeele.canvas.paint;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.BlurMaskFilter;
-import android.graphics.Color;
 import android.graphics.DashPathEffect;
 import android.graphics.EmbossMaskFilter;
 import android.graphics.Paint;
 import android.graphics.PathEffect;
 
 import java.util.Random;
-
-import milespeele.canvas.R;
 
 /**
  * Created by Miles Peele on 7/26/2015.
@@ -24,15 +21,16 @@ public class PaintStyles {
 
     public static Paint getStyleFromAttrs(String type, int color, Context context) {
         Resources resources = context.getResources();
-        if (type == resources.getString(R.string.paint_example_dashed)) {
-            return dashedPaint(color, 10f);
-        } else if (type ==resources.getString(R.string.paint_example_fade)) {
-            return fadePaint(color, 10f);
-        } else if (type == resources.getString(R.string.paint_example_neon)) {
-            return neonPaint(color, 10f);
-        } else {
-            return normalPaint(color, 10f);
-        }
+//        if (type == resources.getString(R.string.paint_example_dashed)) {
+//            return dashedPaint(color, 10f);
+//        } else if (type ==resources.getString(R.string.paint_example_fade)) {
+//            return fadePaint(color, 10f);
+//        } else if (type == resources.getString(R.string.paint_example_neon)) {
+//            return neonPaint(color, 10f);
+//        } else {
+//            return normalPaint(color, 10f);
+//        }
+        return normalPaint(color, 10f);
     }
 
     public static Paint randomStyle(int currentColor, float width) {

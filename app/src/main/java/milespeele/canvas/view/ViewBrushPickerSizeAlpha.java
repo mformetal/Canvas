@@ -12,27 +12,27 @@ import android.view.View;
 /**
  * Created by milespeele on 7/13/15.
  */
-public class ViewBrushSize extends View {
+public class ViewBrushPickerSizeAlpha extends View {
 
     private Paint curPaint;
 
-    public ViewBrushSize(Context context) {
+    public ViewBrushPickerSizeAlpha(Context context) {
         super(context);
         init();
     }
 
-    public ViewBrushSize(Context context, AttributeSet attrs) {
+    public ViewBrushPickerSizeAlpha(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
     }
 
-    public ViewBrushSize(Context context, AttributeSet attrs, int defStyleAttr) {
+    public ViewBrushPickerSizeAlpha(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init();
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public ViewBrushSize(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public ViewBrushPickerSizeAlpha(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         init();
     }
@@ -54,8 +54,19 @@ public class ViewBrushSize extends View {
         curPaint.setStrokeCap(Paint.Cap.ROUND);
     }
 
+    public void onValuesChanged(float thickness, int alpha) {
+        curPaint.setStrokeWidth(thickness);
+        curPaint.setAlpha(alpha);
+        invalidate();
+    }
+
     public void onThicknessChanged(float thickness) {
         curPaint.setStrokeWidth(thickness);
+        invalidate();
+    }
+
+    public void onAlphaChanged(int alpha) {
+        curPaint.setAlpha(alpha);
         invalidate();
     }
 

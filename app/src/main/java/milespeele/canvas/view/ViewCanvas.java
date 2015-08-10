@@ -26,7 +26,7 @@ import butterknife.ButterKnife;
 import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
-import milespeele.canvas.event.EventBrushSizeChosen;
+import milespeele.canvas.event.EventBrushChosen;
 import milespeele.canvas.event.EventColorChosen;
 import milespeele.canvas.event.EventColorize;
 import milespeele.canvas.event.EventErase;
@@ -45,6 +45,7 @@ public class ViewCanvas extends FrameLayout {
     @Bind(R.id.fragment_drawer_eraser_colorizer) ImageView colorizer;
 
     private static float STROKE_WIDTH = 5f;
+    private static int ALPHA = 255;
     private boolean shouldErase = false;
     private boolean shouldRedraw = false;
     private boolean shouldInk = false;
@@ -272,16 +273,18 @@ public class ViewCanvas extends FrameLayout {
         }
     }
 
-    public void onEvent(EventBrushSizeChosen eventBrushSizeChosen) {
-        if (eventBrushSizeChosen.thickness != 0) {
-            eraser.setVisibility(View.GONE);
-            shouldErase = false;
-            shouldInk = false;
-            eraser.setVisibility(View.GONE);
-            colorizer.setVisibility(View.GONE);
-            STROKE_WIDTH = eventBrushSizeChosen.thickness;
-            curPaint.setStrokeWidth(eventBrushSizeChosen.thickness);
-        }
+    public void onEvent(EventBrushChosen eventBrushChosen) {
+        shouldErase = false;
+        shouldInk = false;
+
+        eraser.setVisibility(View.GONE);
+        colorizer.setVisibility(View.GONE);
+
+        STROKE_WIDTH = (eventBrushChosen.thickness != -1) ? eventBrushChosen.thickness : STROKE_WIDTH;
+        ALPHA = (eventBrushChosen.alpha != -1) ? eventBrushChosen.alpha : ALPHA;
+
+        curPaint.setAlpha(ALPHA);
+        curPaint.setStrokeWidth(STROKE_WIDTH);
     }
 
     public void onEvent(EventRedo eventRedo) {
@@ -376,6 +379,8 @@ public class ViewCanvas extends FrameLayout {
     }
 
     public float getBrushWidth() { return STROKE_WIDTH; }
+
+    public int getPaintAlpha() { return ALPHA; }
 
     public Bitmap getBitmap() {
         return mBitmap;

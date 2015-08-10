@@ -2,22 +2,15 @@ package milespeele.canvas.view;
 
 import android.animation.Animator;
 import android.animation.AnimatorSet;
-import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
-import android.animation.ValueAnimator;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
 import android.os.Build;
-import android.os.Handler;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.view.animation.Interpolator;
 import android.view.animation.OvershootInterpolator;
 
@@ -36,9 +29,8 @@ import milespeele.canvas.event.EventColorize;
 import milespeele.canvas.event.EventErase;
 import milespeele.canvas.event.EventRedo;
 import milespeele.canvas.event.EventStrokeColor;
-import milespeele.canvas.event.EventStrokeSize;
+import milespeele.canvas.event.EventBrushType;
 import milespeele.canvas.event.EventUndo;
-import milespeele.canvas.util.Logg;
 
 /**
  * Created by milespeele on 8/7/15.
@@ -157,7 +149,7 @@ public class ViewFabMenu extends ViewGroup
         }
 
         int dimen = mw == MeasureSpec.EXACTLY ? sw : sp + pw;
-        setMeasuredDimension(dimen, dimen / 2);
+        setMeasuredDimension(dimen, dimen / 4);
     }
 
     @Override
@@ -206,7 +198,7 @@ public class ViewFabMenu extends ViewGroup
     protected void dispatchDraw(Canvas canvas) {
         if (isFirstShow) {
             canvas.drawCircle(canvas.getWidth() / 2, canvas.getHeight(),
-                    (radius = getMeasuredWidth() / 2), ripplePaint);
+                    (radius = getMeasuredHeight()), ripplePaint);
         } else {
             canvas.drawCircle(canvas.getWidth() / 2, canvas.getHeight(), radius, ripplePaint);
         }
@@ -227,7 +219,8 @@ public class ViewFabMenu extends ViewGroup
                 break;
             case R.id.menu_size:
                 eraser.scaleDown();
-                bus.post(new EventStrokeSize(((ViewCanvasLayout) getParent()).getBrushWidth()));
+                ViewCanvasLayout parent = ((ViewCanvasLayout) getParent());
+                bus.post(new EventBrushType(parent.getBrushWidth(), parent.getPaintAlpha()));
                 break;
             case R.id.menu_stroke_color:
                 eraser.scaleDown();
@@ -360,7 +353,7 @@ public class ViewFabMenu extends ViewGroup
     }
 
     public void animateReveal() {
-        ObjectAnimator radius = ObjectAnimator.ofFloat(this, "radius", getMeasuredWidth() / 2);
+        ObjectAnimator radius = ObjectAnimator.ofFloat(this, "radius", getMeasuredHeight());
         radius.setDuration(Math.round(DURATION * 1.5));
         radius.setInterpolator(INTERPOLATOR);
         radius.start();
@@ -368,7 +361,7 @@ public class ViewFabMenu extends ViewGroup
     }
 
     public void dismissReveal() {
-        ObjectAnimator radius = ObjectAnimator.ofFloat(this, "radius", getMeasuredWidth() / 2, 0);
+        ObjectAnimator radius = ObjectAnimator.ofFloat(this, "radius", getMeasuredHeight(), 0);
         radius.setDuration(Math.round(DURATION * 1.5));
         radius.setInterpolator(INTERPOLATOR);
         radius.setStartDelay(DELAY * 8);

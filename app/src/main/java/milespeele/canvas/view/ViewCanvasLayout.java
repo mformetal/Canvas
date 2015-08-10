@@ -40,6 +40,7 @@ public class ViewCanvasLayout extends CoordinatorLayout {
     }
 
     private void init() {
+        setClipChildren(false);
     }
 
     @Override
@@ -78,6 +79,8 @@ public class ViewCanvasLayout extends CoordinatorLayout {
     public float getBrushWidth() {
         return drawer.getBrushWidth();
     }
+
+    public int getPaintAlpha() { return drawer.getPaintAlpha(); }
 
     public Bitmap getDrawerBitmap() { return drawer.getBitmap(); }
 }

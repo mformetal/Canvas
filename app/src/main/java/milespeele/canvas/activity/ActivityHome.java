@@ -10,6 +10,8 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
 
 import java.lang.ref.WeakReference;
 
@@ -22,7 +24,7 @@ import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
 import milespeele.canvas.event.EventFilenameChosen;
 import milespeele.canvas.event.EventStrokeColor;
-import milespeele.canvas.event.EventStrokeSize;
+import milespeele.canvas.event.EventBrushType;
 import milespeele.canvas.fragment.FragmentBrushPicker;
 import milespeele.canvas.fragment.FragmentColorPicker;
 import milespeele.canvas.fragment.FragmentDrawer;
@@ -122,16 +124,6 @@ public class ActivityHome extends ActivityBase {
         }
     }
 
-    private void addDrawerFragment() {
-        getFragmentManager().beginTransaction()
-                .add(R.id.activity_home_fragment_frame, FragmentDrawer.newInstance(), TAG_FRAGMENT_DRAWER)
-                .commit();
-    }
-
-    private void showFilenameFragment() {
-        FragmentFilename.newInstance().show(getFragmentManager(), TAG_FRAGMENT_FILENAME);
-    }
-
     private void imageToByteArray(String filename) {
         FragmentDrawer frag = (FragmentDrawer) getFragmentManager().findFragmentByTag(TAG_FRAGMENT_DRAWER);
         if (frag != null) {
@@ -145,6 +137,16 @@ public class ActivityHome extends ActivityBase {
 
     public void onErrorReceived(Throwable error) {
         error.printStackTrace();
+    }
+
+    private void addDrawerFragment() {
+        getFragmentManager().beginTransaction()
+                .add(R.id.activity_home_fragment_frame, FragmentDrawer.newInstance(), TAG_FRAGMENT_DRAWER)
+                .commit();
+    }
+
+    private void showFilenameFragment() {
+        FragmentFilename.newInstance().show(getFragmentManager(), TAG_FRAGMENT_FILENAME);
     }
 
     public void showSavedImageSnackbar(Masterpiece object) {
@@ -168,13 +170,15 @@ public class ActivityHome extends ActivityBase {
         picker.show(getFragmentManager(), TAG_FRAGMENT_STROKE);
     }
 
-    public void onEvent(EventStrokeSize test) {
-        FragmentBrushPicker picker = FragmentBrushPicker.newInstance(test.size);
+    public void onEvent(EventBrushType test) {
+        FragmentBrushPicker picker = FragmentBrushPicker.newInstance(test.size, test.alpha);
         picker.show(getFragmentManager(), TAG_FRAGMENT_BRUSH);
     }
 
     public void onEvent(EventFilenameChosen eventFilenameChosen) {
         if (!eventFilenameChosen.filename.isEmpty()) {
+            final ImageView pulse = (ImageView) findViewById(R.id.menu_activity_home_save_canvas);
+            pulse.startAnimation(AnimationUtils.loadAnimation(this, R.anim.pulse));
             imageToByteArray(eventFilenameChosen.filename);
         }
     }

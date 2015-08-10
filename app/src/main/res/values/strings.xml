@@ -37,6 +37,8 @@
     <string name="fragment_filename_pos_button_text">Save!</string>
     <string name="fragment_filename_neg_button_text">No thanks</string>
 
+    <string name="fragment_brush_picker_sizer_title">Size: </string>
+    <string name="fragment_brush_picker_alphaer_title">Alpha: </string>
     <string name="fragment_brush_picker_title">Set Brush Style</string>
     <string name="fragment_brush_picker_pos_button_text">Set!</string>
 

@@ -8,9 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.RelativeLayout;
-import android.widget.SeekBar;
-import android.widget.SeekBar.OnSeekBarChangeListener;
 
 import javax.inject.Inject;
 
@@ -20,9 +17,8 @@ import butterknife.OnClick;
 import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
-import milespeele.canvas.event.EventBrushSizeChosen;
-import milespeele.canvas.view.ViewBrushPicker;
-import milespeele.canvas.view.ViewBrushSize;
+import milespeele.canvas.event.EventBrushChosen;
+import milespeele.canvas.view.ViewBrushPickerLayout;
 
 /**
  * Created by milespeele on 7/13/15.
@@ -30,18 +26,21 @@ import milespeele.canvas.view.ViewBrushSize;
 public class FragmentBrushPicker extends DialogFragment
         implements View.OnClickListener {
 
-    @Bind(R.id.fragment_brush_picker_view) ViewBrushPicker root;
+    @Bind(R.id.fragment_brush_picker_view)
+    ViewBrushPickerLayout root;
 
     @Inject EventBus bus;
 
     private static final String THICKNESS = "thick";
+    private static final String ALPHA = "alpha";
 
     public FragmentBrushPicker() {}
 
-    public static FragmentBrushPicker newInstance(float canvasWidth) {
+    public static FragmentBrushPicker newInstance(float canvasWidth, int alpha) {
         FragmentBrushPicker fragmentBrushPicker = new FragmentBrushPicker();
         Bundle args = new Bundle();
         args.putFloat(THICKNESS, canvasWidth);
+        args.putInt(ALPHA, alpha);
         fragmentBrushPicker.setArguments(args);
         return fragmentBrushPicker;
     }
@@ -63,7 +62,7 @@ public class FragmentBrushPicker extends DialogFragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_brush_picker, container, false);
         ButterKnife.bind(this, v);
-        root.setThickness(getArguments().getFloat(THICKNESS));
+        root.setInitialValues(getArguments().getFloat(THICKNESS), getArguments().getInt(ALPHA));
         return v;
     }
 
@@ -72,14 +71,17 @@ public class FragmentBrushPicker extends DialogFragment
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.fragment_brush_picker_pos:
-                if (root.getThickness() != getArguments().getFloat(THICKNESS)) {
-                    bus.post(new EventBrushSizeChosen(root.getThickness()));
+                if (root.getThickness() != getArguments().getFloat(THICKNESS) &&
+                        root.getChosenAlpha() != getArguments().getInt(ALPHA)) {
+                    bus.post(new EventBrushChosen(root.getThickness(), root.getChosenAlpha()));
+                } else if (root.getThickness() != getArguments().getFloat(THICKNESS)) {
+                    bus.post(new EventBrushChosen(root.getThickness(), -1));
                 } else {
-                    bus.post(new EventBrushSizeChosen(0));
+                    bus.post(new EventBrushChosen(-1, root.getChosenAlpha()));
                 }
                 break;
             case R.id.fragment_brush_picker_cancel:
-                bus.post(new EventBrushSizeChosen(0));
+                bus.post(new EventBrushChosen(-1, -1));
                 break;
         }
         dismiss();
