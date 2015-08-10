@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<HorizontalScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="50dp">
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" >
+
+        <milespeele.canvas.view.ViewPaintExample
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            app:paintType="@string/paint_example_dashed" />
+
+        <milespeele.canvas.view.ViewPaintExample
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            app:paintType="@string/paint_example_neon" />
+
+        <milespeele.canvas.view.ViewPaintExample
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            app:paintType="@string/paint_example_fade" />
+
+        <milespeele.canvas.view.ViewPaintExample
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            app:paintType="@string/paint_example_normal" />
+
+    </LinearLayout>
+
+</HorizontalScrollView>

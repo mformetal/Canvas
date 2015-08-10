@@ -21,21 +21,19 @@ import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
 import milespeele.canvas.event.EventBrushSizeChosen;
+import milespeele.canvas.view.ViewBrushPicker;
 import milespeele.canvas.view.ViewBrushSize;
 
 /**
  * Created by milespeele on 7/13/15.
  */
 public class FragmentBrushPicker extends DialogFragment
-        implements View.OnClickListener, OnSeekBarChangeListener {
+        implements View.OnClickListener {
 
-    @Bind(R.id.fragment_brush_picker_reveal_layout) RelativeLayout container;
-    @Bind(R.id.fragment_brush_picker_seek) SeekBar seek;
-    @Bind(R.id.fragment_brush_picker_changes) ViewBrushSize line;
+    @Bind(R.id.fragment_brush_picker_view) ViewBrushPicker root;
 
     @Inject EventBus bus;
 
-    private int thickness = 0;
     private static final String THICKNESS = "thick";
 
     public FragmentBrushPicker() {}
@@ -65,9 +63,7 @@ public class FragmentBrushPicker extends DialogFragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_brush_picker, container, false);
         ButterKnife.bind(this, v);
-        line.onThicknessChanged(Math.round(getArguments().getFloat(THICKNESS)));
-        seek.setProgress(Math.round(getArguments().getFloat(THICKNESS)));
-        seek.setOnSeekBarChangeListener(this);
+        root.setThickness(getArguments().getFloat(THICKNESS));
         return v;
     }
 
@@ -76,8 +72,8 @@ public class FragmentBrushPicker extends DialogFragment
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.fragment_brush_picker_pos:
-                if (thickness != getArguments().getFloat(THICKNESS)) {
-                    bus.post(new EventBrushSizeChosen(thickness));
+                if (root.getThickness() != getArguments().getFloat(THICKNESS)) {
+                    bus.post(new EventBrushSizeChosen(root.getThickness()));
                 } else {
                     bus.post(new EventBrushSizeChosen(0));
                 }
@@ -99,21 +95,5 @@ public class FragmentBrushPicker extends DialogFragment
     public void onDestroyView() {
         super.onDestroyView();
         ButterKnife.unbind(this);
-    }
-
-    @Override
-    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-        thickness = progress;
-        line.onThicknessChanged(progress);
-    }
-
-    @Override
-    public void onStartTrackingTouch(SeekBar seekBar) {
-
-    }
-
-    @Override
-    public void onStopTrackingTouch(SeekBar seekBar) {
-
     }
 }

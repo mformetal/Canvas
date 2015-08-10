@@ -18,18 +18,20 @@ import milespeele.canvas.R;
  */
 public class PaintStyles {
 
-    private static BlurMaskFilter BLUR_MASK_FILTER = new BlurMaskFilter(15, BlurMaskFilter.Blur.NORMAL);
-    private static EmbossMaskFilter EMBOSS_MASK_FILTER = new EmbossMaskFilter(new float[]{1, 1, 1}, 1f, 0, 3);
-    private static PathEffect DASHED_PASH_EFFECT = new DashPathEffect(new float[] {10,20}, 0);
+    private static final BlurMaskFilter BLUR_MASK_FILTER = new BlurMaskFilter(15, BlurMaskFilter.Blur.OUTER);
+    private static final EmbossMaskFilter EMBOSS_MASK_FILTER = new EmbossMaskFilter(new float[]{1, 1, 1}, 1f, 0, 3);
+    private static final PathEffect DASHED_PASH_EFFECT = new DashPathEffect(new float[] {10,20}, 0);
 
-    public static Paint getStyleFromAttrs(String type, Context context) {
+    public static Paint getStyleFromAttrs(String type, int color, Context context) {
         Resources resources = context.getResources();
         if (type == resources.getString(R.string.paint_example_dashed)) {
-            return dashedPaint(Color.WHITE, 5f);
+            return dashedPaint(color, 10f);
+        } else if (type ==resources.getString(R.string.paint_example_fade)) {
+            return fadePaint(color, 10f);
         } else if (type == resources.getString(R.string.paint_example_neon)) {
-            return neonPaint(Color.WHITE, 5f);
+            return neonPaint(color, 10f);
         } else {
-            return normalPaint(Color.WHITE, 5f);
+            return normalPaint(color, 10f);
         }
     }
 
@@ -41,7 +43,7 @@ public class PaintStyles {
         } else if (randomNum <= 3) {
             return fadePaint(currentColor, width);
         } else if (randomNum <= 5) {
-            return  neonPaint(currentColor, width);
+            return neonPaint(currentColor, width);
         } else if (randomNum <= 7) {
             return dashedPaint(currentColor, width);
         } else {

@@ -42,6 +42,8 @@
 
     <string name="paint_example_neon">Neon</string>
     <string name="paint_example_dashed">Dashed</string>
+    <string name="paint_example_fade">Fade</string>
+    <string name="paint_example_normal">Normal</string>
 
     <string name="title_activity_login">Login</string>
 

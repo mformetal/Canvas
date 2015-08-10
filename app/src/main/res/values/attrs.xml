@@ -5,8 +5,4 @@
         <attr name="paintType" format="string" />
     </declare-styleable>
 
-    <declare-styleable name="ViewFab" >
-        <attr name="actionName" format="string" />
-    </declare-styleable>
-
 </resources>

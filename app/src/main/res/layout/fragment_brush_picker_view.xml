@@ -1,22 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<milespeele.canvas.view.ViewBrushPicker
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<milespeele.canvas.view.ViewBrushPicker xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent">
 
     <milespeele.canvas.view.ViewBrushSize
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/fragment_brush_picker_title"
         android:padding="@dimen/activity_horizontal_margin"
-        android:id="@+id/fragment_brush_picker_changes" />
+        android:id="@+id/fragment_brush_picker_view_size" />
 
     <SeekBar
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="@dimen/activity_vertical_margin"
-        android:layout_below="@id/fragment_brush_picker_changes"
-        android:id="@+id/fragment_brush_picker_seek" />
+        android:layout_below="@id/fragment_brush_picker_view_size"
+        android:id="@+id/fragment_brush_picker_view_seekbar" />
+
+    <include
+        layout="@layout/paint_example_items"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_below="@id/fragment_brush_picker_view_seekbar" />
 
 </milespeele.canvas.view.ViewBrushPicker>

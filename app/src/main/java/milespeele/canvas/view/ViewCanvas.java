@@ -277,6 +277,8 @@ public class ViewCanvas extends FrameLayout {
             eraser.setVisibility(View.GONE);
             shouldErase = false;
             shouldInk = false;
+            eraser.setVisibility(View.GONE);
+            colorizer.setVisibility(View.GONE);
             STROKE_WIDTH = eventBrushSizeChosen.thickness;
             curPaint.setStrokeWidth(eventBrushSizeChosen.thickness);
         }
@@ -335,7 +337,7 @@ public class ViewCanvas extends FrameLayout {
         colorizer.setBackgroundColor(mBitmap.getPixel(getWidth() / 2, getHeight() / 2));
         colorizer.setVisibility(View.VISIBLE);
         shouldInk = true;
-        shouldRedraw = false;
+        shouldErase = false;
     }
 
     public void changeColor(int color) {

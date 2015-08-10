@@ -2,13 +2,22 @@ package milespeele.canvas.view;
 
 import android.animation.Animator;
 import android.animation.AnimatorSet;
+import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.os.Build;
+import android.os.Handler;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.animation.Interpolator;
 import android.view.animation.OvershootInterpolator;
 
@@ -29,6 +38,7 @@ import milespeele.canvas.event.EventRedo;
 import milespeele.canvas.event.EventStrokeColor;
 import milespeele.canvas.event.EventStrokeSize;
 import milespeele.canvas.event.EventUndo;
+import milespeele.canvas.util.Logg;
 
 /**
  * Created by milespeele on 8/7/15.
@@ -46,14 +56,18 @@ public class ViewFabMenu extends ViewGroup
     private static ObjectAnimator close;
     private static ObjectAnimator open;
     private static final Interpolator INTERPOLATOR = new OvershootInterpolator();
+    private Paint ripplePaint;
 
     private boolean isMenuShowing = true;
     private boolean isAnimating = false;
+    private boolean isFirstShow = true;
     private int fabMargin;
     private float centreX, centreY;
     private static int DELAY = 20;
     private static final int DURATION = 350;
     private static final int DELAY_INCREMENT = 20;
+    private final static int HALF_ALPHA = 128;
+    private float radius;
 
     public ViewFabMenu(Context context) {
         super(context);
@@ -81,6 +95,12 @@ public class ViewFabMenu extends ViewGroup
         bus.register(this);
         fabMargin = Math.round(getResources().getDimension(R.dimen.fab_margin));
         setDescendantFocusability(FOCUS_AFTER_DESCENDANTS);
+
+        ripplePaint = new Paint();
+        ripplePaint.setAntiAlias(true);
+        ripplePaint.setStyle(Paint.Style.FILL);
+        ripplePaint.setColor(getResources().getColor(R.color.accent));
+        ripplePaint.setAlpha(HALF_ALPHA);
     }
 
     @Override
@@ -137,7 +157,7 @@ public class ViewFabMenu extends ViewGroup
         }
 
         int dimen = mw == MeasureSpec.EXACTLY ? sw : sp + pw;
-        setMeasuredDimension(dimen, dimen);
+        setMeasuredDimension(dimen, dimen / 2);
     }
 
     @Override
@@ -180,6 +200,17 @@ public class ViewFabMenu extends ViewGroup
                     (int) x + child.getMeasuredWidth() / 2,
                     (int) y + child.getMeasuredHeight() / 2);
         }
+    }
+
+    @Override
+    protected void dispatchDraw(Canvas canvas) {
+        if (isFirstShow) {
+            canvas.drawCircle(canvas.getWidth() / 2, canvas.getHeight(),
+                    (radius = getMeasuredWidth() / 2), ripplePaint);
+        } else {
+            canvas.drawCircle(canvas.getWidth() / 2, canvas.getHeight(), radius, ripplePaint);
+        }
+        super.dispatchDraw(canvas);
     }
 
     @Override
@@ -227,6 +258,7 @@ public class ViewFabMenu extends ViewGroup
 
     public void show() {
         if (!isMenuShowing && !isAnimating) {
+            animateReveal();
             isAnimating = true;
             isMenuShowing = true;
             open.start();
@@ -272,6 +304,8 @@ public class ViewFabMenu extends ViewGroup
 
     public void hide() {
         if (isMenuShowing && !isAnimating) {
+            isFirstShow = false;
+            dismissReveal();
             isAnimating = true;
             isMenuShowing = false;
             close.start();
@@ -314,6 +348,32 @@ public class ViewFabMenu extends ViewGroup
                 delay += DELAY_INCREMENT;
             }
         }
+    }
+
+    private float getRadius() {
+        return radius;
+    }
+
+    public void setRadius(float radius) {
+        this.radius = radius;
+        invalidate();
+    }
+
+    public void animateReveal() {
+        ObjectAnimator radius = ObjectAnimator.ofFloat(this, "radius", getMeasuredWidth() / 2);
+        radius.setDuration(Math.round(DURATION * 1.5));
+        radius.setInterpolator(INTERPOLATOR);
+        radius.start();
+        invalidate();
+    }
+
+    public void dismissReveal() {
+        ObjectAnimator radius = ObjectAnimator.ofFloat(this, "radius", getMeasuredWidth() / 2, 0);
+        radius.setDuration(Math.round(DURATION * 1.5));
+        radius.setInterpolator(INTERPOLATOR);
+        radius.setStartDelay(DELAY * 8);
+        radius.start();
+        invalidate();
     }
 
     public void onEvent(EventColorChosen eventColorChosen) {
