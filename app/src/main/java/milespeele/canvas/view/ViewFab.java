@@ -13,9 +13,8 @@ public class ViewFab extends FloatingActionButton {
 
     private AnimatorSet scaleUp;
     private AnimatorSet scaleDown;
-
     private boolean isScaled = false;
-    private boolean isAnimating = false;
+    private boolean isScaling = false;
 
     public ViewFab(Context context) {
         super(context);
@@ -39,13 +38,13 @@ public class ViewFab extends FloatingActionButton {
         scaleUp.addListener(new Animator.AnimatorListener() {
             @Override
             public void onAnimationStart(Animator animation) {
-                isAnimating = true;
+                isScaling = true;
             }
 
             @Override
             public void onAnimationEnd(Animator animation) {
                 isScaled = true;
-                isAnimating = false;
+                isScaling = false;
             }
 
             @Override
@@ -65,13 +64,13 @@ public class ViewFab extends FloatingActionButton {
         scaleDown.addListener(new Animator.AnimatorListener() {
             @Override
             public void onAnimationStart(Animator animation) {
-                isAnimating = true;
+                isScaling = true;
             }
 
             @Override
             public void onAnimationEnd(Animator animation) {
                 isScaled = false;
-                isAnimating = false;
+                isScaling = false;
             }
 
             @Override
@@ -87,7 +86,7 @@ public class ViewFab extends FloatingActionButton {
     }
 
     public void toggleScaled() {
-        if (!isAnimating) {
+        if (!isScaling) {
             if (isScaled) {
                 scaleDown();
             } else {

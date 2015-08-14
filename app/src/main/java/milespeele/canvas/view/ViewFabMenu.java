@@ -5,8 +5,6 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.graphics.Canvas;
-import android.graphics.Paint;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
@@ -24,12 +22,13 @@ import butterknife.OnClick;
 import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
+import milespeele.canvas.event.EventBrushType;
 import milespeele.canvas.event.EventColorChosen;
 import milespeele.canvas.event.EventColorize;
 import milespeele.canvas.event.EventErase;
+import milespeele.canvas.event.EventNewCanvasColor;
 import milespeele.canvas.event.EventRedo;
 import milespeele.canvas.event.EventStrokeColor;
-import milespeele.canvas.event.EventBrushType;
 import milespeele.canvas.event.EventUndo;
 
 /**
@@ -41,25 +40,21 @@ public class ViewFabMenu extends ViewGroup
     @Bind(R.id.menu_show) ViewFab toggle;
     @Bind(R.id.menu_erase) ViewFab eraser;
     @Bind({R.id.menu_colorize, R.id.menu_size, R.id.menu_stroke_color, R.id.menu_undo,
-    R.id.menu_redo, R.id.menu_erase}) List<ViewFab> buttonsList;
+    R.id.menu_redo, R.id.menu_erase, R.id.menu_new_canvas}) List<ViewFab> buttonsList;
 
     @Inject EventBus bus;
 
     private static ObjectAnimator close;
     private static ObjectAnimator open;
     private static final Interpolator INTERPOLATOR = new OvershootInterpolator();
-    private Paint ripplePaint;
 
     private boolean isMenuShowing = true;
     private boolean isAnimating = false;
-    private boolean isFirstShow = true;
     private int fabMargin;
     private float centreX, centreY;
     private static int DELAY = 20;
     private static final int DURATION = 350;
     private static final int DELAY_INCREMENT = 20;
-    private final static int HALF_ALPHA = 128;
-    private float radius;
 
     public ViewFabMenu(Context context) {
         super(context);
@@ -87,12 +82,6 @@ public class ViewFabMenu extends ViewGroup
         bus.register(this);
         fabMargin = Math.round(getResources().getDimension(R.dimen.fab_margin));
         setDescendantFocusability(FOCUS_AFTER_DESCENDANTS);
-
-        ripplePaint = new Paint();
-        ripplePaint.setAntiAlias(true);
-        ripplePaint.setStyle(Paint.Style.FILL);
-        ripplePaint.setColor(getResources().getColor(R.color.accent));
-        ripplePaint.setAlpha(HALF_ALPHA);
     }
 
     @Override
@@ -149,7 +138,7 @@ public class ViewFabMenu extends ViewGroup
         }
 
         int dimen = mw == MeasureSpec.EXACTLY ? sw : sp + pw;
-        setMeasuredDimension(dimen, dimen / 4);
+        setMeasuredDimension(dimen, dimen);
     }
 
     @Override
@@ -172,11 +161,11 @@ public class ViewFabMenu extends ViewGroup
         final int count = getChildCount();
 
         toggle.layout(r / 2 - toggle.getMeasuredWidth() / 2,
-                getMeasuredHeight() - toggle.getMeasuredHeight() - fabMargin,
+                getMeasuredHeight() - toggle.getMeasuredHeight(),
                 r / 2 + toggle.getMeasuredWidth() / 2,
-                getMeasuredHeight() - fabMargin);
+                getMeasuredHeight());
 
-        final int radius = toggle.getMeasuredHeight() * 2;
+        final int radius = (int) (toggle.getMeasuredHeight() * 1.15);
         centreX = toggle.getX() + toggle.getWidth()  / 2;
         centreY = toggle.getY() + toggle.getHeight() / 2;
         final double slice = Math.PI / (count - 2);
@@ -192,17 +181,6 @@ public class ViewFabMenu extends ViewGroup
                     (int) x + child.getMeasuredWidth() / 2,
                     (int) y + child.getMeasuredHeight() / 2);
         }
-    }
-
-    @Override
-    protected void dispatchDraw(Canvas canvas) {
-        if (isFirstShow) {
-            canvas.drawCircle(canvas.getWidth() / 2, canvas.getHeight(),
-                    (radius = getMeasuredHeight()), ripplePaint);
-        } else {
-            canvas.drawCircle(canvas.getWidth() / 2, canvas.getHeight(), radius, ripplePaint);
-        }
-        super.dispatchDraw(canvas);
     }
 
     @Override
@@ -236,6 +214,10 @@ public class ViewFabMenu extends ViewGroup
                 eraser.toggleScaled();
                 bus.post(new EventErase());
                 break;
+            case R.id.menu_new_canvas:
+                eraser.scaleDown();
+                bus.post(new EventNewCanvasColor());
+                break;
         }
     }
 
@@ -251,7 +233,6 @@ public class ViewFabMenu extends ViewGroup
 
     public void show() {
         if (!isMenuShowing && !isAnimating) {
-            animateReveal();
             isAnimating = true;
             isMenuShowing = true;
             open.start();
@@ -297,8 +278,6 @@ public class ViewFabMenu extends ViewGroup
 
     public void hide() {
         if (isMenuShowing && !isAnimating) {
-            isFirstShow = false;
-            dismissReveal();
             isAnimating = true;
             isMenuShowing = false;
             close.start();
@@ -313,7 +292,7 @@ public class ViewFabMenu extends ViewGroup
                         ObjectAnimator.ofFloat(view, "alpha", 1.0f, 0.0f));
                 out.setStartDelay(delay);
                 out.setInterpolator(INTERPOLATOR);
-                out.setDuration(DURATION);
+                out.setDuration(Math.round(DURATION * 1.1));
                 out.addListener(new Animator.AnimatorListener() {
                     @Override
                     public void onAnimationStart(Animator animation) {
@@ -341,32 +320,6 @@ public class ViewFabMenu extends ViewGroup
                 delay += DELAY_INCREMENT;
             }
         }
-    }
-
-    private float getRadius() {
-        return radius;
-    }
-
-    public void setRadius(float radius) {
-        this.radius = radius;
-        invalidate();
-    }
-
-    public void animateReveal() {
-        ObjectAnimator radius = ObjectAnimator.ofFloat(this, "radius", getMeasuredHeight());
-        radius.setDuration(Math.round(DURATION * 1.5));
-        radius.setInterpolator(INTERPOLATOR);
-        radius.start();
-        invalidate();
-    }
-
-    public void dismissReveal() {
-        ObjectAnimator radius = ObjectAnimator.ofFloat(this, "radius", getMeasuredHeight(), 0);
-        radius.setDuration(Math.round(DURATION * 1.5));
-        radius.setInterpolator(INTERPOLATOR);
-        radius.setStartDelay(DELAY * 8);
-        radius.start();
-        invalidate();
     }
 
     public void onEvent(EventColorChosen eventColorChosen) {

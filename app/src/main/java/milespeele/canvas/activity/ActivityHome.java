@@ -22,9 +22,10 @@ import butterknife.ButterKnife;
 import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
-import milespeele.canvas.event.EventFilenameChosen;
-import milespeele.canvas.event.EventStrokeColor;
 import milespeele.canvas.event.EventBrushType;
+import milespeele.canvas.event.EventFilenameChosen;
+import milespeele.canvas.event.EventNewCanvasColor;
+import milespeele.canvas.event.EventStrokeColor;
 import milespeele.canvas.fragment.FragmentBrushPicker;
 import milespeele.canvas.fragment.FragmentColorPicker;
 import milespeele.canvas.fragment.FragmentDrawer;
@@ -97,16 +98,9 @@ public class ActivityHome extends ActivityBase {
                     drawerLayout.openDrawer(GravityCompat.START);
                 }
                 return true;
-            case R.id.menu_activity_home_new_canvas:
-                showNewCanvasFragment();
-                break;
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    private void setupFragmentTags() {
-
     }
 
     private void setupDrawerContent(NavigationView navigationView) {
@@ -121,17 +115,6 @@ public class ActivityHome extends ActivityBase {
         switch (menuItem.getItemId()) {
             case R.id.menu_drawer_gallery:
                 break;
-        }
-    }
-
-    private void imageToByteArray(String filename) {
-        FragmentDrawer frag = (FragmentDrawer) getFragmentManager().findFragmentByTag(TAG_FRAGMENT_DRAWER);
-        if (frag != null) {
-            Bitmap art = frag.giveBitmapToActivity();
-            Util.compressBitmap(art)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(bytes -> parseUtils.saveImageToServer(filename, new WeakReference<>(this), bytes));
         }
     }
 
@@ -160,11 +143,6 @@ public class ActivityHome extends ActivityBase {
         }
     }
 
-    private void showNewCanvasFragment() {
-        FragmentColorPicker picker = FragmentColorPicker.newInstance(TAG_FRAGMENT_FILL);
-        picker.show(getFragmentManager(), TAG_FRAGMENT_FILL);
-    }
-
     public void onEvent(EventStrokeColor test) {
         FragmentColorPicker picker = FragmentColorPicker.newInstance(TAG_FRAGMENT_STROKE);
         picker.show(getFragmentManager(), TAG_FRAGMENT_STROKE);
@@ -175,11 +153,25 @@ public class ActivityHome extends ActivityBase {
         picker.show(getFragmentManager(), TAG_FRAGMENT_BRUSH);
     }
 
+    public void onEvent(EventNewCanvasColor eventNewCanvasColor) {
+        FragmentColorPicker picker = FragmentColorPicker.newInstance(TAG_FRAGMENT_FILL);
+        picker.show(getFragmentManager(), TAG_FRAGMENT_FILL);
+    }
+
     public void onEvent(EventFilenameChosen eventFilenameChosen) {
         if (!eventFilenameChosen.filename.isEmpty()) {
             final ImageView pulse = (ImageView) findViewById(R.id.menu_activity_home_save_canvas);
             pulse.startAnimation(AnimationUtils.loadAnimation(this, R.anim.pulse));
-            imageToByteArray(eventFilenameChosen.filename);
+            FragmentDrawer frag = (FragmentDrawer) getFragmentManager().findFragmentByTag(TAG_FRAGMENT_DRAWER);
+            if (frag != null) {
+                Bitmap art = frag.giveBitmapToActivity();
+                Util.compressBitmap(art)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(bytes -> parseUtils.saveImageToServer(
+                                eventFilenameChosen.filename,
+                                new WeakReference<>(this), bytes));
+            }
         }
     }
 }
