@@ -6,9 +6,12 @@ import android.animation.ObjectAnimator;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
+import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.AnticipateInterpolator;
 import android.view.animation.Interpolator;
 import android.view.animation.OvershootInterpolator;
 
@@ -22,14 +25,17 @@ import butterknife.OnClick;
 import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
-import milespeele.canvas.event.EventBrushType;
+import milespeele.canvas.event.EventFilenameChosen;
+import milespeele.canvas.event.EventShowBrushPicker;
 import milespeele.canvas.event.EventColorChosen;
-import milespeele.canvas.event.EventColorize;
-import milespeele.canvas.event.EventErase;
-import milespeele.canvas.event.EventNewCanvasColor;
+import milespeele.canvas.event.EventShowColorize;
+import milespeele.canvas.event.EventShowErase;
+import milespeele.canvas.event.EventShowCanvasColorPicker;
 import milespeele.canvas.event.EventRedo;
-import milespeele.canvas.event.EventStrokeColor;
+import milespeele.canvas.event.EventShowFilenameFragment;
+import milespeele.canvas.event.EventShowStrokePickerColor;
 import milespeele.canvas.event.EventUndo;
+import milespeele.canvas.util.Logg;
 
 /**
  * Created by milespeele on 8/7/15.
@@ -39,14 +45,16 @@ public class ViewFabMenu extends ViewGroup
 
     @Bind(R.id.menu_show) ViewFab toggle;
     @Bind(R.id.menu_erase) ViewFab eraser;
+    @Bind(R.id.menu_save) ViewFab saver;
     @Bind({R.id.menu_colorize, R.id.menu_size, R.id.menu_stroke_color, R.id.menu_undo,
-    R.id.menu_redo, R.id.menu_erase, R.id.menu_new_canvas}) List<ViewFab> buttonsList;
+    R.id.menu_redo, R.id.menu_erase, R.id.menu_new_canvas, R.id.menu_save}) List<ViewFab> buttonsList;
 
     @Inject EventBus bus;
 
     private static ObjectAnimator close;
     private static ObjectAnimator open;
-    private static final Interpolator INTERPOLATOR = new OvershootInterpolator();
+    private static final Interpolator OVERSHOOT_INTERPOLATOR = new OvershootInterpolator();
+    private static final Interpolator ANTICIPATE_INTERPOLATOR = new AnticipateInterpolator();
 
     private boolean isMenuShowing = true;
     private boolean isAnimating = false;
@@ -89,6 +97,7 @@ public class ViewFabMenu extends ViewGroup
         super.onFinishInflate();
         ButterKnife.bind(this);
         close = ObjectAnimator.ofFloat(toggle, "rotation", -135f, -270f);
+        close.setDuration(Math.round(DURATION * 1.5));
         open = ObjectAnimator.ofFloat(toggle, "rotation", 0f, -135f);
         open.start();
     }
@@ -160,12 +169,14 @@ public class ViewFabMenu extends ViewGroup
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         final int count = getChildCount();
 
-        toggle.layout(r / 2 - toggle.getMeasuredWidth() / 2,
-                getMeasuredHeight() - toggle.getMeasuredHeight(),
-                r / 2 + toggle.getMeasuredWidth() / 2,
-                getMeasuredHeight());
+        MarginLayoutParams lps = (MarginLayoutParams) toggle.getLayoutParams();
 
-        final int radius = (int) (toggle.getMeasuredHeight() * 1.15);
+        toggle.layout(r / 2 - toggle.getMeasuredWidth() / 2,
+                getMeasuredHeight() - toggle.getMeasuredHeight() - lps.bottomMargin,
+                r / 2 + toggle.getMeasuredWidth() / 2,
+                getMeasuredHeight() - lps.bottomMargin);
+
+        final int radius = (int) (getMeasuredWidth() / 3.5);
         centreX = toggle.getX() + toggle.getWidth()  / 2;
         centreY = toggle.getY() + toggle.getHeight() / 2;
         final double slice = Math.PI / (count - 2);
@@ -185,7 +196,7 @@ public class ViewFabMenu extends ViewGroup
 
     @Override
     @OnClick({R.id.menu_colorize, R.id.menu_size, R.id.menu_stroke_color, R.id.menu_undo,
-        R.id.menu_redo, R.id.menu_erase, R.id.menu_show})
+        R.id.menu_redo, R.id.menu_erase, R.id.menu_show, R.id.menu_new_canvas, R.id.menu_save})
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.menu_show:
@@ -193,16 +204,16 @@ public class ViewFabMenu extends ViewGroup
                 break;
             case R.id.menu_colorize:
                 eraser.scaleDown();
-                bus.post(new EventColorize());
+                bus.post(new EventShowColorize());
                 break;
             case R.id.menu_size:
                 eraser.scaleDown();
                 ViewCanvasLayout parent = ((ViewCanvasLayout) getParent());
-                bus.post(new EventBrushType(parent.getBrushWidth(), parent.getPaintAlpha()));
+                bus.post(new EventShowBrushPicker(parent.getBrushWidth(), parent.getPaintAlpha()));
                 break;
             case R.id.menu_stroke_color:
                 eraser.scaleDown();
-                bus.post(new EventStrokeColor());
+                bus.post(new EventShowStrokePickerColor());
                 break;
             case R.id.menu_undo:
                 bus.post(new EventUndo());
@@ -212,11 +223,14 @@ public class ViewFabMenu extends ViewGroup
                 break;
             case R.id.menu_erase:
                 eraser.toggleScaled();
-                bus.post(new EventErase());
+                bus.post(new EventShowErase());
                 break;
             case R.id.menu_new_canvas:
                 eraser.scaleDown();
-                bus.post(new EventNewCanvasColor());
+                bus.post(new EventShowCanvasColorPicker());
+                break;
+            case R.id.menu_save:
+                bus.post(new EventShowFilenameFragment());
                 break;
         }
     }
@@ -246,7 +260,7 @@ public class ViewFabMenu extends ViewGroup
                         ObjectAnimator.ofFloat(view, "translationY", diffY),
                         ObjectAnimator.ofFloat(view, "alpha", 0.0f, 1.0f));
                 out.setStartDelay(delay);
-                out.setInterpolator(INTERPOLATOR);
+                out.setInterpolator(OVERSHOOT_INTERPOLATOR);
                 out.addListener(new Animator.AnimatorListener() {
                     @Override
                     public void onAnimationStart(Animator animation) {
@@ -291,8 +305,8 @@ public class ViewFabMenu extends ViewGroup
                         ObjectAnimator.ofFloat(view, "translationX", -diffX),
                         ObjectAnimator.ofFloat(view, "alpha", 1.0f, 0.0f));
                 out.setStartDelay(delay);
-                out.setInterpolator(INTERPOLATOR);
-                out.setDuration(Math.round(DURATION * 1.1));
+                out.setDuration(DURATION);
+                out.setInterpolator(ANTICIPATE_INTERPOLATOR);
                 out.addListener(new Animator.AnimatorListener() {
                     @Override
                     public void onAnimationStart(Animator animation) {
@@ -329,6 +343,12 @@ public class ViewFabMenu extends ViewGroup
             } else {
                 eraser.scaleDown();
             }
+        }
+    }
+
+    public void onEvent(EventFilenameChosen eventFilenameChosen) {
+        if (!eventFilenameChosen.filename.isEmpty()) {
+            saver.startPulse();
         }
     }
 }

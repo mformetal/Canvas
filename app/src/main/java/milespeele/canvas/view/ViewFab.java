@@ -3,6 +3,7 @@ package milespeele.canvas.view;
 import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.support.design.widget.FloatingActionButton;
 import android.util.AttributeSet;
@@ -13,6 +14,7 @@ public class ViewFab extends FloatingActionButton {
 
     private AnimatorSet scaleUp;
     private AnimatorSet scaleDown;
+    private AnimatorSet pulse;
     private boolean isScaled = false;
     private boolean isScaling = false;
 
@@ -107,6 +109,23 @@ public class ViewFab extends FloatingActionButton {
             setBackgroundTintList(getResources().getColorStateList(R.color.accent));
             scaleDown.start();
         }
+    }
+
+    public void startPulse() {
+        pulse = new AnimatorSet();
+        ObjectAnimator scaleX = ObjectAnimator.ofFloat(this, "scaleX", 1f, .5f);
+        scaleX.setRepeatCount(ValueAnimator.INFINITE);
+        scaleX.setRepeatMode(ValueAnimator.REVERSE);
+        ObjectAnimator scaleY = ObjectAnimator.ofFloat(this, "scaleY", 1f, .5f);
+        scaleY.setRepeatCount(ValueAnimator.INFINITE);
+        scaleY.setRepeatMode(ValueAnimator.REVERSE);
+        pulse.playTogether(scaleX, scaleY);
+        pulse.setDuration(300);
+        pulse.start();
+    }
+
+    public void stopPulse() {
+        pulse.end();
     }
 
 }

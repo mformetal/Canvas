@@ -26,8 +26,7 @@ import milespeele.canvas.view.ViewBrushPickerLayout;
 public class FragmentBrushPicker extends DialogFragment
         implements View.OnClickListener {
 
-    @Bind(R.id.fragment_brush_picker_view)
-    ViewBrushPickerLayout root;
+    @Bind(R.id.fragment_brush_picker_view) ViewBrushPickerLayout root;
 
     @Inject EventBus bus;
 

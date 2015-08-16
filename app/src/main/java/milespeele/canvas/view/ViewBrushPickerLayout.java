@@ -20,8 +20,8 @@ public class ViewBrushPickerLayout extends RelativeLayout implements SeekBar.OnS
     @Bind(R.id.fragment_brush_picker_view_sizer) SeekBar sizer;
     @Bind(R.id.fragment_brush_picker_view_alphaer) SeekBar alphaer;
 
-    private int MAX_THICKNESS = 50;
-    private int MAX_ALPHA = 255;
+    private final static int MAX_THICKNESS = 75;
+    private final static int MAX_ALPHA = 255;
     private float thickness;
     private int alpha;
 
@@ -46,6 +46,10 @@ public class ViewBrushPickerLayout extends RelativeLayout implements SeekBar.OnS
         init();
     }
 
+    private void init() {
+
+    }
+
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
@@ -54,10 +58,6 @@ public class ViewBrushPickerLayout extends RelativeLayout implements SeekBar.OnS
         sizer.setOnSeekBarChangeListener(this);
         alphaer.setMax(MAX_ALPHA);
         alphaer.setOnSeekBarChangeListener(this);
-    }
-
-    private void init() {
-
     }
 
     public void setInitialValues(float thickness, int alpha) {

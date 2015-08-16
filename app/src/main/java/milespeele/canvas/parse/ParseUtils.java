@@ -12,8 +12,10 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.activity.ActivityHome;
+import milespeele.canvas.event.EventParseError;
 import milespeele.canvas.util.Datastore;
 import milespeele.canvas.util.Logg;
 import rx.Observable;
@@ -24,6 +26,7 @@ import rx.Observable;
 public class ParseUtils {
 
     @Inject Datastore datastore;
+    @Inject EventBus bus;
 
     public ParseUtils(Application mApplication) {
         ((MainApp) mApplication).getApplicationComponent().inject(this);
@@ -66,11 +69,7 @@ public class ParseUtils {
 
     public void handleParseError(ParseException e) {
         if (e != null) {
-            switch (e.getCode()) {
-                default:
-                    Logg.log("UNHANDLED PARSE EXCEPTION: " + e.getCode());
-                    e.printStackTrace();
-            }
+            bus.post(new EventParseError(e));
         }
     }
 }

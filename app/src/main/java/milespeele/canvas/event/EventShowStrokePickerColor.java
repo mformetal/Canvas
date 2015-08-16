@@ -3,9 +3,9 @@ package milespeele.canvas.event;
 /**
  * Created by milespeele on 8/7/15.
  */
-public class EventStrokeColor {
+public class EventShowStrokePickerColor {
 
-    public EventStrokeColor() {
+    public EventShowStrokePickerColor() {
 
     }
 }

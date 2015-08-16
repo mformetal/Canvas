@@ -8,6 +8,7 @@
     <dimen name="padding_button_top">20dp</dimen>
 
     <dimen name="dialog_title_text_size">20sp</dimen>
-    <dimen name="dialog_title_text_bottom_margin">20dp</dimen>
-    <dimen name="dialog_title_text_top_margin">20dp</dimen>
+    <dimen name="dialog_body_text_size">15sp</dimen>
+    <dimen name="dialog_view_vertical_margin">20dp</dimen>
+    <dimen name="dialog_view_horizontal_margin">15dp</dimen>
 </resources>

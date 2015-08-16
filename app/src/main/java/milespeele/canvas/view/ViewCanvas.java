@@ -26,10 +26,11 @@ import butterknife.ButterKnife;
 import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
+import milespeele.canvas.util.PathPoint;
 import milespeele.canvas.event.EventBrushChosen;
 import milespeele.canvas.event.EventColorChosen;
-import milespeele.canvas.event.EventColorize;
-import milespeele.canvas.event.EventErase;
+import milespeele.canvas.event.EventShowColorize;
+import milespeele.canvas.event.EventShowErase;
 import milespeele.canvas.event.EventRedo;
 import milespeele.canvas.event.EventUndo;
 import milespeele.canvas.paint.PaintPath;
@@ -44,6 +45,9 @@ public class ViewCanvas extends FrameLayout {
     @Bind(R.id.fragment_drawer_canvas_eraser) ImageView eraser;
     @Bind(R.id.fragment_drawer_eraser_colorizer) ImageView colorizer;
 
+    private float lastWidth;
+    private float lastVelocity;
+    private static final float VELOCITY_FILTER_WEIGHT = 0.2f;
     private static float STROKE_WIDTH = 5f;
     private static int ALPHA = 255;
     private boolean shouldErase = false;
@@ -62,6 +66,10 @@ public class ViewCanvas extends FrameLayout {
     private Bitmap mBitmap;
     private Canvas mCanvas;
     private Matrix scaleMatrix;
+
+    private PathPoint previousPoint;
+    private PathPoint startPoint;
+    private PathPoint currentPoint;
 
     @Inject EventBus bus;
 
@@ -165,6 +173,10 @@ public class ViewCanvas extends FrameLayout {
         if (!shouldInk) {
             lastTouchX = eventX;
             lastTouchY = eventY;
+            currentPoint = new PathPoint(event.getX(), event.getY(), System.currentTimeMillis());
+            previousPoint = currentPoint;
+            startPoint = previousPoint;
+
             mPath = new PaintPath(currentStyle());
             mPaths.push(mPath);
             mPath.moveTo(eventX, eventY);
@@ -184,6 +196,12 @@ public class ViewCanvas extends FrameLayout {
                 float historicalX = event.getHistoricalX(i);
                 float historicalY = event.getHistoricalY(i);
                 expandDirtyRect(historicalX, historicalY);
+                startPoint = previousPoint;
+                previousPoint = currentPoint;
+                currentPoint = new PathPoint(event.getX(), event.getY(), System.currentTimeMillis());
+                float velocity = VELOCITY_FILTER_WEIGHT * currentPoint.velocityFrom(previousPoint) +
+                        (1 - VELOCITY_FILTER_WEIGHT) * lastVelocity;
+                curPaint.setStrokeWidth(STROKE_WIDTH - velocity);
                 mPath.lineTo(historicalX, historicalY);
             }
 
@@ -195,6 +213,10 @@ public class ViewCanvas extends FrameLayout {
     private void onTouchUp(MotionEvent event, float eventX, float eventY) {
         setEraserPosition(event, eventX, eventY);
         setInkPosition(event, eventX, eventY);
+
+        startPoint = previousPoint;
+        previousPoint = currentPoint;
+        currentPoint = new PathPoint(event.getX(), event.getY(), System.currentTimeMillis());
     }
 
     private void expandDirtyRect(float historicalX, float historicalY) {
@@ -311,7 +333,7 @@ public class ViewCanvas extends FrameLayout {
         }
     }
 
-    public void onEvent(EventErase eventErase) {
+    public void onEvent(EventShowErase eventErase) {
         if (eraser.getVisibility() == View.VISIBLE) {
             eraser.setVisibility(View.GONE);
             shouldErase = false;
@@ -333,7 +355,7 @@ public class ViewCanvas extends FrameLayout {
         }
     }
 
-    public void onEvent(EventColorize eventColorize) {
+    public void onEvent(EventShowColorize eventColorize) {
         eraser.setVisibility(View.GONE);
         colorizer.setX((float) getWidth() / 2);
         colorizer.setY((float) getHeight() / 2);
@@ -371,7 +393,7 @@ public class ViewCanvas extends FrameLayout {
         mCanvas = new Canvas(mBitmap);
 
         ObjectAnimator.ofObject(this, "backgroundColor", new ArgbEvaluator(),
-                currentBackgroundColor, color).setDuration(450).start();
+                currentBackgroundColor, color).setDuration(750).start();
 
         currentBackgroundColor = color;
         setDrawingCacheBackgroundColor(currentBackgroundColor);

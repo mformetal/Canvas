@@ -22,7 +22,7 @@ public class ViewCanvasLayout extends CoordinatorLayout {
 
     private boolean mIsMoving = false;
     private static Handler handler = new Handler();
-    private static final int MOVING_DELAY = 750;
+    private static final int MOVING_DELAY = 500;
 
     public ViewCanvasLayout(Context context) {
         super(context);
@@ -54,6 +54,9 @@ public class ViewCanvasLayout extends CoordinatorLayout {
     public boolean onInterceptTouchEvent (MotionEvent ev) {
         final int action = MotionEventCompat.getActionMasked(ev);
         switch (action) {
+            case MotionEvent.ACTION_DOWN:
+                mIsMoving = false;
+                break;
             case MotionEvent.ACTION_MOVE:
                 mIsMoving = true;
                 ifStillMoving();
@@ -72,6 +75,7 @@ public class ViewCanvasLayout extends CoordinatorLayout {
         handler.postDelayed(() -> {
             if (mIsMoving) {
                 menu.hide();
+                handler.removeCallbacksAndMessages(null);
             }
         }, MOVING_DELAY);
     }

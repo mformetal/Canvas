@@ -7,16 +7,13 @@
     <string name="twitter_consumer_key">rV9zSspMD92DWkxHrNijzrff0</string>
     <string name="twitter_consumer_secret">bVNZxVLt7LuDMPPEQa6TKR53u0H0BGM3TtgwAag3pvbPVJEx4g</string>
 
-    <string name="sheet_view_ink">INK</string>
-    <string name="sheet_view_stroke">COLOR</string>
-    <string name="sheet_view_brush">SIZE</string>
-    <string name="sheet_view_undo">UNDO</string>
-    <string name="sheet_view_redo">REDO</string>
-    <string name="sheet_view_erase">ERASE</string>
-
     <string name="title_activity_gallery">Gallery</string>
     <string name="activity_gallery_empty">No Masterpieces Saved Yet!</string>
 
+    <string name="alert_dialog_new_canvas_title">Start Over?</string>
+    <string name="alert_dialog_new_canvas_body">Selecting a new Canvas color will erase
+        any drawing you currently have.</string>
+    <string name="alert_dialog_new_canvas_pos_button">Got it</string>
     <string name="fragment_color_picker_choose">Choose</string>
     <string name="fragment_color_picker_nah">Cancel</string>
 
@@ -51,5 +48,14 @@
 
     <string name="TAG_FRAGMENT_FILL">New Canvas Color</string>
     <string name="TAG_FRAGMENT_STROKE">Stroke Color</string>
+
+    <string name="error_dialog_pos_button_text">Got it</string>
+    <string name="error_dialog_neg_button_text">Retry</string>
+    <string name="error_dialog_general_title">OH GOD</string>
+    <string name="error_dialog_general_body">EVERYTHING IS ON FIRE</string>
+
+    <string name="error_no_internet_title">The Internet Ran Away</string>
+    <string name="error_no_internet_body">Looks like you don\'t have an internet connection.
+        Try re-enabling data or connect to a different WiFi network.</string>
 
 </resources>
