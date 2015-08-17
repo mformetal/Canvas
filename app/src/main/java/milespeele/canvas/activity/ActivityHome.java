@@ -84,6 +84,21 @@ public class ActivityHome extends ActivityBase {
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+        FragmentDrawer frag = (FragmentDrawer) getFragmentManager().findFragmentByTag(TAG_FRAGMENT_DRAWER);
+        if (frag != null) {
+            parseUtils.pinImage("Image", frag.giveBitmapToActivity());
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        parseUtils.getPinnedImage();
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
@@ -171,13 +186,8 @@ public class ActivityHome extends ActivityBase {
         if (!eventFilenameChosen.filename.isEmpty()) {
             FragmentDrawer frag = (FragmentDrawer) getFragmentManager().findFragmentByTag(TAG_FRAGMENT_DRAWER);
             if (frag != null) {
-                Bitmap art = frag.giveBitmapToActivity();
-                Util.compressBitmap(art)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(bytes -> parseUtils.saveImageToServer(
-                                eventFilenameChosen.filename,
-                                new WeakReference<>(this), bytes), this::onSaveImageError);
+                parseUtils.saveImageToServer(eventFilenameChosen.filename,
+                        new WeakReference<>(this), frag.giveBitmapToActivity());
             }
         }
     }

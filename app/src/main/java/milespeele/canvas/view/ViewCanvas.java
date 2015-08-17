@@ -53,7 +53,7 @@ public class ViewCanvas extends FrameLayout {
     private boolean shouldErase = false;
     private boolean shouldRedraw = false;
     private boolean shouldInk = false;
-    private int currentStrokeColor;
+    private static int currentStrokeColor;
     private int currentBackgroundColor;
     private float lastTouchX, lastTouchY;
     private int width, height;
@@ -91,7 +91,7 @@ public class ViewCanvas extends FrameLayout {
         currentStrokeColor = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
         currentBackgroundColor = Color.WHITE;
 
-        curPaint = PaintStyles.randomStyle(currentStrokeColor, STROKE_WIDTH);
+        curPaint = PaintStyles.normalPaint(currentStrokeColor, STROKE_WIDTH);
 
         mPath = new PaintPath(curPaint);
         mPaths = new PaintStack();
@@ -103,8 +103,8 @@ public class ViewCanvas extends FrameLayout {
         setWillNotDraw(false);
         setSaveEnabled(true);
         setBackgroundColor(currentBackgroundColor);
-        setLayerType(LAYER_TYPE_HARDWARE, null);
-        setDrawingCacheQuality(DRAWING_CACHE_QUALITY_HIGH);
+        setLayerType(LAYER_TYPE_SOFTWARE, null);
+        setDrawingCacheQuality(DRAWING_CACHE_QUALITY_AUTO);
     }
 
     @Override
@@ -131,7 +131,6 @@ public class ViewCanvas extends FrameLayout {
         //super.onDraw(canvas);
         if (shouldRedraw) {
             for (PaintPath p: mPaths) {
-                mCanvas.drawPath(p, p.getPaint());
                 canvas.drawPath(p, p.getPaint());
             }
         } else {

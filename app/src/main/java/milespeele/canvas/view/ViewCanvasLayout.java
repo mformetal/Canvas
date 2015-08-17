@@ -20,10 +20,6 @@ public class ViewCanvasLayout extends CoordinatorLayout {
     @Bind(R.id.fragment_drawer_canvas) ViewCanvas drawer;
     @Bind(R.id.fragment_drawer_menu) ViewFabMenu menu;
 
-    private boolean mIsMoving = false;
-    private static Handler handler = new Handler();
-    private static final int MOVING_DELAY = 500;
-
     public ViewCanvasLayout(Context context) {
         super(context);
         init();
@@ -48,37 +44,6 @@ public class ViewCanvasLayout extends CoordinatorLayout {
         super.onFinishInflate();
         ButterKnife.bind(this);
         drawer.requestFocus();
-    }
-
-    @Override
-    public boolean onInterceptTouchEvent (MotionEvent ev) {
-        final int action = MotionEventCompat.getActionMasked(ev);
-        switch (action) {
-            case MotionEvent.ACTION_DOWN:
-                mIsMoving = false;
-                break;
-            case MotionEvent.ACTION_MOVE:
-                mIsMoving = true;
-                ifStillMoving();
-                break;
-            case MotionEvent.ACTION_UP:
-                mIsMoving = false;
-                break;
-            case MotionEvent.ACTION_CANCEL:
-                mIsMoving = false;
-                break;
-        }
-        return false;
-    }
-
-    private void ifStillMoving() {
-        handler.postDelayed(() -> {
-            if (mIsMoving) {
-                menu.hide();
-                handler.removeCallbacksAndMessages(null);
-                mIsMoving = false;
-            }
-        }, MOVING_DELAY);
     }
 
     public float getBrushWidth() {

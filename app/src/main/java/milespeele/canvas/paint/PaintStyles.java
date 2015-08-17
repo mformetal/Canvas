@@ -10,42 +10,27 @@ import android.graphics.PathEffect;
 
 import java.util.Random;
 
+import milespeele.canvas.R;
+
 /**
  * Created by Miles Peele on 7/26/2015.
  */
 public class PaintStyles {
 
-    private static final BlurMaskFilter BLUR_MASK_FILTER = new BlurMaskFilter(15, BlurMaskFilter.Blur.OUTER);
+    private static final BlurMaskFilter BLUR_MASK_FILTER = new BlurMaskFilter(5, BlurMaskFilter.Blur.OUTER);
     private static final EmbossMaskFilter EMBOSS_MASK_FILTER = new EmbossMaskFilter(new float[]{1, 1, 1}, 1f, 0, 3);
     private static final PathEffect DASHED_PASH_EFFECT = new DashPathEffect(new float[] {10,20}, 0);
 
     public static Paint getStyleFromAttrs(String type, int color, Context context) {
         Resources resources = context.getResources();
-//        if (type == resources.getString(R.string.paint_example_dashed)) {
-//            return dashedPaint(color, 10f);
-//        } else if (type ==resources.getString(R.string.paint_example_fade)) {
-//            return fadePaint(color, 10f);
-//        } else if (type == resources.getString(R.string.paint_example_neon)) {
-//            return neonPaint(color, 10f);
-//        } else {
-//            return normalPaint(color, 10f);
-//        }
-        return normalPaint(color, 10f);
-    }
-
-    public static Paint randomStyle(int currentColor, float width) {
-        Random random = new Random();
-        int randomNum = random.nextInt(10);
-        if (randomNum <= 1) {
-            return normalPaint(currentColor, width);
-        } else if (randomNum <= 3) {
-            return fadePaint(currentColor, width);
-        } else if (randomNum <= 5) {
-            return neonPaint(currentColor, width);
-        } else if (randomNum <= 7) {
-            return dashedPaint(currentColor, width);
+        if (type == resources.getString(R.string.paint_example_dashed)) {
+            return dashedPaint(color, 10f);
+        } else if (type ==resources.getString(R.string.paint_example_fade)) {
+            return fadePaint(color, 10f);
+        } else if (type == resources.getString(R.string.paint_example_neon)) {
+            return neonPaint(color, 10f);
         } else {
-            return normalPaint(currentColor, width);
+            return normalPaint(color, 10f);
         }
     }
 

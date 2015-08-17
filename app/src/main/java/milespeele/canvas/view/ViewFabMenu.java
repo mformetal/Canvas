@@ -90,6 +90,7 @@ public class ViewFabMenu extends ViewGroup
         bus.register(this);
         fabMargin = Math.round(getResources().getDimension(R.dimen.fab_margin));
         setDescendantFocusability(FOCUS_AFTER_DESCENDANTS);
+        setLayerType(LAYER_TYPE_HARDWARE, null);
     }
 
     @Override
