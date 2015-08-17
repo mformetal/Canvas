@@ -76,6 +76,7 @@ public class ViewCanvasLayout extends CoordinatorLayout {
             if (mIsMoving) {
                 menu.hide();
                 handler.removeCallbacksAndMessages(null);
+                mIsMoving = false;
             }
         }, MOVING_DELAY);
     }

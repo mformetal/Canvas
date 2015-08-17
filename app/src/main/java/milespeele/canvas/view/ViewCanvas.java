@@ -26,6 +26,7 @@ import butterknife.ButterKnife;
 import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
+import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.PathPoint;
 import milespeele.canvas.event.EventBrushChosen;
 import milespeele.canvas.event.EventColorChosen;
@@ -128,9 +129,10 @@ public class ViewCanvas extends FrameLayout {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
+        //super.onDraw(canvas);
         if (shouldRedraw) {
             for (PaintPath p: mPaths) {
+                mCanvas.drawPath(p, p.getPaint());
                 canvas.drawPath(p, p.getPaint());
             }
         } else {
@@ -410,7 +412,7 @@ public class ViewCanvas extends FrameLayout {
 
     private Paint currentStyle() {
         if (shouldErase) {
-            return new Paint(PaintStyles.eraserPaint(currentBackgroundColor, eraser.getWidth()));
+            return PaintStyles.eraserPaint(currentBackgroundColor, eraser.getWidth());
         } else {
             return new Paint(curPaint);
         }

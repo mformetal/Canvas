@@ -29,7 +29,7 @@
     <string name="snackbar_activity_home_image_saved_title">Saved Your Masterpiece!</string>
     <string name="snackbar_activity_home_imaged_saved_body">View</string>
 
-    <string name="fragment_filename_title">Name Your Masterpiece</string>
+    <string name="fragment_filename_title">Name And Save Your Masterpiece</string>
     <string name="fragment_filename_edittext_hint">Enter name</string>
     <string name="fragment_filename_pos_button_text">Save!</string>
     <string name="fragment_filename_neg_button_text">No thanks</string>
