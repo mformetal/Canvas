@@ -6,10 +6,8 @@ package milespeele.canvas.event;
 public class EventShowBrushPicker {
 
     public float size;
-    public int alpha;
 
-    public EventShowBrushPicker(float size, int alpha) {
+    public EventShowBrushPicker(float size) {
         this.size = size;
-        this.alpha = alpha;
     }
 }

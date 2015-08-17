@@ -37,8 +37,7 @@
         <item name="android:textSize">@dimen/dialog_title_text_size</item>
         <item name="android:layout_gravity">center_horizontal</item>
         <item name="android:gravity">center_horizontal</item>
-        <item name="android:layout_marginTop">@dimen/dialog_view_vertical_margin</item>
-        <item name="android:layout_marginBottom">@dimen/dialog_view_vertical_margin</item>
+        <item name="android:layout_margin">@dimen/dialog_view_vertical_margin</item>
     </style>
 
     <style name="DialogBodyText">

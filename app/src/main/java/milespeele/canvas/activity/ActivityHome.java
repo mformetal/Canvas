@@ -140,13 +140,13 @@ public class ActivityHome extends ActivityBase {
     }
 
     public void onEvent(EventShowStrokePickerColor test) {
-        FragmentColorPicker picker = FragmentColorPicker.newInstance(TAG_FRAGMENT_STROKE);
-        picker.show(getFragmentManager(), TAG_FRAGMENT_STROKE);
+        FragmentColorPicker.newInstance(TAG_FRAGMENT_STROKE, test.color)
+                .show(getFragmentManager(), TAG_FRAGMENT_STROKE);
     }
 
     public void onEvent(EventShowBrushPicker test) {
-        FragmentBrushPicker picker = FragmentBrushPicker.newInstance(test.size, test.alpha);
-        picker.show(getFragmentManager(), TAG_FRAGMENT_BRUSH);
+        FragmentBrushPicker.newInstance(test.size)
+                .show(getFragmentManager(), TAG_FRAGMENT_BRUSH);
     }
 
     public void onEvent(EventShowCanvasColorPicker eventNewCanvasColor) {
@@ -155,7 +155,8 @@ public class ActivityHome extends ActivityBase {
                 .setMessage(getResources().getString(R.string.alert_dialog_new_canvas_body))
                 .setPositiveButton(getResources().getString(R.string.alert_dialog_new_canvas_pos_button),
                         (dialog, which) -> {
-                            FragmentColorPicker picker = FragmentColorPicker.newInstance(TAG_FRAGMENT_FILL);
+                            FragmentColorPicker picker =
+                                    FragmentColorPicker.newInstance(TAG_FRAGMENT_FILL, 0);
                             picker.show(getFragmentManager(), TAG_FRAGMENT_FILL);
                         })
                 .setNegativeButton(getResources().getString(R.string.fragment_color_picker_nah),

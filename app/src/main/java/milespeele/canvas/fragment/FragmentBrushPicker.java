@@ -35,11 +35,10 @@ public class FragmentBrushPicker extends DialogFragment
 
     public FragmentBrushPicker() {}
 
-    public static FragmentBrushPicker newInstance(float canvasWidth, int alpha) {
+    public static FragmentBrushPicker newInstance(float canvasWidth) {
         FragmentBrushPicker fragmentBrushPicker = new FragmentBrushPicker();
         Bundle args = new Bundle();
         args.putFloat(THICKNESS, canvasWidth);
-        args.putInt(ALPHA, alpha);
         fragmentBrushPicker.setArguments(args);
         return fragmentBrushPicker;
     }
@@ -61,7 +60,7 @@ public class FragmentBrushPicker extends DialogFragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_brush_picker, container, false);
         ButterKnife.bind(this, v);
-        root.setInitialValues(getArguments().getFloat(THICKNESS), getArguments().getInt(ALPHA));
+        root.setInitialValues(getArguments().getFloat(THICKNESS));
         return v;
     }
 
@@ -70,18 +69,13 @@ public class FragmentBrushPicker extends DialogFragment
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.fragment_brush_picker_pos:
-                if (root.getThickness() != getArguments().getFloat(THICKNESS) &&
-                        root.getChosenAlpha() != getArguments().getInt(ALPHA)) {
-                    bus.post(new EventBrushChosen(root.getThickness(), root.getChosenAlpha()));
-                } else if (root.getThickness() != getArguments().getFloat(THICKNESS)) {
-                    bus.post(new EventBrushChosen(root.getThickness(), -1));
-                } else {
-                    bus.post(new EventBrushChosen(-1, root.getChosenAlpha()));
+                if (root.getThickness() != getArguments().getFloat(THICKNESS)) {
+                    bus.post(new EventBrushChosen(root.getThickness()));
+                }  else {
+                    bus.post(new EventBrushChosen(-1));
                 }
                 break;
             case R.id.fragment_brush_picker_cancel:
-                bus.post(new EventBrushChosen(-1, -1));
-                break;
         }
         dismiss();
     }

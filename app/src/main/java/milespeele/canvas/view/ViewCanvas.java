@@ -26,7 +26,6 @@ import butterknife.ButterKnife;
 import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
-import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.PathPoint;
 import milespeele.canvas.event.EventBrushChosen;
 import milespeele.canvas.event.EventColorChosen;
@@ -50,7 +49,7 @@ public class ViewCanvas extends FrameLayout {
     private float lastVelocity;
     private static final float VELOCITY_FILTER_WEIGHT = 0.2f;
     private static float STROKE_WIDTH = 5f;
-    private static int ALPHA = 255;
+    private static int currentAlpha = 255;
     private boolean shouldErase = false;
     private boolean shouldRedraw = false;
     private boolean shouldInk = false;
@@ -255,28 +254,26 @@ public class ViewCanvas extends FrameLayout {
     }
 
     private void setInkPosition(MotionEvent event, float eventX, float eventY) {
-        if (shouldInk) {
-            if (eventsInRange(eventX, eventY)) {
-                int color = mBitmap.getPixel((int) eventX, (int) eventY);
-                colorizer.setBackgroundColor(color);
+        if (shouldInk && eventsInRange(eventX, eventY)) {
+            int color = mBitmap.getPixel((int) eventX, (int) eventY);
+            colorizer.setBackgroundColor(color);
 
-                colorizer.setTranslationX(eventX);
-                colorizer.setTranslationY(eventY);
+            colorizer.setTranslationX(eventX);
+            colorizer.setTranslationY(eventY);
 
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        colorizer.setVisibility(View.VISIBLE);
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        colorizer.setVisibility(View.GONE);
-                        shouldInk = false;
-                        if (color != currentBackgroundColor)  {
-                            curPaint.setColor((color == 0) ? currentStrokeColor : color);
-                        } else {
-                            curPaint.setColor(currentStrokeColor);
-                        }
-                        break;
-                }
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    colorizer.setVisibility(View.VISIBLE);
+                    break;
+                case MotionEvent.ACTION_UP:
+                    colorizer.setVisibility(View.GONE);
+                    shouldInk = false;
+                    if (color != currentBackgroundColor)  {
+                        curPaint.setColor((color == 0) ? currentStrokeColor : color);
+                    } else {
+                        curPaint.setColor(currentStrokeColor);
+                    }
+                    break;
             }
         }
     }
@@ -292,7 +289,7 @@ public class ViewCanvas extends FrameLayout {
             if (eventColorChosen.which.equals(getResources().getString(R.string.TAG_FRAGMENT_FILL))) {
                 fillCanvas(eventColorChosen.color);
             } else {
-                changeColor(eventColorChosen.color);
+                changeColor(eventColorChosen.color, eventColorChosen.opacity);
             }
         }
     }
@@ -305,9 +302,7 @@ public class ViewCanvas extends FrameLayout {
         colorizer.setVisibility(View.GONE);
 
         STROKE_WIDTH = (eventBrushChosen.thickness != -1) ? eventBrushChosen.thickness : STROKE_WIDTH;
-        ALPHA = (eventBrushChosen.alpha != -1) ? eventBrushChosen.alpha : ALPHA;
 
-        curPaint.setAlpha(ALPHA);
         curPaint.setStrokeWidth(STROKE_WIDTH);
     }
 
@@ -367,13 +362,15 @@ public class ViewCanvas extends FrameLayout {
         shouldErase = false;
     }
 
-    public void changeColor(int color) {
+    public void changeColor(int color, int opacity) {
         colorizer.setVisibility(View.GONE);
         eraser.setVisibility(View.GONE);
 
         shouldInk = false;
         shouldErase = false;
         currentStrokeColor = color;
+        currentAlpha = opacity;
+        curPaint.setAlpha(opacity);
         curPaint.setColor(currentStrokeColor);
     }
 
@@ -404,11 +401,13 @@ public class ViewCanvas extends FrameLayout {
 
     public float getBrushWidth() { return STROKE_WIDTH; }
 
-    public int getPaintAlpha() { return ALPHA; }
+    public int getPaintAlpha() { return currentAlpha; }
 
     public Bitmap getBitmap() {
         return mBitmap;
     }
+
+    public int getCurrentStrokeColor() { return currentStrokeColor; }
 
     private Paint currentStyle() {
         if (shouldErase) {

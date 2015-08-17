@@ -6,10 +6,8 @@ package milespeele.canvas.event;
 public class EventBrushChosen {
 
     public float thickness;
-    public int alpha;
 
-    public EventBrushChosen(float thickness, int alpha) {
-        this.alpha = alpha;
+    public EventBrushChosen(float thickness) {
         this.thickness = thickness;
     }
 }

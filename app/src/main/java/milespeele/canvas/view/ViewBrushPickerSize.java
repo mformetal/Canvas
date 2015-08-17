@@ -12,27 +12,27 @@ import android.view.View;
 /**
  * Created by milespeele on 7/13/15.
  */
-public class ViewBrushPickerSizeAlpha extends View {
+public class ViewBrushPickerSize extends View {
 
     private Paint curPaint;
 
-    public ViewBrushPickerSizeAlpha(Context context) {
+    public ViewBrushPickerSize(Context context) {
         super(context);
         init();
     }
 
-    public ViewBrushPickerSizeAlpha(Context context, AttributeSet attrs) {
+    public ViewBrushPickerSize(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
     }
 
-    public ViewBrushPickerSizeAlpha(Context context, AttributeSet attrs, int defStyleAttr) {
+    public ViewBrushPickerSize(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init();
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public ViewBrushPickerSizeAlpha(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public ViewBrushPickerSize(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         init();
     }
@@ -54,9 +54,8 @@ public class ViewBrushPickerSizeAlpha extends View {
         curPaint.setStrokeCap(Paint.Cap.ROUND);
     }
 
-    public void onValuesChanged(float thickness, int alpha) {
+    public void onValuesChanged(float thickness) {
         curPaint.setStrokeWidth(thickness);
-        curPaint.setAlpha(alpha);
         invalidate();
     }
 

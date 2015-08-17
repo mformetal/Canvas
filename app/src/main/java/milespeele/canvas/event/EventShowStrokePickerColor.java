@@ -5,7 +5,9 @@ package milespeele.canvas.event;
  */
 public class EventShowStrokePickerColor {
 
-    public EventShowStrokePickerColor() {
+    public int color;
 
+    public EventShowStrokePickerColor(int color) {
+        this.color = color;
     }
 }

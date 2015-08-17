@@ -88,4 +88,6 @@ public class ViewCanvasLayout extends CoordinatorLayout {
     public int getPaintAlpha() { return drawer.getPaintAlpha(); }
 
     public Bitmap getDrawerBitmap() { return drawer.getBitmap(); }
+
+    public int getDrawerColor() { return drawer.getCurrentStrokeColor(); }
 }

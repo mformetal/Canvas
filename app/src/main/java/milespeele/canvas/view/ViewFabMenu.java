@@ -198,6 +198,7 @@ public class ViewFabMenu extends ViewGroup
     @OnClick({R.id.menu_colorize, R.id.menu_size, R.id.menu_stroke_color, R.id.menu_undo,
         R.id.menu_redo, R.id.menu_erase, R.id.menu_show, R.id.menu_new_canvas, R.id.menu_save})
     public void onClick(View v) {
+        ViewCanvasLayout parent = ((ViewCanvasLayout) getParent());
         switch (v.getId()) {
             case R.id.menu_show:
                 toggleMenu();
@@ -208,12 +209,11 @@ public class ViewFabMenu extends ViewGroup
                 break;
             case R.id.menu_size:
                 eraser.scaleDown();
-                ViewCanvasLayout parent = ((ViewCanvasLayout) getParent());
-                bus.post(new EventShowBrushPicker(parent.getBrushWidth(), parent.getPaintAlpha()));
+                bus.post(new EventShowBrushPicker(parent.getBrushWidth()));
                 break;
             case R.id.menu_stroke_color:
                 eraser.scaleDown();
-                bus.post(new EventShowStrokePickerColor());
+                bus.post(new EventShowStrokePickerColor(parent.getDrawerColor()));
                 break;
             case R.id.menu_undo:
                 bus.post(new EventUndo());

@@ -6,52 +6,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <milespeele.canvas.view.ViewBrushPickerSizeAlpha
+    <milespeele.canvas.view.ViewBrushPickerSize
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="@dimen/activity_horizontal_margin"
         android:id="@+id/fragment_brush_picker_view_example" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="55dp"
-        android:id="@+id/fragment_brush_picker_view_sizer_text"
-        android:paddingLeft="@dimen/activity_horizontal_margin"
-        android:text="@string/fragment_brush_picker_sizer_title"
-        android:textColor="@android:color/white"
-        android:textSize="@dimen/dialog_title_text_size"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_below="@id/fragment_brush_picker_view_example" />
-
     <SeekBar
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="@dimen/activity_vertical_margin"
-        android:layout_toEndOf="@id/fragment_brush_picker_view_sizer_text"
-        android:layout_toRightOf="@id/fragment_brush_picker_view_sizer_text"
-        android:layout_alignBottom="@id/fragment_brush_picker_view_sizer_text"
         android:id="@+id/fragment_brush_picker_view_sizer" />
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="55dp"
-        android:paddingLeft="@dimen/activity_horizontal_margin"
-        android:id="@+id/fragment_brush_picker_alphaer_text"
-        android:text="@string/fragment_brush_picker_alphaer_title"
-        android:textColor="@android:color/white"
-        android:textSize="@dimen/dialog_title_text_size"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_below="@id/fragment_brush_picker_view_sizer_text" />
-
-    <SeekBar
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="@dimen/activity_vertical_margin"
-        android:layout_toEndOf="@id/fragment_brush_picker_alphaer_text"
-        android:layout_toRightOf="@id/fragment_brush_picker_alphaer_text"
-        android:layout_alignBottom="@id/fragment_brush_picker_alphaer_text"
-        android:id="@+id/fragment_brush_picker_view_alphaer" />
 
     <!--<include-->
         <!--layout="@layout/paint_example_items"-->

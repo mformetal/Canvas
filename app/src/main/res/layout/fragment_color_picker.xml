@@ -11,11 +11,26 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:id="@+id/fragment_color_picker_which" />
 
-    <milespeele.canvas.view.ViewColorPicker
+    <com.larswerkman.holocolorpicker.ColorPicker
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/fragment_color_picker_which"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
         android:id="@+id/fragment_color_picker_view" />
+
+    <com.larswerkman.holocolorpicker.SVBar
+        android:id="@+id/fragment_color_picker_sv"
+        android:layout_below="@id/fragment_color_picker_view"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <com.larswerkman.holocolorpicker.OpacityBar
+        android:id="@+id/fragment_color_picker_opacity"
+        android:layout_below="@id/fragment_color_picker_sv"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
 
     <Button
         android:layout_width="wrap_content"
@@ -24,7 +39,7 @@
         android:text="@string/fragment_color_picker_nah"
         android:textColor="@android:color/white"
         android:id="@+id/fragment_color_picker_cancel"
-        android:layout_below="@+id/fragment_color_picker_view"
+        android:layout_below="@+id/fragment_color_picker_opacity"
         android:layout_alignLeft="@id/fragment_color_picker_view"
         android:layout_marginLeft="50dp" />
 
@@ -35,7 +50,7 @@
         android:text="@string/fragment_color_picker_choose"
         android:textColor="@android:color/white"
         android:id="@+id/fragment_color_picker_select"
-        android:layout_below="@+id/fragment_color_picker_view"
+        android:layout_below="@+id/fragment_color_picker_opacity"
         android:layout_alignRight="@id/fragment_color_picker_view"
         android:layout_marginRight="50dp" />
 
