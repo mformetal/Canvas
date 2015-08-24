@@ -1,12 +1,10 @@
-package milespeele.canvas.dialog;
+package milespeele.canvas.util;
 
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
 import android.view.View;
-import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -17,10 +15,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import milespeele.canvas.R;
 
-/**
- * Created by Miles Peele on 8/16/2015.
- */
-public class ErrorDialog extends Dialog implements View.OnClickListener {
+public class ErrorDialog extends Dialog implements View.OnClickListener, DialogInterface.OnDismissListener {
 
     @Bind(R.id.error_dialog_title) TextView title;
     @Bind(R.id.error_dialog_body) TextView body;
@@ -46,6 +41,11 @@ public class ErrorDialog extends Dialog implements View.OnClickListener {
     }
 
     @Override
+    public void onDismiss(DialogInterface dialog) {
+        ButterKnife.unbind(this);
+    }
+
+    @Override
     @OnClick(R.id.error_dialog_pos_button)
     public void onClick(View v) {
         switch (v.getId()) {
@@ -57,6 +57,11 @@ public class ErrorDialog extends Dialog implements View.OnClickListener {
 
     public static ErrorDialog createDialogFromCode(Context context, int code) {
         switch (code) {
+            case ParseException.OBJECT_NOT_FOUND:
+                return new ErrorDialog(context,
+                        context.getResources().getString(R.string.error_object_not_found_title),
+                        context.getResources().getString(R.string.error_object_not_found_body),
+                        R.style.DialogTheme);
             case ParseException.CONNECTION_FAILED:
                 return new ErrorDialog(context,
                         context.getResources().getString(R.string.error_no_internet_title),

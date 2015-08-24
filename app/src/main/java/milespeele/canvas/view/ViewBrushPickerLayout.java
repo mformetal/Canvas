@@ -20,7 +20,7 @@ public class ViewBrushPickerLayout extends LinearLayout implements SeekBar.OnSee
     @Bind(R.id.fragment_brush_picker_view_example) ViewBrushPickerSize example;
     @Bind(R.id.fragment_brush_picker_view_sizer) SeekBar sizer;
 
-    private final static int MAX_THICKNESS = 90;
+    private final static int MAX_THICKNESS = 120;
     private float thickness;
 
     public ViewBrushPickerLayout(Context context) {
@@ -57,7 +57,7 @@ public class ViewBrushPickerLayout extends LinearLayout implements SeekBar.OnSee
     }
 
     public void setInitialValues(float thickness) {
-        example.onValuesChanged(thickness);
+        example.onThicknessChanged(thickness);
         sizer.setProgress(Math.round(thickness));
     }
 

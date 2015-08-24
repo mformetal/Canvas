@@ -33,6 +33,7 @@ import milespeele.canvas.event.EventShowErase;
 import milespeele.canvas.event.EventShowCanvasColorPicker;
 import milespeele.canvas.event.EventRedo;
 import milespeele.canvas.event.EventShowFilenameFragment;
+import milespeele.canvas.event.EventShowShapeChooser;
 import milespeele.canvas.event.EventShowStrokePickerColor;
 import milespeele.canvas.event.EventUndo;
 import milespeele.canvas.util.Logg;
@@ -46,8 +47,9 @@ public class ViewFabMenu extends ViewGroup
     @Bind(R.id.menu_show) ViewFab toggle;
     @Bind(R.id.menu_erase) ViewFab eraser;
     @Bind(R.id.menu_save) ViewFab saver;
-    @Bind({R.id.menu_colorize, R.id.menu_size, R.id.menu_stroke_color, R.id.menu_undo,
-    R.id.menu_redo, R.id.menu_erase, R.id.menu_new_canvas, R.id.menu_save}) List<ViewFab> buttonsList;
+    @Bind({R.id.menu_shape_chooser, R.id.menu_colorize,  R.id.menu_stroke_color, R.id.menu_size,
+            R.id.menu_undo, R.id.menu_redo, R.id.menu_erase, R.id.menu_new_canvas, R.id.menu_save})
+    List<ViewFab> buttonsList;
 
     @Inject EventBus bus;
 
@@ -58,11 +60,10 @@ public class ViewFabMenu extends ViewGroup
 
     private boolean isMenuShowing = true;
     private boolean isAnimating = false;
-    private int fabMargin;
     private float centreX, centreY;
-    private static int DELAY = 20;
-    private static final int DURATION = 350;
-    private static final int DELAY_INCREMENT = 20;
+    private final static int DELAY = 0;
+    private final static int DURATION = 400;
+    private final static int DELAY_INCREMENT = 30;
 
     public ViewFabMenu(Context context) {
         super(context);
@@ -88,7 +89,6 @@ public class ViewFabMenu extends ViewGroup
     private void init() {
         ((MainApp) getContext().getApplicationContext()).getApplicationComponent().inject(this);
         bus.register(this);
-        fabMargin = Math.round(getResources().getDimension(R.dimen.fab_margin));
         setDescendantFocusability(FOCUS_AFTER_DESCENDANTS);
         setLayerType(LAYER_TYPE_HARDWARE, null);
     }
@@ -105,50 +105,17 @@ public class ViewFabMenu extends ViewGroup
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        final int mw = MeasureSpec.getMode(widthMeasureSpec);
-        final int mh = MeasureSpec.getMode(heightMeasureSpec);
-        final int sw = MeasureSpec.getSize(widthMeasureSpec);
-        final int sh = MeasureSpec.getSize(heightMeasureSpec);
+        measureChildWithMargins(toggle, widthMeasureSpec, 0, heightMeasureSpec, 0);
 
-        final int pw = getPaddingLeft() + getPaddingRight();
-        final int ph = getPaddingTop() + getPaddingBottom();
-
-        final int s;
-        final int sp;
-        if (mw == MeasureSpec.UNSPECIFIED && mh == MeasureSpec.UNSPECIFIED) {
-            throw new IllegalArgumentException("Layout must be constrained on at least one axis");
-        } else if (mw == MeasureSpec.UNSPECIFIED) {
-            s = sh;
-            sp = s - ph;
-        } else if (mh == MeasureSpec.UNSPECIFIED) {
-            s = sw;
-            sp = s - pw;
-        } else {
-            if (sw - pw < sh - ph) {
-                s = sw;
-                sp = s - pw;
-            } else {
-                s = sh;
-                sp = s - ph;
-            }
+        for (int i = 0; i < getChildCount(); i++) {
+            View child = getChildAt(i);
+            if (child == toggle) continue;
+            measureChildWithMargins(child, widthMeasureSpec, 0, heightMeasureSpec, 0);
         }
 
-        final int spp = Math.max(sp, 0);
+        int width = getDefaultSize(getSuggestedMinimumWidth(), widthMeasureSpec);
 
-        final int size = 5;
-        for (int y = 0; y < size; y++) {
-            for (int x = 0; x < size; x++) {
-                final View child = getChildAt(y * size + x);
-                if (child == null) continue;
-                measureChildWithMargins(child,
-                        MeasureSpec.makeMeasureSpec((spp + x) / size, MeasureSpec.EXACTLY), 0,
-                        MeasureSpec.makeMeasureSpec((spp) / size, MeasureSpec.EXACTLY), 0
-                );
-            }
-        }
-
-        int dimen = mw == MeasureSpec.EXACTLY ? sw : sp + pw;
-        setMeasuredDimension(dimen, dimen);
+        setMeasuredDimension(width, width);
     }
 
     @Override
@@ -177,7 +144,7 @@ public class ViewFabMenu extends ViewGroup
                 r / 2 + toggle.getMeasuredWidth() / 2,
                 getMeasuredHeight() - lps.bottomMargin);
 
-        final int radius = (int) (getMeasuredWidth() / 3.5);
+        final int radius = getMeasuredWidth() / 3;
         centreX = toggle.getX() + toggle.getWidth()  / 2;
         centreY = toggle.getY() + toggle.getHeight() / 2;
         final double slice = Math.PI / (count - 2);
@@ -197,7 +164,8 @@ public class ViewFabMenu extends ViewGroup
 
     @Override
     @OnClick({R.id.menu_colorize, R.id.menu_size, R.id.menu_stroke_color, R.id.menu_undo,
-        R.id.menu_redo, R.id.menu_erase, R.id.menu_show, R.id.menu_new_canvas, R.id.menu_save})
+        R.id.menu_redo, R.id.menu_erase, R.id.menu_show, R.id.menu_new_canvas, R.id.menu_save,
+        R.id.menu_shape_chooser})
     public void onClick(View v) {
         ViewCanvasLayout parent = ((ViewCanvasLayout) getParent());
         switch (v.getId()) {
@@ -233,7 +201,14 @@ public class ViewFabMenu extends ViewGroup
             case R.id.menu_save:
                 bus.post(new EventShowFilenameFragment());
                 break;
+            case R.id.menu_shape_chooser:
+                bus.post(new EventShowShapeChooser());
+                break;
         }
+    }
+
+    private void createShowAnimatorSet() {
+
     }
 
     public void toggleMenu() {
@@ -261,6 +236,7 @@ public class ViewFabMenu extends ViewGroup
                         ObjectAnimator.ofFloat(view, "translationY", diffY),
                         ObjectAnimator.ofFloat(view, "alpha", 0.0f, 1.0f));
                 out.setStartDelay(delay);
+                out.setDuration(DURATION);
                 out.setInterpolator(OVERSHOOT_INTERPOLATOR);
                 out.addListener(new Animator.AnimatorListener() {
                     @Override

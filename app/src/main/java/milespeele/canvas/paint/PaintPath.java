@@ -3,6 +3,8 @@ package milespeele.canvas.paint;
 import android.graphics.Paint;
 import android.graphics.Path;
 
+import rx.Observable;
+
 /**
  * Created by milespeele on 7/9/15.
  */

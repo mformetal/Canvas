@@ -43,7 +43,7 @@ public final class Util {
 
     public static Observable<byte[]> compressBitmap(Bitmap bitmap) {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 75, stream);
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
         return Observable.just(stream.toByteArray());
     }
 }

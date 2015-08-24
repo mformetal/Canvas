@@ -23,9 +23,6 @@
     <string name="menu_drawer_items_header_text">Welcome Home.</string>
     <string name="menu_drawer_items_gallery">Gallery</string>
 
-    <string name="menu_activity_home_save">Save Masterpiece</string>
-    <string name="menu_activity_home_erase">Erase Masterpiece</string>
-
     <string name="snackbar_activity_home_image_saved_title">Saved Your Masterpiece!</string>
     <string name="snackbar_activity_home_imaged_saved_body">View</string>
 
@@ -34,9 +31,7 @@
     <string name="fragment_filename_pos_button_text">Save!</string>
     <string name="fragment_filename_neg_button_text">No thanks</string>
 
-    <string name="fragment_brush_picker_sizer_title">Size: </string>
-    <string name="fragment_brush_picker_alphaer_title">Alpha: </string>
-    <string name="fragment_brush_picker_title">Set Brush Style</string>
+    <string name="fragment_brush_picker_title">Brush Style</string>
     <string name="fragment_brush_picker_pos_button_text">Set!</string>
 
     <string name="paint_example_neon">Neon</string>
@@ -47,7 +42,7 @@
     <string name="title_activity_login">Login</string>
 
     <string name="TAG_FRAGMENT_FILL">New Canvas Color</string>
-    <string name="TAG_FRAGMENT_STROKE">Stroke Color</string>
+    <string name="TAG_FRAGMENT_STROKE">Brush Color</string>
 
     <string name="error_dialog_pos_button_text">Got it</string>
     <string name="error_dialog_neg_button_text">Retry</string>
@@ -57,5 +52,9 @@
     <string name="error_no_internet_title">The Internet Ran Away</string>
     <string name="error_no_internet_body">Looks like you don\'t have an internet connection.
         Try re-enabling data or connect to a different WiFi network.</string>
+
+    <string name="error_object_not_found_title">Where It At Tho?</string>
+    <string name="error_object_not_found_body">Looks like the thing you want doesn\'t
+        exist. Fuck if I know what happened to it. </string>
 
 </resources>

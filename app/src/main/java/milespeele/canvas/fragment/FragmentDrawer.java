@@ -20,6 +20,7 @@ import milespeele.canvas.view.ViewCanvasLayout;
 public class FragmentDrawer extends Fragment {
 
     @Bind(R.id.fragment_drawer_coordinator) ViewCanvasLayout coordinatorLayout;
+
     @Inject EventBus bus;
 
     public FragmentDrawer() {}

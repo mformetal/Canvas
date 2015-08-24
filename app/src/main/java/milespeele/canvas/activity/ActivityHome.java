@@ -1,6 +1,5 @@
 package milespeele.canvas.activity;
 
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -9,8 +8,11 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
+
+import com.squareup.picasso.Picasso;
 
 import java.lang.ref.WeakReference;
 
@@ -21,7 +23,8 @@ import butterknife.ButterKnife;
 import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
-import milespeele.canvas.dialog.ErrorDialog;
+import milespeele.canvas.event.EventShowShapeChooser;
+import milespeele.canvas.util.ErrorDialog;
 import milespeele.canvas.event.EventParseError;
 import milespeele.canvas.event.EventShowBrushPicker;
 import milespeele.canvas.event.EventFilenameChosen;
@@ -34,15 +37,10 @@ import milespeele.canvas.fragment.FragmentDrawer;
 import milespeele.canvas.fragment.FragmentFilename;
 import milespeele.canvas.parse.Masterpiece;
 import milespeele.canvas.parse.ParseUtils;
-import milespeele.canvas.util.Util;
+import milespeele.canvas.util.Logg;
 import milespeele.canvas.view.ViewFab;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
 public class ActivityHome extends ActivityBase {
-
-    @Bind(R.id.activity_home_drawer_layout) DrawerLayout drawerLayout;
-    @Bind(R.id.activity_home_navigation_drawer) NavigationView navigationView;
 
     private final static String TAG_FRAGMENT_DRAWER = "fragd";
     private final static String TAG_FRAGMENT_STROKE = "Stroke Color";
@@ -52,8 +50,7 @@ public class ActivityHome extends ActivityBase {
 
     @Inject ParseUtils parseUtils;
     @Inject EventBus bus;
-
-    private ActionBarDrawerToggle toggle;
+    @Inject Picasso picasso;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -65,67 +62,7 @@ public class ActivityHome extends ActivityBase {
 
         bus.register(this);
 
-        final ActionBar ab = getSupportActionBar();
-        ab.setDisplayHomeAsUpEnabled(true);
-
-        toggle = new ActionBarDrawerToggle(this, drawerLayout,
-                R.string.activity_home_actionbar_toggle_open, R.string.activity_home_actionbar_toggle_close);
-        drawerLayout.setDrawerListener(toggle);
-        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-        setupDrawerContent(navigationView);
-
         addDrawerFragment();
-    }
-
-    @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        toggle.syncState();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        FragmentDrawer frag = (FragmentDrawer) getFragmentManager().findFragmentByTag(TAG_FRAGMENT_DRAWER);
-        if (frag != null) {
-            parseUtils.pinImage("Image", frag.giveBitmapToActivity());
-        }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        parseUtils.getPinnedImage();
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-                    drawerLayout.closeDrawer(GravityCompat.START);
-                } else {
-                    drawerLayout.openDrawer(GravityCompat.START);
-                }
-                return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    private void setupDrawerContent(NavigationView navigationView) {
-        navigationView.setNavigationItemSelectedListener(
-                menuItem -> {
-                    selectDrawerItem(menuItem);
-                    return true;
-                });
-    }
-
-    public void selectDrawerItem(MenuItem menuItem) {
-        switch (menuItem.getItemId()) {
-            case R.id.menu_drawer_gallery:
-                break;
-        }
     }
 
     private void addDrawerFragment() {
@@ -142,11 +79,6 @@ public class ActivityHome extends ActivityBase {
                     .setAction(R.string.snackbar_activity_home_imaged_saved_body, v -> {})
                     .show();
         }
-    }
-
-    public void onSaveImageError(Throwable throwable) {
-        Toast.makeText(this, "ERROR", Toast.LENGTH_SHORT).show();
-        throwable.printStackTrace();
     }
 
     public void onEvent(EventParseError eventParseError) {
@@ -194,5 +126,9 @@ public class ActivityHome extends ActivityBase {
 
     public void onEvent(EventShowFilenameFragment eventShowFilenameFragment) {
         FragmentFilename.newInstance().show(getFragmentManager(), TAG_FRAGMENT_FILENAME);
+    }
+
+    public void onEvent(EventShowShapeChooser eventShowShapeChooser) {
+
     }
 }

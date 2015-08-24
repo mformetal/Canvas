@@ -6,6 +6,7 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
@@ -15,6 +16,7 @@ import java.util.Random;
 import butterknife.ButterKnife;
 import milespeele.canvas.R;
 import milespeele.canvas.paint.PaintStyles;
+import milespeele.canvas.util.Logg;
 
 /**
  * Created by Miles Peele on 7/26/2015.
@@ -22,9 +24,9 @@ import milespeele.canvas.paint.PaintStyles;
 public class ViewPaintExample extends View {
 
     private String which;
-    private int color;
-
     private Paint examplePaint;
+    private Path examplePath;
+    private Paint borderPaint;
 
     public ViewPaintExample(Context context) {
         super(context);
@@ -53,9 +55,12 @@ public class ViewPaintExample extends View {
         typed.recycle();
 
         Random rnd = new Random();
-        color = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
+        int color = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
         examplePaint = PaintStyles.getStyleFromAttrs(which, color, getContext());
-        examplePaint.setStyle(Paint.Style.STROKE);
+
+        examplePath = new Path();
+
+//        borderPaint = PaintStyles.normalPaint(Color.WHITE, 5f);
     }
 
     @Override
@@ -67,7 +72,12 @@ public class ViewPaintExample extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        canvas.drawLine(canvas.getWidth() / 4, canvas.getHeight() / 2,
-                Math.round(canvas.getWidth()  * .75), canvas.getHeight() / 2, examplePaint);
+//        canvas.drawRect(0, 0, canvas.getWidth(), canvas.getHeight(), borderPaint);
+//        canvas.drawLine(canvas.getWidth() / 4, Math.round(canvas.getHeight() * .75),
+//                Math.round(canvas.getWidth()  * .75), Math.round(canvas.getWidth() * .25), examplePaint);
+        examplePath.moveTo(canvas.getWidth() / 4, Math.round(canvas.getHeight() * .75));
+        examplePath.lineTo(Math.round(canvas.getWidth() * .75), Math.round(canvas.getWidth() * .25));
+        canvas.drawPath(examplePath, examplePaint);
+//        canvas.drawPaint(examplePaint);
     }
 }

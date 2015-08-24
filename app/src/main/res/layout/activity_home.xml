@@ -1,25 +1,8 @@
-<android.support.v4.widget.DrawerLayout
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/activity_home_drawer_layout"
-    tools:context=".ActivityHome" >
-
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/activity_home_fragment_frame"
-        tools:ignore="RtlSymmetry" />
-
-    <android.support.design.widget.NavigationView
-        app:headerLayout="@layout/navigation_drawer_header"
-        android:id="@+id/activity_home_navigation_drawer"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="start"
-        android:background="@color/secondary_text"
-        app:menu="@menu/menu_drawer_items" />
-
-</android.support.v4.widget.DrawerLayout>
+    android:id="@+id/activity_home_fragment_frame"
+    tools:ignore="RtlSymmetry" />

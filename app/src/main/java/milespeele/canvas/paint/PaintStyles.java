@@ -8,8 +8,6 @@ import android.graphics.EmbossMaskFilter;
 import android.graphics.Paint;
 import android.graphics.PathEffect;
 
-import java.util.Random;
-
 import milespeele.canvas.R;
 
 /**
@@ -17,26 +15,30 @@ import milespeele.canvas.R;
  */
 public class PaintStyles {
 
-    private static final BlurMaskFilter BLUR_MASK_FILTER = new BlurMaskFilter(5, BlurMaskFilter.Blur.OUTER);
-    private static final EmbossMaskFilter EMBOSS_MASK_FILTER = new EmbossMaskFilter(new float[]{1, 1, 1}, 1f, 0, 3);
-    private static final PathEffect DASHED_PASH_EFFECT = new DashPathEffect(new float[] {10,20}, 0);
+    private static final BlurMaskFilter SOLID_BLUR_MASK_FILTER
+            = new BlurMaskFilter(10, BlurMaskFilter.Blur.SOLID);
+    private static final EmbossMaskFilter EMBOSS_MASK_FILTER
+            = new EmbossMaskFilter(new float[] {0.0f, -1.0f, 0.5f}, 0.8f, 15f, 1f);
+    private static final PathEffect DASHED_PASH_EFFECT
+            = new DashPathEffect(new float[] {10,20}, 0);
 
     public static Paint getStyleFromAttrs(String type, int color, Context context) {
         Resources resources = context.getResources();
-        if (type == resources.getString(R.string.paint_example_dashed)) {
-            return dashedPaint(color, 10f);
-        } else if (type ==resources.getString(R.string.paint_example_fade)) {
-            return fadePaint(color, 10f);
-        } else if (type == resources.getString(R.string.paint_example_neon)) {
-            return neonPaint(color, 10f);
+        if (type.equals(resources.getString(R.string.paint_example_dashed))) {
+            return dashedPaint(color, 15f);
+        } else if (type.equals(resources.getString(R.string.paint_example_fade))) {
+            return fadePaint(color, 15f);
+        } else if (type.equals(resources.getString(R.string.paint_example_neon))) {
+            return neonPaint(color, 15f);
         } else {
-            return normalPaint(color, 10f);
+            return normalPaint(color, 15f);
         }
     }
 
     public static Paint normalPaint(int currentColor, float width) {
         Paint paint = new Paint();
         paint.setAntiAlias(true);
+        paint.setDither(true);
         paint.setColor(currentColor);
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeJoin(Paint.Join.ROUND);
@@ -54,7 +56,7 @@ public class PaintStyles {
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeJoin(Paint.Join.ROUND);
         paint.setStrokeCap(Paint.Cap.ROUND);
-        paint.setMaskFilter(BLUR_MASK_FILTER);
+        paint.setMaskFilter(SOLID_BLUR_MASK_FILTER);
         return paint;
     }
 

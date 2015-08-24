@@ -25,8 +25,6 @@ import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
 import milespeele.canvas.event.EventColorChosen;
-import milespeele.canvas.util.Logg;
-import milespeele.canvas.view.ViewColorPicker;
 
 /**
  * Created by milespeele on 7/3/15.

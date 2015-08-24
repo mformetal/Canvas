@@ -2,6 +2,7 @@ package milespeele.canvas.dagger;
 
 import android.app.Application;
 
+import com.squareup.picasso.LruCache;
 import com.squareup.picasso.Picasso;
 
 import javax.inject.Singleton;
@@ -46,7 +47,9 @@ public class ApplicationModule {
     @Provides
     @Singleton
     public Picasso getPicasso(Application mApplication) {
-        return Picasso.with(mApplication);
+        return new Picasso.Builder(mApplication)
+                .memoryCache(new LruCache((int) (Runtime.getRuntime().maxMemory() / 1024) / 8))
+                .build();
     }
 
     @Provides

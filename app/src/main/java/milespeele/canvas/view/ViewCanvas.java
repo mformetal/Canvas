@@ -4,19 +4,31 @@ import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
 import android.graphics.RectF;
 import android.graphics.drawable.GradientDrawable;
+import android.os.Parcelable;
 import android.support.v4.view.MotionEventCompat;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
+import com.google.common.collect.Lists;
+import com.squareup.picasso.Picasso;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.List;
 import java.util.Random;
 
 import javax.inject.Inject;
@@ -26,7 +38,7 @@ import butterknife.ButterKnife;
 import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
-import milespeele.canvas.util.PathPoint;
+import milespeele.canvas.util.Logg;
 import milespeele.canvas.event.EventBrushChosen;
 import milespeele.canvas.event.EventColorChosen;
 import milespeele.canvas.event.EventShowColorize;
@@ -36,22 +48,20 @@ import milespeele.canvas.event.EventUndo;
 import milespeele.canvas.paint.PaintPath;
 import milespeele.canvas.paint.PaintStack;
 import milespeele.canvas.paint.PaintStyles;
+import milespeele.canvas.util.Util;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
+import rx.schedulers.Schedulers;
 
-/**
- * Created by milespeele on 7/2/15.
- */
 public class ViewCanvas extends FrameLayout {
 
     @Bind(R.id.fragment_drawer_canvas_eraser) ImageView eraser;
     @Bind(R.id.fragment_drawer_eraser_colorizer) ImageView colorizer;
 
-    private float lastWidth;
-    private float lastVelocity;
-    private static final float VELOCITY_FILTER_WEIGHT = 0.2f;
+    private final static String CACHED_FILENAME = "cached";
     private static float STROKE_WIDTH = 5f;
     private static int currentAlpha = 255;
     private boolean shouldErase = false;
-    private boolean shouldRedraw = false;
     private boolean shouldInk = false;
     private static int currentStrokeColor;
     private int currentBackgroundColor;
@@ -66,10 +76,6 @@ public class ViewCanvas extends FrameLayout {
     private Bitmap mBitmap;
     private Canvas mCanvas;
     private Matrix scaleMatrix;
-
-    private PathPoint previousPoint;
-    private PathPoint startPoint;
-    private PathPoint currentPoint;
 
     @Inject EventBus bus;
 
@@ -116,8 +122,29 @@ public class ViewCanvas extends FrameLayout {
         scaleMatrix.reset();
         scaleMatrix.setScale(w, h);
 
-        mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+        options.inMutable = true;
+        try {
+            FileInputStream test = getContext().openFileInput(CACHED_FILENAME);
+            mBitmap = BitmapFactory.decodeStream(test, null, options);
+            test.close();
+            Logg.log("GOT BITMAP FROM FILE");
+        } catch (FileNotFoundException e) {
+            Logg.log("FILE NO TFOUND");
+        } catch (IOException e) {
+            Logg.log("IO EXCEPTION ON READ BITMAP");
+            e.printStackTrace();
+        }
+
+        if (mBitmap == null) {
+            Logg.log("BITMAP FROM FILE IS NULL");
+            mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+        }
         mCanvas = new Canvas(mBitmap);
+
+//        mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+//        mCanvas = new Canvas(mBitmap);
     }
 
     @Override
@@ -128,13 +155,9 @@ public class ViewCanvas extends FrameLayout {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        //super.onDraw(canvas);
-        if (shouldRedraw) {
-            for (PaintPath p: mPaths) {
-                canvas.drawPath(p, p.getPaint());
-            }
-        } else {
-            canvas.drawBitmap(mBitmap, 0, 0, null);
+        canvas.drawBitmap(mBitmap, 0, 0, new Paint());
+        for (PaintPath paintPath: mPaths) {
+            canvas.drawPath(paintPath, paintPath.getPaint());
         }
     }
 
@@ -173,9 +196,6 @@ public class ViewCanvas extends FrameLayout {
         if (!shouldInk) {
             lastTouchX = eventX;
             lastTouchY = eventY;
-            currentPoint = new PathPoint(event.getX(), event.getY(), System.currentTimeMillis());
-            previousPoint = currentPoint;
-            startPoint = previousPoint;
 
             mPath = new PaintPath(currentStyle());
             mPaths.push(mPath);
@@ -196,27 +216,16 @@ public class ViewCanvas extends FrameLayout {
                 float historicalX = event.getHistoricalX(i);
                 float historicalY = event.getHistoricalY(i);
                 expandDirtyRect(historicalX, historicalY);
-                startPoint = previousPoint;
-                previousPoint = currentPoint;
-                currentPoint = new PathPoint(event.getX(), event.getY(), System.currentTimeMillis());
-                float velocity = VELOCITY_FILTER_WEIGHT * currentPoint.velocityFrom(previousPoint) +
-                        (1 - VELOCITY_FILTER_WEIGHT) * lastVelocity;
-                curPaint.setStrokeWidth(STROKE_WIDTH - velocity);
                 mPath.lineTo(historicalX, historicalY);
             }
 
             mPath.lineTo(eventX, eventY);
-            mCanvas.drawPath(mPath, mPath.getPaint());
         }
     }
 
     private void onTouchUp(MotionEvent event, float eventX, float eventY) {
         setEraserPosition(event, eventX, eventY);
         setInkPosition(event, eventX, eventY);
-
-        startPoint = previousPoint;
-        previousPoint = currentPoint;
-        currentPoint = new PathPoint(event.getX(), event.getY(), System.currentTimeMillis());
     }
 
     private void expandDirtyRect(float historicalX, float historicalY) {
@@ -309,7 +318,6 @@ public class ViewCanvas extends FrameLayout {
         if (!redoPaths.isEmpty()) {
             PaintPath redo = redoPaths.pop();
             mPaths.push(redo);
-            shouldRedraw = true;
             invalidate(Math.round(redo.getLeft() - STROKE_WIDTH),
                     Math.round(redo.getTop() - STROKE_WIDTH),
                     Math.round(redo.getRight() + STROKE_WIDTH),
@@ -321,7 +329,6 @@ public class ViewCanvas extends FrameLayout {
         if (!mPaths.isEmpty()) {
             PaintPath undo = mPaths.pop();
             redoPaths.push(undo);
-            shouldRedraw = true;
             invalidate(Math.round(undo.getLeft() - STROKE_WIDTH),
                     Math.round(undo.getTop() - STROKE_WIDTH),
                     Math.round(undo.getRight() + STROKE_WIDTH),
@@ -414,5 +421,28 @@ public class ViewCanvas extends FrameLayout {
         } else {
             return new Paint(curPaint);
         }
+    }
+
+    @Override
+    protected Parcelable onSaveInstanceState() {
+        Logg.log("ON SAVE");
+        try {
+            final FileOutputStream fos = getContext().openFileOutput(CACHED_FILENAME, Context.MODE_PRIVATE);
+            Util.compressBitmap(mBitmap)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(bytes -> {
+                    try {
+                        fos.write(bytes);
+                        fos.close();
+                        Logg.log("ON SAVE FINISHED");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                });
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        return super.onSaveInstanceState();
     }
 }

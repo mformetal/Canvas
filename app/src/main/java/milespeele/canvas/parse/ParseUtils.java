@@ -1,16 +1,25 @@
 package milespeele.canvas.parse;
 
 import android.app.Application;
+import android.content.Context;
 import android.graphics.Bitmap;
 
+import com.parse.DeleteCallback;
 import com.parse.FindCallback;
+import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseFile;
+import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseRelation;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
+import com.squareup.picasso.Picasso;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.List;
 
@@ -42,44 +51,13 @@ public class ParseUtils {
         ((MainApp) mApplication).getApplicationComponent().inject(this);
     }
 
-    public void pinImage(String filename, Bitmap bitmap) {
-        Util.compressBitmap(bitmap)
-                .subscribeOn(Schedulers.io())
-                .subscribe(bytes -> {
-                    final ParseFile photoFile =
-                            new ParseFile(ParseUser.getCurrentUser().getUsername(), bytes);
-                    photoFile.saveInBackground((ParseException e) -> {
-                        if (e == null) {
-                            final Masterpiece art = new Masterpiece();
-                            art.setImage(photoFile);
-                            art.setName(filename);
-                            art.pinInBackground(PINNED_IMAGE);
-                        }
-                    });
-                });
-    }
-
-    public void getPinnedImage() {
-        ParseQuery<Masterpiece> local = ParseQuery.getQuery(Masterpiece.class);
-        local.fromPin(PINNED_IMAGE);
-        local.findInBackground((list, e) -> {
-            if (e == null) {
-                if (!list.isEmpty()) {
-                    Logg.log("GOT PINNED IMAGE< WHAT DO");
-                }
-            } else {
-                handleParseError(e);
-            }
-        });
-    }
-
     public void saveImageToServer(String filename, final WeakReference<ActivityHome> weakCxt, Bitmap bitmap) {
         Util.compressBitmap(bitmap)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(bytes -> {
                     final ParseFile photoFile =
-                            new ParseFile(ParseUser.getCurrentUser().getUsername(), bytes);
+                            new ParseFile(filename, bytes);
                     photoFile.saveInBackground((ParseException e) -> {
                         if (e == null) {
                             final Masterpiece art = new Masterpiece();

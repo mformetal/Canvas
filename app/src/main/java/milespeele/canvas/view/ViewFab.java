@@ -125,7 +125,7 @@ public class ViewFab extends FloatingActionButton {
     }
 
     public void stopPulse() {
-        pulse.end();
+        if (pulse != null) { pulse.end(); }
     }
 
 }

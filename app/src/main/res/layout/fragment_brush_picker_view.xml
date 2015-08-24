@@ -22,6 +22,6 @@
         <!--layout="@layout/paint_example_items"-->
         <!--android:layout_width="match_parent"-->
         <!--android:layout_height="50dp"-->
-        <!--android:layout_below="@id/fragment_brush_picker_view_seekbar" />-->
+        <!--android:layout_below="@id/fragment_brush_picker_view_sizer" />-->
 
 </milespeele.canvas.view.ViewBrushPickerLayout>

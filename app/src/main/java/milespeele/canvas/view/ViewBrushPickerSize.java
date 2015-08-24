@@ -54,18 +54,8 @@ public class ViewBrushPickerSize extends View {
         curPaint.setStrokeCap(Paint.Cap.ROUND);
     }
 
-    public void onValuesChanged(float thickness) {
-        curPaint.setStrokeWidth(thickness);
-        invalidate();
-    }
-
     public void onThicknessChanged(float thickness) {
         curPaint.setStrokeWidth(thickness);
-        invalidate();
-    }
-
-    public void onAlphaChanged(int alpha) {
-        curPaint.setAlpha(alpha);
         invalidate();
     }
 
