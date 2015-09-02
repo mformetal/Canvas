@@ -22,7 +22,7 @@ public class ViewCanvasLayout extends CoordinatorLayout {
 
     private boolean mIsMoving = false;
     private static Handler handler = new Handler();
-    private static final int MOVING_DELAY = 500;
+    private static final int MOVING_DELAY = 750;
 
     public ViewCanvasLayout(Context context) {
         super(context);

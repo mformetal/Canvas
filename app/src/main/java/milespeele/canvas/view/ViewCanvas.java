@@ -10,12 +10,16 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.drawable.GradientDrawable;
+import android.os.Parcelable;
 import android.support.v4.view.MotionEventCompat;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+
+import com.squareup.picasso.Cache;
+import com.squareup.picasso.Picasso;
 
 import java.util.Random;
 
@@ -62,6 +66,7 @@ public class ViewCanvas extends FrameLayout {
     private Matrix scaleMatrix;
 
     @Inject EventBus bus;
+    @Inject Cache cache;
 
     public ViewCanvas(Context context) {
         super(context);
@@ -105,7 +110,10 @@ public class ViewCanvas extends FrameLayout {
         scaleMatrix.reset();
         scaleMatrix.setScale(w, h);
 
-        mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+        Logg.log("CAN GET? " + (cache.get(CACHED_FILENAME) != null));
+
+        mBitmap = (cache.get(CACHED_FILENAME) != null) ?
+                cache.get(CACHED_FILENAME) : Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
         mCanvas = new Canvas(mBitmap);
     }
 
@@ -386,4 +394,9 @@ public class ViewCanvas extends FrameLayout {
         }
     }
 
+    @Override
+    protected Parcelable onSaveInstanceState() {
+        cache.set(CACHED_FILENAME, mBitmap);
+        return super.onSaveInstanceState();
+    }
 }
