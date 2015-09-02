@@ -125,7 +125,14 @@ public class ViewFab extends FloatingActionButton {
     }
 
     public void stopPulse() {
-        if (pulse != null) { pulse.end(); }
+        if (pulse != null) {
+            AnimatorSet normalize = new AnimatorSet();
+            ObjectAnimator scaleX = ObjectAnimator.ofFloat(this, "scaleX", 1f);
+            ObjectAnimator scaleY = ObjectAnimator.ofFloat(this, "scaleY", 1f);
+            normalize.playTogether(scaleX, scaleY);
+            normalize.start();
+            pulse.end();
+        }
     }
 
 }

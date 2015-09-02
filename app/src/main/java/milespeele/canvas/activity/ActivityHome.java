@@ -1,16 +1,8 @@
 package milespeele.canvas.activity;
 
 import android.os.Bundle;
-import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
@@ -18,7 +10,6 @@ import java.lang.ref.WeakReference;
 
 import javax.inject.Inject;
 
-import butterknife.Bind;
 import butterknife.ButterKnife;
 import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
@@ -37,7 +28,6 @@ import milespeele.canvas.fragment.FragmentDrawer;
 import milespeele.canvas.fragment.FragmentFilename;
 import milespeele.canvas.parse.Masterpiece;
 import milespeele.canvas.parse.ParseUtils;
-import milespeele.canvas.util.Logg;
 import milespeele.canvas.view.ViewFab;
 
 public class ActivityHome extends ActivityBase {
@@ -82,7 +72,6 @@ public class ActivityHome extends ActivityBase {
     }
 
     public void onEvent(EventParseError eventParseError) {
-        ((ViewFab) findViewById(R.id.menu_save)).stopPulse();
         ErrorDialog.createDialogFromCode(this, eventParseError.getErrorCode()).show();
     }
 
@@ -118,7 +107,7 @@ public class ActivityHome extends ActivityBase {
         if (!eventFilenameChosen.filename.isEmpty()) {
             FragmentDrawer frag = (FragmentDrawer) getFragmentManager().findFragmentByTag(TAG_FRAGMENT_DRAWER);
             if (frag != null) {
-                parseUtils.saveImageToServer(eventFilenameChosen.filename,
+                parseUtils.saveImageToServer(eventFilenameChosen.filename + ".png",
                         new WeakReference<>(this), frag.giveBitmapToActivity());
             }
         }

@@ -4,31 +4,19 @@ import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.PorterDuff;
 import android.graphics.RectF;
 import android.graphics.drawable.GradientDrawable;
-import android.os.Parcelable;
 import android.support.v4.view.MotionEventCompat;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
-import com.google.common.collect.Lists;
-import com.squareup.picasso.Picasso;
-
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.List;
 import java.util.Random;
 
 import javax.inject.Inject;
@@ -38,7 +26,6 @@ import butterknife.ButterKnife;
 import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
-import milespeele.canvas.util.Logg;
 import milespeele.canvas.event.EventBrushChosen;
 import milespeele.canvas.event.EventColorChosen;
 import milespeele.canvas.event.EventShowColorize;
@@ -48,10 +35,6 @@ import milespeele.canvas.event.EventUndo;
 import milespeele.canvas.paint.PaintPath;
 import milespeele.canvas.paint.PaintStack;
 import milespeele.canvas.paint.PaintStyles;
-import milespeele.canvas.util.Util;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
-import rx.schedulers.Schedulers;
 
 public class ViewCanvas extends FrameLayout {
 
@@ -109,7 +92,6 @@ public class ViewCanvas extends FrameLayout {
         setWillNotDraw(false);
         setSaveEnabled(true);
         setBackgroundColor(currentBackgroundColor);
-        setLayerType(LAYER_TYPE_SOFTWARE, null);
         setDrawingCacheQuality(DRAWING_CACHE_QUALITY_AUTO);
     }
 
@@ -122,29 +104,8 @@ public class ViewCanvas extends FrameLayout {
         scaleMatrix.reset();
         scaleMatrix.setScale(w, h);
 
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-        options.inMutable = true;
-        try {
-            FileInputStream test = getContext().openFileInput(CACHED_FILENAME);
-            mBitmap = BitmapFactory.decodeStream(test, null, options);
-            test.close();
-            Logg.log("GOT BITMAP FROM FILE");
-        } catch (FileNotFoundException e) {
-            Logg.log("FILE NO TFOUND");
-        } catch (IOException e) {
-            Logg.log("IO EXCEPTION ON READ BITMAP");
-            e.printStackTrace();
-        }
-
-        if (mBitmap == null) {
-            Logg.log("BITMAP FROM FILE IS NULL");
-            mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-        }
+        mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
         mCanvas = new Canvas(mBitmap);
-
-//        mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-//        mCanvas = new Canvas(mBitmap);
     }
 
     @Override
@@ -155,7 +116,6 @@ public class ViewCanvas extends FrameLayout {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        canvas.drawBitmap(mBitmap, 0, 0, new Paint());
         for (PaintPath paintPath: mPaths) {
             canvas.drawPath(paintPath, paintPath.getPaint());
         }
@@ -423,26 +383,4 @@ public class ViewCanvas extends FrameLayout {
         }
     }
 
-    @Override
-    protected Parcelable onSaveInstanceState() {
-        Logg.log("ON SAVE");
-        try {
-            final FileOutputStream fos = getContext().openFileOutput(CACHED_FILENAME, Context.MODE_PRIVATE);
-            Util.compressBitmap(mBitmap)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(bytes -> {
-                    try {
-                        fos.write(bytes);
-                        fos.close();
-                        Logg.log("ON SAVE FINISHED");
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                });
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        return super.onSaveInstanceState();
-    }
 }

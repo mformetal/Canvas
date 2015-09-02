@@ -6,11 +6,9 @@ import android.animation.ObjectAnimator;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
-import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AccelerateInterpolator;
 import android.view.animation.AnticipateInterpolator;
 import android.view.animation.Interpolator;
 import android.view.animation.OvershootInterpolator;
@@ -26,6 +24,7 @@ import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
 import milespeele.canvas.event.EventFilenameChosen;
+import milespeele.canvas.event.EventParseError;
 import milespeele.canvas.event.EventShowBrushPicker;
 import milespeele.canvas.event.EventColorChosen;
 import milespeele.canvas.event.EventShowColorize;
@@ -36,7 +35,7 @@ import milespeele.canvas.event.EventShowFilenameFragment;
 import milespeele.canvas.event.EventShowShapeChooser;
 import milespeele.canvas.event.EventShowStrokePickerColor;
 import milespeele.canvas.event.EventUndo;
-import milespeele.canvas.util.Logg;
+import milespeele.canvas.animator.AbstractAnimatorListener;
 
 /**
  * Created by milespeele on 8/7/15.
@@ -60,7 +59,9 @@ public class ViewFabMenu extends ViewGroup
 
     private boolean isMenuShowing = true;
     private boolean isAnimating = false;
+    private boolean isMenuGone = false;
     private float centreX, centreY;
+    private final static int VISIBILITY_DURATION = 350;
     private final static int DELAY = 0;
     private final static int DURATION = 400;
     private final static int DELAY_INCREMENT = 30;
@@ -90,7 +91,6 @@ public class ViewFabMenu extends ViewGroup
         ((MainApp) getContext().getApplicationContext()).getApplicationComponent().inject(this);
         bus.register(this);
         setDescendantFocusability(FOCUS_AFTER_DESCENDANTS);
-        setLayerType(LAYER_TYPE_HARDWARE, null);
     }
 
     @Override
@@ -144,7 +144,7 @@ public class ViewFabMenu extends ViewGroup
                 r / 2 + toggle.getMeasuredWidth() / 2,
                 getMeasuredHeight() - lps.bottomMargin);
 
-        final int radius = getMeasuredWidth() / 3;
+        final int radius = (int) (toggle.getMeasuredHeight() * 2.5);
         centreX = toggle.getX() + toggle.getWidth()  / 2;
         centreY = toggle.getY() + toggle.getHeight() / 2;
         final double slice = Math.PI / (count - 2);
@@ -213,10 +213,14 @@ public class ViewFabMenu extends ViewGroup
 
     public void toggleMenu() {
         if (!isAnimating) {
-            if (isMenuShowing) {
-                hide();
+            if (isMenuGone) {
+                setVisibilityVisible();
             } else {
-                show();
+                if (isMenuShowing) {
+                    hide();
+                } else {
+                    show();
+                }
             }
         }
     }
@@ -313,6 +317,22 @@ public class ViewFabMenu extends ViewGroup
         }
     }
 
+    public void setVisibilityGone() {
+        if (!isMenuGone && isMenuShowing) {
+            isMenuGone = true;
+            close.start();
+            ButterKnife.apply(buttonsList, GONE);
+        }
+    }
+
+    public void setVisibilityVisible() {
+        if (isMenuGone) {
+            isMenuGone = false;
+            open.start();
+            ButterKnife.apply(buttonsList, VISIBLE);
+        }
+    }
+
     public void onEvent(EventColorChosen eventColorChosen) {
         if (eventColorChosen.color != 0) {
             if (eventColorChosen.which.equals(getResources().getString(R.string.TAG_FRAGMENT_FILL))) {
@@ -328,4 +348,41 @@ public class ViewFabMenu extends ViewGroup
             saver.startPulse();
         }
     }
+
+    public void onEvent(EventParseError eventParseError) {
+        saver.stopPulse();
+    }
+
+    static final ButterKnife.Action<View> GONE = new ButterKnife.Action<View>() {
+
+        @Override
+        public void apply(View view, int index) {
+            ObjectAnimator gone = ObjectAnimator.ofFloat(view, "alpha", 1f, 0f);
+            gone.setDuration(VISIBILITY_DURATION);
+            gone.addListener(new AbstractAnimatorListener() {
+
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    view.setVisibility(View.GONE);
+                }
+            });
+            gone.start();
+        }
+    };
+
+    static final ButterKnife.Action<View> VISIBLE = new ButterKnife.Action<View>() {
+        @Override
+        public void apply(View view, int index) {
+            ObjectAnimator gone = ObjectAnimator.ofFloat(view, "alpha", 0f, 1f);
+            gone.setDuration(VISIBILITY_DURATION);
+            gone.addListener(new AbstractAnimatorListener() {
+
+                @Override
+                public void onAnimationStart(Animator animation) {
+                    view.setVisibility(View.VISIBLE);
+                }
+            });
+            gone.start();
+        }
+    };
 }

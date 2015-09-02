@@ -11,7 +11,7 @@ import java.util.HashMap;
 
 import rx.Observable;
 
-public final class Util {
+public final class FontUtils {
 
     private static HashMap<String, Typeface> mFontMap;
 
@@ -41,9 +41,4 @@ public final class Util {
         return typeface;
     }
 
-    public static Observable<byte[]> compressBitmap(Bitmap bitmap) {
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-        return Observable.just(stream.toByteArray());
-    }
 }
