@@ -64,7 +64,7 @@ public class ViewFabMenu extends ViewGroup
     private final static int VISIBILITY_DURATION = 350;
     private final static int DELAY = 0;
     private final static int DURATION = 400;
-    private final static int DELAY_INCREMENT = 30;
+    private final static int DELAY_INCREMENT = 15;
 
     public ViewFabMenu(Context context) {
         super(context);
@@ -144,7 +144,7 @@ public class ViewFabMenu extends ViewGroup
                 r / 2 + toggle.getMeasuredWidth() / 2,
                 getMeasuredHeight() - lps.bottomMargin);
 
-        final int radius = (int) (toggle.getMeasuredHeight() * 2.5);
+        final int radius = toggle.getMeasuredHeight() * 2;
         centreX = toggle.getX() + toggle.getWidth()  / 2;
         centreY = toggle.getY() + toggle.getHeight() / 2;
         final double slice = Math.PI / (count - 2);

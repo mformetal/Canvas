@@ -4,6 +4,7 @@ import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
@@ -21,6 +22,10 @@ import android.widget.ImageView;
 import com.squareup.picasso.Cache;
 import com.squareup.picasso.Picasso;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Random;
 
 import javax.inject.Inject;
@@ -30,6 +35,7 @@ import butterknife.ButterKnife;
 import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
+import milespeele.canvas.bitmap.BitmapUtils;
 import milespeele.canvas.event.EventBrushChosen;
 import milespeele.canvas.event.EventColorChosen;
 import milespeele.canvas.event.EventShowColorize;
@@ -40,6 +46,8 @@ import milespeele.canvas.paint.PaintPath;
 import milespeele.canvas.paint.PaintStack;
 import milespeele.canvas.paint.PaintStyles;
 import milespeele.canvas.util.Logg;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 public class ViewCanvas extends FrameLayout {
 
@@ -51,7 +59,7 @@ public class ViewCanvas extends FrameLayout {
     private static int currentAlpha = 255;
     private boolean shouldErase = false;
     private boolean shouldInk = false;
-    private static int currentStrokeColor;
+    private int currentStrokeColor;
     private int currentBackgroundColor;
     private float lastTouchX, lastTouchY;
     private int width, height;
@@ -66,7 +74,6 @@ public class ViewCanvas extends FrameLayout {
     private Matrix scaleMatrix;
 
     @Inject EventBus bus;
-    @Inject Cache cache;
 
     public ViewCanvas(Context context) {
         super(context);
@@ -110,11 +117,7 @@ public class ViewCanvas extends FrameLayout {
         scaleMatrix.reset();
         scaleMatrix.setScale(w, h);
 
-        Logg.log("CAN GET? " + (cache.get(CACHED_FILENAME) != null));
-
-        mBitmap = (cache.get(CACHED_FILENAME) != null) ?
-                cache.get(CACHED_FILENAME) : Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-        mCanvas = new Canvas(mBitmap);
+        mCanvas = new Canvas(getBitmap(w, h));
     }
 
     @Override
@@ -190,7 +193,6 @@ public class ViewCanvas extends FrameLayout {
             }
 
             mPath.lineTo(eventX, eventY);
-            mCanvas.drawPath(mPath, mPath.getPaint());
         }
     }
 
@@ -396,7 +398,41 @@ public class ViewCanvas extends FrameLayout {
 
     @Override
     protected Parcelable onSaveInstanceState() {
-        cache.set(CACHED_FILENAME, mBitmap);
+        try {
+            final FileOutputStream fos = getContext().openFileOutput(CACHED_FILENAME, Context.MODE_PRIVATE);
+            BitmapUtils.compressBitmap(mBitmap)
+                    .subscribeOn(AndroidSchedulers.mainThread())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(bytes -> {
+                        try {
+                            fos.write(bytes);
+                            fos.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    });
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
         return super.onSaveInstanceState();
+    }
+
+    private Bitmap getBitmap(int w, int h) {
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+        options.inMutable = true;
+        try {
+            FileInputStream test = getContext().openFileInput(CACHED_FILENAME);
+            mBitmap = BitmapFactory.decodeStream(test, null, options);
+            test.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if (mBitmap == null) {
+            mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+        }
+
+        return mBitmap;
     }
 }

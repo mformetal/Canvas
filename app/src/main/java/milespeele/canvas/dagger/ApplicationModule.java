@@ -49,14 +49,8 @@ public class ApplicationModule {
     @Singleton
     public Picasso getPicasso(Application mApplication) {
         return new Picasso.Builder(mApplication)
-                .memoryCache(getCache())
+                .memoryCache( new LruCache((int) (Runtime.getRuntime().maxMemory() / 1024) / 8))
                 .build();
-    }
-
-    @Provides
-    @Singleton
-    public Cache getCache() {
-        return new LruCache((int) (Runtime.getRuntime().maxMemory() / 1024) / 8);
     }
 
     @Provides
