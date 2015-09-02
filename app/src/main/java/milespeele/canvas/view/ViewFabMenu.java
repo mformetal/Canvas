@@ -207,10 +207,6 @@ public class ViewFabMenu extends ViewGroup
         }
     }
 
-    private void createShowAnimatorSet() {
-
-    }
-
     public void toggleMenu() {
         if (!isAnimating) {
             if (isMenuGone) {
@@ -242,7 +238,7 @@ public class ViewFabMenu extends ViewGroup
                 out.setStartDelay(delay);
                 out.setDuration(DURATION);
                 out.setInterpolator(OVERSHOOT_INTERPOLATOR);
-                out.addListener(new Animator.AnimatorListener() {
+                out.addListener(new AbstractAnimatorListener() {
                     @Override
                     public void onAnimationStart(Animator animation) {
                         view.setVisibility(View.VISIBLE);
@@ -253,16 +249,6 @@ public class ViewFabMenu extends ViewGroup
                         if (view == buttonsList.get(buttonsList.size() - 1)) {
                             isAnimating = false;
                         }
-                    }
-
-                    @Override
-                    public void onAnimationCancel(Animator animation) {
-
-                    }
-
-                    @Override
-                    public void onAnimationRepeat(Animator animation) {
-
                     }
                 });
                 out.start();
@@ -288,10 +274,7 @@ public class ViewFabMenu extends ViewGroup
                 out.setStartDelay(delay);
                 out.setDuration(DURATION);
                 out.setInterpolator(ANTICIPATE_INTERPOLATOR);
-                out.addListener(new Animator.AnimatorListener() {
-                    @Override
-                    public void onAnimationStart(Animator animation) {
-                    }
+                out.addListener(new AbstractAnimatorListener() {
 
                     @Override
                     public void onAnimationEnd(Animator animation) {
@@ -299,16 +282,6 @@ public class ViewFabMenu extends ViewGroup
                         if (view == buttonsList.get(buttonsList.size() - 1)) {
                             isAnimating = false;
                         }
-                    }
-
-                    @Override
-                    public void onAnimationCancel(Animator animation) {
-
-                    }
-
-                    @Override
-                    public void onAnimationRepeat(Animator animation) {
-
                     }
                 });
                 out.start();

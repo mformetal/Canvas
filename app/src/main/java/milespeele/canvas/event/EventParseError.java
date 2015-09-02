@@ -7,11 +7,19 @@ import com.parse.ParseException;
  */
 public class EventParseError {
 
+    private static final int NOT_PARSE_ERROR = 1001;
+
     public ParseException e;
 
     public EventParseError(ParseException e) {
         this.e = e;
     }
 
-    public int getErrorCode() { return e.getCode(); }
+    public EventParseError(Throwable throwable) {
+
+    }
+
+    public int getErrorCode() {
+        return (e != null) ? e.getCode() : NOT_PARSE_ERROR;
+    }
 }

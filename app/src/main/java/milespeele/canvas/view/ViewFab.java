@@ -9,6 +9,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.util.AttributeSet;
 
 import milespeele.canvas.R;
+import milespeele.canvas.animator.AbstractAnimatorListener;
 
 public class ViewFab extends FloatingActionButton {
 
@@ -37,7 +38,7 @@ public class ViewFab extends FloatingActionButton {
         scaleUp = new AnimatorSet();
         scaleUp.playTogether(ObjectAnimator.ofFloat(this, "scaleX", 1f, 1.2f),
                 ObjectAnimator.ofFloat(this, "scaleY", 1f, 1.2f));
-        scaleUp.addListener(new Animator.AnimatorListener() {
+        scaleUp.addListener(new AbstractAnimatorListener() {
             @Override
             public void onAnimationStart(Animator animation) {
                 isScaling = true;
@@ -48,22 +49,12 @@ public class ViewFab extends FloatingActionButton {
                 isScaled = true;
                 isScaling = false;
             }
-
-            @Override
-            public void onAnimationCancel(Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationRepeat(Animator animation) {
-
-            }
         });
 
         scaleDown = new AnimatorSet();
         scaleDown.playTogether(ObjectAnimator.ofFloat(this, "scaleX", 1),
                 ObjectAnimator.ofFloat(this, "scaleY", 1));
-        scaleDown.addListener(new Animator.AnimatorListener() {
+        scaleDown.addListener(new AbstractAnimatorListener() {
             @Override
             public void onAnimationStart(Animator animation) {
                 isScaling = true;
@@ -75,15 +66,6 @@ public class ViewFab extends FloatingActionButton {
                 isScaling = false;
             }
 
-            @Override
-            public void onAnimationCancel(Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationRepeat(Animator animation) {
-
-            }
         });
     }
 

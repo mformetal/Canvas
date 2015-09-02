@@ -82,6 +82,8 @@ public class ParseUtils {
             e.printStackTrace();
             Logg.log("PARSE ERROR CODE: "+ e.getCode());
             bus.post(new EventParseError(e));
+        } else {
+            bus.post(new EventParseError(throwable));
         }
     }
 }

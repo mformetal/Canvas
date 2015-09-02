@@ -28,5 +28,4 @@ public class Logg {
 
         Log.d("Miles", "", throwable);
     }
-
 }

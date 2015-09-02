@@ -35,6 +35,7 @@ import milespeele.canvas.event.EventUndo;
 import milespeele.canvas.paint.PaintPath;
 import milespeele.canvas.paint.PaintStack;
 import milespeele.canvas.paint.PaintStyles;
+import milespeele.canvas.util.Logg;
 
 public class ViewCanvas extends FrameLayout {
 
@@ -116,6 +117,7 @@ public class ViewCanvas extends FrameLayout {
 
     @Override
     protected void onDraw(Canvas canvas) {
+        canvas.drawBitmap(mBitmap, 0, 0, null);
         for (PaintPath paintPath: mPaths) {
             canvas.drawPath(paintPath, paintPath.getPaint());
         }
@@ -180,6 +182,7 @@ public class ViewCanvas extends FrameLayout {
             }
 
             mPath.lineTo(eventX, eventY);
+            mCanvas.drawPath(mPath, mPath.getPaint());
         }
     }
 
@@ -223,7 +226,7 @@ public class ViewCanvas extends FrameLayout {
 
     private void setInkPosition(MotionEvent event, float eventX, float eventY) {
         if (shouldInk && eventsInRange(eventX, eventY)) {
-            int color = mBitmap.getPixel((int) eventX, (int) eventY);
+            int color = mBitmap.getPixel(Math.round(eventX), Math.round(eventY));
             colorizer.setBackgroundColor(color);
 
             colorizer.setTranslationX(eventX);
