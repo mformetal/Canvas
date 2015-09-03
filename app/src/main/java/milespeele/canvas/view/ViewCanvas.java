@@ -1,10 +1,10 @@
 package milespeele.canvas.view;
 
+import android.animation.Animator;
 import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
@@ -19,13 +19,6 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
-import com.squareup.picasso.Cache;
-import com.squareup.picasso.Picasso;
-
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.Random;
 
 import javax.inject.Inject;
@@ -35,6 +28,7 @@ import butterknife.ButterKnife;
 import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
+import milespeele.canvas.animator.AbstractAnimatorListener;
 import milespeele.canvas.bitmap.BitmapUtils;
 import milespeele.canvas.event.EventBrushChosen;
 import milespeele.canvas.event.EventColorChosen;
@@ -45,9 +39,6 @@ import milespeele.canvas.event.EventUndo;
 import milespeele.canvas.paint.PaintPath;
 import milespeele.canvas.paint.PaintStack;
 import milespeele.canvas.paint.PaintStyles;
-import milespeele.canvas.util.Logg;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
 public class ViewCanvas extends FrameLayout {
 
@@ -62,14 +53,16 @@ public class ViewCanvas extends FrameLayout {
     private int currentStrokeColor;
     private int currentBackgroundColor;
     private float lastTouchX, lastTouchY;
-    private int width, height;
+    private  int width, height;
 
+    private static final Paint BITMAP_PAINT = new Paint();
     private final RectF dirtyRect = new RectF();
     private PaintPath mPath;
     private PaintStack mPaths;
     private PaintStack redoPaths;
     private Paint curPaint;
-    private Bitmap mBitmap;
+    private Bitmap drawingBitmap;
+    private Bitmap cachedBitmap;
     private Canvas mCanvas;
     private Matrix scaleMatrix;
 
@@ -105,7 +98,6 @@ public class ViewCanvas extends FrameLayout {
         setWillNotDraw(false);
         setSaveEnabled(true);
         setBackgroundColor(currentBackgroundColor);
-        setDrawingCacheQuality(DRAWING_CACHE_QUALITY_AUTO);
     }
 
     @Override
@@ -117,7 +109,16 @@ public class ViewCanvas extends FrameLayout {
         scaleMatrix.reset();
         scaleMatrix.setScale(w, h);
 
-        mCanvas = new Canvas(getBitmap(w, h));
+        drawingBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+        mCanvas = new Canvas(drawingBitmap);
+
+        cachedBitmap = BitmapUtils.getCachedBitmap(getContext(), CACHED_FILENAME);
+
+        if (cachedBitmap != null) {
+            mCanvas.drawBitmap(cachedBitmap, 0, 0, BITMAP_PAINT);
+            currentBackgroundColor = BitmapUtils.getBitmapBackgroundColor(cachedBitmap);
+            setBackgroundColor(currentBackgroundColor);
+        }
     }
 
     @Override
@@ -128,9 +129,12 @@ public class ViewCanvas extends FrameLayout {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        canvas.drawBitmap(mBitmap, 0, 0, null);
-        for (PaintPath paintPath: mPaths) {
-            canvas.drawPath(paintPath, paintPath.getPaint());
+        if (cachedBitmap != null) {
+            canvas.drawBitmap(cachedBitmap, 0, 0, null);
+        }
+
+        for (PaintPath p: mPaths) {
+            canvas.drawPath(p, p.getPaint());
         }
     }
 
@@ -149,6 +153,7 @@ public class ViewCanvas extends FrameLayout {
             case MotionEvent.ACTION_MOVE:
                 onTouchMove(event, eventX, eventY);
                 break;
+
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_POINTER_UP:
                 onTouchUp(event, eventX, eventY);
@@ -193,6 +198,7 @@ public class ViewCanvas extends FrameLayout {
             }
 
             mPath.lineTo(eventX, eventY);
+            mCanvas.drawPath(mPath, mPath.getPaint());
         }
     }
 
@@ -236,7 +242,7 @@ public class ViewCanvas extends FrameLayout {
 
     private void setInkPosition(MotionEvent event, float eventX, float eventY) {
         if (shouldInk && eventsInRange(eventX, eventY)) {
-            int color = mBitmap.getPixel(Math.round(eventX), Math.round(eventY));
+            int color = drawingBitmap.getPixel(Math.round(eventX), Math.round(eventY));
             colorizer.setBackgroundColor(color);
 
             colorizer.setTranslationX(eventX);
@@ -261,8 +267,8 @@ public class ViewCanvas extends FrameLayout {
 
     private boolean eventsInRange(float eventX, float eventY) {
         int x = Math.round(eventX), y = Math.round(eventY);
-        return (x >= 0 && x <= mBitmap.getWidth() &&
-                (y >= 0 && y <= mBitmap.getHeight()));
+        return (x >= 0 && x <= drawingBitmap.getWidth() &&
+                (y >= 0 && y <= drawingBitmap.getHeight()));
     }
 
     public void onEvent(EventColorChosen eventColorChosen) {
@@ -335,7 +341,7 @@ public class ViewCanvas extends FrameLayout {
         eraser.setVisibility(View.GONE);
         colorizer.setX((float) getWidth() / 2);
         colorizer.setY((float) getHeight() / 2);
-        colorizer.setBackgroundColor(mBitmap.getPixel(getWidth() / 2, getHeight() / 2));
+        colorizer.setBackgroundColor(drawingBitmap.getPixel(getWidth() / 2, getHeight() / 2));
         colorizer.setVisibility(View.VISIBLE);
         shouldInk = true;
         shouldErase = false;
@@ -366,15 +372,26 @@ public class ViewCanvas extends FrameLayout {
         mPath = new PaintPath(currentStyle());
         mPaths.push(mPath);
 
-        mBitmap.recycle();
-        mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        mCanvas = new Canvas(mBitmap);
+        cachedBitmap.recycle();
+        cachedBitmap = null;
+        drawingBitmap.recycle();
+        drawingBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        mCanvas = new Canvas(drawingBitmap);
 
-        ObjectAnimator.ofObject(this, "backgroundColor", new ArgbEvaluator(),
-                currentBackgroundColor, color).setDuration(750).start();
+        ObjectAnimator background =
+                ObjectAnimator.ofObject(this, "backgroundColor", new ArgbEvaluator(),
+                currentBackgroundColor, color);
+        background.setDuration(750);
+        background.addListener(new AbstractAnimatorListener() {
+
+           @Override
+           public void onAnimationEnd(Animator animation) {
+               mCanvas.drawColor(color);
+           }
+        });
+        background.start();
 
         currentBackgroundColor = color;
-        setDrawingCacheBackgroundColor(currentBackgroundColor);
         invalidate();
     }
 
@@ -382,57 +399,23 @@ public class ViewCanvas extends FrameLayout {
 
     public int getPaintAlpha() { return currentAlpha; }
 
-    public Bitmap getBitmap() {
-        return mBitmap;
+    public Bitmap getDrawingBitmap() {
+        return drawingBitmap;
     }
 
     public int getCurrentStrokeColor() { return currentStrokeColor; }
 
     private Paint currentStyle() {
-        if (shouldErase) {
-            return PaintStyles.eraserPaint(currentBackgroundColor, eraser.getWidth());
-        } else {
-            return new Paint(curPaint);
-        }
+        return (shouldErase) ?
+                PaintStyles.eraserPaint(currentBackgroundColor, eraser.getWidth()) :
+                new Paint(curPaint);
     }
 
     @Override
     protected Parcelable onSaveInstanceState() {
-        try {
-            final FileOutputStream fos = getContext().openFileOutput(CACHED_FILENAME, Context.MODE_PRIVATE);
-            BitmapUtils.compressBitmap(mBitmap)
-                    .subscribeOn(AndroidSchedulers.mainThread())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(bytes -> {
-                        try {
-                            fos.write(bytes);
-                            fos.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    });
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+        BitmapUtils.cacheBitmap(getContext(), CACHED_FILENAME, drawingBitmap);
         return super.onSaveInstanceState();
     }
 
-    private Bitmap getBitmap(int w, int h) {
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-        options.inMutable = true;
-        try {
-            FileInputStream test = getContext().openFileInput(CACHED_FILENAME);
-            mBitmap = BitmapFactory.decodeStream(test, null, options);
-            test.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
-        if (mBitmap == null) {
-            mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-        }
-
-        return mBitmap;
-    }
 }

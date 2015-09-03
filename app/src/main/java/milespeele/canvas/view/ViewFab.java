@@ -36,8 +36,8 @@ public class ViewFab extends FloatingActionButton {
 
     private void init() {
         scaleUp = new AnimatorSet();
-        scaleUp.playTogether(ObjectAnimator.ofFloat(this, "scaleX", 1f, 1.2f),
-                ObjectAnimator.ofFloat(this, "scaleY", 1f, 1.2f));
+        scaleUp.playTogether(ObjectAnimator.ofFloat(this, "scaleX", 1f, 1.1f),
+                ObjectAnimator.ofFloat(this, "scaleY", 1f, 1.1f));
         scaleUp.addListener(new AbstractAnimatorListener() {
             @Override
             public void onAnimationStart(Animator animation) {
