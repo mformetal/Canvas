@@ -117,7 +117,7 @@ public class ViewCanvas extends FrameLayout {
         if (cachedBitmap != null) {
             mCanvas.drawBitmap(cachedBitmap, 0, 0, BITMAP_PAINT);
             int bitmapBackgroundColor = BitmapUtils.getBitmapBackgroundColor(cachedBitmap);
-            currentBackgroundColor = ((bitmapBackgroundColor != 0) ?
+            currentBackgroundColor = ((bitmapBackgroundColor != -1) ?
                     bitmapBackgroundColor : currentBackgroundColor);
             setBackgroundColor(currentBackgroundColor);
         }

@@ -3,6 +3,7 @@ package milespeele.canvas.bitmap;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
@@ -86,6 +87,6 @@ public class BitmapUtils {
             }
         }
 
-        return 0;
+        return -1;
     }
 }
