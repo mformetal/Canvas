@@ -39,6 +39,7 @@ import milespeele.canvas.event.EventUndo;
 import milespeele.canvas.paint.PaintPath;
 import milespeele.canvas.paint.PaintStack;
 import milespeele.canvas.paint.PaintStyles;
+import milespeele.canvas.util.Logg;
 
 public class ViewCanvas extends FrameLayout {
 
@@ -55,7 +56,6 @@ public class ViewCanvas extends FrameLayout {
     private float lastTouchX, lastTouchY;
     private  int width, height;
 
-    private static final Paint BITMAP_PAINT = new Paint();
     private final RectF dirtyRect = new RectF();
     private PaintPath mPath;
     private PaintStack mPaths;
@@ -115,10 +115,8 @@ public class ViewCanvas extends FrameLayout {
         cachedBitmap = BitmapUtils.getCachedBitmap(getContext(), CACHED_FILENAME);
 
         if (cachedBitmap != null) {
-            mCanvas.drawBitmap(cachedBitmap, 0, 0, BITMAP_PAINT);
-            int bitmapBackgroundColor = BitmapUtils.getBitmapBackgroundColor(cachedBitmap);
-            currentBackgroundColor = ((bitmapBackgroundColor != -1) ?
-                    bitmapBackgroundColor : currentBackgroundColor);
+            mCanvas.drawBitmap(cachedBitmap, 0, 0, null);
+            currentBackgroundColor = BitmapUtils.getBitmapBackgroundColor(cachedBitmap);
             setBackgroundColor(currentBackgroundColor);
         }
     }
@@ -418,6 +416,5 @@ public class ViewCanvas extends FrameLayout {
         BitmapUtils.cacheBitmap(getContext(), CACHED_FILENAME, drawingBitmap);
         return super.onSaveInstanceState();
     }
-
 
 }

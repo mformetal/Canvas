@@ -66,11 +66,12 @@ public class BitmapUtils {
     }
 
     public static int getBitmapBackgroundColor(Bitmap bitmap) {
+        long start = System.nanoTime();
         Map<Integer, Integer> frequencies = new HashMap<>();
-        final int xStep = bitmap.getWidth() / 10;
-        final int yStep = bitmap.getHeight() / 10;
-        for (int x = 0; x < bitmap.getWidth(); x += xStep) {
-            for (int y = 0; y < bitmap.getHeight(); y += yStep) {
+        final int xInc = bitmap.getWidth() / 20;
+        final int yInc = bitmap.getHeight() / 20;
+        for (int x = 0; x < bitmap.getWidth(); x += xInc) {
+            for (int y = 0; y < bitmap.getHeight(); y += yInc) {
                 int pixel = bitmap.getPixel(x, y);
                 if (frequencies.containsKey(pixel)) {
                     frequencies.put(pixel, frequencies.get(pixel) + 1);
@@ -83,10 +84,10 @@ public class BitmapUtils {
         int maxFreq = Collections.max(frequencies.values());
         for (int pixel: frequencies.keySet()) {
             if (frequencies.get(pixel) == maxFreq) {
-                return pixel;
+                return (pixel == 0) ? Color.WHITE : pixel;
             }
         }
 
-        return -1;
+        return Color.WHITE;
     }
 }
