@@ -1,4 +1,4 @@
-package milespeele.canvas.animator;
+package milespeele.canvas.util;
 
 import android.animation.Animator;
 import android.animation.Animator.AnimatorListener;

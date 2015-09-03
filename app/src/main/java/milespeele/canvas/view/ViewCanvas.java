@@ -28,8 +28,8 @@ import butterknife.ButterKnife;
 import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
-import milespeele.canvas.animator.AbstractAnimatorListener;
-import milespeele.canvas.bitmap.BitmapUtils;
+import milespeele.canvas.util.AbstractAnimatorListener;
+import milespeele.canvas.util.BitmapUtils;
 import milespeele.canvas.event.EventBrushChosen;
 import milespeele.canvas.event.EventColorChosen;
 import milespeele.canvas.event.EventShowColorize;
@@ -39,7 +39,6 @@ import milespeele.canvas.event.EventUndo;
 import milespeele.canvas.paint.PaintPath;
 import milespeele.canvas.paint.PaintStack;
 import milespeele.canvas.paint.PaintStyles;
-import milespeele.canvas.util.Logg;
 
 public class ViewCanvas extends FrameLayout {
 
@@ -396,8 +395,6 @@ public class ViewCanvas extends FrameLayout {
     }
 
     public float getBrushWidth() { return STROKE_WIDTH; }
-
-    public int getPaintAlpha() { return currentAlpha; }
 
     public Bitmap getDrawingBitmap() {
         return drawingBitmap;

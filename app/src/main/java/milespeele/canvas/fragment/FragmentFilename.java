@@ -4,11 +4,15 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.EditText;
+import android.widget.Toast;
+
+import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
@@ -19,15 +23,18 @@ import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
 import milespeele.canvas.event.EventFilenameChosen;
+import milespeele.canvas.view.ViewTypefaceEditText;
 
 /**
  * Created by Miles Peele on 7/13/2015.
  */
 public class FragmentFilename extends DialogFragment implements View.OnClickListener {
 
-    @Bind(R.id.fragment_filename_input) EditText input;
+    @Bind(R.id.fragment_filename_input) ViewTypefaceEditText input;
 
     @Inject EventBus bus;
+
+    private final static String REGEX = "^[a-zA-Z0-9]*$";
 
     public FragmentFilename(){}
 
@@ -67,17 +74,28 @@ public class FragmentFilename extends DialogFragment implements View.OnClickList
         ButterKnife.unbind(this);
     }
 
+    private boolean doesFileNameContainValidCharacters() {
+        return input.getTextAsString().matches(REGEX);
+    }
+
     @Override
     @OnClick({R.id.fragment_filename_pos_button, R.id.fragment_filename_neg_button})
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.fragment_filename_pos_button:
-                bus.post(new EventFilenameChosen(input.getText().toString()));
+                if (doesFileNameContainValidCharacters()) {
+                    bus.post(new EventFilenameChosen(input.getText().toString()));
+                    dismiss();
+                } else {
+                    Toast.makeText(getActivity(),
+                            getResources().getString(R.string.snackbar_fragment_filename_invalid),
+                            Toast.LENGTH_SHORT).show();
+                }
                 break;
             case R.id.fragment_filename_neg_button:
                 bus.post(new EventFilenameChosen(""));
+                dismiss();
                 break;
         }
-        dismiss();
     }
 }

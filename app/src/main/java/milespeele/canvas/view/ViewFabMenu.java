@@ -35,7 +35,7 @@ import milespeele.canvas.event.EventShowFilenameFragment;
 import milespeele.canvas.event.EventShowShapeChooser;
 import milespeele.canvas.event.EventShowStrokePickerColor;
 import milespeele.canvas.event.EventUndo;
-import milespeele.canvas.animator.AbstractAnimatorListener;
+import milespeele.canvas.util.AbstractAnimatorListener;
 
 /**
  * Created by milespeele on 8/7/15.

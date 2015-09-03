@@ -14,10 +14,9 @@ import javax.inject.Inject;
 import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.activity.ActivityHome;
-import milespeele.canvas.bitmap.BitmapUtils;
+import milespeele.canvas.util.BitmapUtils;
 import milespeele.canvas.event.EventParseError;
 import milespeele.canvas.util.Logg;
-import milespeele.canvas.util.FontUtils;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 

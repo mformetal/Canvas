@@ -1,31 +1,19 @@
 <resources>
     <string name="app_name">Canvas</string>
 
-    <string name="parse_application_id">QE5ZD9Q1OkUXhR3S7dRea1ubKIYA60LUrGUOgOfv</string>
-    <string name="parse_client_key">mbBzw87p4hrBgtIOSsX3WTSSV4CkXHgG7bNU96aR</string>
-    <string name="facebook_app_id">839140002829673</string>
-    <string name="twitter_consumer_key">rV9zSspMD92DWkxHrNijzrff0</string>
-    <string name="twitter_consumer_secret">bVNZxVLt7LuDMPPEQa6TKR53u0H0BGM3TtgwAag3pvbPVJEx4g</string>
+    <string name="parse_application_id">@string/parse_application_id</string>
+    <string name="parse_client_key">@string/parse_client_key</string>
+    <string name="facebook_app_id">@string/facebook_app_id</string>
+    <string name="twitter_consumer_key">@string/twitter_consumer_key</string>
+    <string name="twitter_consumer_secret">@string/twitter_consumer_secret</string>
 
-    <string name="title_activity_gallery">Gallery</string>
-    <string name="activity_gallery_empty">No Masterpieces Saved Yet!</string>
-
-    <string name="alert_dialog_new_canvas_title">Start Over?</string>
-    <string name="alert_dialog_new_canvas_body">Selecting a new Canvas color will erase
-        any drawing you currently have.</string>
-    <string name="alert_dialog_new_canvas_pos_button">Got it</string>
     <string name="fragment_color_picker_choose">Choose</string>
     <string name="fragment_color_picker_nah">Cancel</string>
-
-    <string name="activity_home_actionbar_toggle_open">Canvas</string>
-    <string name="activity_home_actionbar_toggle_close">Close</string>
-
-    <string name="menu_drawer_items_header_text">Welcome Home.</string>
-    <string name="menu_drawer_items_gallery">Gallery</string>
 
     <string name="snackbar_activity_home_image_saved_title">Saved Your Masterpiece!</string>
     <string name="snackbar_activity_home_imaged_saved_body">View</string>
 
+    <string name="toast_fragment_filename_invalid">Must contain only alphanumeric characters</string>
     <string name="fragment_filename_title">Name And Save Your Masterpiece</string>
     <string name="fragment_filename_edittext_hint">Enter name</string>
     <string name="fragment_filename_pos_button_text">Save!</string>
@@ -39,22 +27,22 @@
     <string name="paint_example_fade">Fade</string>
     <string name="paint_example_normal">Normal</string>
 
-    <string name="title_activity_login">Login</string>
-
-    <string name="TAG_FRAGMENT_FILL">New Canvas Color</string>
-    <string name="TAG_FRAGMENT_STROKE">Brush Color</string>
-
     <string name="error_dialog_pos_button_text">Got it</string>
     <string name="error_dialog_neg_button_text">Retry</string>
-    <string name="error_dialog_general_title">OH GOD</string>
-    <string name="error_dialog_general_body">EVERYTHING IS ON FIRE</string>
+    <string name="error_dialog_general_title">Something went wrong</string>
+    <string name="error_dialog_general_body">Don't look at me. It's not my fault.</string>
 
     <string name="error_no_internet_title">The Internet Ran Away</string>
     <string name="error_no_internet_body">Looks like you don\'t have an internet connection.
-        Try re-enabling data or connect to a different WiFi network.</string>
+        Try enabling data, or reconnect to some sweet WiFi..</string>
 
     <string name="error_object_not_found_title">Where It At Tho?</string>
     <string name="error_object_not_found_body">Looks like the thing you want doesn\'t
         exist. Fuck if I know what happened to it. </string>
+
+    <string name="alert_dialog_new_canvas_title">Start Over?</string>
+    <string name="alert_dialog_new_canvas_body">Selecting a new Canvas color will erase
+        any drawing you currently have.</string>
+    <string name="alert_dialog_new_canvas_pos_button">Got it</string>
 
 </resources>

@@ -33,4 +33,6 @@ public class ViewTypefaceEditText extends EditText {
     private void init() {
         setTypeface(FontUtils.getStaticTypeFace(getContext(), "Roboto.ttf"));
     }
+
+    public String getTextAsString() { return getText().toString(); }
 }
