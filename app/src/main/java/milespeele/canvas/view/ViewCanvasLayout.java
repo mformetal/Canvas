@@ -3,10 +3,13 @@ package milespeele.canvas.view;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Handler;
+import android.os.Message;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.view.MotionEventCompat;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
+
+import java.lang.ref.WeakReference;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -21,8 +24,22 @@ public class ViewCanvasLayout extends CoordinatorLayout {
     @Bind(R.id.fragment_drawer_menu) ViewFabMenu menu;
 
     private boolean mIsMoving = false;
-    private static Handler handler = new Handler();
     private static final int MOVING_DELAY = 750;
+    private final MyHandler handler = new MyHandler(this);
+    private final static class MyHandler extends Handler {
+        private final WeakReference<ViewCanvasLayout> ref;
+
+        public MyHandler(ViewCanvasLayout view) {
+            ref = new WeakReference<>(view);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            if (ref.get() != null) {
+                ref.get().ifStillMoving();
+            }
+        }
+    }
 
     public ViewCanvasLayout(Context context) {
         super(context);
@@ -80,8 +97,6 @@ public class ViewCanvasLayout extends CoordinatorLayout {
     public float getBrushWidth() {
         return drawer.getBrushWidth();
     }
-
-    public int getPaintAlpha() { return drawer.getPaintAlpha(); }
 
     public Bitmap getDrawerBitmap() { return drawer.getDrawingBitmap(); }
 

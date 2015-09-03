@@ -68,8 +68,8 @@ public class BitmapUtils {
         Map<Integer, Integer> frequencies = new HashMap<>();
         final int xStep = bitmap.getWidth() / 10;
         final int yStep = bitmap.getHeight() / 10;
-        for (int x = 0; x < bitmap.getWidth(); x ++) {
-            for (int y = 0; y < bitmap.getHeight(); y ++) {
+        for (int x = 0; x < bitmap.getWidth(); x += xStep) {
+            for (int y = 0; y < bitmap.getHeight(); y += yStep) {
                 int pixel = bitmap.getPixel(x, y);
                 if (frequencies.containsKey(pixel)) {
                     frequencies.put(pixel, frequencies.get(pixel) + 1);
@@ -79,6 +79,13 @@ public class BitmapUtils {
             }
         }
 
-        return Collections.max(frequencies.keySet());
+        int maxFreq = Collections.max(frequencies.values());
+        for (int pixel: frequencies.keySet()) {
+            if (frequencies.get(pixel) == maxFreq) {
+                return pixel;
+            }
+        }
+
+        return 0;
     }
 }

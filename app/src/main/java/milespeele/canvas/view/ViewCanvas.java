@@ -116,7 +116,9 @@ public class ViewCanvas extends FrameLayout {
 
         if (cachedBitmap != null) {
             mCanvas.drawBitmap(cachedBitmap, 0, 0, BITMAP_PAINT);
-            currentBackgroundColor = BitmapUtils.getBitmapBackgroundColor(cachedBitmap);
+            int bitmapBackgroundColor = BitmapUtils.getBitmapBackgroundColor(cachedBitmap);
+            currentBackgroundColor = ((bitmapBackgroundColor != 0) ?
+                    bitmapBackgroundColor : currentBackgroundColor);
             setBackgroundColor(currentBackgroundColor);
         }
     }
@@ -384,10 +386,10 @@ public class ViewCanvas extends FrameLayout {
         background.setDuration(750);
         background.addListener(new AbstractAnimatorListener() {
 
-           @Override
-           public void onAnimationEnd(Animator animation) {
-               mCanvas.drawColor(color);
-           }
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                mCanvas.drawColor(color);
+            }
         });
         background.start();
 
