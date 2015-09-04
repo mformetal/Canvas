@@ -44,6 +44,7 @@ import milespeele.canvas.event.EventUndo;
 import milespeele.canvas.paint.PaintPath;
 import milespeele.canvas.paint.PaintStack;
 import milespeele.canvas.paint.PaintStyles;
+import milespeele.canvas.util.Datastore;
 import milespeele.canvas.util.Logg;
 
 public class ViewCanvas extends FrameLayout {
@@ -53,7 +54,6 @@ public class ViewCanvas extends FrameLayout {
 
     private final static String CACHED_FILENAME = "cached";
     private static float STROKE_WIDTH = 5f;
-    private static int currentAlpha = 255;
     private boolean shouldErase = false;
     private boolean shouldInk = false;
     private int currentStrokeColor;
@@ -73,6 +73,7 @@ public class ViewCanvas extends FrameLayout {
     private Matrix scaleMatrix;
 
     @Inject EventBus bus;
+    @Inject Datastore store;
 
     public ViewCanvas(Context context) {
         super(context);
@@ -90,7 +91,7 @@ public class ViewCanvas extends FrameLayout {
 
         Random rnd = new Random();
         currentStrokeColor = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
-        currentBackgroundColor = Color.WHITE;
+        currentBackgroundColor = store.getLastBackgroundColor();
 
         curPaint = PaintStyles.normalPaint(currentStrokeColor, STROKE_WIDTH);
 
@@ -122,8 +123,6 @@ public class ViewCanvas extends FrameLayout {
 
         if (cachedBitmap != null) {
             mCanvas.drawBitmap(cachedBitmap, 0, 0, null);
-            currentBackgroundColor = BitmapUtils.getBitmapBackgroundColor(cachedBitmap);
-            setBackgroundColor(currentBackgroundColor);
         }
     }
 
@@ -360,7 +359,6 @@ public class ViewCanvas extends FrameLayout {
         shouldInk = false;
         shouldErase = false;
         currentStrokeColor = color;
-        currentAlpha = opacity;
         curPaint.setAlpha(opacity);
         curPaint.setColor(currentStrokeColor);
     }
@@ -420,6 +418,7 @@ public class ViewCanvas extends FrameLayout {
     @Override
     protected Parcelable onSaveInstanceState() {
         BitmapUtils.cacheBitmap(getContext(), drawingBitmap, CACHED_FILENAME);
+        store.setLastBackgroundColor(currentBackgroundColor);
         return super.onSaveInstanceState();
     }
 
