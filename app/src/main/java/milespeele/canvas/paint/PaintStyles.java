@@ -16,7 +16,7 @@ import milespeele.canvas.R;
 public class PaintStyles {
 
     private static final BlurMaskFilter SOLID_BLUR_MASK_FILTER
-            = new BlurMaskFilter(10, BlurMaskFilter.Blur.SOLID);
+            = new BlurMaskFilter(10, BlurMaskFilter.Blur.INNER);
     private static final EmbossMaskFilter EMBOSS_MASK_FILTER
             = new EmbossMaskFilter(new float[] {0.0f, -1.0f, 0.5f}, 0.8f, 15f, 1f);
     private static final PathEffect DASHED_PASH_EFFECT

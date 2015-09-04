@@ -31,7 +31,6 @@ public class FragmentBrushPicker extends DialogFragment
     @Inject EventBus bus;
 
     private static final String THICKNESS = "thick";
-    private static final String ALPHA = "alpha";
 
     public FragmentBrushPicker() {}
 

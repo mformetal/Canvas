@@ -1,6 +1,8 @@
 package milespeele.canvas.util;
 
+import android.app.IntentService;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -14,38 +16,37 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import milespeele.canvas.util.Logg;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 /**
  * Created by mbpeele on 9/2/15.
  */
 public class BitmapUtils {
 
-    public static Observable<byte[]> compressBitmap(Bitmap bitmap) {
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-        return Observable.just(stream.toByteArray());
-    }
-
-    public static void cacheBitmap(Context context, String filename, Bitmap bitmap) {
+    public static void cacheBitmap(Context context, Bitmap bitmap, String filename) {
         try {
             final FileOutputStream fos = context.openFileOutput(filename, Context.MODE_PRIVATE);
-            compressBitmap(bitmap)
-                    .subscribeOn(AndroidSchedulers.mainThread())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(bytes -> {
-                        try {
-                            fos.write(bytes);
-                            fos.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    });
+            try {
+                fos.write(compressBitmapAsBitmapArray(bitmap));
+                fos.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
+    }
+
+    public static Observable<byte[]> compressBitmapAsObservable(Bitmap bitmap) {
+        return Observable.just(compressBitmapAsBitmapArray(bitmap));
+    }
+
+    public static byte[] compressBitmapAsBitmapArray(Bitmap bitmap) {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        return stream.toByteArray();
     }
 
     public static Bitmap getCachedBitmap(Context context, String filename) {
@@ -66,7 +67,6 @@ public class BitmapUtils {
     }
 
     public static int getBitmapBackgroundColor(Bitmap bitmap) {
-        long start = System.nanoTime();
         Map<Integer, Integer> frequencies = new HashMap<>();
         final int xInc = bitmap.getWidth() / 20;
         final int yInc = bitmap.getHeight() / 20;

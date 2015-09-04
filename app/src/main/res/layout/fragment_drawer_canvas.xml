@@ -13,10 +13,12 @@
         android:visibility="gone" />
 
     <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/view_colorizer_size"
+        android:layout_width="@dimen/view_colorizer_size"
         android:id="@+id/fragment_drawer_eraser_colorizer"
         android:src="@drawable/ic_colorize_black_24dp"
+        android:scaleType="fitCenter"
+        android:adjustViewBounds="true"
         android:visibility="gone" />
 
 </milespeele.canvas.view.ViewCanvas>

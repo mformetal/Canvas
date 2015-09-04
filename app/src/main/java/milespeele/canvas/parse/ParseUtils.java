@@ -34,7 +34,7 @@ public class ParseUtils {
     }
 
     public void saveImageToServer(String filename, final WeakReference<ActivityHome> weakCxt, Bitmap bitmap) {
-        BitmapUtils.compressBitmap(bitmap)
+        BitmapUtils.compressBitmapAsObservable(bitmap)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(bytes -> {

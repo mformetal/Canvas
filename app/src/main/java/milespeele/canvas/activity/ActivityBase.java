@@ -22,12 +22,12 @@ public abstract class ActivityBase extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        AppEventsLogger.activateApp(this, getResources().getString(R.string.facebook_app_id));
+        AppEventsLogger.activateApp(this, getResources().getString(R.string.facebook_id));
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        AppEventsLogger.deactivateApp(this, getResources().getString(R.string.facebook_app_id));
+        AppEventsLogger.deactivateApp(this, getResources().getString(R.string.facebook_id));
     }
 }

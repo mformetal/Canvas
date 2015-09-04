@@ -94,7 +94,7 @@ public class ViewFab extends FloatingActionButton {
             pulse.setDuration(300);
             pulse.start();
         } else {
-            if (pulse.isRunning()) {
+            if (!pulse.isRunning()) {
                  pulse.start();
             }
         }

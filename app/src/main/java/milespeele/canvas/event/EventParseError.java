@@ -7,7 +7,7 @@ import com.parse.ParseException;
  */
 public class EventParseError {
 
-    private static final int NOT_PARSE_ERROR = 1001;
+    private static final int NOT_PARSE_ERROR = -1;
 
     public ParseException e;
 

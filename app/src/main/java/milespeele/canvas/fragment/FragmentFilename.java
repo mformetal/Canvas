@@ -4,15 +4,11 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.EditText;
 import android.widget.Toast;
-
-import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
@@ -74,7 +70,7 @@ public class FragmentFilename extends DialogFragment implements View.OnClickList
         ButterKnife.unbind(this);
     }
 
-    private boolean doesFileNameContainValidCharacters() {
+    private boolean filenameContainsValidCharacters() {
         return input.getTextAsString().matches(REGEX);
     }
 
@@ -83,12 +79,12 @@ public class FragmentFilename extends DialogFragment implements View.OnClickList
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.fragment_filename_pos_button:
-                if (doesFileNameContainValidCharacters()) {
+                if (filenameContainsValidCharacters()) {
                     bus.post(new EventFilenameChosen(input.getText().toString()));
                     dismiss();
                 } else {
                     Toast.makeText(getActivity(),
-                            getResources().getString(R.string.snackbar_fragment_filename_invalid),
+                            getResources().getString(R.string.toast_fragment_filename_invalid),
                             Toast.LENGTH_SHORT).show();
                 }
                 break;

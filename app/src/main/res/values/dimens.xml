@@ -2,6 +2,8 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
 
+    <dimen name="view_colorizer_size">50dp</dimen>
+
     <dimen name="fab_margin">10dp</dimen>
     <dimen name="fab_padding">16dp</dimen>
 

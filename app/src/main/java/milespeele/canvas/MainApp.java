@@ -27,11 +27,11 @@ public class MainApp extends Application {
         Parse.enableLocalDatastore(this);
         ParseCrashReporting.enable(this);
         Parse.initialize(this,
-                getResources().getString(R.string.parse_application_id),
-                getResources().getString(R.string.parse_client_key));
+                getResources().getString(R.string.parse_id),
+                getResources().getString(R.string.parse_key));
         ParseFacebookUtils.initialize(this);
-        ParseTwitterUtils.initialize(getResources().getString(R.string.twitter_consumer_key),
-                getResources().getString(R.string.twitter_consumer_secret));
+        ParseTwitterUtils.initialize(getResources().getString(R.string.twitter_key),
+                getResources().getString(R.string.twitter_secret));
         component = DaggerApplicationComponent.builder()
                 .applicationModule(new ApplicationModule(this))
                 .build();

@@ -7,6 +7,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.Rect;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
@@ -27,6 +28,7 @@ public class ViewPaintExample extends View {
     private Paint examplePaint;
     private Path examplePath;
     private Paint borderPaint;
+    private Paint textPaint;
 
     public ViewPaintExample(Context context) {
         super(context);
@@ -60,7 +62,10 @@ public class ViewPaintExample extends View {
 
         examplePath = new Path();
 
-//        borderPaint = PaintStyles.normalPaint(Color.WHITE, 5f);
+        borderPaint = PaintStyles.normalPaint(Color.GRAY, 5f);
+
+        textPaint = PaintStyles.normalPaint(Color.WHITE, 5f);
+        textPaint.setTextAlign(Paint.Align.CENTER);
     }
 
     @Override
@@ -72,12 +77,46 @@ public class ViewPaintExample extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-//        canvas.drawRect(0, 0, canvas.getWidth(), canvas.getHeight(), borderPaint);
-//        canvas.drawLine(canvas.getWidth() / 4, Math.round(canvas.getHeight() * .75),
-//                Math.round(canvas.getWidth()  * .75), Math.round(canvas.getWidth() * .25), examplePaint);
+        drawBorder(canvas);
+        drawExamplePaint(canvas);
+//        drawText(canvas);
+    }
+
+    private void drawExamplePaint(Canvas canvas) {
         examplePath.moveTo(canvas.getWidth() / 4, Math.round(canvas.getHeight() * .75));
         examplePath.lineTo(Math.round(canvas.getWidth() * .75), Math.round(canvas.getWidth() * .25));
         canvas.drawPath(examplePath, examplePaint);
-//        canvas.drawPaint(examplePaint);
+    }
+
+    private void drawBorder(Canvas canvas) {
+        canvas.drawLine(0, 0, canvas.getWidth(), 0, borderPaint);
+        canvas.drawLine(0, canvas.getHeight(), canvas.getWidth(), canvas.getHeight(), borderPaint);
+        canvas.drawLine(0, 0, 0, canvas.getHeight(), borderPaint);
+        canvas.drawLine(canvas.getWidth(), 0, canvas.getWidth(), canvas.getHeight(), borderPaint);
+    }
+
+    private void drawText(Canvas canvas) {
+        setTextSizeForWidth(textPaint, canvas.getWidth(), which);
+        canvas.drawText(which, canvas.getWidth() / 2, canvas.getHeight() -
+                textPaint.getFontSpacing(), textPaint);
+    }
+
+    private void setTextSizeForWidth(Paint paint, float desiredWidth, String text) {
+        // Pick a reasonably large value for the test. Larger values produce
+        // more accurate results, but may cause problems with hardware
+        // acceleration. But there are workarounds for that, too; refer to
+        // http://stackoverflow.com/questions/6253528/font-size-too-large-to-fit-in-cache
+        final float testTextSize = 48f;
+
+        // Get the bounds of the text, using our testTextSize.
+        paint.setTextSize(testTextSize);
+        Rect bounds = new Rect();
+        paint.getTextBounds(text, 0, text.length(), bounds);
+
+        // Calculate the desired size as a proportion of our testTextSize.
+        float desiredTextSize = testTextSize * desiredWidth / bounds.width();
+
+        // Set the paint for that size.
+        paint.setTextSize(desiredTextSize);
     }
 }

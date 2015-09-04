@@ -13,7 +13,7 @@
 
         <milespeele.canvas.view.ViewPaintExample
             android:layout_width="50dp"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:layout_marginStart="@dimen/paint_example_items_margin"
             android:layout_marginLeft="@dimen/paint_example_items_margin"
             android:layout_marginRight="@dimen/paint_example_items_margin"

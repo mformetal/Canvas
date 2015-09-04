@@ -3,7 +3,9 @@ package milespeele.canvas.view;
 import android.animation.Animator;
 import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -11,11 +13,13 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.drawable.GradientDrawable;
+import android.media.Image;
 import android.os.Parcelable;
 import android.support.v4.view.MotionEventCompat;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
@@ -28,6 +32,7 @@ import butterknife.ButterKnife;
 import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
+import milespeele.canvas.activity.ActivityHome;
 import milespeele.canvas.util.AbstractAnimatorListener;
 import milespeele.canvas.util.BitmapUtils;
 import milespeele.canvas.event.EventBrushChosen;
@@ -39,6 +44,7 @@ import milespeele.canvas.event.EventUndo;
 import milespeele.canvas.paint.PaintPath;
 import milespeele.canvas.paint.PaintStack;
 import milespeele.canvas.paint.PaintStyles;
+import milespeele.canvas.util.Logg;
 
 public class ViewCanvas extends FrameLayout {
 
@@ -54,6 +60,7 @@ public class ViewCanvas extends FrameLayout {
     private int currentBackgroundColor;
     private float lastTouchX, lastTouchY;
     private  int width, height;
+    private int touchSlop = ViewConfiguration.get(getContext()).getScaledTouchSlop();
 
     private final RectF dirtyRect = new RectF();
     private PaintPath mPath;
@@ -244,8 +251,8 @@ public class ViewCanvas extends FrameLayout {
             int color = drawingBitmap.getPixel(Math.round(eventX), Math.round(eventY));
             colorizer.setBackgroundColor(color);
 
-            colorizer.setTranslationX(eventX);
-            colorizer.setTranslationY(eventY);
+            colorizer.setTranslationX(eventX - touchSlop);
+            colorizer.setTranslationY(eventY - touchSlop);
 
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
@@ -371,8 +378,10 @@ public class ViewCanvas extends FrameLayout {
         mPath = new PaintPath(currentStyle());
         mPaths.push(mPath);
 
-        cachedBitmap.recycle();
-        cachedBitmap = null;
+        if (cachedBitmap != null) {
+            cachedBitmap.recycle();
+            cachedBitmap = null;
+        }
         drawingBitmap.recycle();
         drawingBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         mCanvas = new Canvas(drawingBitmap);
@@ -410,7 +419,7 @@ public class ViewCanvas extends FrameLayout {
 
     @Override
     protected Parcelable onSaveInstanceState() {
-        BitmapUtils.cacheBitmap(getContext(), CACHED_FILENAME, drawingBitmap);
+        BitmapUtils.cacheBitmap(getContext(), drawingBitmap, CACHED_FILENAME);
         return super.onSaveInstanceState();
     }
 
