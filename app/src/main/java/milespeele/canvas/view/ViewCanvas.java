@@ -3,9 +3,7 @@ package milespeele.canvas.view;
 import android.animation.Animator;
 import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -13,7 +11,6 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.drawable.GradientDrawable;
-import android.media.Image;
 import android.os.Parcelable;
 import android.support.v4.view.MotionEventCompat;
 import android.util.AttributeSet;
@@ -32,7 +29,6 @@ import butterknife.ButterKnife;
 import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
-import milespeele.canvas.activity.ActivityHome;
 import milespeele.canvas.util.AbstractAnimatorListener;
 import milespeele.canvas.util.BitmapUtils;
 import milespeele.canvas.event.EventBrushChosen;
@@ -45,32 +41,32 @@ import milespeele.canvas.paint.PaintPath;
 import milespeele.canvas.paint.PaintStack;
 import milespeele.canvas.paint.PaintStyles;
 import milespeele.canvas.util.Datastore;
-import milespeele.canvas.util.Logg;
 
 public class ViewCanvas extends FrameLayout {
+
+    public enum State {
+        DRAW,
+        INK,
+        ERASE
+    }
 
     @Bind(R.id.fragment_drawer_canvas_eraser) ImageView eraser;
     @Bind(R.id.fragment_drawer_eraser_colorizer) ImageView colorizer;
 
     private final static String CACHED_FILENAME = "cached";
     private static float STROKE_WIDTH = 5f;
-    private boolean shouldErase = false;
-    private boolean shouldInk = false;
-    private int currentStrokeColor;
-    private int currentBackgroundColor;
+    private int currentStrokeColor, currentBackgroundColor;
     private float lastTouchX, lastTouchY;
-    private  int width, height;
-    private int touchSlop = ViewConfiguration.get(getContext()).getScaledTouchSlop();
+    private int width, height;
+    private State state = State.DRAW;
 
     private final RectF dirtyRect = new RectF();
     private PaintPath mPath;
-    private PaintStack mPaths;
-    private PaintStack redoPaths;
     private Paint curPaint;
-    private Bitmap drawingBitmap;
-    private Bitmap cachedBitmap;
     private Canvas mCanvas;
     private Matrix scaleMatrix;
+    private PaintStack mPaths, redoPaths;
+    private Bitmap drawingBitmap, cachedBitmap;
 
     @Inject EventBus bus;
     @Inject Datastore store;
@@ -176,7 +172,7 @@ public class ViewCanvas extends FrameLayout {
     }
 
     private void onTouchDown(MotionEvent event, float eventX, float eventY) {
-        if (!shouldInk) {
+        if (state != State.INK) {
             lastTouchX = eventX;
             lastTouchY = eventY;
 
@@ -194,7 +190,7 @@ public class ViewCanvas extends FrameLayout {
         setInkPosition(event, eventX, eventY);
         setEraserPosition(event, eventX, eventY);
 
-        if (!shouldInk) {
+        if (state != State.INK) {
             for (int i = 0; i < event.getHistorySize(); i++) {
                 float historicalX = event.getHistoricalX(i);
                 float historicalY = event.getHistoricalY(i);
@@ -233,7 +229,7 @@ public class ViewCanvas extends FrameLayout {
     }
 
     private void setEraserPosition(MotionEvent event, float eventX, float eventY) {
-        if (shouldErase) {
+        if (state == State.ERASE) {
             eraser.setTranslationX(eventX);
             eraser.setTranslationY(eventY);
 
@@ -246,12 +242,12 @@ public class ViewCanvas extends FrameLayout {
     }
 
     private void setInkPosition(MotionEvent event, float eventX, float eventY) {
-        if (shouldInk && eventsInRange(eventX, eventY)) {
+        if (state == State.INK && eventsInRange(eventX, eventY)) {
             int color = drawingBitmap.getPixel(Math.round(eventX), Math.round(eventY));
             colorizer.setBackgroundColor(color);
 
-            colorizer.setTranslationX(eventX - touchSlop);
-            colorizer.setTranslationY(eventY - touchSlop);
+            colorizer.setTranslationX(eventX);
+            colorizer.setTranslationY(eventY);
 
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
@@ -259,7 +255,7 @@ public class ViewCanvas extends FrameLayout {
                     break;
                 case MotionEvent.ACTION_UP:
                     colorizer.setVisibility(View.GONE);
-                    shouldInk = false;
+                    state = State.DRAW;
                     if (color != currentBackgroundColor)  {
                         curPaint.setColor((color == 0) ? currentStrokeColor : color);
                     } else {
@@ -287,8 +283,7 @@ public class ViewCanvas extends FrameLayout {
     }
 
     public void onEvent(EventBrushChosen eventBrushChosen) {
-        shouldErase = false;
-        shouldInk = false;
+        state = State.DRAW;
 
         eraser.setVisibility(View.GONE);
         colorizer.setVisibility(View.GONE);
@@ -323,8 +318,7 @@ public class ViewCanvas extends FrameLayout {
     public void onEvent(EventShowErase eventErase) {
         if (eraser.getVisibility() == View.VISIBLE) {
             eraser.setVisibility(View.GONE);
-            shouldErase = false;
-            shouldInk = false;
+            state = State.DRAW;
         } else {
             double darkness = 1 - (0.299 * Color.red(currentBackgroundColor) +
                     0.587 * Color.green(currentBackgroundColor) +
@@ -337,8 +331,7 @@ public class ViewCanvas extends FrameLayout {
             eraser.setVisibility(View.VISIBLE);
             eraser.setX((float) getWidth() / 2);
             eraser.setY((float) getHeight() / 2);
-            shouldErase = true;
-            shouldInk = false;
+            state = State.ERASE;
         }
     }
 
@@ -348,16 +341,14 @@ public class ViewCanvas extends FrameLayout {
         colorizer.setY((float) getHeight() / 2);
         colorizer.setBackgroundColor(drawingBitmap.getPixel(getWidth() / 2, getHeight() / 2));
         colorizer.setVisibility(View.VISIBLE);
-        shouldInk = true;
-        shouldErase = false;
+        state = State.INK;
     }
 
     public void changeColor(int color, int opacity) {
         colorizer.setVisibility(View.GONE);
         eraser.setVisibility(View.GONE);
 
-        shouldInk = false;
-        shouldErase = false;
+        state = State.DRAW;
         currentStrokeColor = color;
         curPaint.setAlpha(opacity);
         curPaint.setColor(currentStrokeColor);
@@ -367,7 +358,7 @@ public class ViewCanvas extends FrameLayout {
         colorizer.setVisibility(View.GONE);
         eraser.setVisibility(View.GONE);
 
-        shouldErase = false;
+        state = State.DRAW;
         for (PaintPath p: mPaths) {
             p.reset();
         }
@@ -410,7 +401,7 @@ public class ViewCanvas extends FrameLayout {
     public int getCurrentStrokeColor() { return currentStrokeColor; }
 
     private Paint currentStyle() {
-        return (shouldErase) ?
+        return (state == State.ERASE) ?
                 PaintStyles.eraserPaint(currentBackgroundColor, eraser.getWidth()) :
                 new Paint(curPaint);
     }
