@@ -18,10 +18,4 @@
         android:padding="@dimen/activity_vertical_margin"
         android:id="@+id/fragment_brush_picker_view_sizer" />
 
-    <include
-        layout="@layout/paint_example_items"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_below="@id/fragment_brush_picker_view_sizer" />
-
 </milespeele.canvas.view.ViewBrushPickerLayout>
