@@ -64,7 +64,6 @@ public class ViewCanvas extends FrameLayout {
     private PaintPath mPath;
     private Paint curPaint;
     private Canvas mCanvas;
-    private Matrix scaleMatrix;
     private PaintStack mPaths, redoPaths;
     private Bitmap drawingBitmap, cachedBitmap;
 
@@ -96,8 +95,6 @@ public class ViewCanvas extends FrameLayout {
         redoPaths = new PaintStack();
         mPaths.push(mPath);
 
-        scaleMatrix = new Matrix();
-
         setWillNotDraw(false);
         setSaveEnabled(true);
         setBackgroundColor(currentBackgroundColor);
@@ -108,9 +105,6 @@ public class ViewCanvas extends FrameLayout {
         super.onSizeChanged(w, h, oldw, oldh);
         width = w;
         height = h;
-
-        scaleMatrix.reset();
-        scaleMatrix.setScale(w, h);
 
         drawingBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
         mCanvas = new Canvas(drawingBitmap);

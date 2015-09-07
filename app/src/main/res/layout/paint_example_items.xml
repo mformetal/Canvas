@@ -11,14 +11,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" >
 
-        <milespeele.canvas.view.ViewPaintExample
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_marginStart="@dimen/paint_example_items_margin"
-            android:layout_marginLeft="@dimen/paint_example_items_margin"
-            android:layout_marginRight="@dimen/paint_example_items_margin"
-            android:layout_marginEnd="@dimen/paint_example_items_margin"
-            app:paintType="@string/paint_example_dashed" />
+        <include
+            layout="@layout/paint_example_item"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:test="tests" />
 
         <milespeele.canvas.view.ViewPaintExample
             android:layout_width="50dp"
