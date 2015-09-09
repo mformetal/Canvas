@@ -9,11 +9,11 @@ import android.view.View;
 import milespeele.canvas.util.Logg;
 
 /**
- * Created by Miles Peele on 9/5/2015.
+ * Created by mbpeele on 9/4/15.
  */
 public class ViewFabMenuBehavior extends CoordinatorLayout.Behavior<ViewFabMenu> {
 
-    public ViewFabMenuBehavior(Context context, AttributeSet attributeSet) {}
+    public ViewFabMenuBehavior(Context context, AttributeSet attrs) {}
 
     @Override
     public boolean layoutDependsOn(CoordinatorLayout parent, ViewFabMenu child, View dependency) {
@@ -22,7 +22,8 @@ public class ViewFabMenuBehavior extends CoordinatorLayout.Behavior<ViewFabMenu>
 
     @Override
     public boolean onDependentViewChanged(CoordinatorLayout parent, ViewFabMenu child, View dependency) {
-        child.setTranslationY(Math.min(0, dependency.getTranslationY() - dependency.getHeight()));
+        float translationY = Math.max(0, dependency.getHeight() - dependency.getTranslationY());
+        child.setTranslationY(-translationY);
         return true;
     }
 }

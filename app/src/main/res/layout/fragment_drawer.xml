@@ -20,7 +20,6 @@
         android:layout_gravity="bottom|center_horizontal"
         app:layout_behavior="milespeele.canvas.view.ViewFabMenuBehavior"
         app:layout_anchorGravity="bottom|center_horizontal"
-        app:layout_anchor="@id/fragment_drawer_coordinator"
-        app:layout_behavior="milespeele.canvas.view.ViewFabMenuBehavior" />
+        app:layout_anchor="@id/fragment_drawer_coordinator" />
 
 </milespeele.canvas.view.ViewCanvasLayout>

@@ -50,7 +50,7 @@ public class FragmentDrawer extends Fragment {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                //Snackbar.make(coordinatorLayout, "TEST", Snackbar.LENGTH_SHORT).show();
+                Snackbar.make(coordinatorLayout, "TEST", Snackbar.LENGTH_SHORT).show();
             }
         }, 2000);
         return v;
