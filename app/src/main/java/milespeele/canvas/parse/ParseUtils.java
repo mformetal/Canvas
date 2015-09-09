@@ -39,12 +39,12 @@ public class ParseUtils {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(bytes -> {
                     final ParseFile photoFile =
-                            new ParseFile(filename, bytes);
+                            new ParseFile(ParseUser.getCurrentUser().getUsername(), bytes);
                     photoFile.saveInBackground((ParseException e) -> {
                         if (e == null) {
                             final Masterpiece art = new Masterpiece();
                             art.setImage(photoFile);
-                            art.setName(filename);
+                            art.setTitle(filename);
                             art.saveEventually(e1 -> {
                                 if (e1 == null) {
                                     ParseUser.getCurrentUser().getRelation("Masterpieces").add(art);
@@ -71,15 +71,16 @@ public class ParseUtils {
 
     public void handleParseError(ParseException e) {
         e.printStackTrace();
-        Logg.log("PARSE ERROR CODE: "+ e.getCode());
+        Logg.log("PARSE ERROR CODE: " + e.getCode());
+        Logg.log("PARSE ERROR MESSAGE: " + e.getMessage());
         bus.post(new EventParseError(e));
     }
 
     public void handleRxError(Throwable throwable) {
+        throwable.printStackTrace();
         if (throwable instanceof ParseException) {
             ParseException e = (ParseException) throwable;
-            e.printStackTrace();
-            Logg.log("PARSE ERROR CODE: "+ e.getCode());
+            Logg.log("PARSE ERROR FROM RX ERROR CODE: "+ e.getCode());
             bus.post(new EventParseError(e));
         } else {
             bus.post(new EventParseError(throwable));

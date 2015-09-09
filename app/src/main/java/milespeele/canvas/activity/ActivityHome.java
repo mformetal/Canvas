@@ -104,12 +104,10 @@ public class ActivityHome extends ActivityBase {
     }
 
     public void onEvent(EventFilenameChosen eventFilenameChosen) {
-        if (!eventFilenameChosen.filename.isEmpty()) {
-            FragmentDrawer frag = (FragmentDrawer) getFragmentManager().findFragmentByTag(TAG_FRAGMENT_DRAWER);
-            if (frag != null) {
-                parseUtils.saveImageToServer(eventFilenameChosen.filename + ".png",
-                        new WeakReference<>(this), frag.giveBitmapToActivity());
-            }
+        FragmentDrawer frag = (FragmentDrawer) getFragmentManager().findFragmentByTag(TAG_FRAGMENT_DRAWER);
+        if (frag != null) {
+            parseUtils.saveImageToServer(eventFilenameChosen.filename,
+                    new WeakReference<>(this), frag.giveBitmapToActivity());
         }
     }
 

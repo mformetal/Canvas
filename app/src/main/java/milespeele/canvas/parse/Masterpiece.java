@@ -25,5 +25,5 @@ public class Masterpiece extends ParseObject {
         put(IMAGE_KEY, file);
     }
 
-    public void setName(String name) { put(TITLE_KEY, name); }
+    public void setTitle(String name) { put(TITLE_KEY, name); }
 }

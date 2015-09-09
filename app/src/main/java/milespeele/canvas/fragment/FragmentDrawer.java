@@ -47,12 +47,6 @@ public class FragmentDrawer extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_drawer, container, false);
         ButterKnife.bind(this, v);
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                Snackbar.make(coordinatorLayout, "TEST", Snackbar.LENGTH_SHORT).show();
-            }
-        }, 2000);
         return v;
     }
 

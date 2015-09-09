@@ -19,6 +19,7 @@ import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
 import milespeele.canvas.event.EventFilenameChosen;
+import milespeele.canvas.util.Logg;
 import milespeele.canvas.view.ViewTypefaceEditText;
 
 /**
@@ -30,7 +31,7 @@ public class FragmentFilename extends DialogFragment implements View.OnClickList
 
     @Inject EventBus bus;
 
-    private final static String REGEX = "^[a-zA-Z0-9]*$";
+    private final static String REGEX = "^[-._\\sa-zA-Z0-9]*$";
 
     public FragmentFilename(){}
 
@@ -74,13 +75,27 @@ public class FragmentFilename extends DialogFragment implements View.OnClickList
         return input.getTextAsString().matches(REGEX);
     }
 
+    private String formatInputForSaving() {
+        String name = input.getTextAsString();
+        String newName = "";
+//        for (int x = 0; x < name.length(); x++) {
+//            char charAtX = name.charAt(x);
+//            if (String.valueOf(charAtX).equals(" ")) {
+//                na
+//            }
+//        }
+
+        return name.replace(" ", "_");
+    }
+
     @Override
     @OnClick({R.id.fragment_filename_pos_button, R.id.fragment_filename_neg_button})
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.fragment_filename_pos_button:
                 if (filenameContainsValidCharacters()) {
-                    bus.post(new EventFilenameChosen(input.getText().toString()));
+                    Logg.log("INPUT: " + input.getTextAsString());
+                    bus.post(new EventFilenameChosen(formatInputForSaving()));
                     dismiss();
                 } else {
                     Toast.makeText(getActivity(),
@@ -89,7 +104,6 @@ public class FragmentFilename extends DialogFragment implements View.OnClickList
                 }
                 break;
             case R.id.fragment_filename_neg_button:
-                bus.post(new EventFilenameChosen(""));
                 dismiss();
                 break;
         }

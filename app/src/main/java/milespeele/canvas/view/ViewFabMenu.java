@@ -317,9 +317,7 @@ public class ViewFabMenu extends ViewGroup
     }
 
     public void onEvent(EventFilenameChosen eventFilenameChosen) {
-        if (!eventFilenameChosen.filename.isEmpty()) {
-            saver.startPulse();
-        }
+        saver.startPulse();
     }
 
     public void onEvent(EventParseError eventParseError) {
