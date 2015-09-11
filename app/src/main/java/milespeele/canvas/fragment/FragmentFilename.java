@@ -31,8 +31,6 @@ public class FragmentFilename extends DialogFragment implements View.OnClickList
 
     @Inject EventBus bus;
 
-    private final static String REGEX = "^[-._\\sa-zA-Z0-9]*$";
-
     public FragmentFilename(){}
 
     public static FragmentFilename newInstance() {
@@ -71,41 +69,16 @@ public class FragmentFilename extends DialogFragment implements View.OnClickList
         ButterKnife.unbind(this);
     }
 
-    private boolean filenameContainsValidCharacters() {
-        return input.getTextAsString().matches(REGEX);
-    }
-
-    private String formatInputForSaving() {
-        String name = input.getTextAsString();
-        String newName = "";
-//        for (int x = 0; x < name.length(); x++) {
-//            char charAtX = name.charAt(x);
-//            if (String.valueOf(charAtX).equals(" ")) {
-//                na
-//            }
-//        }
-
-        return name.replace(" ", "_");
-    }
-
     @Override
     @OnClick({R.id.fragment_filename_pos_button, R.id.fragment_filename_neg_button})
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.fragment_filename_pos_button:
-                if (filenameContainsValidCharacters()) {
-                    Logg.log("INPUT: " + input.getTextAsString());
-                    bus.post(new EventFilenameChosen(formatInputForSaving()));
-                    dismiss();
-                } else {
-                    Toast.makeText(getActivity(),
-                            getResources().getString(R.string.toast_fragment_filename_invalid),
-                            Toast.LENGTH_SHORT).show();
-                }
+                bus.post(new EventFilenameChosen(input.getTextAsString()));
                 break;
             case R.id.fragment_filename_neg_button:
-                dismiss();
                 break;
         }
+        dismiss();
     }
 }
