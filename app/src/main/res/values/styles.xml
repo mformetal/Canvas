@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools" >
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light">
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:colorPrimary" tools:ignore="NewApi">@color/primary</item>
         <item name="colorPrimary">@color/primary</item>
         <item name="android:colorPrimaryDark" tools:ignore="NewApi">@color/primary_dark</item>
