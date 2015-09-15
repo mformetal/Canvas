@@ -5,16 +5,20 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
+
+import milespeele.canvas.paint.PaintStyles;
 
 /**
  * Created by milespeele on 7/13/15.
  */
 public class ViewBrushPickerSize extends View {
 
-    private Paint curPaint;
+    private Paint paint;
+    private Path path;
 
     public ViewBrushPickerSize(Context context) {
         super(context);
@@ -44,26 +48,34 @@ public class ViewBrushPickerSize extends View {
         setMeasuredDimension(width, width / 5);
     }
 
-
     private void init() {
-        curPaint = new Paint();
-        curPaint.setAntiAlias(true);
-        curPaint.setColor(Color.WHITE);
-        curPaint.setStyle(Paint.Style.STROKE);
-            curPaint.setStrokeJoin(Paint.Join.ROUND);
-        curPaint.setStrokeCap(Paint.Cap.ROUND);
+        paint = PaintStyles.normalPaint(Color.WHITE, 5f);
+
+        path = new Path();
+    }
+
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        int startX = w / 10;
+        int endX = w - startX;
+        path.moveTo(startX, h / 2);
+        path.cubicTo(endX / 8, h / 4,
+                Math.round(endX * .375), h / 4,
+                endX / 2, h / 2);
+        path.cubicTo(Math.round(endX * .675), Math.round(h * .75),
+                Math.round(endX * .875), Math.round(h * .75),
+                endX, h / 2);
     }
 
     public void onThicknessChanged(float thickness) {
-        curPaint.setStrokeWidth(thickness);
+        paint.setStrokeWidth(thickness);
         invalidate();
     }
 
     @Override
     public void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        canvas.drawLine(getPaddingLeft() + getPaddingRight(), canvas.getHeight() / 2,
-                canvas.getWidth() - getPaddingLeft() - getPaddingRight(), canvas.getHeight() / 2,
-                curPaint);
+        canvas.drawPath(path, paint);
     }
 }

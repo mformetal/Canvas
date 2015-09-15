@@ -45,7 +45,7 @@ public class ViewBrushPickerLayout extends LinearLayout implements SeekBar.OnSee
     }
 
     private void init() {
-
+        setClipChildren(false);
     }
 
     @Override
