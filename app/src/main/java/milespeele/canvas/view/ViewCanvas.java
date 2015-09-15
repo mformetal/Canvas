@@ -41,7 +41,6 @@ import milespeele.canvas.paint.PaintPath;
 import milespeele.canvas.paint.PaintStack;
 import milespeele.canvas.paint.PaintStyles;
 import milespeele.canvas.util.Datastore;
-import milespeele.canvas.util.Logg;
 
 public class ViewCanvas extends FrameLayout {
 
@@ -61,6 +60,7 @@ public class ViewCanvas extends FrameLayout {
     private State state = State.DRAW;
 
     private final RectF dirtyRect = new RectF();
+    private final RectF inkRect = new RectF();
     private PaintPath mPath;
     private Paint curPaint;
     private Paint inkPaint;
@@ -123,6 +123,11 @@ public class ViewCanvas extends FrameLayout {
         if (cachedBitmap != null) {
             mCanvas.drawBitmap(cachedBitmap, 0, 0, null);
         }
+
+        inkRect.left = mCanvas.getWidth() / 40;
+        inkRect.top = mCanvas.getWidth() / 40;
+        inkRect.right = mCanvas.getWidth() / 6;
+        inkRect.bottom = mCanvas.getWidth() / 6;
     }
 
     @Override
@@ -133,7 +138,6 @@ public class ViewCanvas extends FrameLayout {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        Logg.log("ON DRAW");
         if (cachedBitmap != null) {
             canvas.drawBitmap(cachedBitmap, 0, 0, null);
         }
@@ -142,8 +146,8 @@ public class ViewCanvas extends FrameLayout {
             canvas.drawPath(p, p.getPaint());
         }
 
-        if (!stateIsNotInk()) {
-            canvas.drawRect(0, 0, canvas.getWidth() / 10,  canvas.getWidth() / 10, inkPaint);
+        if (stateIsInk()) {
+            canvas.drawRect(inkRect, inkPaint);
         }
     }
 
@@ -180,7 +184,7 @@ public class ViewCanvas extends FrameLayout {
     }
 
     private void onTouchDown(MotionEvent event, float eventX, float eventY) {
-        if (stateIsNotInk()) {
+        if (!stateIsInk()) {
             lastTouchX = eventX;
             lastTouchY = eventY;
 
@@ -198,7 +202,7 @@ public class ViewCanvas extends FrameLayout {
         setInkPosition(event, eventX, eventY);
         setEraserPosition(event, eventX, eventY);
 
-        if (stateIsNotInk()) {
+        if (!stateIsInk()) {
             for (int i = 0; i < event.getHistorySize(); i++) {
                 float historicalX = event.getHistoricalX(i);
                 float historicalY = event.getHistoricalY(i);
@@ -250,7 +254,7 @@ public class ViewCanvas extends FrameLayout {
     }
 
     private void setInkPosition(MotionEvent event, float eventX, float eventY) {
-        if (state == State.INK && eventsInRange(eventX, eventY)) {
+        if (stateIsInk() && eventsInRange(eventX, eventY)) {
             int color = drawingBitmap.getPixel(Math.round(eventX), Math.round(eventY));
             int colorToChangeTo;
             if (color != currentBackgroundColor)  {
@@ -259,16 +263,11 @@ public class ViewCanvas extends FrameLayout {
                 colorToChangeTo = currentStrokeColor;
             }
 
-            ObjectAnimator paintColor = ObjectAnimator.ofObject(inkPaint, "Color", new ArgbEvaluator(),
+            ValueAnimator colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(),
                     inkPaint.getColor(), colorToChangeTo);
-            paintColor.setDuration(50);
-            paintColor.addListener(new AbstractAnimatorListener() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    inkPaint.setColor(colorToChangeTo);
-                }
-            });
-            paintColor.start();
+            colorAnimation.addUpdateListener(animator -> inkPaint.setColor((Integer) animator.getAnimatedValue()));
+            colorAnimation.setDuration(50);
+            colorAnimation.start();
 
             switch (event.getAction()) {
                 case MotionEvent.ACTION_UP:
@@ -353,9 +352,14 @@ public class ViewCanvas extends FrameLayout {
 
     public void onEvent(EventShowColorize eventColorize) {
         eraser.setVisibility(View.GONE);
-        inkPaint.setColor(drawingBitmap.getPixel(getWidth() / 2, getHeight() / 2));
-        state = State.INK;
-        invalidate();
+        if (stateIsInk()) {
+            inkPaint.setColor(currentStrokeColor);
+            inkPaint.setShadowLayer(mCanvas.getWidth() / 20, 0.0f, 2.0f, Color.BLACK);
+            state = State.INK;
+            invalidate();
+        } else {
+            state = State.DRAW;
+        }
     }
 
     public void changeColor(int color, int opacity) {
@@ -418,7 +422,7 @@ public class ViewCanvas extends FrameLayout {
                 new Paint(curPaint);
     }
 
-    private boolean stateIsNotInk() {
+    private boolean stateIsInk() {
         return state != State.INK;
     }
 
