@@ -352,14 +352,10 @@ public class ViewCanvas extends FrameLayout {
 
     public void onEvent(EventShowColorize eventColorize) {
         eraser.setVisibility(View.GONE);
-        if (stateIsInk()) {
-            inkPaint.setColor(currentStrokeColor);
-            inkPaint.setShadowLayer(mCanvas.getWidth() / 20, 0.0f, 2.0f, Color.BLACK);
-            state = State.INK;
-            invalidate();
-        } else {
-            state = State.DRAW;
-        }
+        inkPaint.setColor(currentStrokeColor);
+        inkPaint.setShadowLayer(mCanvas.getWidth() / 20, 0.0f, 2.0f, Color.BLACK);
+        state = State.INK;
+        invalidate();
     }
 
     public void changeColor(int color, int opacity) {
@@ -423,7 +419,7 @@ public class ViewCanvas extends FrameLayout {
     }
 
     private boolean stateIsInk() {
-        return state != State.INK;
+        return state == State.INK;
     }
 
     @Override

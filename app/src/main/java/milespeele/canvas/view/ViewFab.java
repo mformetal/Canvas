@@ -7,11 +7,13 @@ import android.animation.ValueAnimator;
 import android.content.Context;
 import android.support.design.widget.FloatingActionButton;
 import android.util.AttributeSet;
+import android.view.View;
 
 import milespeele.canvas.R;
 import milespeele.canvas.util.AbstractAnimatorListener;
+import milespeele.canvas.util.Logg;
 
-public class ViewFab extends FloatingActionButton {
+public class ViewFab extends FloatingActionButton implements View.OnLongClickListener {
 
     private AnimatorSet scaleUp;
     private AnimatorSet scaleDown;
@@ -34,6 +36,7 @@ public class ViewFab extends FloatingActionButton {
     }
 
     private void init() {
+        setOnLongClickListener(this);
         scaleUp = new AnimatorSet();
         scaleUp.playTogether(ObjectAnimator.ofFloat(this, "scaleX", 1f, 1.1f),
                 ObjectAnimator.ofFloat(this, "scaleY", 1f, 1.1f));
@@ -55,6 +58,11 @@ public class ViewFab extends FloatingActionButton {
                 isScaledUp = false;
             }
         });
+    }
+
+    @Override
+    public boolean onLongClick(View v) {
+        return true;
     }
 
     public void toggleScaled() {
@@ -110,5 +118,4 @@ public class ViewFab extends FloatingActionButton {
             pulse.end();
         }
     }
-
 }
