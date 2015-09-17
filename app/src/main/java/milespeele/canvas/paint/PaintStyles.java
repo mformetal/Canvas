@@ -3,6 +3,8 @@ package milespeele.canvas.paint;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.BlurMaskFilter;
+import android.graphics.ComposePathEffect;
+import android.graphics.CornerPathEffect;
 import android.graphics.DashPathEffect;
 import android.graphics.EmbossMaskFilter;
 import android.graphics.Paint;
@@ -14,6 +16,10 @@ import milespeele.canvas.R;
  * Created by Miles Peele on 7/26/2015.
  */
 public class PaintStyles {
+
+    private final static ComposePathEffect composePathEffect = new ComposePathEffect(
+            new DashPathEffect(new float[] {1, 51}, 2),
+            new CornerPathEffect(1f));
 
     public static Paint getStyleFromAttrs(String type, int color, Context context) {
         Resources resources = context.getResources();
@@ -75,7 +81,7 @@ public class PaintStyles {
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeJoin(Paint.Join.ROUND);
         paint.setStrokeCap(Paint.Cap.ROUND);
-        paint.setPathEffect(new DashPathEffect(new float[] {2, 9}, 2));
+        paint.setPathEffect(composePathEffect);
         return paint;
     }
 

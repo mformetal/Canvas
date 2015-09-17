@@ -68,14 +68,21 @@ public class ViewBrushPickerSize extends View {
                 endX, h / 2);
     }
 
+    @Override
+    public void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+        canvas.drawPath(path, paint);
+    }
+
     public void onThicknessChanged(float thickness) {
         paint.setStrokeWidth(thickness);
         invalidate();
     }
 
-    @Override
-    public void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
-        canvas.drawPath(path, paint);
+    public void changePaint(Paint newPaint) {
+        float paintThickness = paint.getStrokeWidth();
+        paint.set(newPaint);
+        paint.setStrokeWidth(paintThickness);
+        invalidate();
     }
 }

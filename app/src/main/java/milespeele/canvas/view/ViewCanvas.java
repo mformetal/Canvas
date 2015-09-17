@@ -303,8 +303,12 @@ public class ViewCanvas extends FrameLayout {
 
         eraser.setVisibility(View.GONE);
 
-        STROKE_WIDTH = (eventBrushChosen.thickness != -1) ? eventBrushChosen.thickness : STROKE_WIDTH;
+        STROKE_WIDTH = eventBrushChosen.thickness;
 
+        if (eventBrushChosen.paint != null) {
+            curPaint.set(eventBrushChosen.paint);
+            curPaint.setColor(currentStrokeColor);
+        }
         curPaint.setStrokeWidth(STROKE_WIDTH);
     }
 

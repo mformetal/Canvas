@@ -5,4 +5,9 @@
         <attr name="paintType" format="string" />
     </declare-styleable>
 
+    <declare-styleable name="ViewTypefaceTextView">
+        <attr name="shouldDrawBorder" format="boolean" />
+        <attr name="borderColor" format="color" />
+    </declare-styleable>
+
 </resources>

@@ -68,12 +68,7 @@ public class FragmentBrushPicker extends DialogFragment
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.fragment_brush_picker_pos:
-                if (root.getThickness() != getArguments().getFloat(THICKNESS)) {
-                    bus.post(new EventBrushChosen(root.getThickness()));
-                }  else {
-                    bus.post(new EventBrushChosen(-1));
-                }
-                break;
+                bus.post(new EventBrushChosen(root.getThickness(), root.getLastSelectedPaint()));
             case R.id.fragment_brush_picker_cancel:
         }
         dismiss();

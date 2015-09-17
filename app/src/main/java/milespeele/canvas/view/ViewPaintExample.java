@@ -2,22 +2,15 @@ package milespeele.canvas.view;
 
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.Rect;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
 
-import java.util.Random;
-
-import butterknife.ButterKnife;
-import milespeele.canvas.R;
 import milespeele.canvas.paint.PaintStyles;
-import milespeele.canvas.util.Logg;
 
 /**
  * Created by Miles Peele on 7/26/2015.
@@ -56,17 +49,28 @@ public class ViewPaintExample extends View {
     }
 
     @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        int startX = w / 10;
+        int endX = w - startX;
+        examplePath.moveTo(startX, h / 2);
+        examplePath.cubicTo(endX / 8, h / 4,
+                Math.round(endX * .375), h / 4,
+                endX / 2, h / 2);
+        examplePath.cubicTo(Math.round(endX * .675), Math.round(h * .75),
+                Math.round(endX * .875), Math.round(h * .75),
+                endX, h / 2);
+    }
+
+    @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        canvas.drawColor(Color.BLACK);
         drawBorder(canvas);
         drawExamplePaint(canvas);
     }
 
     private void drawExamplePaint(Canvas canvas) {
         if (examplePaint != null) {
-            examplePath.moveTo(0, canvas.getHeight() / 2);
-            examplePath.lineTo(canvas.getWidth(), canvas.getHeight() / 2);
             canvas.drawPath(examplePath, examplePaint);
         }
     }
@@ -78,8 +82,18 @@ public class ViewPaintExample extends View {
         canvas.drawLine(canvas.getWidth(), 0, canvas.getWidth(), canvas.getHeight(), borderPaint);
     }
 
-    public void setPaint(Paint paint, int color) {
+    public void setPaint(Paint paint) {
         examplePaint = paint;
+        examplePaint.setColor(Color.WHITE);
         invalidate();
+    }
+
+    public void onThicknessChanged(float thickness) {
+        examplePaint.setStrokeWidth(thickness);
+        invalidate();
+    }
+
+    public Paint getExamplePaint() {
+        return examplePaint;
     }
 }

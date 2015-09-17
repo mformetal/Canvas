@@ -2,15 +2,17 @@ package milespeele.canvas.view;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.graphics.Paint;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.view.View;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import milespeele.canvas.R;
+import milespeele.canvas.util.Logg;
 
 /**
  * Created by milespeele on 8/8/15.
@@ -22,6 +24,7 @@ public class ViewBrushPickerLayout extends LinearLayout implements SeekBar.OnSee
 
     private final static int MAX_THICKNESS = 120;
     private float thickness;
+    private Paint lastSelectedPaint;
 
     public ViewBrushPickerLayout(Context context) {
         super(context);
@@ -56,6 +59,18 @@ public class ViewBrushPickerLayout extends LinearLayout implements SeekBar.OnSee
         sizer.setOnSeekBarChangeListener(this);
     }
 
+    public void changeExamplePaint(Paint paint) {
+        lastSelectedPaint = paint;
+        example.changePaint(paint);
+        for (int i = 0; i < getChildCount(); i++) {
+            View child = getChildAt(i);
+            if (child instanceof ViewPaintExampleLayout) {
+                Logg.log("CHILD IS PAINT EXAMPLE");
+                ((ViewPaintExampleLayout) child).dehighlight();
+            }
+        }
+    }
+
     public void setInitialValues(float thickness) {
         example.onThicknessChanged(thickness);
         sizer.setProgress(Math.round(thickness));
@@ -65,10 +80,18 @@ public class ViewBrushPickerLayout extends LinearLayout implements SeekBar.OnSee
         return thickness;
     }
 
+    public Paint getLastSelectedPaint() { return lastSelectedPaint; }
+
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
         thickness = progress;
         example.onThicknessChanged(progress);
+        for (int i = 0; i < getChildCount(); i++) {
+            View child = getChildAt(i);
+            if (child instanceof ViewPaintExampleLayout) {
+                ((ViewPaintExampleLayout) child).changeExamplePaintViewThickness(progress);
+            }
+        }
     }
 
     @Override
