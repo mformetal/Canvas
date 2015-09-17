@@ -15,29 +15,29 @@ import milespeele.canvas.paint.PaintStyles;
 /**
  * Created by Miles Peele on 7/26/2015.
  */
-public class ViewPaintExample extends View {
+public class ViewBrushPickerPaintExample extends View {
 
     private Paint examplePaint;
     private Path examplePath;
     private Paint borderPaint;
 
-    public ViewPaintExample(Context context) {
+    public ViewBrushPickerPaintExample(Context context) {
         super(context);
         init(context, null);
     }
 
-    public ViewPaintExample(Context context, AttributeSet attrs) {
+    public ViewBrushPickerPaintExample(Context context, AttributeSet attrs) {
         super(context, attrs);
         init(context, attrs);
     }
 
-    public ViewPaintExample(Context context, AttributeSet attrs, int defStyleAttr) {
+    public ViewBrushPickerPaintExample(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(context, attrs);
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public ViewPaintExample(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public ViewBrushPickerPaintExample(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         init(context, attrs);
     }

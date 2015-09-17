@@ -18,7 +18,7 @@ import milespeele.canvas.R;
 public class PaintStyles {
 
     private final static ComposePathEffect composePathEffect = new ComposePathEffect(
-            new DashPathEffect(new float[] {1, 51}, 2),
+            new DashPathEffect(new float[] {1, 51}, 0),
             new CornerPathEffect(1f));
 
     public static Paint getStyleFromAttrs(String type, int color, Context context) {

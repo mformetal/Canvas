@@ -263,11 +263,7 @@ public class ViewCanvas extends FrameLayout {
                 colorToChangeTo = currentStrokeColor;
             }
 
-            ValueAnimator colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(),
-                    inkPaint.getColor(), colorToChangeTo);
-            colorAnimation.addUpdateListener(animator -> inkPaint.setColor((Integer) animator.getAnimatedValue()));
-            colorAnimation.setDuration(50);
-            colorAnimation.start();
+            inkPaint.setColor(colorToChangeTo);
 
             switch (event.getAction()) {
                 case MotionEvent.ACTION_UP:
@@ -355,11 +351,17 @@ public class ViewCanvas extends FrameLayout {
     }
 
     public void onEvent(EventShowColorize eventColorize) {
-        eraser.setVisibility(View.GONE);
-        inkPaint.setColor(currentStrokeColor);
-        inkPaint.setShadowLayer(mCanvas.getWidth() / 20, 0.0f, 2.0f, Color.BLACK);
-        state = State.INK;
-        invalidate();
+        if (!stateIsInk()) {
+            eraser.setVisibility(View.GONE);
+            inkPaint.setColor(currentStrokeColor);
+            state = State.INK;
+        } else {
+            state = State.DRAW;
+        }
+        invalidate(Math.round(inkRect.left),
+                Math.round(inkRect.top),
+                Math.round(inkRect.right),
+                Math.round(inkRect.bottom));
     }
 
     public void changeColor(int color, int opacity) {

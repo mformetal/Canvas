@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <declare-styleable name="ViewPaintExampleLayout">
+    <declare-styleable name="ViewBrushPickerPaintExampleLayout">
         <attr name="paintType" format="string" />
     </declare-styleable>
 

@@ -9,11 +9,8 @@ import milespeele.canvas.fragment.FragmentColorPicker;
 import milespeele.canvas.fragment.FragmentDrawer;
 import milespeele.canvas.fragment.FragmentFilename;
 import milespeele.canvas.parse.ParseUtils;
-import milespeele.canvas.view.ViewBrushPickerLayout;
-import milespeele.canvas.view.ViewBrushPickerSize;
 import milespeele.canvas.view.ViewCanvas;
 import milespeele.canvas.view.ViewFabMenu;
-import milespeele.canvas.view.ViewPaintExample;
 
 /**
  * Created by milespeele on 7/5/15.

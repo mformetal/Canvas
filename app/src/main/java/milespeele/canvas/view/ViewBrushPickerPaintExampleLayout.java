@@ -3,55 +3,50 @@ package milespeele.canvas.view;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewParent;
 import android.widget.LinearLayout;
-
-import java.util.Random;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import milespeele.canvas.R;
 import milespeele.canvas.paint.PaintStyles;
-import milespeele.canvas.util.Logg;
 
 /**
  * Created by Miles Peele on 9/6/2015.
  */
-public class ViewPaintExampleLayout extends LinearLayout implements View.OnClickListener {
+public class ViewBrushPickerPaintExampleLayout extends LinearLayout implements View.OnClickListener {
 
     @Bind(R.id.paint_example_layout_text) ViewTypefaceTextView typefaceTextView;
-    @Bind(R.id.paint_example_layout_paint) ViewPaintExample paintExample;
+    @Bind(R.id.paint_example_layout_paint)
+    ViewBrushPickerPaintExample paintExample;
 
     private String which;
     private Paint examplePaint;
 
     private boolean isAnimated = false;
 
-    public ViewPaintExampleLayout(Context context) {
+    public ViewBrushPickerPaintExampleLayout(Context context) {
         super(context);
         init(context, null);
     }
 
-    public ViewPaintExampleLayout(Context context, AttributeSet attrs) {
+    public ViewBrushPickerPaintExampleLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
         init(context, attrs);
     }
 
-    public ViewPaintExampleLayout(Context context, AttributeSet attrs, int defStyleAttr) {
+    public ViewBrushPickerPaintExampleLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(context, attrs);
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public ViewPaintExampleLayout(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public ViewBrushPickerPaintExampleLayout(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         init(context, attrs);
     }
@@ -61,8 +56,8 @@ public class ViewPaintExampleLayout extends LinearLayout implements View.OnClick
 
         setClipChildren(false);
 
-        TypedArray typed = context.obtainStyledAttributes(attrs, R.styleable.ViewPaintExampleLayout);
-        which = typed.getString(R.styleable.ViewPaintExampleLayout_paintType);
+        TypedArray typed = context.obtainStyledAttributes(attrs, R.styleable.ViewBrushPickerPaintExampleLayout);
+        which = typed.getString(R.styleable.ViewBrushPickerPaintExampleLayout_paintType);
         typed.recycle();
 
         examplePaint = PaintStyles.getStyleFromAttrs(which, Color.WHITE, getContext());

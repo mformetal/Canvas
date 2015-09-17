@@ -19,7 +19,8 @@ import milespeele.canvas.util.Logg;
  */
 public class ViewBrushPickerLayout extends LinearLayout implements SeekBar.OnSeekBarChangeListener {
 
-    @Bind(R.id.fragment_brush_picker_view_example) ViewBrushPickerSize example;
+    @Bind(R.id.fragment_brush_picker_view_example)
+    ViewBrushPickerPaintExampleWidth example;
     @Bind(R.id.fragment_brush_picker_view_sizer) SeekBar sizer;
 
     private final static int MAX_THICKNESS = 120;
@@ -64,9 +65,9 @@ public class ViewBrushPickerLayout extends LinearLayout implements SeekBar.OnSee
         example.changePaint(paint);
         for (int i = 0; i < getChildCount(); i++) {
             View child = getChildAt(i);
-            if (child instanceof ViewPaintExampleLayout) {
+            if (child instanceof ViewBrushPickerPaintExampleLayout) {
                 Logg.log("CHILD IS PAINT EXAMPLE");
-                ((ViewPaintExampleLayout) child).dehighlight();
+                ((ViewBrushPickerPaintExampleLayout) child).dehighlight();
             }
         }
     }
@@ -88,8 +89,8 @@ public class ViewBrushPickerLayout extends LinearLayout implements SeekBar.OnSee
         example.onThicknessChanged(progress);
         for (int i = 0; i < getChildCount(); i++) {
             View child = getChildAt(i);
-            if (child instanceof ViewPaintExampleLayout) {
-                ((ViewPaintExampleLayout) child).changeExamplePaintViewThickness(progress);
+            if (child instanceof ViewBrushPickerPaintExampleLayout) {
+                ((ViewBrushPickerPaintExampleLayout) child).changeExamplePaintViewThickness(progress);
             }
         }
     }
