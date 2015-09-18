@@ -1,29 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merge
+<milespeele.canvas.view.ViewBrushLayoutPaintExampleLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="horizontal"
     android:layout_width="match_parent"
-    android:layout_height="70dp" >
+    android:layout_height="60dp" >
 
     <milespeele.canvas.view.ViewTypefaceTextView
         android:id="@+id/paint_example_layout_text"
         android:layout_weight="1"
         android:layout_width="0dp"
-        android:layout_height="50dp"
+        android:layout_height="match_parent"
         android:gravity="center"
         android:layout_marginLeft="@dimen/paint_example_items_margin"
         android:layout_marginStart="@dimen/paint_example_items_margin"
         app:borderColor="@color/gray"
         app:shouldDrawBorder="true" />
 
-    <milespeele.canvas.view.ViewBrushPickerPaintExample
+    <milespeele.canvas.view.ViewBrushLayoutPaintExample
         android:layout_weight="4"
         android:id="@+id/paint_example_layout_paint"
         android:layout_width="0dp"
-        android:layout_height="50dp"
+        android:layout_height="match_parent"
         android:layout_marginRight="@dimen/paint_example_items_margin"
-        android:layout_marginEnd="@dimen/paint_example_items_margin"
-        app:paintType="@string/paint_example_dashed" />
+        android:layout_marginEnd="@dimen/paint_example_items_margin" />
 
-</merge>
+</milespeele.canvas.view.ViewBrushLayoutPaintExampleLayout>

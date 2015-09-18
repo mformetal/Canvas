@@ -8,7 +8,7 @@ android {
 
     defaultConfig {
         applicationId "milespeele.canvas"
-        minSdkVersion 14
+        minSdkVersion 15
         targetSdkVersion 22
         versionCode 1
         versionName "1.0"

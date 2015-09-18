@@ -31,7 +31,7 @@ import milespeele.canvas.util.Logg;
 /**
  * Created by milespeele on 7/13/15.
  */
-public class ViewBrushPickerPaintExampleWidth extends View {
+public class ViewBrushLayoutSizer extends View {
 
     private final static Interpolator INTERPOLATOR = new AccelerateDecelerateInterpolator();
 
@@ -42,23 +42,23 @@ public class ViewBrushPickerPaintExampleWidth extends View {
 
     private float rectWidth;
 
-    public ViewBrushPickerPaintExampleWidth(Context context) {
+    public ViewBrushLayoutSizer(Context context) {
         super(context);
         init();
     }
 
-    public ViewBrushPickerPaintExampleWidth(Context context, AttributeSet attrs) {
+    public ViewBrushLayoutSizer(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
     }
 
-    public ViewBrushPickerPaintExampleWidth(Context context, AttributeSet attrs, int defStyleAttr) {
+    public ViewBrushLayoutSizer(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init();
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public ViewBrushPickerPaintExampleWidth(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public ViewBrushLayoutSizer(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         init();
     }

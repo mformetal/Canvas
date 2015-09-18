@@ -15,29 +15,29 @@ import milespeele.canvas.paint.PaintStyles;
 /**
  * Created by Miles Peele on 7/26/2015.
  */
-public class ViewBrushPickerPaintExample extends View {
+public class ViewBrushLayoutPaintExample extends View {
 
     private Paint examplePaint;
     private Path examplePath;
     private Paint borderPaint;
 
-    public ViewBrushPickerPaintExample(Context context) {
+    public ViewBrushLayoutPaintExample(Context context) {
         super(context);
         init(context, null);
     }
 
-    public ViewBrushPickerPaintExample(Context context, AttributeSet attrs) {
+    public ViewBrushLayoutPaintExample(Context context, AttributeSet attrs) {
         super(context, attrs);
         init(context, attrs);
     }
 
-    public ViewBrushPickerPaintExample(Context context, AttributeSet attrs, int defStyleAttr) {
+    public ViewBrushLayoutPaintExample(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(context, attrs);
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public ViewBrushPickerPaintExample(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public ViewBrushLayoutPaintExample(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         init(context, attrs);
     }
@@ -95,5 +95,9 @@ public class ViewBrushPickerPaintExample extends View {
 
     public Paint getExamplePaint() {
         return examplePaint;
+    }
+
+    public void propagateOnClickToParent() {
+        ((ViewBrushLayoutPaintExampleLayout) getParent()).performClick();
     }
 }

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<milespeele.canvas.view.ViewBrushPickerLayout
+<milespeele.canvas.view.ViewBrushLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-    <milespeele.canvas.view.ViewBrushPickerPaintExampleWidth
+    <milespeele.canvas.view.ViewBrushLayoutSizer
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="@dimen/activity_horizontal_margin"
@@ -18,16 +18,10 @@
         android:padding="@dimen/activity_vertical_margin"
         android:id="@+id/fragment_brush_picker_view_sizer" />
 
-    <milespeele.canvas.view.ViewBrushPickerPaintExampleLayout
-        layout="@layout/paint_example_layout"
-        app:paintType="@string/paint_example_normal"
+    <milespeele.canvas.view.ViewPaintExamplesRecycler
+        android:id="@+id/fragment_brush_picker_view_recycler"
+        android:tag="@+id/item_click_support"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <milespeele.canvas.view.ViewBrushPickerPaintExampleLayout
-        layout="@layout/paint_example_layout"
-        app:paintType="@string/paint_example_dashed"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
-</milespeele.canvas.view.ViewBrushPickerLayout>
+</milespeele.canvas.view.ViewBrushLayout>

@@ -10,19 +10,13 @@ import java.util.ArrayList;
 public class PaintExample {
 
     private String which;
-    private Paint paint;
 
-    public PaintExample(String which, Paint paint) {
+    public PaintExample(String which) {
         this.which = which;
-        this.paint = paint;
     }
 
     public String getPaintName() {
         return which;
-    }
-
-    public Paint getPaint() {
-        return paint;
     }
 
 }

@@ -18,7 +18,7 @@ import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
 import milespeele.canvas.event.EventBrushChosen;
-import milespeele.canvas.view.ViewBrushPickerLayout;
+import milespeele.canvas.view.ViewBrushLayout;
 
 /**
  * Created by milespeele on 7/13/15.
@@ -26,7 +26,8 @@ import milespeele.canvas.view.ViewBrushPickerLayout;
 public class FragmentBrushPicker extends DialogFragment
         implements View.OnClickListener {
 
-    @Bind(R.id.fragment_brush_picker_view) ViewBrushPickerLayout root;
+    @Bind(R.id.fragment_brush_picker_view)
+    ViewBrushLayout root;
 
     @Inject EventBus bus;
 

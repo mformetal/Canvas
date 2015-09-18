@@ -22,10 +22,10 @@
     <string name="fragment_brush_picker_title">Brush Style</string>
     <string name="fragment_brush_picker_pos_button_text">Set!</string>
 
-    <string name="paint_example_neon">Neon</string>
-    <string name="paint_example_dashed">Dashed</string>
-    <string name="paint_example_fade">Fade</string>
-    <string name="paint_example_normal">Normal</string>
+    <string-array name="paint_examples">
+        <item>Normal</item>
+        <item>Dashed</item>
+    </string-array>
     
     <string name="TAG_FRAGMENT_FILL">New Canvas Color</string>
     <string name="TAG_FRAGMENT_STROKE">Brush Color</string>

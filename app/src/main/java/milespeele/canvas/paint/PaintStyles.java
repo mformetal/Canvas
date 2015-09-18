@@ -17,21 +17,23 @@ import milespeele.canvas.R;
  */
 public class PaintStyles {
 
+    private static String[] paintNames;
+
     private final static ComposePathEffect composePathEffect = new ComposePathEffect(
             new DashPathEffect(new float[] {1, 51}, 0),
             new CornerPathEffect(1f));
 
     public static Paint getStyleFromAttrs(String type, int color, Context context) {
-        Resources resources = context.getResources();
-        if (type.equals(resources.getString(R.string.paint_example_dashed))) {
-            return dashedPaint(color, 5f);
-        } else if (type.equals(resources.getString(R.string.paint_example_fade))) {
-            return fadePaint(color, 5f);
-        } else if (type.equals(resources.getString(R.string.paint_example_neon))) {
-            return neonPaint(color, 5f);
-        } else {
-            return normalPaint(color, 5f);
+        if (paintNames == null) {
+            paintNames = context.getResources().getStringArray(R.array.paint_examples);
         }
+        for (String name: paintNames) {
+            if (type.equals(name)) {
+                if (type.equals("Dashed")) { return dashedPaint(color, 5f); }
+                if (type.equals("Normal")) { return normalPaint(color, 5f); }
+            }
+        }
+        return normalPaint(color, 5f);
     }
 
     public static Paint normalPaint(int currentColor, float width) {
