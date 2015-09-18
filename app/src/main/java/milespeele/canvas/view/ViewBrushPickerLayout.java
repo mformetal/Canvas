@@ -66,7 +66,6 @@ public class ViewBrushPickerLayout extends LinearLayout implements SeekBar.OnSee
         for (int i = 0; i < getChildCount(); i++) {
             View child = getChildAt(i);
             if (child instanceof ViewBrushPickerPaintExampleLayout) {
-                Logg.log("CHILD IS PAINT EXAMPLE");
                 ((ViewBrushPickerPaintExampleLayout) child).dehighlight();
             }
         }

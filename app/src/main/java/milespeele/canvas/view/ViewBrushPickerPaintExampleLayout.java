@@ -72,6 +72,11 @@ public class ViewBrushPickerPaintExampleLayout extends LinearLayout implements V
 
         typefaceTextView.setText(which);
         paintExample.setPaint(examplePaint);
+
+        if (getResources().getString(R.string.paint_example_normal).equals(which)) {
+            typefaceTextView.animateTextColorChange(Color.WHITE, getResources().getColor(R.color.spirit_gold));
+            isAnimated = true;
+        }
     }
 
     public void changeExamplePaintViewThickness(float thickness) {
@@ -87,8 +92,10 @@ public class ViewBrushPickerPaintExampleLayout extends LinearLayout implements V
 
     @Override
     public void onClick(View v) {
-        typefaceTextView.animateTextColorChange(Color.WHITE, getResources().getColor(R.color.spirit_gold));
-        ((ViewBrushPickerLayout) getParent()).changeExamplePaint(paintExample.getExamplePaint());
-        isAnimated = true;
+        if (!isAnimated) {
+            typefaceTextView.animateTextColorChange(Color.WHITE, getResources().getColor(R.color.spirit_gold));
+            ((ViewBrushPickerLayout) getParent()).changeExamplePaint(paintExample.getExamplePaint());
+            isAnimated = true;
+        }
     }
 }

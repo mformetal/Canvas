@@ -20,13 +20,13 @@
 
     <milespeele.canvas.view.ViewBrushPickerPaintExampleLayout
         layout="@layout/paint_example_layout"
-        app:paintType="@string/paint_example_dashed"
+        app:paintType="@string/paint_example_normal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
     <milespeele.canvas.view.ViewBrushPickerPaintExampleLayout
         layout="@layout/paint_example_layout"
-        app:paintType="@string/paint_example_normal"
+        app:paintType="@string/paint_example_dashed"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 

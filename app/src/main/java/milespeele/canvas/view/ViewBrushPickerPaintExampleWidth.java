@@ -1,16 +1,20 @@
 package milespeele.canvas.view;
 
+import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.DashPathEffect;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PathEffect;
 import android.graphics.PathMeasure;
 import android.graphics.Point;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
@@ -19,7 +23,9 @@ import android.view.animation.Interpolator;
 
 import java.util.ArrayList;
 
+import milespeele.canvas.R;
 import milespeele.canvas.paint.PaintStyles;
+import milespeele.canvas.util.AbstractAnimatorListener;
 import milespeele.canvas.util.Logg;
 
 /**
@@ -27,14 +33,14 @@ import milespeele.canvas.util.Logg;
  */
 public class ViewBrushPickerPaintExampleWidth extends View {
 
-    private Paint paint;
-    private Path path;
-    private PathMeasure measure;
-    private float pathLength;
     private final static Interpolator INTERPOLATOR = new AccelerateDecelerateInterpolator();
-    private float[] pos, tan;
-    private float speed, distance;
-    private int width, height;
+
+    private Paint paint;
+    private Paint rectPaint;
+    private Path path;
+    private ObjectAnimator reveal;
+
+    private float rectWidth;
 
     public ViewBrushPickerPaintExampleWidth(Context context) {
         super(context);
@@ -67,6 +73,10 @@ public class ViewBrushPickerPaintExampleWidth extends View {
     private void init() {
         paint = PaintStyles.normalPaint(Color.WHITE, 5f);
 
+        rectPaint = PaintStyles.normalPaint(getResources().getColor(R.color.primary_dark), 5f);
+        rectPaint.setStyle(Paint.Style.FILL);
+        rectPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
+
         path = new Path();
     }
 
@@ -82,18 +92,16 @@ public class ViewBrushPickerPaintExampleWidth extends View {
         path.cubicTo(Math.round(endX * .675), Math.round(h * .75),
                 Math.round(endX * .875), Math.round(h * .75),
                 endX, h / 2);
-
-        measure = new PathMeasure(path, false);
-        pathLength = measure.getLength();
-        speed = pathLength / 30;
-        pos = new float[2];
-        tan = new float[2];
     }
 
     @Override
     public void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-//        canvas.drawPath(path, paint);
+        canvas.drawPath(path, paint);
+
+        if (reveal != null) {
+            canvas.drawRect(rectWidth, 0, canvas.getWidth(), canvas.getHeight(), rectPaint);
+        }
     }
 
     public void onThicknessChanged(float thickness) {
@@ -105,21 +113,18 @@ public class ViewBrushPickerPaintExampleWidth extends View {
         float paintThickness = paint.getStrokeWidth();
         paint.set(newPaint);
         paint.setStrokeWidth(paintThickness);
-
-        ObjectAnimator path = ObjectAnimator.ofFloat(this, "distance", width / 10, distance);
-        path.setDuration(350);
-        path.setInterpolator(INTERPOLATOR);
-        path.start();
+        reveal = ObjectAnimator.ofFloat(this, "rectWidth", 0, getMeasuredWidth());
+        reveal.setDuration(1000);
+        reveal.setInterpolator(INTERPOLATOR);
+        reveal.start();
     }
 
-    public float getDistance() {
-        measure.getPosTan(distance, pos, tan);
-        distance += speed;   // Traversal
-        return distance;
+    public float getRectWidth() {
+        return rectWidth;
     }
 
-    public void setDistance(float distance) {
-        this.distance = distance;
+    public void setRectWidth(float rectWidth) {
+        this.rectWidth = rectWidth;
         invalidate();
     }
 }
