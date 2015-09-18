@@ -3,7 +3,6 @@ package milespeele.canvas.view;
 import android.animation.Animator;
 import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
-import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -90,8 +89,8 @@ public class ViewCanvas extends FrameLayout {
         currentStrokeColor = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
         currentBackgroundColor = store.getLastBackgroundColor();
 
-        curPaint = PaintStyles.normalPaint(currentStrokeColor, STROKE_WIDTH);
-        inkPaint = PaintStyles.normalPaint(currentStrokeColor, STROKE_WIDTH);
+        curPaint = PaintStyles.normal(currentStrokeColor, STROKE_WIDTH);
+        inkPaint = PaintStyles.normal(currentStrokeColor, STROKE_WIDTH);
         inkPaint.setStyle(Paint.Style.FILL_AND_STROKE);
 
         mPath = new PaintPath(curPaint);
@@ -420,7 +419,7 @@ public class ViewCanvas extends FrameLayout {
 
     private Paint currentStyle() {
         return (state == State.ERASE) ?
-                PaintStyles.eraserPaint(currentBackgroundColor, eraser.getWidth()) :
+                PaintStyles.erase(currentBackgroundColor, eraser.getWidth()) :
                 new Paint(curPaint);
     }
 

@@ -15,7 +15,6 @@ import android.widget.TextView;
 import milespeele.canvas.R;
 import milespeele.canvas.paint.PaintStyles;
 import milespeele.canvas.util.FontUtils;
-import milespeele.canvas.util.Logg;
 
 /**
  * Created by mbpeele on 9/2/15.
@@ -52,7 +51,7 @@ public class ViewTypefaceTextView extends TextView {
             TypedArray typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.ViewTypefaceTextView);
             if (typedArray.getBoolean(R.styleable.ViewTypefaceTextView_shouldDrawBorder, false)) {
                 int borderColor = typedArray.getColor(R.styleable.ViewTypefaceTextView_borderColor, Color.GRAY);
-                borderPaint = PaintStyles.normalPaint(borderColor, 5f);
+                borderPaint = PaintStyles.normal(borderColor, 5f);
             }
             typedArray.recycle();
         }

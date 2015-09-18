@@ -8,6 +8,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import org.apache.commons.lang3.text.WordUtils;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -60,7 +62,7 @@ public class PaintExampleAdapter extends RecyclerView.Adapter<PaintExampleAdapte
         PaintExample example = dataList.get(i);
 
         ViewTypefaceTextView textView = viewHolder.paintName;
-        textView.setText(example.getPaintName());
+        textView.setText(WordUtils.capitalize(example.getPaintName()));
 
         ViewBrushLayoutPaintExample viewBrushPickerPaintExample = viewHolder.paintExample;
         viewBrushPickerPaintExample.setPaint(PaintStyles.getStyleFromAttrs(example.getPaintName(), Color.WHITE, cxt));

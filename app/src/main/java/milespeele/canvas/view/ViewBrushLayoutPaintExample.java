@@ -45,7 +45,7 @@ public class ViewBrushLayoutPaintExample extends View {
     private void init(Context context, AttributeSet attrs) {
         examplePath = new Path();
 
-        borderPaint = PaintStyles.normalPaint(Color.GRAY, 5f);
+        borderPaint = PaintStyles.normal(Color.GRAY, 5f);
     }
 
     @Override

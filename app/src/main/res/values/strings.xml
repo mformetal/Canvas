@@ -23,8 +23,8 @@
     <string name="fragment_brush_picker_pos_button_text">Set!</string>
 
     <string-array name="paint_examples">
-        <item>Normal</item>
-        <item>Dashed</item>
+        <item>normal</item>
+        <item>dashed</item>
     </string-array>
     
     <string name="TAG_FRAGMENT_FILL">New Canvas Color</string>

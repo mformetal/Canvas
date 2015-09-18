@@ -12,6 +12,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import milespeele.canvas.R;
 import milespeele.canvas.adapter.PaintExampleAdapter;
+import milespeele.canvas.util.Logg;
 
 /**
  * Created by milespeele on 8/8/15.
@@ -77,9 +78,11 @@ public class ViewBrushLayout extends LinearLayout implements SeekBar.OnSeekBarCh
 
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-        thickness = progress;
-        example.onThicknessChanged(progress);
-        recycler.changeChildViewPaintThickness(progress);
+        if (progress != 2) {
+            thickness = progress;
+            example.onThicknessChanged(progress);
+            recycler.changeChildViewPaintThickness(progress);
+        }
     }
 
     @Override

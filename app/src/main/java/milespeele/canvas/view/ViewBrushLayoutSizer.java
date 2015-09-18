@@ -1,18 +1,12 @@
 package milespeele.canvas.view;
 
-import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.DashPathEffect;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.PathEffect;
-import android.graphics.PathMeasure;
-import android.graphics.Point;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.os.Build;
@@ -21,12 +15,8 @@ import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Interpolator;
 
-import java.util.ArrayList;
-
 import milespeele.canvas.R;
 import milespeele.canvas.paint.PaintStyles;
-import milespeele.canvas.util.AbstractAnimatorListener;
-import milespeele.canvas.util.Logg;
 
 /**
  * Created by milespeele on 7/13/15.
@@ -71,9 +61,9 @@ public class ViewBrushLayoutSizer extends View {
     }
 
     private void init() {
-        paint = PaintStyles.normalPaint(Color.WHITE, 5f);
+        paint = PaintStyles.normal(Color.WHITE, 5f);
 
-        rectPaint = PaintStyles.normalPaint(getResources().getColor(R.color.primary_dark), 5f);
+        rectPaint = PaintStyles.normal(getResources().getColor(R.color.primary_dark), 5f);
         rectPaint.setStyle(Paint.Style.FILL);
         rectPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
 
