@@ -49,7 +49,7 @@ public class ViewBrushLayout extends LinearLayout implements SeekBar.OnSeekBarCh
     }
 
     private void init() {
-        setClipChildren(false);
+
     }
 
     @Override
@@ -81,7 +81,6 @@ public class ViewBrushLayout extends LinearLayout implements SeekBar.OnSeekBarCh
         if (progress != 2) {
             thickness = progress;
             example.onThicknessChanged(progress);
-            recycler.changeChildViewPaintThickness(progress);
         }
     }
 

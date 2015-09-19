@@ -10,6 +10,7 @@ import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
 
+import milespeele.canvas.R;
 import milespeele.canvas.paint.PaintStyles;
 
 /**
@@ -43,6 +44,8 @@ public class ViewBrushLayoutPaintExample extends View {
     }
 
     private void init(Context context, AttributeSet attrs) {
+        setLayerType(LAYER_TYPE_SOFTWARE, null);
+
         examplePath = new Path();
 
         borderPaint = PaintStyles.normal(Color.GRAY, 5f);
@@ -95,9 +98,5 @@ public class ViewBrushLayoutPaintExample extends View {
 
     public Paint getExamplePaint() {
         return examplePaint;
-    }
-
-    public void propagateOnClickToParent() {
-        ((ViewBrushLayoutPaintExampleLayout) getParent()).performClick();
     }
 }

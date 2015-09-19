@@ -61,6 +61,8 @@ public class ViewBrushLayoutSizer extends View {
     }
 
     private void init() {
+        setLayerType(LAYER_TYPE_SOFTWARE, null);
+
         paint = PaintStyles.normal(Color.WHITE, 5f);
 
         rectPaint = PaintStyles.normal(getResources().getColor(R.color.primary_dark), 5f);

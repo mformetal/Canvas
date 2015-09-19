@@ -40,6 +40,7 @@ import milespeele.canvas.paint.PaintPath;
 import milespeele.canvas.paint.PaintStack;
 import milespeele.canvas.paint.PaintStyles;
 import milespeele.canvas.util.Datastore;
+import milespeele.canvas.util.Logg;
 
 public class ViewCanvas extends FrameLayout {
 

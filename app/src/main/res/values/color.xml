@@ -10,4 +10,12 @@
     <color name="divider">#B6B6B6</color>
     <color name="gray">#FF888888</color>
     <color name="spirit_gold">#F0B323</color>
+
+    <array name="rainbow">
+        <item>#FF0000</item>
+        <item>#FFFF00</item>
+        <item>#00FF00</item>
+        <item>#0000FF</item>
+        <item>#551A8B</item>
+    </array>
 </resources>

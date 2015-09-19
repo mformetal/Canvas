@@ -47,7 +47,7 @@ public class ViewBrushLayoutPaintExampleLayout extends LinearLayout {
     }
 
     private void init(Context context, AttributeSet attrs) {
-        setClipChildren(false);
+
     }
 
     @Override

@@ -25,6 +25,10 @@
     <string-array name="paint_examples">
         <item>normal</item>
         <item>dashed</item>
+        <item>emboss</item>
+        <item>deboss</item>
+        <item>rainbow</item>
+        <item>jagged</item>
     </string-array>
     
     <string name="TAG_FRAGMENT_FILL">New Canvas Color</string>

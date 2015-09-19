@@ -6,20 +6,13 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
-import org.apache.commons.lang3.text.WordUtils;
-
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import milespeele.canvas.R;
 import milespeele.canvas.paint.PaintStyles;
-import milespeele.canvas.pojo.PaintExample;
-import milespeele.canvas.util.Logg;
+import milespeele.canvas.pojo.PojoPaintExample;
 import milespeele.canvas.view.ViewBrushLayoutPaintExample;
-import milespeele.canvas.view.ViewBrushLayoutPaintExampleLayout;
 import milespeele.canvas.view.ViewTypefaceTextView;
 
 /**
@@ -39,10 +32,10 @@ public class PaintExampleAdapter extends RecyclerView.Adapter<PaintExampleAdapte
         }
     }
 
-    private List<PaintExample> dataList;
+    private List<PojoPaintExample> dataList;
     private Context cxt;
 
-    public PaintExampleAdapter(Context context, List<PaintExample> list) {
+    public PaintExampleAdapter(Context context, List<PojoPaintExample> list) {
         dataList = list;
         cxt = context;
     }
@@ -59,13 +52,14 @@ public class PaintExampleAdapter extends RecyclerView.Adapter<PaintExampleAdapte
 
     @Override
     public void onBindViewHolder(PaintExampleAdapter.ViewHolder viewHolder, int i) {
-        PaintExample example = dataList.get(i);
+        PojoPaintExample example = dataList.get(i);
 
+        String name = example.getPaintName();
         ViewTypefaceTextView textView = viewHolder.paintName;
-        textView.setText(WordUtils.capitalize(example.getPaintName()));
+        textView.setText(name.substring(0,1).toUpperCase() + name.substring(1));
 
-        ViewBrushLayoutPaintExample viewBrushPickerPaintExample = viewHolder.paintExample;
-        viewBrushPickerPaintExample.setPaint(PaintStyles.getStyleFromAttrs(example.getPaintName(), Color.WHITE, cxt));
+        ViewBrushLayoutPaintExample paintExample = viewHolder.paintExample;
+        paintExample.setPaint(PaintStyles.getStyleFromName(name, Color.WHITE));
     }
 
     @Override
