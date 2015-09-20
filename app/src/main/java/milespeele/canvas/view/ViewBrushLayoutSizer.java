@@ -97,8 +97,10 @@ public class ViewBrushLayoutSizer extends View {
     }
 
     public void onThicknessChanged(float thickness) {
-        paint.setStrokeWidth(thickness);
-        invalidate();
+        if (thickness > 1) {
+            paint.setStrokeWidth(thickness);
+            invalidate();
+        }
     }
 
     public void changePaint(Paint newPaint) {

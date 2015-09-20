@@ -60,24 +60,16 @@ public class ViewBrushLayoutPaintExampleLayout extends LinearLayout {
         return paintExample.getExamplePaint();
     }
 
-    public boolean isHasColorChangedToGold() {
-        return hasColorChangedToGold;
-    }
-
-    public void changeExamplePaintViewThickness(float thickness) {
-        paintExample.onThicknessChanged(thickness);
-    }
-
     public void dehighlight() {
         if (hasColorChangedToGold) {
-            typefaceTextView.setTextColor(Color.WHITE);
+            typefaceTextView.animateTextColorChange(Color.WHITE);
             hasColorChangedToGold = false;
         }
     }
 
     public void highlight() {
         if (!hasColorChangedToGold) {
-            typefaceTextView.setTextColor(getResources().getColor(R.color.spirit_gold));
+            typefaceTextView.animateTextColorChange(getResources().getColor(R.color.spirit_gold));
             hasColorChangedToGold = true;
         }
     }

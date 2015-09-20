@@ -29,6 +29,7 @@
         <item>deboss</item>
         <item>rainbow</item>
         <item>jagged</item>
+        <item>shadow</item>
     </string-array>
     
     <string name="TAG_FRAGMENT_FILL">New Canvas Color</string>

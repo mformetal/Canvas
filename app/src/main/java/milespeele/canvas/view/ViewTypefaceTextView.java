@@ -1,6 +1,8 @@
 package milespeele.canvas.view;
 
 import android.animation.ArgbEvaluator;
+import android.animation.FloatEvaluator;
+import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -10,11 +12,16 @@ import android.graphics.Color;
 import android.graphics.EmbossMaskFilter;
 import android.graphics.Paint;
 import android.os.Build;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.format.DateUtils;
 import android.util.AttributeSet;
+import android.view.animation.LinearInterpolator;
 import android.widget.TextView;
 
 import milespeele.canvas.R;
 import milespeele.canvas.paint.PaintStyles;
+import milespeele.canvas.util.AnimatedColorSpan;
 import milespeele.canvas.util.FontUtils;
 
 /**
@@ -70,6 +77,14 @@ public class ViewTypefaceTextView extends TextView {
             canvas.drawLine(0, canvas.getHeight(), canvas.getWidth(), canvas.getHeight(), borderPaint);
             canvas.drawLine(0, 0, 0, canvas.getHeight(), borderPaint);
             canvas.drawLine(canvas.getWidth(), 0, canvas.getWidth(), canvas.getHeight(), borderPaint);
+        }
+    }
+
+    public void animateTextColorChange(int colorTo) {
+        if (getCurrentTextColor() != colorTo) {
+            ValueAnimator colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), getCurrentTextColor(), colorTo);
+            colorAnimation.addUpdateListener(animator -> setTextColor((Integer) animator.getAnimatedValue()));
+            colorAnimation.start();
         }
     }
 }

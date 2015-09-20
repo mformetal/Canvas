@@ -9,6 +9,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.RectF;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Parcelable;
@@ -44,6 +45,16 @@ import milespeele.canvas.util.Logg;
 
 public class ViewCanvas extends FrameLayout {
 
+    int[] rainbowColors = new int[] {
+        Color.RED,
+                Color.parseColor("#FF7F00"),
+                Color.YELLOW,
+                Color.GREEN,
+                Color.BLUE,
+                Color.parseColor("#4B0082"),
+                Color.parseColor("#8B00FF")
+    };
+
     public enum State {
         DRAW,
         INK,
@@ -57,8 +68,8 @@ public class ViewCanvas extends FrameLayout {
     private int currentStrokeColor, currentBackgroundColor;
     private float lastTouchX, lastTouchY;
     private int width, height;
-    private State state = State.DRAW;
 
+    private State state = State.DRAW;
     private final RectF dirtyRect = new RectF();
     private final RectF inkRect = new RectF();
     private PaintPath mPath;
@@ -104,6 +115,7 @@ public class ViewCanvas extends FrameLayout {
         setWillNotDraw(false);
         setSaveEnabled(true);
         setBackgroundColor(currentBackgroundColor);
+        setLayerType(LAYER_TYPE_SOFTWARE, null);
     }
 
     @Override

@@ -54,16 +54,20 @@ public class PaintExampleAdapter extends RecyclerView.Adapter<PaintExampleAdapte
     public void onBindViewHolder(PaintExampleAdapter.ViewHolder viewHolder, int i) {
         PojoPaintExample example = dataList.get(i);
 
-        String name = example.getPaintName();
         ViewTypefaceTextView textView = viewHolder.paintName;
-        textView.setText(name.substring(0,1).toUpperCase() + name.substring(1));
+        textView.setText(example.getPaintName());
+        textView.setTextColor(example.getColorForText());
 
         ViewBrushLayoutPaintExample paintExample = viewHolder.paintExample;
-        paintExample.setPaint(PaintStyles.getStyleFromName(name, Color.WHITE));
+        paintExample.setPaint(example.getPaint());
     }
 
     @Override
     public int getItemCount() {
         return dataList.size();
     }
+
+    public List<PojoPaintExample> getDataList() { return dataList; }
+
+    public PojoPaintExample getPojoAtPosition(int ndx) { return dataList.get(ndx); }
 }
