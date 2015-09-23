@@ -11,8 +11,6 @@ import android.widget.SeekBar;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import milespeele.canvas.R;
-import milespeele.canvas.adapter.PaintExampleAdapter;
-import milespeele.canvas.util.Logg;
 
 /**
  * Created by milespeele on 8/8/15.
@@ -49,7 +47,7 @@ public class ViewBrushLayout extends LinearLayout implements SeekBar.OnSeekBarCh
     }
 
     private void init() {
-
+        setClipChildren(false);
     }
 
     @Override
@@ -65,7 +63,9 @@ public class ViewBrushLayout extends LinearLayout implements SeekBar.OnSeekBarCh
         example.changePaint(paint);
     }
 
-    public void setInitialValues(float thickness) {
+    public void setInitialValues(float thickness, int color) {
+        recycler.setColor(color);
+        example.changePaintColor(color);
         example.onThicknessChanged(thickness);
         sizer.setProgress(Math.round(thickness));
     }

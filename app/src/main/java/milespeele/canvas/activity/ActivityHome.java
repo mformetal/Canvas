@@ -81,7 +81,7 @@ public class ActivityHome extends ActivityBase {
     }
 
     public void onEvent(EventShowBrushPicker test) {
-        FragmentBrushPicker.newInstance(test.size)
+        FragmentBrushPicker.newInstance(test.size, test.color)
                 .show(getFragmentManager(), TAG_FRAGMENT_BRUSH);
     }
 

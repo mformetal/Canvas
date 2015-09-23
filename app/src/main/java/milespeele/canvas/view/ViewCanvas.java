@@ -1,6 +1,7 @@
 package milespeele.canvas.view;
 
 import android.animation.Animator;
+import android.animation.AnimatorSet;
 import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.content.Context;
@@ -19,6 +20,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+
+import com.google.common.collect.Lists;
 
 import java.util.Random;
 
@@ -42,18 +45,9 @@ import milespeele.canvas.paint.PaintStack;
 import milespeele.canvas.paint.PaintStyles;
 import milespeele.canvas.util.Datastore;
 import milespeele.canvas.util.Logg;
+import milespeele.canvas.util.Point;
 
 public class ViewCanvas extends FrameLayout {
-
-    int[] rainbowColors = new int[] {
-        Color.RED,
-                Color.parseColor("#FF7F00"),
-                Color.YELLOW,
-                Color.GREEN,
-                Color.BLUE,
-                Color.parseColor("#4B0082"),
-                Color.parseColor("#8B00FF")
-    };
 
     public enum State {
         DRAW,
@@ -64,6 +58,9 @@ public class ViewCanvas extends FrameLayout {
     @Bind(R.id.fragment_drawer_canvas_eraser) ImageView eraser;
 
     private final static String CACHED_FILENAME = "cached";
+    private float lastWidth;
+    private float lastVelocity;
+    private static final float VELOCITY_FILTER_WEIGHT = 0.2f;
     private static float STROKE_WIDTH = 5f;
     private int currentStrokeColor, currentBackgroundColor;
     private float lastTouchX, lastTouchY;
@@ -79,6 +76,7 @@ public class ViewCanvas extends FrameLayout {
     private Matrix scaleMatrix;
     private PaintStack mPaths, redoPaths;
     private Bitmap drawingBitmap, cachedBitmap;
+    private Point previousPoint, startPoint, currentPoint;
 
     @Inject EventBus bus;
     @Inject Datastore store;
@@ -154,7 +152,7 @@ public class ViewCanvas extends FrameLayout {
             canvas.drawBitmap(cachedBitmap, 0, 0, null);
         }
 
-        for (PaintPath p: mPaths) {
+        for (PaintPath p: Lists.reverse(mPaths)) {
             canvas.drawPath(p, p.getPaint());
         }
 
@@ -200,6 +198,10 @@ public class ViewCanvas extends FrameLayout {
             lastTouchX = eventX;
             lastTouchY = eventY;
 
+            currentPoint = new Point(event.getX(), event.getY(), System.currentTimeMillis());
+            previousPoint = currentPoint;
+            startPoint = previousPoint;
+
             mPath = new PaintPath(currentStyle());
             mPaths.push(mPath);
             mPath.moveTo(eventX, eventY);
@@ -219,6 +221,17 @@ public class ViewCanvas extends FrameLayout {
                 float historicalX = event.getHistoricalX(i);
                 float historicalY = event.getHistoricalY(i);
                 expandDirtyRect(historicalX, historicalY);
+
+                startPoint = previousPoint;
+                previousPoint = currentPoint;
+                currentPoint = new Point(eventX, eventY, System.currentTimeMillis());
+
+                float velocity = currentPoint.velocityFrom(previousPoint);
+                velocity = VELOCITY_FILTER_WEIGHT * velocity + (1 - VELOCITY_FILTER_WEIGHT) * lastVelocity;
+                float strokeWidth = STROKE_WIDTH - velocity;
+
+                lastVelocity = velocity;
+                lastWidth = strokeWidth;
                 mPath.lineTo(historicalX, historicalY);
             }
 
@@ -230,6 +243,10 @@ public class ViewCanvas extends FrameLayout {
     private void onTouchUp(MotionEvent event, float eventX, float eventY) {
         setEraserPosition(event, eventX, eventY);
         setInkPosition(event, eventX, eventY);
+
+        startPoint = previousPoint;
+        previousPoint = currentPoint;
+        currentPoint = new Point(eventX, eventY, System.currentTimeMillis());;
     }
 
     private void expandDirtyRect(float historicalX, float historicalY) {
@@ -317,6 +334,7 @@ public class ViewCanvas extends FrameLayout {
             curPaint.set(eventBrushChosen.paint);
             curPaint.setColor(currentStrokeColor);
         }
+
         curPaint.setStrokeWidth(STROKE_WIDTH);
     }
 

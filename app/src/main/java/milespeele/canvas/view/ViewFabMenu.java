@@ -178,7 +178,7 @@ public class ViewFabMenu extends ViewGroup
                 break;
             case R.id.menu_size:
                 eraser.scaleDown();
-                bus.post(new EventShowBrushPicker(parent.getBrushWidth()));
+                bus.post(new EventShowBrushPicker(parent.getBrushWidth(), parent.getBrushColor()));
                 break;
             case R.id.menu_stroke_color:
                 eraser.scaleDown();

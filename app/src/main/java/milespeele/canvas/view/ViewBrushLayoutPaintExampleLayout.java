@@ -59,18 +59,4 @@ public class ViewBrushLayoutPaintExampleLayout extends LinearLayout {
     public Paint getPaintFromExample() {
         return paintExample.getExamplePaint();
     }
-
-    public void dehighlight() {
-        if (hasColorChangedToGold) {
-            typefaceTextView.animateTextColorChange(Color.WHITE);
-            hasColorChangedToGold = false;
-        }
-    }
-
-    public void highlight() {
-        if (!hasColorChangedToGold) {
-            typefaceTextView.animateTextColorChange(getResources().getColor(R.color.spirit_gold));
-            hasColorChangedToGold = true;
-        }
-    }
 }

@@ -98,6 +98,8 @@ public class ViewCanvasLayout extends CoordinatorLayout {
         return drawer.getBrushWidth();
     }
 
+    public int getBrushColor() { return drawer.getCurrentStrokeColor(); }
+
     public Bitmap getDrawerBitmap() { return drawer.getDrawingBitmap(); }
 
     public int getDrawerColor() { return drawer.getCurrentStrokeColor(); }

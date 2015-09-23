@@ -103,6 +103,10 @@ public class ViewBrushLayoutSizer extends View {
         }
     }
 
+    public void changePaintColor(int color) {
+        paint.setColor(color);
+    }
+
     public void changePaint(Paint newPaint) {
         float paintThickness = paint.getStrokeWidth();
         paint.set(newPaint);

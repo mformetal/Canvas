@@ -32,13 +32,15 @@ public class FragmentBrushPicker extends DialogFragment
     @Inject EventBus bus;
 
     private static final String THICKNESS = "thick";
+    private static final String COLOR = "color";
 
     public FragmentBrushPicker() {}
 
-    public static FragmentBrushPicker newInstance(float canvasWidth) {
+    public static FragmentBrushPicker newInstance(float canvasWidth, int color) {
         FragmentBrushPicker fragmentBrushPicker = new FragmentBrushPicker();
         Bundle args = new Bundle();
         args.putFloat(THICKNESS, canvasWidth);
+        args.putInt(COLOR, color);
         fragmentBrushPicker.setArguments(args);
         return fragmentBrushPicker;
     }
@@ -60,7 +62,7 @@ public class FragmentBrushPicker extends DialogFragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_brush_picker, container, false);
         ButterKnife.bind(this, v);
-        root.setInitialValues(getArguments().getFloat(THICKNESS));
+        root.setInitialValues(getArguments().getFloat(THICKNESS), getArguments().getInt(COLOR));
         return v;
     }
 

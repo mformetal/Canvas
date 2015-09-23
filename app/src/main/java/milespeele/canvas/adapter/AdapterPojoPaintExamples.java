@@ -1,16 +1,18 @@
 package milespeele.canvas.adapter;
 
+import android.animation.Animator;
+import android.animation.ObjectAnimator;
 import android.content.Context;
-import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Interpolator;
+import android.view.animation.LinearInterpolator;
 
 import java.util.List;
 
 import milespeele.canvas.R;
-import milespeele.canvas.paint.PaintStyles;
 import milespeele.canvas.pojo.PojoPaintExample;
 import milespeele.canvas.view.ViewBrushLayoutPaintExample;
 import milespeele.canvas.view.ViewTypefaceTextView;
@@ -18,7 +20,7 @@ import milespeele.canvas.view.ViewTypefaceTextView;
 /**
  * Created by Miles Peele on 9/17/2015.
  */
-public class PaintExampleAdapter extends RecyclerView.Adapter<PaintExampleAdapter.ViewHolder> {
+public class AdapterPojoPaintExamples extends RecyclerView.Adapter<AdapterPojoPaintExamples.ViewHolder> {
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public ViewTypefaceTextView paintName;
@@ -33,15 +35,17 @@ public class PaintExampleAdapter extends RecyclerView.Adapter<PaintExampleAdapte
     }
 
     private List<PojoPaintExample> dataList;
-    private Context cxt;
+    private int mDuration = 300;
+    private Interpolator mInterpolator = new LinearInterpolator();
+    private int mLastPosition = -1;
+    private boolean isFirstOnly = true;
 
-    public PaintExampleAdapter(Context context, List<PojoPaintExample> list) {
+    public AdapterPojoPaintExamples(List<PojoPaintExample> list) {
         dataList = list;
-        cxt = context;
     }
 
     @Override
-    public PaintExampleAdapter.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
+    public AdapterPojoPaintExamples.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
         View itemView = LayoutInflater.from(viewGroup.getContext())
                 .inflate(R.layout.paint_example_layout,
                         viewGroup,
@@ -51,7 +55,7 @@ public class PaintExampleAdapter extends RecyclerView.Adapter<PaintExampleAdapte
     }
 
     @Override
-    public void onBindViewHolder(PaintExampleAdapter.ViewHolder viewHolder, int i) {
+    public void onBindViewHolder(AdapterPojoPaintExamples.ViewHolder viewHolder, int i) {
         PojoPaintExample example = dataList.get(i);
 
         ViewTypefaceTextView textView = viewHolder.paintName;

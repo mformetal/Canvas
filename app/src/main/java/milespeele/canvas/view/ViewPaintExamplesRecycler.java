@@ -10,15 +10,12 @@ import android.view.View;
 import java.util.ArrayList;
 import java.util.List;
 
-import jp.wasabeef.recyclerview.animators.SlideInUpAnimator;
 import jp.wasabeef.recyclerview.animators.adapters.AlphaInAnimationAdapter;
-import jp.wasabeef.recyclerview.animators.adapters.ScaleInAnimationAdapter;
 import milespeele.canvas.R;
-import milespeele.canvas.adapter.PaintExampleAdapter;
+import milespeele.canvas.adapter.AdapterPojoPaintExamples;
 import milespeele.canvas.paint.PaintStyles;
 import milespeele.canvas.pojo.PojoPaintExample;
 import milespeele.canvas.util.ItemClickSupport;
-import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.WrapContentLinearLayoutManager;
 
 /**
@@ -26,7 +23,9 @@ import milespeele.canvas.util.WrapContentLinearLayoutManager;
  */
 public class ViewPaintExamplesRecycler extends RecyclerView implements ItemClickSupport.OnItemClickListener {
 
-    private PaintExampleAdapter adapter;
+    private AdapterPojoPaintExamples adapter;
+
+    private int color;
 
     public ViewPaintExamplesRecycler(Context context) {
         super(context);
@@ -73,11 +72,19 @@ public class ViewPaintExamplesRecycler extends RecyclerView implements ItemClick
         ArrayList<PojoPaintExample> arrayList = new ArrayList<>();
         for (String res: myResArray) {
             arrayList.add(new PojoPaintExample(res.substring(0,1).toUpperCase() + res.substring(1),
-                    PaintStyles.getStyleFromName(res, Color.WHITE)));
+                    PaintStyles.getStyleFromName(res, getColor())));
         }
-        adapter = new PaintExampleAdapter(context, arrayList);
-//        AlphaInAnimationAdapter animatorAdapter = new AlphaInAnimationAdapter(adapter);
-//        animatorAdapter.setFirstOnly(false);
-        setAdapter(adapter);
+        adapter = new AdapterPojoPaintExamples(arrayList);
+        AlphaInAnimationAdapter alphaInAnimationAdapter = new AlphaInAnimationAdapter(adapter);
+        alphaInAnimationAdapter.setFirstOnly(false);
+        setAdapter(alphaInAnimationAdapter);
+    }
+
+    public void setColor(int color) {
+        this.color = color;
+    }
+
+    public int getColor() {
+        return (color != 0) ? color : Color.WHITE;
     }
 }

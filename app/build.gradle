@@ -36,6 +36,7 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:23.+'
     compile 'com.jakewharton:butterknife:7.0.1'
     compile 'com.android.support:design:22.2.1'
+    compile 'com.google.guava:guava:18.0'
     compile 'io.reactivex:rxandroid:0.25.0'
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.facebook.android:facebook-android-sdk:4.0.1'
