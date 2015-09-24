@@ -29,6 +29,8 @@
             </intent-filter>
         </activity>
 
+        <service android:name=".service.ServiceCacheBitmap" />
+
         <activity
             android:name="com.facebook.FacebookActivity"
             android:configChanges=

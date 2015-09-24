@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -28,6 +29,7 @@ import butterknife.ButterKnife;
 import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
+import milespeele.canvas.service.ServiceCacheBitmap;
 import milespeele.canvas.util.AbstractAnimatorListener;
 import milespeele.canvas.util.BitmapUtils;
 import milespeele.canvas.event.EventBrushChosen;
@@ -476,7 +478,8 @@ public class ViewCanvas extends FrameLayout {
 
     @Override
     protected Parcelable onSaveInstanceState() {
-        BitmapUtils.cacheBitmap(getContext(), drawingBitmap, CACHED_FILENAME);
+        getContext().startService(ServiceCacheBitmap.newIntent(getContext(),
+                BitmapUtils.compressBitmapAsBitmapArray(drawingBitmap), CACHED_FILENAME));
         store.setLastBackgroundColor(currentBackgroundColor);
         return super.onSaveInstanceState();
     }
