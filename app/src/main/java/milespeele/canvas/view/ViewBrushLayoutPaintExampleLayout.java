@@ -23,8 +23,6 @@ public class ViewBrushLayoutPaintExampleLayout extends LinearLayout {
     @Bind(R.id.paint_example_layout_text) ViewTypefaceTextView typefaceTextView;
     @Bind(R.id.paint_example_layout_paint) ViewBrushLayoutPaintExample paintExample;
 
-    private boolean hasColorChangedToGold = false;
-
     public ViewBrushLayoutPaintExampleLayout(Context context) {
         super(context);
         init(context, null);

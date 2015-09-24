@@ -31,8 +31,6 @@ public class BitmapUtils {
             try {
                 fos.write(compressBitmapAsBitmapArray(bitmap));
                 fos.close();
-
-                bitmap.recycle();
             } catch (IOException e) {
                 e.printStackTrace();
             }

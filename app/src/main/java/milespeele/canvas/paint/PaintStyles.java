@@ -144,7 +144,7 @@ public class PaintStyles {
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeJoin(Paint.Join.ROUND);
         paint.setStrokeCap(Paint.Cap.ROUND);
-        paint.setShadowLayer(width * 5, 0, 2f, Color.BLACK);
+        paint.setShadowLayer(width * 5, 0, 2f, Color.GRAY);
         return paint;
     }
 

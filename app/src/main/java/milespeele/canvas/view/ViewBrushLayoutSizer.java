@@ -109,7 +109,9 @@ public class ViewBrushLayoutSizer extends View {
 
     public void changePaint(Paint newPaint) {
         float paintThickness = paint.getStrokeWidth();
+        int color = paint.getColor();
         paint.set(newPaint);
+        paint.setColor(color);
         paint.setStrokeWidth(paintThickness);
         reveal = ObjectAnimator.ofFloat(this, "rectWidth", 0, getMeasuredWidth());
         reveal.setDuration(1000);

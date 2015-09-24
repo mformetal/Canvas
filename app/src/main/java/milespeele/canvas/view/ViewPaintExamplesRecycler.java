@@ -53,18 +53,11 @@ public class ViewPaintExamplesRecycler extends RecyclerView implements ItemClick
     public void onItemClicked(RecyclerView recyclerView, int position, View v) {
         ViewBrushLayoutPaintExampleLayout layout = (ViewBrushLayoutPaintExampleLayout) v;
 
-        adapter.getPojoAtPosition(position).setColorForText(getResources().getColor(R.color.spirit_gold));
+       adapter.updateTextViewColorAtPosition(position, Color.WHITE);
 
         ((ViewBrushLayout) getParent()).changeExamplePaint(layout.getPaintFromExample());
 
-        List<PojoPaintExample> list = adapter.getDataList();
-        for (int i = 0; i < list.size(); i++) {
-            if (i != position) {
-                PojoPaintExample example = list.get(i);
-                example.setColorForText(Color.WHITE);
-            }
-        }
-        adapter.notifyDataSetChanged();
+        adapter.updateAllTextViewColors(position);
     }
 
     public void createList(Context context) {

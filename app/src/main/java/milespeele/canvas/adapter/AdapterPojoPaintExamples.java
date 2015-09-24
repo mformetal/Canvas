@@ -3,6 +3,7 @@ package milespeele.canvas.adapter;
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.content.Context;
+import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -71,7 +72,16 @@ public class AdapterPojoPaintExamples extends RecyclerView.Adapter<AdapterPojoPa
         return dataList.size();
     }
 
-    public List<PojoPaintExample> getDataList() { return dataList; }
+    public void updateAllTextViewColors(int posNotToUpdate) {
+        for (int i = 0; i < dataList.size(); i++) {
+            if (i != posNotToUpdate) {
+                dataList.get(i).setColorForText(Color.WHITE);
+            }
+        }
+        notifyDataSetChanged();
+    }
 
-    public PojoPaintExample getPojoAtPosition(int ndx) { return dataList.get(ndx); }
+    public void updateTextViewColorAtPosition(int position, int color) {
+        dataList.get(position).setColorForText(color);
+    }
 }

@@ -42,6 +42,7 @@ dependencies {
     compile 'com.facebook.android:facebook-android-sdk:4.0.1'
     compile 'de.greenrobot:eventbus:2.4.0'
     compile 'com.larswerkman:HoloColorPicker:1.5'
+    compile 'com.google.guava:guava:18.0'
     compile project(':ParseLoginUI')
     compile files('libs/Parse-1.9.1.jar')
     compile files('libs/ParseFaceBookUtilsV4-1.9.1.jar')

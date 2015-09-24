@@ -1,7 +1,6 @@
 package milespeele.canvas.view;
 
 import android.animation.Animator;
-import android.animation.AnimatorSet;
 import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.content.Context;
@@ -10,7 +9,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.graphics.RectF;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Parcelable;
@@ -20,8 +18,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-
-import com.google.common.collect.Lists;
 
 import java.util.Random;
 
@@ -148,13 +144,9 @@ public class ViewCanvas extends FrameLayout {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        if (cachedBitmap != null) {
-            canvas.drawBitmap(cachedBitmap, 0, 0, null);
-        }
+        drawCachedBitmap(canvas);
 
-        for (PaintPath p: Lists.reverse(mPaths)) {
-            canvas.drawPath(p, p.getPaint());
-        }
+        canvas.drawBitmap(drawingBitmap, 0, 0, null);
 
         if (stateIsInk()) {
             canvas.drawRect(inkRect, inkPaint);
@@ -342,6 +334,9 @@ public class ViewCanvas extends FrameLayout {
         if (!redoPaths.isEmpty()) {
             PaintPath redo = redoPaths.pop();
             mPaths.push(redo);
+
+            redrawToOffscreenBitmap();
+
             invalidate(Math.round(redo.getLeft() - STROKE_WIDTH),
                     Math.round(redo.getTop() - STROKE_WIDTH),
                     Math.round(redo.getRight() + STROKE_WIDTH),
@@ -353,10 +348,31 @@ public class ViewCanvas extends FrameLayout {
         if (!mPaths.isEmpty()) {
             PaintPath undo = mPaths.pop();
             redoPaths.push(undo);
+
+            redrawToOffscreenBitmap();
+
             invalidate(Math.round(undo.getLeft() - STROKE_WIDTH),
                     Math.round(undo.getTop() - STROKE_WIDTH),
                     Math.round(undo.getRight() + STROKE_WIDTH),
                     Math.round(undo.getBottom() + STROKE_WIDTH));
+        }
+    }
+
+    private void redrawToOffscreenBitmap() {
+        drawingBitmap.recycle();
+        drawingBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        mCanvas = new Canvas(drawingBitmap);
+
+        for (PaintPath path: mPaths) {
+            mCanvas.drawPath(path, path.getPaint());
+        }
+
+        drawCachedBitmap(mCanvas);
+    }
+
+    private void drawCachedBitmap(Canvas canvas) {
+        if (cachedBitmap != null) {
+            canvas.drawBitmap(cachedBitmap, 0, 0, null);
         }
     }
 
