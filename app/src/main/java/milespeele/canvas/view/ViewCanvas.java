@@ -4,7 +4,6 @@ import android.animation.Animator;
 import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -29,9 +28,8 @@ import butterknife.ButterKnife;
 import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
-import milespeele.canvas.service.ServiceCacheBitmap;
+import milespeele.canvas.service.ServiceBitmapUtils;
 import milespeele.canvas.util.AbstractAnimatorListener;
-import milespeele.canvas.util.BitmapUtils;
 import milespeele.canvas.event.EventBrushChosen;
 import milespeele.canvas.event.EventColorChosen;
 import milespeele.canvas.event.EventShowColorize;
@@ -42,7 +40,6 @@ import milespeele.canvas.paint.PaintPath;
 import milespeele.canvas.paint.PaintStack;
 import milespeele.canvas.paint.PaintStyles;
 import milespeele.canvas.util.Datastore;
-import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.Point;
 
 public class ViewCanvas extends FrameLayout {
@@ -55,7 +52,6 @@ public class ViewCanvas extends FrameLayout {
 
     @Bind(R.id.fragment_drawer_canvas_eraser) ImageView eraser;
 
-    private final static String CACHED_FILENAME = "cached";
     private float lastWidth;
     private float lastVelocity;
     private static final float VELOCITY_FILTER_WEIGHT = 0.2f;
@@ -126,7 +122,7 @@ public class ViewCanvas extends FrameLayout {
         drawingBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
         mCanvas = new Canvas(drawingBitmap);
 
-        cachedBitmap = BitmapUtils.getCachedBitmap(getContext(), CACHED_FILENAME);
+        cachedBitmap = ServiceBitmapUtils.getCachedBitmap(getContext());
 
         if (cachedBitmap != null) {
             mCanvas.drawBitmap(cachedBitmap, 0, 0, null);
@@ -478,8 +474,9 @@ public class ViewCanvas extends FrameLayout {
 
     @Override
     protected Parcelable onSaveInstanceState() {
-        getContext().startService(ServiceCacheBitmap.newIntent(getContext(),
-                BitmapUtils.compressBitmapAsBitmapArray(drawingBitmap), CACHED_FILENAME));
+        getContext().startService(ServiceBitmapUtils.newIntent(
+                getContext(),
+                ServiceBitmapUtils.compressBitmapAsByteArray(drawingBitmap)));
         store.setLastBackgroundColor(currentBackgroundColor);
         return super.onSaveInstanceState();
     }

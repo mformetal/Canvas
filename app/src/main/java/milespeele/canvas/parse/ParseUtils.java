@@ -14,8 +14,8 @@ import javax.inject.Inject;
 import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.activity.ActivityHome;
-import milespeele.canvas.util.BitmapUtils;
 import milespeele.canvas.event.EventParseError;
+import milespeele.canvas.service.ServiceBitmapUtils;
 import milespeele.canvas.util.Logg;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -34,7 +34,7 @@ public class ParseUtils {
     }
 
     public void saveImageToServer(String filename, final WeakReference<ActivityHome> weakCxt, Bitmap bitmap) {
-        BitmapUtils.compressBitmapAsObservable(bitmap)
+        ServiceBitmapUtils.compressBitmapAsObservable(bitmap)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(bytes -> {

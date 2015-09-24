@@ -29,7 +29,7 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".service.ServiceCacheBitmap" />
+        <service android:name=".service.ServiceBitmapUtils" />
 
         <activity
             android:name="com.facebook.FacebookActivity"
