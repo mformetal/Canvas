@@ -21,7 +21,7 @@ public class ViewBrushLayout extends LinearLayout implements SeekBar.OnSeekBarCh
     @Bind(R.id.fragment_brush_picker_view_sizer) SeekBar sizer;
     @Bind(R.id.fragment_brush_picker_view_recycler) ViewPaintExamplesRecycler recycler;
 
-    private final static int MAX_THICKNESS = 100;
+    private final static int MAX_THICKNESS = 50;
     private float thickness;
     private Paint lastSelectedPaint;
 

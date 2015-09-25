@@ -17,6 +17,8 @@ import milespeele.canvas.activity.ActivityHome;
 import milespeele.canvas.event.EventParseError;
 import milespeele.canvas.service.ServiceBitmapUtils;
 import milespeele.canvas.util.Logg;
+import rx.Observable;
+import rx.Observer;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
@@ -26,8 +28,6 @@ import rx.schedulers.Schedulers;
 public class ParseUtils {
 
     @Inject EventBus bus;
-
-    private final static String PINNED_IMAGE = "pinned";
 
     public ParseUtils(Application mApplication) {
         ((MainApp) mApplication).getApplicationComponent().inject(this);
@@ -55,32 +55,26 @@ public class ParseUtils {
                                                 activityHome.showSavedImageSnackbar(art);
                                             }
                                         } else {
-                                            handleParseError(e2);
+                                            handleError(e2);
                                         }
                                     });
                                 } else {
-                                    handleParseError(e1);
+                                    handleError(e1);
                                 }
                             });
                         } else {
-                            handleParseError(e);
+                            handleError(e);
                         }
                     });
-                }, this::handleRxError);
+                }, this::handleError);
     }
 
-    public void handleParseError(ParseException e) {
-        e.printStackTrace();
-        Logg.log("PARSE ERROR CODE: " + e.getCode());
-        Logg.log("PARSE ERROR MESSAGE: " + e.getMessage());
-        bus.post(new EventParseError(e));
-    }
-
-    public void handleRxError(Throwable throwable) {
+    public void handleError(Throwable throwable) {
         throwable.printStackTrace();
         if (throwable instanceof ParseException) {
             ParseException e = (ParseException) throwable;
-            Logg.log("PARSE ERROR FROM RX ERROR CODE: "+ e.getCode());
+            Logg.log("PARSE ERROR CODE: " + e.getCode());
+            Logg.log("PARSE ERROR MESSAGE: " + e.getMessage());
             bus.post(new EventParseError(e));
         } else {
             bus.post(new EventParseError(throwable));

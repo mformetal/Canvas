@@ -92,7 +92,7 @@ public class PaintStyles {
         return paint;
     }
 
-    public static Paint dashed(int currentColor, float width) {
+    public static Paint dots(int currentColor, float width) {
         Paint paint = new Paint();
         paint.setAntiAlias(true);
         paint.setDither(true);
@@ -102,6 +102,19 @@ public class PaintStyles {
         paint.setStrokeJoin(Paint.Join.ROUND);
         paint.setStrokeCap(Paint.Cap.ROUND);
         paint.setPathEffect(composePathEffect);
+        return paint;
+    }
+
+    public static Paint dashed(int currentColor, float width) {
+        Paint paint = new Paint();
+        paint.setAntiAlias(true);
+        paint.setDither(true);
+        paint.setColor(currentColor);
+        paint.setStrokeWidth(width);
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeJoin(Paint.Join.ROUND);
+        paint.setStrokeCap(Paint.Cap.ROUND);
+        paint.setPathEffect(new DashPathEffect(new float[] {width, width * 5}, width / 4));
         return paint;
     }
 
@@ -129,9 +142,7 @@ public class PaintStyles {
         paint.setColor(color);
         paint.setStrokeWidth(width);
         paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeJoin(Paint.Join.ROUND);
-        paint.setStrokeCap(Paint.Cap.ROUND);
-        paint.setPathEffect(new DiscretePathEffect(5, 30));
+        paint.setPathEffect(new DiscretePathEffect(width, width * 2));
         return paint;
     }
 

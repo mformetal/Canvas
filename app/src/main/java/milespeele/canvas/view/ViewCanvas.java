@@ -15,6 +15,7 @@ import android.os.Parcelable;
 import android.support.v4.view.MotionEventCompat;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
+import android.view.VelocityTracker;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -40,7 +41,6 @@ import milespeele.canvas.paint.PaintPath;
 import milespeele.canvas.paint.PaintStack;
 import milespeele.canvas.paint.PaintStyles;
 import milespeele.canvas.util.Datastore;
-import milespeele.canvas.util.Point;
 
 public class ViewCanvas extends FrameLayout {
 
@@ -52,9 +52,6 @@ public class ViewCanvas extends FrameLayout {
 
     @Bind(R.id.fragment_drawer_canvas_eraser) ImageView eraser;
 
-    private float lastWidth;
-    private float lastVelocity;
-    private static final float VELOCITY_FILTER_WEIGHT = 0.2f;
     private static float STROKE_WIDTH = 5f;
     private int currentStrokeColor, currentBackgroundColor;
     private float lastTouchX, lastTouchY;
@@ -70,7 +67,7 @@ public class ViewCanvas extends FrameLayout {
     private Matrix scaleMatrix;
     private PaintStack mPaths, redoPaths;
     private Bitmap drawingBitmap, cachedBitmap;
-    private Point previousPoint, startPoint, currentPoint;
+    private VelocityTracker velocityTracker;
 
     @Inject EventBus bus;
     @Inject Datastore store;
@@ -103,6 +100,8 @@ public class ViewCanvas extends FrameLayout {
         mPaths.push(mPath);
 
         scaleMatrix = new Matrix();
+
+        velocityTracker = VelocityTracker.obtain();
 
         setWillNotDraw(false);
         setSaveEnabled(true);
@@ -188,13 +187,10 @@ public class ViewCanvas extends FrameLayout {
             lastTouchX = eventX;
             lastTouchY = eventY;
 
-            currentPoint = new Point(event.getX(), event.getY(), System.currentTimeMillis());
-            previousPoint = currentPoint;
-            startPoint = previousPoint;
-
             mPath = new PaintPath(currentStyle());
             mPaths.push(mPath);
             mPath.moveTo(eventX, eventY);
+            mPath.addPoint(eventX, eventY, event.getDownTime());
         }
 
         setInkPosition(event, eventX, eventY);
@@ -212,20 +208,12 @@ public class ViewCanvas extends FrameLayout {
                 float historicalY = event.getHistoricalY(i);
                 expandDirtyRect(historicalX, historicalY);
 
-                startPoint = previousPoint;
-                previousPoint = currentPoint;
-                currentPoint = new Point(eventX, eventY, System.currentTimeMillis());
-
-                float velocity = currentPoint.velocityFrom(previousPoint);
-                velocity = VELOCITY_FILTER_WEIGHT * velocity + (1 - VELOCITY_FILTER_WEIGHT) * lastVelocity;
-                float strokeWidth = STROKE_WIDTH - velocity;
-
-                lastVelocity = velocity;
-                lastWidth = strokeWidth;
                 mPath.lineTo(historicalX, historicalY);
+                mPath.addPoint(eventX, eventY, event.getHistoricalEventTime(i));
             }
 
             mPath.lineTo(eventX, eventY);
+            mPath.addPoint(eventX, eventY, event.getEventTime());
             mCanvas.drawPath(mPath, mPath.getPaint());
         }
     }
@@ -233,10 +221,7 @@ public class ViewCanvas extends FrameLayout {
     private void onTouchUp(MotionEvent event, float eventX, float eventY) {
         setEraserPosition(event, eventX, eventY);
         setInkPosition(event, eventX, eventY);
-
-        startPoint = previousPoint;
-        previousPoint = currentPoint;
-        currentPoint = new Point(eventX, eventY, System.currentTimeMillis());;
+        mPath.addPoint(eventX, eventY, event.getEventTime());
     }
 
     private void expandDirtyRect(float historicalX, float historicalY) {

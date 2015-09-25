@@ -24,6 +24,7 @@
 
     <string-array name="paint_examples">
         <item>normal</item>
+        <item>dots</item>
         <item>dashed</item>
         <item>emboss</item>
         <item>deboss</item>
