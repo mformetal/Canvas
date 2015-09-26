@@ -1,8 +1,5 @@
 package milespeele.canvas.view;
 
-import android.animation.Animator;
-import android.animation.ArgbEvaluator;
-import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -15,7 +12,6 @@ import android.os.Parcelable;
 import android.support.v4.view.MotionEventCompat;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
-import android.view.VelocityTracker;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -29,18 +25,17 @@ import butterknife.ButterKnife;
 import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
+import milespeele.canvas.drawing.DrawingCurve;
 import milespeele.canvas.service.ServiceBitmapUtils;
-import milespeele.canvas.util.AbstractAnimatorListener;
 import milespeele.canvas.event.EventBrushChosen;
 import milespeele.canvas.event.EventColorChosen;
 import milespeele.canvas.event.EventShowColorize;
 import milespeele.canvas.event.EventShowErase;
 import milespeele.canvas.event.EventRedo;
 import milespeele.canvas.event.EventUndo;
-import milespeele.canvas.paint.PaintPath;
-import milespeele.canvas.paint.PaintStack;
 import milespeele.canvas.paint.PaintStyles;
 import milespeele.canvas.util.Datastore;
+import milespeele.canvas.util.Logg;
 
 public class ViewCanvas extends FrameLayout {
 
@@ -52,22 +47,16 @@ public class ViewCanvas extends FrameLayout {
 
     @Bind(R.id.fragment_drawer_canvas_eraser) ImageView eraser;
 
-    private static float STROKE_WIDTH = 5f;
     private int currentStrokeColor, currentBackgroundColor;
-    private float lastTouchX, lastTouchY;
     private int width, height;
+    private float lastTouchX, lastTouchY;
 
     private State state = State.DRAW;
-    private final RectF dirtyRect = new RectF();
     private final RectF inkRect = new RectF();
-    private PaintPath mPath;
     private Paint curPaint;
     private Paint inkPaint;
-    private Canvas mCanvas;
-    private Matrix scaleMatrix;
-    private PaintStack mPaths, redoPaths;
-    private Bitmap drawingBitmap, cachedBitmap;
-    private VelocityTracker velocityTracker;
+    private Bitmap cachedBitmap;
+    private DrawingCurve drawingCurve;
 
     @Inject EventBus bus;
     @Inject Datastore store;
@@ -90,19 +79,6 @@ public class ViewCanvas extends FrameLayout {
         currentStrokeColor = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
         currentBackgroundColor = store.getLastBackgroundColor();
 
-        curPaint = PaintStyles.normal(currentStrokeColor, STROKE_WIDTH);
-        inkPaint = PaintStyles.normal(currentStrokeColor, STROKE_WIDTH);
-        inkPaint.setStyle(Paint.Style.FILL_AND_STROKE);
-
-        mPath = new PaintPath(curPaint);
-        mPaths = new PaintStack();
-        redoPaths = new PaintStack();
-        mPaths.push(mPath);
-
-        scaleMatrix = new Matrix();
-
-        velocityTracker = VelocityTracker.obtain();
-
         setWillNotDraw(false);
         setSaveEnabled(true);
         setBackgroundColor(currentBackgroundColor);
@@ -115,22 +91,20 @@ public class ViewCanvas extends FrameLayout {
         width = w;
         height = h;
 
-        scaleMatrix.reset();
-        scaleMatrix.setScale(w, h);
+        drawingCurve = new DrawingCurve(w, h);
 
-        drawingBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-        mCanvas = new Canvas(drawingBitmap);
+        curPaint = PaintStyles.normal(currentStrokeColor, drawingCurve.getStaticStrokeWidth());
+        inkPaint = PaintStyles.normal(currentStrokeColor, drawingCurve.getStaticStrokeWidth());
+        inkPaint.setStyle(Paint.Style.FILL_AND_STROKE);
 
         cachedBitmap = ServiceBitmapUtils.getCachedBitmap(getContext());
 
-        if (cachedBitmap != null) {
-            mCanvas.drawBitmap(cachedBitmap, 0, 0, null);
-        }
+        drawingCurve.drawBitmapToInternalCanvas(cachedBitmap);
 
-        inkRect.left = mCanvas.getWidth() / 40;
-        inkRect.top = mCanvas.getWidth() / 40;
-        inkRect.right = mCanvas.getWidth() / 6;
-        inkRect.bottom = mCanvas.getWidth() / 6;
+        inkRect.left = w / 40;
+        inkRect.top = w / 40;
+        inkRect.right = w / 5;
+        inkRect.bottom = w / 5;
     }
 
     @Override
@@ -141,9 +115,8 @@ public class ViewCanvas extends FrameLayout {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        drawCachedBitmap(canvas);
-
-        canvas.drawBitmap(drawingBitmap, 0, 0, null);
+        drawingCurve.drawBitmapToInternalCanvas(cachedBitmap);
+        drawingCurve.drawInternalBitmapToCanvas(canvas);
 
         if (stateIsInk()) {
             canvas.drawRect(inkRect, inkPaint);
@@ -172,10 +145,7 @@ public class ViewCanvas extends FrameLayout {
                 break;
         }
 
-        invalidate(Math.round(dirtyRect.left - STROKE_WIDTH / 2),
-                Math.round(dirtyRect.top - STROKE_WIDTH / 2),
-                Math.round(dirtyRect.right + STROKE_WIDTH / 2),
-                Math.round(dirtyRect.bottom + STROKE_WIDTH / 2));
+        invalidate(drawingCurve.getDirtyRect());
 
         lastTouchX = eventX;
         lastTouchY = eventY;
@@ -187,10 +157,8 @@ public class ViewCanvas extends FrameLayout {
             lastTouchX = eventX;
             lastTouchY = eventY;
 
-            mPath = new PaintPath(currentStyle());
-            mPaths.push(mPath);
-            mPath.moveTo(eventX, eventY);
-            mPath.addPoint(eventX, eventY, event.getDownTime());
+            drawingCurve.setPaint(currentStyle());
+            drawingCurve.addPoint(eventX, eventY, event.getDownTime());
         }
 
         setInkPosition(event, eventX, eventY);
@@ -198,7 +166,7 @@ public class ViewCanvas extends FrameLayout {
     }
 
     private void onTouchMove(MotionEvent event, float eventX, float eventY) {
-        resetDirtyRect(eventX, eventY);
+        drawingCurve.resetRect(eventX, eventY);
         setInkPosition(event, eventX, eventY);
         setEraserPosition(event, eventX, eventY);
 
@@ -206,42 +174,21 @@ public class ViewCanvas extends FrameLayout {
             for (int i = 0; i < event.getHistorySize(); i++) {
                 float historicalX = event.getHistoricalX(i);
                 float historicalY = event.getHistoricalY(i);
-                expandDirtyRect(historicalX, historicalY);
+                long historicalEventTime = event.getHistoricalEventTime(i);
+                drawingCurve.updateRect(historicalX, historicalY);
 
-                mPath.lineTo(historicalX, historicalY);
-                mPath.addPoint(eventX, eventY, event.getHistoricalEventTime(i));
+                drawingCurve.addPoint(historicalX, historicalY, historicalEventTime);
             }
 
-            mPath.lineTo(eventX, eventY);
-            mPath.addPoint(eventX, eventY, event.getEventTime());
-            mCanvas.drawPath(mPath, mPath.getPaint());
+            drawingCurve.addPoint(eventX, eventY, event.getEventTime());
         }
     }
 
     private void onTouchUp(MotionEvent event, float eventX, float eventY) {
         setEraserPosition(event, eventX, eventY);
         setInkPosition(event, eventX, eventY);
-        mPath.addPoint(eventX, eventY, event.getEventTime());
-    }
-
-    private void expandDirtyRect(float historicalX, float historicalY) {
-        if (historicalX < dirtyRect.left) {
-            dirtyRect.left = historicalX;
-        } else if (historicalX > dirtyRect.right) {
-            dirtyRect.right = historicalX;
-        }
-        if (historicalY < dirtyRect.top) {
-            dirtyRect.top = historicalY;
-        } else if (historicalY > dirtyRect.bottom) {
-            dirtyRect.bottom = historicalY;
-        }
-    }
-
-    private void resetDirtyRect(float eventX, float eventY) {
-        dirtyRect.left = Math.min(lastTouchX, eventX);
-        dirtyRect.right = Math.max(lastTouchX, eventX);
-        dirtyRect.top = Math.min(lastTouchY, eventY);
-        dirtyRect.bottom = Math.max(lastTouchY, eventY);
+        drawingCurve.addPoint(eventX, eventY, event.getEventTime());
+        drawingCurve.onTouchUp(eventX, eventY);
     }
 
     private void setEraserPosition(MotionEvent event, float eventX, float eventY) {
@@ -259,7 +206,7 @@ public class ViewCanvas extends FrameLayout {
 
     private void setInkPosition(MotionEvent event, float eventX, float eventY) {
         if (stateIsInk() && eventsInRange(eventX, eventY)) {
-            int color = drawingBitmap.getPixel(Math.round(eventX), Math.round(eventY));
+            int color = drawingCurve.getPixel(Math.round(eventX), Math.round(eventY));
             int colorToChangeTo;
             if (color != currentBackgroundColor)  {
                colorToChangeTo = (color == 0) ? currentStrokeColor : color;
@@ -284,8 +231,8 @@ public class ViewCanvas extends FrameLayout {
 
     private boolean eventsInRange(float eventX, float eventY) {
         int x = Math.round(eventX), y = Math.round(eventY);
-        return (x >= 0 && x <= drawingBitmap.getWidth() &&
-                (y >= 0 && y <= drawingBitmap.getHeight()));
+        return (x >= 0 && x <= drawingCurve.getWidth() &&
+                (y >= 0 && y <= drawingCurve.getHeight()));
     }
 
     public void onEvent(EventColorChosen eventColorChosen) {
@@ -303,60 +250,24 @@ public class ViewCanvas extends FrameLayout {
 
         eraser.setVisibility(View.GONE);
 
-        STROKE_WIDTH = eventBrushChosen.thickness;
+        drawingCurve.setStaticStrokeWidth(eventBrushChosen.thickness);
 
         if (eventBrushChosen.paint != null) {
             curPaint.set(eventBrushChosen.paint);
             curPaint.setColor(currentStrokeColor);
         }
 
-        curPaint.setStrokeWidth(STROKE_WIDTH);
+        curPaint.setStrokeWidth(eventBrushChosen.thickness);
     }
 
     public void onEvent(EventRedo eventRedo) {
-        if (!redoPaths.isEmpty()) {
-            PaintPath redo = redoPaths.pop();
-            mPaths.push(redo);
-
-            redrawToOffscreenBitmap();
-
-            invalidate(Math.round(redo.getLeft() - STROKE_WIDTH),
-                    Math.round(redo.getTop() - STROKE_WIDTH),
-                    Math.round(redo.getRight() + STROKE_WIDTH),
-                    Math.round(redo.getBottom() + STROKE_WIDTH));
-        }
+        drawingCurve.redo();
+        invalidate(drawingCurve.getDirtyRect());
     }
 
     public void onEvent(EventUndo eventUndo) {
-        if (!mPaths.isEmpty()) {
-            PaintPath undo = mPaths.pop();
-            redoPaths.push(undo);
-
-            redrawToOffscreenBitmap();
-
-            invalidate(Math.round(undo.getLeft() - STROKE_WIDTH),
-                    Math.round(undo.getTop() - STROKE_WIDTH),
-                    Math.round(undo.getRight() + STROKE_WIDTH),
-                    Math.round(undo.getBottom() + STROKE_WIDTH));
-        }
-    }
-
-    private void redrawToOffscreenBitmap() {
-        drawingBitmap.recycle();
-        drawingBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        mCanvas = new Canvas(drawingBitmap);
-
-        for (PaintPath path: mPaths) {
-            mCanvas.drawPath(path, path.getPaint());
-        }
-
-        drawCachedBitmap(mCanvas);
-    }
-
-    private void drawCachedBitmap(Canvas canvas) {
-        if (cachedBitmap != null) {
-            canvas.drawBitmap(cachedBitmap, 0, 0, null);
-        }
+        drawingCurve.undo();
+        invalidate(drawingCurve.getDirtyRect());
     }
 
     public void onEvent(EventShowErase eventErase) {
@@ -406,43 +317,22 @@ public class ViewCanvas extends FrameLayout {
         eraser.setVisibility(View.GONE);
 
         state = State.DRAW;
-        for (PaintPath p: mPaths) {
-            p.reset();
-        }
-        mPaths.clear();
-
-        mPath = new PaintPath(currentStyle());
-        mPaths.push(mPath);
 
         if (cachedBitmap != null) {
             cachedBitmap.recycle();
             cachedBitmap = null;
         }
-        drawingBitmap.recycle();
-        drawingBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        mCanvas = new Canvas(drawingBitmap);
 
-        ObjectAnimator background =
-                ObjectAnimator.ofObject(this, "backgroundColor", new ArgbEvaluator(),
-                        currentBackgroundColor, color);
-        background.setDuration(750);
-        background.addListener(new AbstractAnimatorListener() {
-
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                mCanvas.drawColor(color);
-            }
-        });
-        background.start();
+        drawingCurve.hardResetWithAnimatedColor(this, currentBackgroundColor, color);
 
         currentBackgroundColor = color;
         invalidate();
     }
 
-    public float getBrushWidth() { return STROKE_WIDTH; }
+    public float getBrushWidth() { return drawingCurve.getStaticStrokeWidth(); }
 
     public Bitmap getDrawingBitmap() {
-        return drawingBitmap;
+        return drawingCurve.getBitmap();
     }
 
     public int getCurrentStrokeColor() { return currentStrokeColor; }
@@ -461,7 +351,7 @@ public class ViewCanvas extends FrameLayout {
     protected Parcelable onSaveInstanceState() {
         getContext().startService(ServiceBitmapUtils.newIntent(
                 getContext(),
-                ServiceBitmapUtils.compressBitmapAsByteArray(drawingBitmap)));
+                ServiceBitmapUtils.compressBitmapAsByteArray(drawingCurve.getBitmap())));
         store.setLastBackgroundColor(currentBackgroundColor);
         return super.onSaveInstanceState();
     }
