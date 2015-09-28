@@ -4,7 +4,6 @@ import javax.inject.Singleton;
 
 import dagger.Component;
 import milespeele.canvas.activity.ActivityHome;
-import milespeele.canvas.drawing.DrawingCurve;
 import milespeele.canvas.fragment.FragmentBrushPicker;
 import milespeele.canvas.fragment.FragmentColorPicker;
 import milespeele.canvas.fragment.FragmentDrawer;

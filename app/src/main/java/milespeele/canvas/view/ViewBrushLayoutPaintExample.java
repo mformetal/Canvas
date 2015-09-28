@@ -10,7 +10,6 @@ import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
 
-import milespeele.canvas.R;
 import milespeele.canvas.paint.PaintStyles;
 
 /**

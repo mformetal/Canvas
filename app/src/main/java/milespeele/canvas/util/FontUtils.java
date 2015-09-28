@@ -2,14 +2,10 @@ package milespeele.canvas.util;
 
 import android.content.Context;
 import android.content.res.AssetManager;
-import android.graphics.Bitmap;
 import android.graphics.Typeface;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
-
-import rx.Observable;
 
 public final class FontUtils {
 

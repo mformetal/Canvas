@@ -2,18 +2,14 @@ package milespeele.canvas.view;
 
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Build;
 import android.util.AttributeSet;
-import android.view.MotionEvent;
-import android.view.View;
 import android.widget.LinearLayout;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import milespeele.canvas.R;
-import milespeele.canvas.util.Logg;
 
 /**
  * Created by Miles Peele on 9/6/2015.

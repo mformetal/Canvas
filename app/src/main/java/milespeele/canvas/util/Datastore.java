@@ -11,6 +11,7 @@ import android.graphics.Color;
 public class Datastore {
 
     private SharedPreferences encryptedSharedPreferences;
+
     private final static String SHARED_PREFS_KEY = "prefs";
     private final static String BACKGROUND = "background";
 
@@ -32,7 +33,8 @@ public class Datastore {
     }
 
     public int getLastBackgroundColor() {
-        return getPrefs().getInt(BACKGROUND, Color.WHITE);
+        return getPrefs().getInt(BACKGROUND,
+                Color.parseColor("#FFFFFF"));
     }
 
 }

@@ -1,33 +1,18 @@
 package milespeele.canvas.paint;
 
-import android.content.Context;
 import android.graphics.Color;
-import android.graphics.ColorFilter;
 import android.graphics.ComposePathEffect;
-import android.graphics.ComposeShader;
 import android.graphics.CornerPathEffect;
 import android.graphics.DashPathEffect;
 import android.graphics.DiscretePathEffect;
 import android.graphics.EmbossMaskFilter;
-import android.graphics.LightingColorFilter;
 import android.graphics.LinearGradient;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.PixelXorXfermode;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
-import android.graphics.RadialGradient;
 import android.graphics.Shader;
-import android.graphics.SweepGradient;
-import android.graphics.Xfermode;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Random;
-
-import milespeele.canvas.R;
-import milespeele.canvas.util.Logg;
 
 /**
  * Created by Miles Peele on 7/26/2015.

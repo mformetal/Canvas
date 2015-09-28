@@ -1,20 +1,38 @@
 package milespeele.canvas.drawing;
 
-import milespeele.canvas.util.Logg;
+import android.graphics.Paint;
 
 /**
  * Created by mbpeele on 9/26/15.
  */
 public class DrawingPoint {
 
-    public final float x;
-    public final float y;
-    public final float time;
+    public float x;
+    public float y;
+    public float time;
 
-    public DrawingPoint(float x, float y, float time){
+    public float fromX;
+    public float fromY;
+    public float toX;
+    public float toY;
+    public float width;
+    public int color;
+    public Paint paint;
+
+    public DrawingPoint(float x, float y, float time) {
         this.x = x;
         this.y = y;
         this.time = time;
+    }
+
+    public DrawingPoint(float fromX, float fromY, float toX, float toY, float width, int color, Paint paint) {
+        this.fromX = fromX;
+        this.fromY = fromY;
+        this.toX = toX;
+        this.toY = toY;
+        this.width = width;
+        this.color = color;
+        this.paint = paint;
     }
 
     public float distanceTo(DrawingPoint p) {
@@ -37,5 +55,10 @@ public class DrawingPoint {
 
     public float getMidY(DrawingPoint p, float percentage) {
         return y + ((p.y - y) * percentage);
+    }
+
+    @Override
+    public String toString() {
+        return "X: " + x + ", " + "Y: " + y + "TIME: " + time;
     }
 }

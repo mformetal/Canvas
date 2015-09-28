@@ -14,21 +14,20 @@ import butterknife.ButterKnife;
 import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
-import milespeele.canvas.event.EventShowShapeChooser;
-import milespeele.canvas.fragment.FragmentBrushPicker;
-import milespeele.canvas.util.BitmapUtils;
-import milespeele.canvas.util.ErrorDialog;
+import milespeele.canvas.event.EventFilenameChosen;
 import milespeele.canvas.event.EventParseError;
 import milespeele.canvas.event.EventShowBrushPicker;
-import milespeele.canvas.event.EventFilenameChosen;
 import milespeele.canvas.event.EventShowCanvasColorPicker;
 import milespeele.canvas.event.EventShowFilenameFragment;
+import milespeele.canvas.event.EventShowShapeChooser;
 import milespeele.canvas.event.EventShowStrokePickerColor;
+import milespeele.canvas.fragment.FragmentBrushPicker;
 import milespeele.canvas.fragment.FragmentColorPicker;
 import milespeele.canvas.fragment.FragmentDrawer;
 import milespeele.canvas.fragment.FragmentFilename;
 import milespeele.canvas.parse.Masterpiece;
 import milespeele.canvas.parse.ParseUtils;
+import milespeele.canvas.util.ErrorDialog;
 import milespeele.canvas.view.ViewFab;
 
 public class ActivityHome extends ActivityBase {
