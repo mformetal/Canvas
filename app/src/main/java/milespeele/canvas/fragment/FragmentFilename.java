@@ -8,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.Toast;
 
 import javax.inject.Inject;
 
@@ -19,7 +18,6 @@ import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
 import milespeele.canvas.event.EventFilenameChosen;
-import milespeele.canvas.util.Logg;
 import milespeele.canvas.view.ViewTypefaceEditText;
 
 /**

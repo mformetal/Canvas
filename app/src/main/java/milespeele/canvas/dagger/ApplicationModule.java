@@ -2,7 +2,6 @@ package milespeele.canvas.dagger;
 
 import android.app.Application;
 
-import com.squareup.picasso.Cache;
 import com.squareup.picasso.LruCache;
 import com.squareup.picasso.Picasso;
 

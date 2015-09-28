@@ -8,7 +8,6 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.RectF;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
@@ -29,23 +28,25 @@ import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
 import milespeele.canvas.drawing.DrawingCurve;
-import milespeele.canvas.util.BitmapUtils;
 import milespeele.canvas.event.EventBrushChosen;
 import milespeele.canvas.event.EventColorChosen;
+import milespeele.canvas.event.EventRedo;
 import milespeele.canvas.event.EventShowColorize;
 import milespeele.canvas.event.EventShowErase;
-import milespeele.canvas.event.EventRedo;
 import milespeele.canvas.event.EventUndo;
 import milespeele.canvas.paint.PaintStyles;
 import milespeele.canvas.util.AbstractAnimatorListener;
+import milespeele.canvas.util.BitmapUtils;
 import milespeele.canvas.util.Datastore;
+import milespeele.canvas.util.Logg;
 
 public class ViewCanvas extends FrameLayout {
 
     public enum State {
         DRAW,
         INK,
-        ERASE
+        ERASE,
+        RAINBOW
     }
 
     @Bind(R.id.fragment_drawer_canvas_eraser) ImageView eraser;
@@ -53,9 +54,6 @@ public class ViewCanvas extends FrameLayout {
     private int currentStrokeColor, currentBackgroundColor;
 
     private State state = State.DRAW;
-    private final RectF inkRect = new RectF();
-    private Paint curPaint;
-    private Paint inkPaint;
     private Bitmap cachedBitmap;
     private DrawingCurve drawingCurve;
 
@@ -89,21 +87,19 @@ public class ViewCanvas extends FrameLayout {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-
-        drawingCurve = new DrawingCurve(w, h);
-
-        curPaint = PaintStyles.normal(currentStrokeColor, drawingCurve.getStaticStrokeWidth());
-        inkPaint = PaintStyles.normal(currentStrokeColor, drawingCurve.getStaticStrokeWidth());
-        inkPaint.setStyle(Paint.Style.FILL_AND_STROKE);
+        if (drawingCurve != null) {
+            drawingCurve.resize(w, h);
+        } else {
+            drawingCurve = new DrawingCurve(w, h);
+        }
 
         cachedBitmap = BitmapUtils.getCachedBitmap(getContext());
 
+        drawingCurve.setState(state);
+
         drawingCurve.drawBitmapToInternalCanvas(cachedBitmap);
 
-        inkRect.left = w / 40;
-        inkRect.top = w / 40;
-        inkRect.right = w / 5;
-        inkRect.bottom = w / 5;
+        drawingCurve.setPaintColors(currentStrokeColor, currentBackgroundColor);
     }
 
     @Override
@@ -114,11 +110,8 @@ public class ViewCanvas extends FrameLayout {
 
     @Override
     protected void onDraw(Canvas canvas) {
+        drawingCurve.drawInkRect(canvas);
         drawingCurve.drawInternalBitmapToCanvas(canvas);
-
-        if (stateIsInk()) {
-            canvas.drawRect(inkRect, inkPaint);
-        }
     }
 
     @Override
@@ -143,16 +136,18 @@ public class ViewCanvas extends FrameLayout {
                 break;
         }
 
-        invalidate(drawingCurve.getLeft(), drawingCurve.getTop(), drawingCurve.getRight(), drawingCurve.getBottom());
+        int[] rect = drawingCurve.getDirtyRectPos();
+        invalidate(rect[0], rect[1], rect[2], rect[3]);
         return true;
     }
 
     private void onTouchDown(MotionEvent event, float eventX, float eventY) {
         switch (state) {
             case DRAW:
+            case RAINBOW:
             case ERASE:
-                drawingCurve.setPaint(currentStyle());
-                drawingCurve.addPoint(eventX, eventY, isPaintRainbow());
+                drawingCurve.setState(state);
+                drawingCurve.addPoint(eventX, eventY);
                 break;
             case INK:
         }
@@ -167,17 +162,13 @@ public class ViewCanvas extends FrameLayout {
         setEraserPosition(event, eventX, eventY);
 
         switch (state) {
+            case RAINBOW:
+            case ERASE:
             case DRAW:
                 for (int i = 0; i < event.getHistorySize(); i++) {
-                    drawingCurve.addPoint(event.getHistoricalX(i), event.getHistoricalY(i), isPaintRainbow());
+                    drawingCurve.addPoint(event.getHistoricalX(i), event.getHistoricalY(i));
                 }
-                drawingCurve.addPoint(eventX, eventY, isPaintRainbow());
-                break;
-            case ERASE:
-                for (int i = 0; i < event.getHistorySize(); i++) {
-                    drawingCurve.addPointToErase(event.getHistoricalX(i), event.getHistoricalY(i));
-                }
-                drawingCurve.addPointToErase(eventX, eventY);
+                drawingCurve.addPoint(eventX, eventY);
                 break;
             case INK:
         }
@@ -207,20 +198,21 @@ public class ViewCanvas extends FrameLayout {
             int color = drawingCurve.getPixel(Math.round(eventX), Math.round(eventY));
             int colorToChangeTo;
             if (color != currentBackgroundColor)  {
-               colorToChangeTo = (color == 0) ? currentStrokeColor : color;
+                colorToChangeTo = (color == 0) ? currentStrokeColor : color;
             } else {
                 colorToChangeTo = currentStrokeColor;
             }
 
-            inkPaint.setColor(colorToChangeTo);
+            drawingCurve.setInkPaintColor(colorToChangeTo);
 
             switch (event.getAction()) {
                 case MotionEvent.ACTION_UP:
                     state = State.DRAW;
+                    drawingCurve.setState(state);
                     if (color != currentBackgroundColor)  {
-                        curPaint.setColor((color == 0) ? currentStrokeColor : color);
+                        drawingCurve.setPaintColor((color == 0) ? currentStrokeColor : color);
                     } else {
-                        curPaint.setColor(currentStrokeColor);
+                        drawingCurve.setPaintColor(currentStrokeColor);
                     }
                     break;
             }
@@ -251,21 +243,29 @@ public class ViewCanvas extends FrameLayout {
         drawingCurve.setStaticStrokeWidth(eventBrushChosen.thickness);
 
         if (eventBrushChosen.paint != null) {
-            curPaint.set(eventBrushChosen.paint);
-            curPaint.setColor(currentStrokeColor);
+            if (eventBrushChosen.paint.getShader() != null) {
+                state = State.RAINBOW;
+                eventBrushChosen.paint.setShader(null);
+            }
+            drawingCurve.setPaint(eventBrushChosen.paint);
+            drawingCurve.setPaintColor(currentStrokeColor);
         }
 
-        curPaint.setStrokeWidth(eventBrushChosen.thickness);
+        drawingCurve.setPaintThickness(eventBrushChosen.thickness);
     }
 
     public void onEvent(EventRedo eventRedo) {
-        drawingCurve.redo();
-        invalidate(drawingCurve.getLeft(), drawingCurve.getTop(), drawingCurve.getRight(), drawingCurve.getBottom());
+        if (drawingCurve.redo(cachedBitmap)) {
+            int[] rect = drawingCurve.getDirtyRectPos();
+            invalidate(rect[0], rect[1], rect[2], rect[3]);
+        }
     }
 
     public void onEvent(EventUndo eventUndo) {
-        drawingCurve.undo();
-        invalidate(drawingCurve.getLeft(), drawingCurve.getTop(), drawingCurve.getRight(), drawingCurve.getBottom());
+        if (drawingCurve.undo(cachedBitmap)) {
+            int[] rect = drawingCurve.getDirtyRectPos();
+            invalidate(rect[0], rect[1], rect[2], rect[3]);
+        }
     }
 
     public void onEvent(EventShowErase eventErase) {
@@ -281,25 +281,29 @@ public class ViewCanvas extends FrameLayout {
             } else {
                 ((GradientDrawable) eraser.getDrawable()).setColor(Color.WHITE);
             }
+
             eraser.setVisibility(View.VISIBLE);
             eraser.setX((float) getWidth() / 2);
             eraser.setY((float) getHeight() / 2);
             state = State.ERASE;
         }
+
+        drawingCurve.setState(state);
     }
 
     public void onEvent(EventShowColorize eventColorize) {
         if (!stateIsInk()) {
             eraser.setVisibility(View.GONE);
-            inkPaint.setColor(currentStrokeColor);
+            drawingCurve.setInkPaintColor(currentStrokeColor);
             state = State.INK;
         } else {
             state = State.DRAW;
         }
-        invalidate(Math.round(inkRect.left),
-                Math.round(inkRect.top),
-                Math.round(inkRect.right),
-                Math.round(inkRect.bottom));
+
+        drawingCurve.setState(state);
+
+        int[] rect = drawingCurve.getInkRectPos();
+        invalidate(rect[0], rect[1], rect[2], rect[3]);
     }
 
     public void changeColor(int color, int opacity) {
@@ -307,8 +311,8 @@ public class ViewCanvas extends FrameLayout {
 
         state = State.DRAW;
         currentStrokeColor = color;
-        curPaint.setAlpha(opacity);
-        curPaint.setColor(currentStrokeColor);
+        drawingCurve.setPaintAlpha(opacity);
+        drawingCurve.setPaintColor(currentStrokeColor);
     }
 
     public void fillCanvas(int color) {
@@ -326,7 +330,7 @@ public class ViewCanvas extends FrameLayout {
         ObjectAnimator background =
                 ObjectAnimator.ofObject(this, "backgroundColor", new ArgbEvaluator(),
                         currentBackgroundColor, color);
-        background.setDuration(750);
+        background.setDuration(1000);
         background.addListener(new AbstractAnimatorListener() {
 
             @Override
@@ -347,14 +351,6 @@ public class ViewCanvas extends FrameLayout {
     }
 
     public int getCurrentStrokeColor() { return currentStrokeColor; }
-
-    private Paint currentStyle() {
-        return (state == State.ERASE) ?
-                PaintStyles.erase(currentBackgroundColor, eraser.getWidth()) :
-                new Paint(curPaint);
-    }
-
-    private boolean isPaintRainbow() { return curPaint.getShader() != null; }
 
     private boolean stateIsInk() {
         return state == State.INK;

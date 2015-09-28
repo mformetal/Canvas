@@ -3,8 +3,6 @@ package milespeele.canvas.pojo;
 import android.graphics.Color;
 import android.graphics.Paint;
 
-import java.util.ArrayList;
-
 /**
  * Created by Miles Peele on 9/17/2015.
  */

@@ -6,8 +6,6 @@ import android.support.design.widget.Snackbar;
 import android.util.AttributeSet;
 import android.view.View;
 
-import milespeele.canvas.util.Logg;
-
 /**
  * Created by mbpeele on 9/4/15.
  */
