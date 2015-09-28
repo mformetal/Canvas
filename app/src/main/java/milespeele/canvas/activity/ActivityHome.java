@@ -16,6 +16,7 @@ import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
 import milespeele.canvas.event.EventShowShapeChooser;
 import milespeele.canvas.fragment.FragmentBrushPicker;
+import milespeele.canvas.util.BitmapUtils;
 import milespeele.canvas.util.ErrorDialog;
 import milespeele.canvas.event.EventParseError;
 import milespeele.canvas.event.EventShowBrushPicker;

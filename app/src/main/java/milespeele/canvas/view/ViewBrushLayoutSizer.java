@@ -113,6 +113,7 @@ public class ViewBrushLayoutSizer extends View {
         paint.set(newPaint);
         paint.setColor(color);
         paint.setStrokeWidth(paintThickness);
+
         reveal = ObjectAnimator.ofFloat(this, "rectWidth", 0, getMeasuredWidth());
         reveal.setDuration(1000);
         reveal.setInterpolator(INTERPOLATOR);

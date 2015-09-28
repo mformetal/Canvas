@@ -1,4 +1,4 @@
-package milespeele.canvas.service;
+package milespeele.canvas.util;
 
 import android.app.IntentService;
 import android.content.Context;
@@ -12,46 +12,32 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import milespeele.canvas.util.Logg;
 import rx.Observable;
+import rx.schedulers.Schedulers;
 
 /**
  * Created by Miles Peele on 9/23/2015.
  */
-public class ServiceBitmapUtils extends IntentService {
+public class BitmapUtils {
 
-    private final static String BITMAP_KEY = "bitmap";
     private final static String FILENAME = "name";
 
-    public static Intent newIntent(Context context, byte[] array) {
-        Intent intent = new Intent(context, ServiceBitmapUtils.class);
-        intent.putExtra(BITMAP_KEY, array);
-        return intent;
-    }
-
-    public ServiceBitmapUtils() {
-        super("ServiceBitmapUtils");
-    }
-
-    public ServiceBitmapUtils(String name) {
-        super(name);
-    }
-
-    @Override
-    protected void onHandleIntent(Intent intent) {
-        if (intent != null) {
-            try {
-                final FileOutputStream fos = openFileOutput(FILENAME, Context.MODE_PRIVATE);
-                try {
-                    fos.write(intent.getByteArrayExtra(BITMAP_KEY));
-                    fos.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-        }
+    public static void observableCacheBitmap(Context context, Bitmap bitmap) {
+        compressBitmapAsObservable(bitmap)
+                .subscribeOn(Schedulers.io())
+                .subscribe(bytes -> {
+                    try {
+                        final FileOutputStream fos = context.openFileOutput(FILENAME, Context.MODE_PRIVATE);
+                        try {
+                            fos.write(compressBitmapAsByteArray(bitmap));
+                            fos.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                });
     }
 
     public static Observable<byte[]> compressBitmapAsObservable(Bitmap bitmap) {
@@ -72,6 +58,7 @@ public class ServiceBitmapUtils extends IntentService {
         options.inMutable = true;
         options.inDither = true;
         options.inPreferQualityOverSpeed = true;
+
         try {
             FileInputStream test = context.openFileInput(FILENAME);
             bitmap = BitmapFactory.decodeStream(test, null, options);

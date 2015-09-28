@@ -114,7 +114,7 @@ public class PaintStyles {
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeJoin(Paint.Join.ROUND);
         paint.setStrokeCap(Paint.Cap.ROUND);
-        paint.setPathEffect(new DashPathEffect(new float[] {width, width * 5}, width / 4));
+        paint.setPathEffect(new DashPathEffect(new float[] {width, width * 5, width * 10}, 0));
         return paint;
     }
 
@@ -143,19 +143,6 @@ public class PaintStyles {
         paint.setStrokeWidth(width);
         paint.setStyle(Paint.Style.STROKE);
         paint.setPathEffect(new DiscretePathEffect(width, width * 2));
-        return paint;
-    }
-
-    public static Paint shadow(int color, float width) {
-        Paint paint = new Paint();
-        paint.setAntiAlias(true);
-        paint.setDither(true);
-        paint.setColor(color);
-        paint.setStrokeWidth(width);
-        paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeJoin(Paint.Join.ROUND);
-        paint.setStrokeCap(Paint.Cap.ROUND);
-        paint.setShadowLayer(width * 5, 0, 2f, Color.GRAY);
         return paint;
     }
 

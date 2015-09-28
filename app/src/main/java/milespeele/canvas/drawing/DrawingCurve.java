@@ -3,15 +3,28 @@ package milespeele.canvas.drawing;
 import android.animation.Animator;
 import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.Rect;
+import android.graphics.RectF;
+import android.os.Handler;
+import android.os.SystemClock;
 import android.view.View;
-import android.widget.LinearLayout;
 
+import java.util.Random;
 import java.util.Stack;
 
+import javax.inject.Inject;
+
+import de.greenrobot.event.EventBus;
+import milespeele.canvas.MainApp;
+import milespeele.canvas.R;
+import milespeele.canvas.event.EventColorChosen;
 import milespeele.canvas.util.AbstractAnimatorListener;
 import milespeele.canvas.util.Logg;
 
@@ -24,24 +37,52 @@ public class DrawingCurve {
     private Canvas mCanvas;
     private Stack<DrawingPoint> currentPoints;
     private Paint mPaint;
-    private Rect dirtyRect;
+    private RectF dirtyRect;
+    private Random random;
+    private Path mPath;
 
-    private static float STROKE_WIDTH = 5f;
     private static final float VELOCITY_FILTER_WEIGHT = 0.2f;
-    private static final float TOLERANCE = 5f;
+    private static float STROKE_WIDTH = 10f;
+    private static final float POINT_TOLERANCE = 5f;
     private int width, height;
-    private float lastTouchX, lastTouchY;
-    private float lastVelocity, lastWidth;
+    private float lastTouchX, lastTouchY, lastWidth, lastVelocity;
+    private int[] rainbow;
 
     public DrawingCurve(int w, int h) {
         width = w;
         height = h;
 
-        dirtyRect = new Rect();
+        mPath = new Path();
+        dirtyRect = new RectF();
         mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
         mCanvas = new Canvas(mBitmap);
 
         currentPoints = new Stack<>();
+
+        random = new Random();
+        rainbow = getRainbowColors();
+    }
+
+    public int[] getRainbowColors() {
+        return new int[] {
+                    Color.RED,
+                    Color.parseColor("#FF7F00"),
+                    Color.YELLOW,
+                    Color.GREEN,
+                    Color.BLUE,
+                    Color.parseColor("#4B0082"),
+                    Color.parseColor("#8B00FF")
+        };
+    }
+
+    public void resize(int w, int h) {
+        width = w;
+        height = h;
+
+        Bitmap bitmap = Bitmap.createScaledBitmap(mBitmap, w, h, true);
+        mBitmap.recycle();
+        mBitmap = bitmap;
+        mCanvas = new Canvas(mBitmap);
     }
 
     public void reset() {
@@ -51,38 +92,28 @@ public class DrawingCurve {
     }
 
     public void hardReset() {
+        resetRect(0, 0);
         currentPoints.clear();
+
+        lastTouchX = 0;
+        lastTouchY = 0;
+        lastWidth = 0;
+        lastVelocity = 0;
+
         mBitmap.recycle();
         mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         mCanvas = new Canvas(mBitmap);
     }
 
-    public void hardResetWithAnimatedColor(View view, int colorFrom, int colorTo) {
-        hardReset();
-
-        ObjectAnimator background =
-                ObjectAnimator.ofObject(view, "backgroundColor", new ArgbEvaluator(),
-                        colorFrom, colorTo);
-        background.setDuration(750);
-        background.addListener(new AbstractAnimatorListener() {
-
-            @Override
-            public void onAnimationStart(Animator animation) {
-                view.setFocusable(false);
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                view.setFocusable(true);
-                mCanvas.drawColor(colorTo);
-            }
-        });
-
-        background.start();
-    }
-
     public void setPaint(Paint paint) {
         mPaint = paint;
+        if (paint.getShader() != null) {
+            paint.setShader(null);
+        }
+    }
+
+    public void drawColorToInternalCanvas(int color) {
+        mCanvas.drawColor(color);
     }
 
     public void drawBitmapToInternalCanvas(Bitmap bitmap) {
@@ -102,59 +133,85 @@ public class DrawingCurve {
     public void onTouchUp(float eventX, float eventY) {
         lastTouchX = eventX;
         lastTouchY = eventY;
+        lastVelocity = 0;
+        lastWidth = 0;
+        addPoint(eventX, eventY, false);
         currentPoints.clear();
     }
 
-    public void addPoint(float x, float y, float time) {
+    public void addPoint(float x, float y, boolean toRainbow) {
         DrawingPoint prevPoint = null;
         if (!currentPoints.isEmpty()) {
             prevPoint = currentPoints.peek();
-            if (Math.abs(prevPoint.x - x) < TOLERANCE && Math.abs(prevPoint.y - y) < TOLERANCE) {
+            if (Math.abs(prevPoint.x - x) < POINT_TOLERANCE && Math.abs(prevPoint.y - y) < POINT_TOLERANCE) {
                 return;
             }
         }
 
+        mPath.moveTo(x, y);
+
+        updateRect(x, y);
+
         if (prevPoint == null) {
-            currentPoints.add(new DrawingPoint(x, y, time));
+            currentPoints.push(new DrawingPoint(x, y, SystemClock.currentThreadTimeMillis()));
             mCanvas.drawPoint(x, y, mPaint);
         } else {
-            DrawingPoint currentPoint = new DrawingPoint(x, y, time);
-            currentPoints.add(currentPoint);
-            drawLine(prevPoint, currentPoint);
+            DrawingPoint currentPoint = new DrawingPoint(x, y, SystemClock.currentThreadTimeMillis());
+            currentPoints.push(currentPoint);
+            drawLine(prevPoint, currentPoint.midPoint(prevPoint), currentPoint, toRainbow);
         }
     }
 
-    private void drawLine(DrawingPoint previous, DrawingPoint current) {
-        float velocity = current.velocityFrom(previous);
-        float strokeWidth = STROKE_WIDTH - velocity * (1 - VELOCITY_FILTER_WEIGHT) * lastVelocity;
+    public void addPointToErase(float x, float y) {
+        DrawingPoint prevPoint = null;
+        if (!currentPoints.isEmpty()) {
+            prevPoint = currentPoints.peek();
+            if (Math.abs(prevPoint.x - x) < POINT_TOLERANCE && Math.abs(prevPoint.y - y) < POINT_TOLERANCE) {
+                return;
+            }
+        }
 
-        DrawingPoint mid = current.midPoint(previous);
-        mCanvas.drawLine(previous.x, previous.y, mid.x, mid.y, mPaint);
-        mCanvas.drawLine(mid.x, mid.y, current.x, current.y, mPaint);
+        updateRect(x, y);
 
-//        float xa, xb, ya, yb, x, y;
-//        for (int i = 0; i < 1; i += .1) {
-//            xa = getPt(previous.x, mid.x, i);
-//            ya = getPt(previous.y, mid.y, i);
-//            xb = getPt(mid.x, current.x, i);
-//            yb = getPt(mid.y, current.y, i);
-//
-//            x = getPt(xa, xb, i);
-//            y = getPt(ya, yb, i);
-
-//            mPaint.setStrokeWidth(lastWidth * strokeWidth * i);
-//            mCanvas.drawLine(previous.x, previous.y, x, y, mPaint);
-//        }
-
-        mPaint.setStrokeWidth(STROKE_WIDTH);
-
-        lastVelocity = velocity;
-        lastWidth = strokeWidth;
+        if (prevPoint == null) {
+            currentPoints.add(new DrawingPoint(x, y, SystemClock.currentThreadTimeMillis()));
+            mCanvas.drawPoint(x, y, mPaint);
+        } else {
+            DrawingPoint currentPoint = new DrawingPoint(x, y, SystemClock.currentThreadTimeMillis());
+            currentPoints.add(currentPoint);
+            mCanvas.drawLine(prevPoint.x, prevPoint.y, currentPoint.x, currentPoint.y, mPaint);
+        }
     }
 
-    private float getPt(float n1, float n2, float perc) {
-        float diff = n2 - n1;
-        return n1 + (diff * perc);
+    private void drawLine(DrawingPoint previous, DrawingPoint mid, DrawingPoint current, boolean toRainbow) {
+        float prevWidth = mPaint.getStrokeWidth();
+        float velocity =  VELOCITY_FILTER_WEIGHT * current.velocityFrom(previous) + (1 - VELOCITY_FILTER_WEIGHT) * lastVelocity;
+        float strokeWidth = STROKE_WIDTH - velocity;
+        float diff = strokeWidth - lastWidth;
+
+        float xa, xb, ya, yb, x, y;
+        for (float i = 0; i < 1; i += .1) {
+            xa = previous.getMidX(mid, i);
+            ya = previous.getMidY(mid, i);
+
+            xb = mid.getMidX(current, i);
+            yb = mid.getMidY(current, i);
+
+            x = xa + ((xb - xa) * i);
+            y = ya + ((yb - ya) * i);
+
+            mPaint.setStrokeWidth(Math.abs(lastWidth + diff * i));
+            if (toRainbow) {
+                mPaint.setColor(rainbow[random.nextInt(rainbow.length)]);
+            }
+            mPath.lineTo(x, y);
+            mCanvas.drawLine(previous.x, previous.y, x, y, mPaint);
+        }
+
+        lastWidth = strokeWidth;
+        lastVelocity = velocity;
+
+        mPaint.setStrokeWidth(prevWidth);
     }
 
     public boolean redo() {
@@ -172,46 +229,47 @@ public class DrawingCurve {
     }
 
     public boolean undo() {
-//        if (!allPoints.isEmpty()) {
-//            reset();
-//
-//            Stack<DrawingPoint> undone = allPoints.pop();
-//            redoPoints.push(undone);
-//
-//            drawPoints();
-//            return true;
-//        } else {
-//            return false;
-//        }
         return false;
     }
 
     public void resetRect(float x, float y) {
-        dirtyRect.left = (int) Math.min(lastTouchX, x);
-        dirtyRect.right = (int) Math.max(lastTouchX, x);
-        dirtyRect.top = (int) Math.min(lastTouchY, y);
-        dirtyRect.bottom = (int) Math.max(lastTouchY, y);
+        dirtyRect.left = Math.min(lastTouchX, x);
+        dirtyRect.right = Math.max(lastTouchX, x);
+        dirtyRect.top = Math.min(lastTouchY, y);
+        dirtyRect.bottom = Math.max(lastTouchY, y);
     }
 
     public void updateRect(float x, float y) {
-        int roundedX = Math.round(x);
-        int roundedY = Math.round(y);
-        if (dirtyRect.left < roundedX) {
-            dirtyRect.right = roundedX;
+        if (dirtyRect.left < x) {
+            dirtyRect.right = x;
         } else {
             dirtyRect.right = dirtyRect.left;
-            dirtyRect.left = roundedX;
+            dirtyRect.left = x;
         }
 
-        if (dirtyRect.top < roundedY) {
-            dirtyRect.bottom = roundedY;
+        if (dirtyRect.top < y) {
+            dirtyRect.bottom = y;
         } else {
             dirtyRect.bottom = dirtyRect.top;
-            dirtyRect.top = roundedY;
+            dirtyRect.top = y;
         }
     }
 
-    public Rect getDirtyRect() { return dirtyRect; }
+    public int getLeft() {
+        return Math.round(dirtyRect.left - STROKE_WIDTH / 2);
+    }
+
+    public int getTop() {
+        return Math.round(dirtyRect.top - STROKE_WIDTH / 2);
+    }
+
+    public int getRight() {
+        return Math.round(dirtyRect.right + STROKE_WIDTH / 2);
+    }
+
+    public int getBottom() {
+        return Math.round(dirtyRect.bottom + STROKE_WIDTH / 2);
+    }
 
     public int getWidth() { return width; }
 
@@ -222,4 +280,5 @@ public class DrawingCurve {
     public float getStaticStrokeWidth() { return STROKE_WIDTH; }
 
     public void setStaticStrokeWidth(float width) { STROKE_WIDTH = width; }
+
 }
