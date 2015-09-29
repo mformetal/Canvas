@@ -11,10 +11,6 @@ public class EnumStore {
 
     private EnumListener mListener;
 
-    public EnumStore(ViewCanvas.State initialValue) {
-        state = initialValue;
-    }
-
     public EnumStore() {}
 
     public void setListener(EnumListener listener) {

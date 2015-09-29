@@ -1,5 +1,6 @@
 package milespeele.canvas.drawing;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -11,7 +12,12 @@ import android.os.SystemClock;
 
 import java.util.Random;
 
+import javax.inject.Inject;
+
+import milespeele.canvas.MainApp;
 import milespeele.canvas.paint.PaintStyles;
+import milespeele.canvas.util.BitmapUtils;
+import milespeele.canvas.util.Datastore;
 import milespeele.canvas.util.EnumStore;
 import milespeele.canvas.util.Logg;
 import milespeele.canvas.view.ViewCanvas;
@@ -23,13 +29,14 @@ public class DrawingCurve implements EnumStore.EnumListener {
 
     private final RectF inkRect = new RectF();
     private final RectF dirtyRect = new RectF();
-    private Bitmap mBitmap;
+    private Bitmap mBitmap, cachedBitmap;
     private Canvas mCanvas;
     private DrawingPoints currentPoints, currentPointsHistory;
     private DrawingHistory redoPoints, allPoints;
     private Paint mPaint, inkPaint;
     private Random random;
     private ViewCanvas.State mState;
+    private Context mContext;
 
     private static final float VELOCITY_FILTER_WEIGHT = 0.2f;
     private static float STROKE_WIDTH = 10f;
@@ -39,13 +46,21 @@ public class DrawingCurve implements EnumStore.EnumListener {
     private int[] rainbow;
     private int currentStrokeColor, currentBackgroundColor;
 
-    public DrawingCurve(int w, int h) {
+    @Inject Datastore store;
+
+    public DrawingCurve(Context context, int w, int h) {
+        ((MainApp) context.getApplicationContext()).getApplicationComponent().inject(this);
+
+        mContext = context;
+
         width = w;
         height = h;
 
         createInkRect(w, h);
         mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+        cachedBitmap = BitmapUtils.getCachedBitmap(mContext);
         mCanvas = new Canvas(mBitmap);
+        drawBitmapToInternalCanvas(cachedBitmap);
 
         currentPoints = new DrawingPoints();
         currentPointsHistory = new DrawingPoints();
@@ -54,6 +69,9 @@ public class DrawingCurve implements EnumStore.EnumListener {
 
         random = new Random();
         rainbow = getRainbowColors();
+
+        currentStrokeColor = Color.argb(255, random.nextInt(256), random.nextInt(256), random.nextInt(256));
+        currentBackgroundColor = store.getLastBackgroundColor();
 
         mPaint = PaintStyles.normal(currentStrokeColor, STROKE_WIDTH);
         inkPaint = PaintStyles.normal(currentStrokeColor, STROKE_WIDTH);
@@ -95,6 +113,11 @@ public class DrawingCurve implements EnumStore.EnumListener {
         mBitmap.recycle();
         mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         mCanvas = new Canvas(mBitmap);
+
+        if (cachedBitmap != null) {
+            cachedBitmap.recycle();
+            cachedBitmap = null;
+        }
 
         reset(color);
     }
@@ -201,14 +224,14 @@ public class DrawingCurve implements EnumStore.EnumListener {
         }
     }
 
-    public boolean redo(Bitmap bitmap) {
+    public boolean redo() {
         if (!redoPoints.isEmpty()) {
             reset();
 
             DrawingPoints points = redoPoints.pop();
             allPoints.push(points);
 
-            drawBitmapToInternalCanvas(bitmap);
+            drawBitmapToInternalCanvas(cachedBitmap);
 
             redraw();
             return true;
@@ -216,14 +239,14 @@ public class DrawingCurve implements EnumStore.EnumListener {
         return false;
     }
 
-    public boolean undo(Bitmap bitmap) {
+    public boolean undo() {
         if (!allPoints.isEmpty()) {
             reset();
 
             DrawingPoints points = allPoints.pop();
             redoPoints.push(points);
 
-            drawBitmapToInternalCanvas(bitmap);
+            drawBitmapToInternalCanvas(cachedBitmap);
 
             redraw();
             return true;
@@ -277,6 +300,12 @@ public class DrawingCurve implements EnumStore.EnumListener {
         }
     }
 
+    public int getCurrentBackgroundColor() { return currentBackgroundColor; }
+
+    public int getPaintColor() {
+        return mPaint.getColor();
+    }
+
     public int[] getDirtyRectPos() {
         return new int[] {
                 Math.round(dirtyRect.left - STROKE_WIDTH / 2),
@@ -319,14 +348,28 @@ public class DrawingCurve implements EnumStore.EnumListener {
         };
     }
 
-    public void setPaintColors(int currentStrokeColor, int currentBackgroundColor) {
-        this.currentStrokeColor = currentStrokeColor;
-        this.currentBackgroundColor = currentBackgroundColor;
+    public int setInkPaintColorBasedOnPixel(float eventX, float eventY) {
+        int color = getPixel(Math.round(eventX), Math.round(eventY));
+        int colorToChangeTo;
+        if (color != currentBackgroundColor)  {
+            colorToChangeTo = (color == 0) ? currentStrokeColor : color;
+        } else {
+            colorToChangeTo = currentStrokeColor;
+        }
 
-        mPaint.setColor(currentStrokeColor);
+        inkPaint.setColor(colorToChangeTo);
+        return colorToChangeTo;
     }
 
-    public void setInkPaintColor(int color) { inkPaint.setColor(color); }
+    public void onInkPaintTouchUp() {
+        int color = inkPaint.getColor();
+
+        if (color != currentBackgroundColor)  {
+            setPaintColor((color == 0) ? currentStrokeColor : color);
+        } else {
+            setPaintColor(currentStrokeColor);
+        }
+    }
 
     public void setPaintThickness(float thickness) {
         mPaint.setStrokeWidth(thickness);
@@ -370,5 +413,10 @@ public class DrawingCurve implements EnumStore.EnumListener {
                 inkPaint.setColor(currentStrokeColor);
                 break;
         }
+    }
+
+    public void onSave() {
+        BitmapUtils.observableCacheBitmap(mContext, mBitmap);
+        store.setLastBackgroundColor(currentBackgroundColor);
     }
 }
