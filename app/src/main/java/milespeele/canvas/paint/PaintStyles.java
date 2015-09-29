@@ -31,9 +31,8 @@ public class PaintStyles {
                 if (method.getName().equals(name)) {
                     return (Paint) method.invoke(null, color, 5f);
                 }
-            } catch (IllegalArgumentException e) {
-            } catch (IllegalAccessException e) {
-            } catch (InvocationTargetException e) {
+            } catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
+                e.printStackTrace();
             }
         }
         return normal(color, 5f);

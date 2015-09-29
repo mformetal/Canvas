@@ -1,32 +1,42 @@
 package milespeele.canvas.drawing;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.graphics.RectF;
 import android.os.SystemClock;
 
 import java.util.Random;
 
+import javax.inject.Inject;
+
+import milespeele.canvas.MainApp;
 import milespeele.canvas.paint.PaintStyles;
+import milespeele.canvas.util.BitmapUtils;
+import milespeele.canvas.util.Datastore;
+import milespeele.canvas.util.EnumStore;
 import milespeele.canvas.util.Logg;
 import milespeele.canvas.view.ViewCanvas;
 
 /**
  * Created by mbpeele on 9/25/15.
  */
-public class DrawingCurve {
+public class DrawingCurve implements EnumStore.EnumListener {
 
     private final RectF inkRect = new RectF();
     private final RectF dirtyRect = new RectF();
-    private Bitmap mBitmap;
+    private Bitmap mBitmap, cachedBitmap;
     private Canvas mCanvas;
     private DrawingPoints currentPoints, currentPointsHistory;
     private DrawingHistory redoPoints, allPoints;
     private Paint mPaint, inkPaint;
     private Random random;
     private ViewCanvas.State mState;
+    private Context mContext;
 
     private static final float VELOCITY_FILTER_WEIGHT = 0.2f;
     private static float STROKE_WIDTH = 10f;
@@ -36,13 +46,21 @@ public class DrawingCurve {
     private int[] rainbow;
     private int currentStrokeColor, currentBackgroundColor;
 
-    public DrawingCurve(int w, int h) {
+    @Inject Datastore store;
+
+    public DrawingCurve(Context context, int w, int h) {
+        ((MainApp) context.getApplicationContext()).getApplicationComponent().inject(this);
+
+        mContext = context;
+
         width = w;
         height = h;
 
         createInkRect(w, h);
         mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+        cachedBitmap = BitmapUtils.getCachedBitmap(mContext);
         mCanvas = new Canvas(mBitmap);
+        drawBitmapToInternalCanvas(cachedBitmap);
 
         currentPoints = new DrawingPoints();
         currentPointsHistory = new DrawingPoints();
@@ -52,28 +70,34 @@ public class DrawingCurve {
         random = new Random();
         rainbow = getRainbowColors();
 
+        currentStrokeColor = Color.argb(255, random.nextInt(256), random.nextInt(256), random.nextInt(256));
+        currentBackgroundColor = store.getLastBackgroundColor();
+
         mPaint = PaintStyles.normal(currentStrokeColor, STROKE_WIDTH);
         inkPaint = PaintStyles.normal(currentStrokeColor, STROKE_WIDTH);
         inkPaint.setStyle(Paint.Style.FILL_AND_STROKE);
+        inkPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_ATOP));
     }
 
     public void resize(int w, int h) {
-        width = w;
-        height = h;
-
-        Bitmap bitmap = Bitmap.createScaledBitmap(mBitmap, w, h, true);
-        mBitmap.recycle();
-        mBitmap = bitmap;
-        mCanvas = new Canvas(mBitmap);
+//        width = w;
+//        height = h;
+//
+//        Bitmap bitmap = Bitmap.createScaledBitmap(mBitmap, w, h, true);
+//        mBitmap.recycle();
+//        mBitmap = bitmap;
+//        mCanvas = new Canvas(mBitmap);
     }
 
     public void reset() {
-        mBitmap.recycle();
-        mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        mCanvas = new Canvas(mBitmap);
+        mCanvas.drawColor(currentBackgroundColor, PorterDuff.Mode.CLEAR);
     }
 
-    public void hardReset() {
+    public void reset(int color) {
+        mCanvas.drawColor(color, PorterDuff.Mode.CLEAR);
+    }
+
+    public void hardReset(int color) {
         resetRect();
 
         currentPoints.clear();
@@ -89,23 +113,17 @@ public class DrawingCurve {
         mBitmap.recycle();
         mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         mCanvas = new Canvas(mBitmap);
+
+        if (cachedBitmap != null) {
+            cachedBitmap.recycle();
+            cachedBitmap = null;
+        }
+
+        reset(color);
     }
 
     public void setPaint(Paint paint) {
         mPaint = paint;
-    }
-
-    public void setState(ViewCanvas.State state) {
-        mState = state;
-
-        switch (mState) {
-            case ERASE:
-                mPaint = PaintStyles.erase(currentBackgroundColor, 15f);
-                break;
-            case DRAW:
-                mPaint.setColor(currentStrokeColor);
-                break;
-        }
     }
 
     public void drawColorToInternalCanvas(int color) {
@@ -118,15 +136,12 @@ public class DrawingCurve {
         }
     }
 
-    public void drawInkRect(Canvas canvas) {
+    public void drawToViewCanvas(Canvas canvas) {
+        canvas.drawBitmap(mBitmap, 0, 0, null);
+
         if (mState == ViewCanvas.State.INK) {
-            Logg.log("SHOULD DRAWINKRECT");
             canvas.drawRect(inkRect, inkPaint);
         }
-    }
-
-    public void drawInternalBitmapToCanvas(Canvas canvas) {
-        canvas.drawBitmap(mBitmap, 0, 0, null);
     }
 
     public int getPixel(float eventX, float eventY) {
@@ -149,7 +164,7 @@ public class DrawingCurve {
     public void addPoint(float x, float y) {
         DrawingPoint prevPoint = null;
         if (!currentPoints.isEmpty()) {
-            prevPoint = currentPoints.getLast();
+            prevPoint = currentPoints.peek();
             if (Math.abs(prevPoint.x - x) < POINT_TOLERANCE && Math.abs(prevPoint.y - y) < POINT_TOLERANCE) {
                 return;
             }
@@ -160,6 +175,8 @@ public class DrawingCurve {
         if (prevPoint == null) {
             currentPoints.add(new DrawingPoint(x, y, SystemClock.currentThreadTimeMillis()));
             mCanvas.drawPoint(x, y, mPaint);
+            currentPointsHistory.add(new DrawingPoint(x, y, x, y,
+                    mPaint.getStrokeWidth(), mPaint.getColor(), mPaint));
         } else {
             DrawingPoint currentPoint = new DrawingPoint(x, y, SystemClock.currentThreadTimeMillis());
             currentPoints.add(currentPoint);
@@ -168,7 +185,8 @@ public class DrawingCurve {
     }
 
     private void drawLine(DrawingPoint previous, DrawingPoint mid, DrawingPoint current) {
-        float velocity =  VELOCITY_FILTER_WEIGHT * current.velocityFrom(previous) + (1 - VELOCITY_FILTER_WEIGHT);
+        float velocity =  VELOCITY_FILTER_WEIGHT * current.velocityFrom(previous)
+                + (1 - VELOCITY_FILTER_WEIGHT) * lastVelocity;
         float strokeWidth = STROKE_WIDTH - velocity;
         float diff = strokeWidth - lastWidth;
 
@@ -184,7 +202,7 @@ public class DrawingCurve {
             y = ya + ((yb - ya) * i);
 
             if (mState != ViewCanvas.State.ERASE) {
-                mPaint.setStrokeWidth(Math.abs(lastWidth + diff * i));
+                mPaint.setStrokeWidth(Math.abs(lastWidth * 2 + diff * i));
             }
 
             if (mState == ViewCanvas.State.RAINBOW) {
@@ -196,18 +214,24 @@ public class DrawingCurve {
             mCanvas.drawLine(previous.x, previous.y, x, y, mPaint);
         }
 
-        lastWidth = strokeWidth;
-        lastVelocity = velocity;
+
+        if (strokeWidth != Float.POSITIVE_INFINITY && strokeWidth != Float.NEGATIVE_INFINITY) {
+            lastWidth = strokeWidth;
+        }
+
+        if (velocity != Float.POSITIVE_INFINITY && velocity != Float.NEGATIVE_INFINITY) {
+            lastVelocity = velocity;
+        }
     }
 
-    public boolean redo(Bitmap bitmap) {
+    public boolean redo() {
         if (!redoPoints.isEmpty()) {
             reset();
 
             DrawingPoints points = redoPoints.pop();
             allPoints.push(points);
 
-            drawBitmapToInternalCanvas(bitmap);
+            drawBitmapToInternalCanvas(cachedBitmap);
 
             redraw();
             return true;
@@ -215,14 +239,14 @@ public class DrawingCurve {
         return false;
     }
 
-    public boolean undo(Bitmap bitmap) {
+    public boolean undo() {
         if (!allPoints.isEmpty()) {
             reset();
 
             DrawingPoints points = allPoints.pop();
             redoPoints.push(points);
 
-            drawBitmapToInternalCanvas(bitmap);
+            drawBitmapToInternalCanvas(cachedBitmap);
 
             redraw();
             return true;
@@ -239,7 +263,11 @@ public class DrawingCurve {
                 }
                 mPaint.setColor(point.color);
                 mPaint.setStrokeWidth(point.width);
-                mCanvas.drawLine(point.fromX, point.fromY, point.toX, point.toY, mPaint);
+                if (point.fromX == point.toX) {
+                    mCanvas.drawPoint(point.fromX, point.fromY, mPaint);
+                } else {
+                    mCanvas.drawLine(point.fromX, point.fromY, point.toX, point.toY, mPaint);
+                }
                 updateRect(point.toX, point.toY);
             }
         }
@@ -270,6 +298,12 @@ public class DrawingCurve {
             dirtyRect.bottom = dirtyRect.top;
             dirtyRect.top = y;
         }
+    }
+
+    public int getCurrentBackgroundColor() { return currentBackgroundColor; }
+
+    public int getPaintColor() {
+        return mPaint.getColor();
     }
 
     public int[] getDirtyRectPos() {
@@ -314,14 +348,28 @@ public class DrawingCurve {
         };
     }
 
-    public void setPaintColors(int currentStrokeColor, int currentBackgroundColor) {
-        this.currentStrokeColor = currentStrokeColor;
-        this.currentBackgroundColor = currentBackgroundColor;
+    public int setInkPaintColorBasedOnPixel(float eventX, float eventY) {
+        int color = getPixel(Math.round(eventX), Math.round(eventY));
+        int colorToChangeTo;
+        if (color != currentBackgroundColor)  {
+            colorToChangeTo = (color == 0) ? currentStrokeColor : color;
+        } else {
+            colorToChangeTo = currentStrokeColor;
+        }
 
-        mPaint.setColor(currentStrokeColor);
+        inkPaint.setColor(colorToChangeTo);
+        return colorToChangeTo;
     }
 
-    public void setInkPaintColor(int color) { inkPaint.setColor(color); }
+    public void onInkPaintTouchUp() {
+        int color = inkPaint.getColor();
+
+        if (color != currentBackgroundColor)  {
+            setPaintColor((color == 0) ? currentStrokeColor : color);
+        } else {
+            setPaintColor(currentStrokeColor);
+        }
+    }
 
     public void setPaintThickness(float thickness) {
         mPaint.setStrokeWidth(thickness);
@@ -350,4 +398,25 @@ public class DrawingCurve {
         }
     }
 
+    @Override
+    public void onValueChanged(ViewCanvas.State newValue) {
+        mState = newValue;
+
+        switch (mState) {
+            case ERASE:
+                mPaint = PaintStyles.erase(currentBackgroundColor, 20f);
+                break;
+            case DRAW:
+                mPaint.setColor(currentStrokeColor);
+                break;
+            case INK:
+                inkPaint.setColor(currentStrokeColor);
+                break;
+        }
+    }
+
+    public void onSave() {
+        BitmapUtils.observableCacheBitmap(mContext, mBitmap);
+        store.setLastBackgroundColor(currentBackgroundColor);
+    }
 }

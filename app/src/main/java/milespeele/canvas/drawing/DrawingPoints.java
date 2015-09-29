@@ -18,7 +18,7 @@ public class DrawingPoints extends ArrayList<DrawingPoint> {
         super(other);
     }
 
-    public DrawingPoint getLast() {
+    public DrawingPoint peek() {
         return get(size() - 1);
     }
 
