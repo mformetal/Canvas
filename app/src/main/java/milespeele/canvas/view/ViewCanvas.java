@@ -11,6 +11,7 @@ import android.graphics.Paint;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v4.view.MotionEventCompat;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -38,6 +39,7 @@ import milespeele.canvas.paint.PaintStyles;
 import milespeele.canvas.util.AbstractAnimatorListener;
 import milespeele.canvas.util.BitmapUtils;
 import milespeele.canvas.util.Datastore;
+import milespeele.canvas.util.EnumStore;
 import milespeele.canvas.util.Logg;
 
 public class ViewCanvas extends FrameLayout {
@@ -53,7 +55,7 @@ public class ViewCanvas extends FrameLayout {
 
     private int currentStrokeColor, currentBackgroundColor;
 
-    private State state = State.DRAW;
+    private EnumStore enumStore;
     private Bitmap cachedBitmap;
     private DrawingCurve drawingCurve;
 
@@ -73,6 +75,8 @@ public class ViewCanvas extends FrameLayout {
     public void init() {
         ((MainApp) getContext().getApplicationContext()).getApplicationComponent().inject(this);
         bus.register(this);
+
+        enumStore = new EnumStore();
 
         Random rnd = new Random();
         currentStrokeColor = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
@@ -95,11 +99,12 @@ public class ViewCanvas extends FrameLayout {
 
         cachedBitmap = BitmapUtils.getCachedBitmap(getContext());
 
-        drawingCurve.setState(state);
-
         drawingCurve.drawBitmapToInternalCanvas(cachedBitmap);
 
         drawingCurve.setPaintColors(currentStrokeColor, currentBackgroundColor);
+
+        enumStore.setListener(drawingCurve);
+        enumStore.setValue(State.DRAW);
     }
 
     @Override
@@ -110,8 +115,7 @@ public class ViewCanvas extends FrameLayout {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        drawingCurve.drawInkRect(canvas);
-        drawingCurve.drawInternalBitmapToCanvas(canvas);
+        drawingCurve.drawToViewCanvas(canvas);
     }
 
     @Override
@@ -142,11 +146,10 @@ public class ViewCanvas extends FrameLayout {
     }
 
     private void onTouchDown(MotionEvent event, float eventX, float eventY) {
-        switch (state) {
+        switch (enumStore.getValue()) {
             case DRAW:
             case RAINBOW:
             case ERASE:
-                drawingCurve.setState(state);
                 drawingCurve.addPoint(eventX, eventY);
                 break;
             case INK:
@@ -161,7 +164,7 @@ public class ViewCanvas extends FrameLayout {
         setInkPosition(event, eventX, eventY);
         setEraserPosition(event, eventX, eventY);
 
-        switch (state) {
+        switch (enumStore.getValue()) {
             case RAINBOW:
             case ERASE:
             case DRAW:
@@ -207,8 +210,7 @@ public class ViewCanvas extends FrameLayout {
 
             switch (event.getAction()) {
                 case MotionEvent.ACTION_UP:
-                    state = State.DRAW;
-                    drawingCurve.setState(state);
+                    enumStore.setValue(State.DRAW);
                     if (color != currentBackgroundColor)  {
                         drawingCurve.setPaintColor((color == 0) ? currentStrokeColor : color);
                     } else {
@@ -236,7 +238,7 @@ public class ViewCanvas extends FrameLayout {
     }
 
     public void onEvent(EventBrushChosen eventBrushChosen) {
-        state = State.DRAW;
+        enumStore.setValue(State.DRAW);
 
         eraser.setVisibility(View.GONE);
 
@@ -244,7 +246,7 @@ public class ViewCanvas extends FrameLayout {
 
         if (eventBrushChosen.paint != null) {
             if (eventBrushChosen.paint.getShader() != null) {
-                state = State.RAINBOW;
+                enumStore.setValue(State.RAINBOW);
                 eventBrushChosen.paint.setShader(null);
             }
             drawingCurve.setPaint(eventBrushChosen.paint);
@@ -258,20 +260,24 @@ public class ViewCanvas extends FrameLayout {
         if (drawingCurve.redo(cachedBitmap)) {
             int[] rect = drawingCurve.getDirtyRectPos();
             invalidate(rect[0], rect[1], rect[2], rect[3]);
+            return;
         }
+        Snackbar.make(this, "No more redo!", Snackbar.LENGTH_SHORT).show();
     }
 
     public void onEvent(EventUndo eventUndo) {
         if (drawingCurve.undo(cachedBitmap)) {
             int[] rect = drawingCurve.getDirtyRectPos();
             invalidate(rect[0], rect[1], rect[2], rect[3]);
+            return;
         }
+        Snackbar.make(this, "No more undo!", Snackbar.LENGTH_SHORT).show();
     }
 
     public void onEvent(EventShowErase eventErase) {
         if (eraser.getVisibility() == View.VISIBLE) {
             eraser.setVisibility(View.GONE);
-            state = State.DRAW;
+            enumStore.setValue(State.DRAW);
         } else {
             double darkness = 1 - (0.299 * Color.red(currentBackgroundColor) +
                     0.587 * Color.green(currentBackgroundColor) +
@@ -285,22 +291,17 @@ public class ViewCanvas extends FrameLayout {
             eraser.setVisibility(View.VISIBLE);
             eraser.setX((float) getWidth() / 2);
             eraser.setY((float) getHeight() / 2);
-            state = State.ERASE;
+            enumStore.setValue(State.ERASE);
         }
-
-        drawingCurve.setState(state);
     }
 
     public void onEvent(EventShowColorize eventColorize) {
         if (!stateIsInk()) {
             eraser.setVisibility(View.GONE);
-            drawingCurve.setInkPaintColor(currentStrokeColor);
-            state = State.INK;
+            enumStore.setValue(State.INK);
         } else {
-            state = State.DRAW;
+            enumStore.setValue(State.DRAW);
         }
-
-        drawingCurve.setState(state);
 
         int[] rect = drawingCurve.getInkRectPos();
         invalidate(rect[0], rect[1], rect[2], rect[3]);
@@ -309,24 +310,23 @@ public class ViewCanvas extends FrameLayout {
     public void changeColor(int color, int opacity) {
         eraser.setVisibility(View.GONE);
 
-        state = State.DRAW;
+        enumStore.setValue(State.DRAW);
         currentStrokeColor = color;
         drawingCurve.setPaintAlpha(opacity);
         drawingCurve.setPaintColor(currentStrokeColor);
-        drawingCurve.setState(state);
     }
 
     public void fillCanvas(int color) {
         eraser.setVisibility(View.GONE);
 
-        state = State.DRAW;
+        enumStore.setValue(State.DRAW);
 
         if (cachedBitmap != null) {
             cachedBitmap.recycle();
             cachedBitmap = null;
         }
 
-        drawingCurve.hardReset();
+        drawingCurve.hardReset(color);
 
         ObjectAnimator background =
                 ObjectAnimator.ofObject(this, "backgroundColor", new ArgbEvaluator(),
@@ -354,10 +354,10 @@ public class ViewCanvas extends FrameLayout {
     public int getCurrentStrokeColor() { return currentStrokeColor; }
 
     private boolean stateIsInk() {
-        return state == State.INK;
+        return enumStore.getValue() == State.INK;
     }
 
-    private boolean stateIsErase() { return state == State.ERASE; }
+    private boolean stateIsErase() { return enumStore.getValue() == State.ERASE; }
 
     @Override
     protected Parcelable onSaveInstanceState() {
