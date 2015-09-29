@@ -100,7 +100,7 @@ public class DrawingCurve {
 
         switch (mState) {
             case ERASE:
-                mPaint = PaintStyles.erase(currentBackgroundColor, 15f);
+                mPaint = PaintStyles.erase(currentBackgroundColor, 20f);
                 break;
             case DRAW:
                 mPaint.setColor(currentStrokeColor);
@@ -149,7 +149,7 @@ public class DrawingCurve {
     public void addPoint(float x, float y) {
         DrawingPoint prevPoint = null;
         if (!currentPoints.isEmpty()) {
-            prevPoint = currentPoints.getLast();
+            prevPoint = currentPoints.peek();
             if (Math.abs(prevPoint.x - x) < POINT_TOLERANCE && Math.abs(prevPoint.y - y) < POINT_TOLERANCE) {
                 return;
             }
@@ -168,7 +168,8 @@ public class DrawingCurve {
     }
 
     private void drawLine(DrawingPoint previous, DrawingPoint mid, DrawingPoint current) {
-        float velocity =  VELOCITY_FILTER_WEIGHT * current.velocityFrom(previous) + (1 - VELOCITY_FILTER_WEIGHT);
+        float velocity =  VELOCITY_FILTER_WEIGHT * current.velocityFrom(previous)
+                + (1 - VELOCITY_FILTER_WEIGHT) * lastVelocity;
         float strokeWidth = STROKE_WIDTH - velocity;
         float diff = strokeWidth - lastWidth;
 

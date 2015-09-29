@@ -313,6 +313,7 @@ public class ViewCanvas extends FrameLayout {
         currentStrokeColor = color;
         drawingCurve.setPaintAlpha(opacity);
         drawingCurve.setPaintColor(currentStrokeColor);
+        drawingCurve.setState(state);
     }
 
     public void fillCanvas(int color) {
