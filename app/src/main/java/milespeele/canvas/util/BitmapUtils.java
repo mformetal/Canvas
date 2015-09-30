@@ -20,7 +20,7 @@ public class BitmapUtils {
 
     private final static String FILENAME = "name";
 
-    public static void observableCacheBitmap(Context context, Bitmap bitmap) {
+    public static void cacheBitmap(Context context, Bitmap bitmap) {
         compressBitmapAsObservable(bitmap)
                 .subscribeOn(Schedulers.io())
                 .subscribe(bytes -> {

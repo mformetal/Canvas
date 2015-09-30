@@ -2,6 +2,8 @@ package milespeele.canvas.drawing;
 
 import android.graphics.Paint;
 
+import milespeele.canvas.util.Logg;
+
 /**
  * Created by mbpeele on 9/26/15.
  */
@@ -9,7 +11,7 @@ public class DrawingPoint {
 
     public float x;
     public float y;
-    public float time;
+    public long time;
 
     public float fromX;
     public float fromY;
@@ -19,7 +21,7 @@ public class DrawingPoint {
     public int color;
     public Paint paint;
 
-    public DrawingPoint(float x, float y, float time) {
+    public DrawingPoint(float x, float y, long time) {
         this.x = x;
         this.y = y;
         this.time = time;
@@ -42,7 +44,8 @@ public class DrawingPoint {
     }
 
     public float velocityFrom(DrawingPoint p) {
-        return distanceTo(p) / Math.abs(time - p.time);
+        long duration = Math.abs(time - p.time) / 100;
+        return (duration != 0) ? distanceTo(p) / duration : distanceTo(p);
     }
 
     public DrawingPoint midPoint(DrawingPoint p2) {

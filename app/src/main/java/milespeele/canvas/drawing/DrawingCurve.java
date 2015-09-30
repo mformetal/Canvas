@@ -5,12 +5,16 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Path;
+import android.graphics.Picture;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.RectF;
+import android.os.Handler;
 import android.os.SystemClock;
 
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
@@ -38,7 +42,7 @@ public class DrawingCurve implements EnumStore.EnumListener {
     private ViewCanvas.State mState;
     private Context mContext;
 
-    private static final float VELOCITY_FILTER_WEIGHT = 0.2f;
+    private static final float VELOCITY_FILTER_WEIGHT = 0.3f;
     private static float STROKE_WIDTH = 10f;
     private static final float POINT_TOLERANCE = 5f;
     private int width, height;
@@ -80,13 +84,15 @@ public class DrawingCurve implements EnumStore.EnumListener {
     }
 
     public void resize(int w, int h) {
-//        width = w;
-//        height = h;
-//
-//        Bitmap bitmap = Bitmap.createScaledBitmap(mBitmap, w, h, true);
-//        mBitmap.recycle();
-//        mBitmap = bitmap;
-//        mCanvas = new Canvas(mBitmap);
+        width = w;
+        height = h;
+
+        Bitmap bitmap = Bitmap.createScaledBitmap(mBitmap, w, h, true);
+        mBitmap.recycle();
+        mBitmap = bitmap;
+        mCanvas = new Canvas(mBitmap);
+
+        drawBitmapToInternalCanvas(cachedBitmap);
     }
 
     public void reset() {
@@ -127,6 +133,7 @@ public class DrawingCurve implements EnumStore.EnumListener {
     }
 
     public void drawColorToInternalCanvas(int color) {
+        currentBackgroundColor = color;
         mCanvas.drawColor(color);
     }
 
@@ -142,10 +149,6 @@ public class DrawingCurve implements EnumStore.EnumListener {
         if (mState == ViewCanvas.State.INK) {
             canvas.drawRect(inkRect, inkPaint);
         }
-    }
-
-    public int getPixel(float eventX, float eventY) {
-        return mBitmap.getPixel(Math.round(eventX), Math.round(eventY));
     }
 
     public void onTouchUp(float eventX, float eventY) {
@@ -174,24 +177,37 @@ public class DrawingCurve implements EnumStore.EnumListener {
 
         if (prevPoint == null) {
             currentPoints.add(new DrawingPoint(x, y, SystemClock.currentThreadTimeMillis()));
-            mCanvas.drawPoint(x, y, mPaint);
             currentPointsHistory.add(new DrawingPoint(x, y, x, y,
                     mPaint.getStrokeWidth(), mPaint.getColor(), mPaint));
+            mCanvas.drawPoint(x, y, mPaint);
         } else {
             DrawingPoint currentPoint = new DrawingPoint(x, y, SystemClock.currentThreadTimeMillis());
             currentPoints.add(currentPoint);
-            drawLine(prevPoint, currentPoint.midPoint(prevPoint), currentPoint);
+            drawLine(prevPoint, currentPoint);
         }
     }
 
-    private void drawLine(DrawingPoint previous, DrawingPoint mid, DrawingPoint current) {
+    private void drawLine(DrawingPoint previous, DrawingPoint current) {
+        switch (mState) {
+            case DRAW:
+            case RAINBOW:
+                algorithmDraw(previous, current);
+            case ERASE:
+                mCanvas.drawLine(previous.x, previous.y, current.x, current.y, mPaint);
+                break;
+            case INK:
+        }
+    }
+
+    public void algorithmDraw(DrawingPoint previous, DrawingPoint current) {
+        DrawingPoint mid = current.midPoint(previous);
         float velocity =  VELOCITY_FILTER_WEIGHT * current.velocityFrom(previous)
-                + (1 - VELOCITY_FILTER_WEIGHT) * lastVelocity;
-        float strokeWidth = STROKE_WIDTH - velocity;
+                + (1 - VELOCITY_FILTER_WEIGHT);
+        float strokeWidth = Math.abs(STROKE_WIDTH - velocity);
         float diff = strokeWidth - lastWidth;
 
-        float xa, xb, ya, yb, x, y;
-        for (float i = 0; i < 1; i += .01) {
+        float xa, xb, ya, yb, x, y, width;
+        for (float i = 0; i < 1; i += .1) {
             xa = previous.getMidX(mid, i);
             ya = previous.getMidY(mid, i);
 
@@ -201,8 +217,9 @@ public class DrawingCurve implements EnumStore.EnumListener {
             x = xa + ((xb - xa) * i);
             y = ya + ((yb - ya) * i);
 
-            if (mState != ViewCanvas.State.ERASE) {
-                mPaint.setStrokeWidth(Math.abs(lastWidth * 2 + diff * i));
+            width = lastWidth + diff * i;
+            if (!Float.isNaN(width) && width >= 0) {
+                mPaint.setStrokeWidth(width);
             }
 
             if (mState == ViewCanvas.State.RAINBOW) {
@@ -214,14 +231,8 @@ public class DrawingCurve implements EnumStore.EnumListener {
             mCanvas.drawLine(previous.x, previous.y, x, y, mPaint);
         }
 
-
-        if (strokeWidth != Float.POSITIVE_INFINITY && strokeWidth != Float.NEGATIVE_INFINITY) {
-            lastWidth = strokeWidth;
-        }
-
-        if (velocity != Float.POSITIVE_INFINITY && velocity != Float.NEGATIVE_INFINITY) {
-            lastVelocity = velocity;
-        }
+        lastWidth = strokeWidth;
+        lastVelocity = velocity;
     }
 
     public boolean redo() {
@@ -349,7 +360,7 @@ public class DrawingCurve implements EnumStore.EnumListener {
     }
 
     public int setInkPaintColorBasedOnPixel(float eventX, float eventY) {
-        int color = getPixel(Math.round(eventX), Math.round(eventY));
+        int color = mBitmap.getPixel(Math.round(eventX), Math.round(eventY));
         int colorToChangeTo;
         if (color != currentBackgroundColor)  {
             colorToChangeTo = (color == 0) ? currentStrokeColor : color;
@@ -416,7 +427,7 @@ public class DrawingCurve implements EnumStore.EnumListener {
     }
 
     public void onSave() {
-        BitmapUtils.observableCacheBitmap(mContext, mBitmap);
+        BitmapUtils.cacheBitmap(mContext, mBitmap);
         store.setLastBackgroundColor(currentBackgroundColor);
     }
 }

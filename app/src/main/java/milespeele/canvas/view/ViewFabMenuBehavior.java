@@ -20,7 +20,8 @@ public class ViewFabMenuBehavior extends CoordinatorLayout.Behavior<ViewFabMenu>
 
     @Override
     public boolean onDependentViewChanged(CoordinatorLayout parent, ViewFabMenu child, View dependency) {
-        //child.setTranslationY(-dependency.getHeight());
+        float translationY = Math.max(0, dependency.getHeight() - dependency.getTranslationY());
+        child.setTranslationY(-translationY);
         return true;
     }
 }

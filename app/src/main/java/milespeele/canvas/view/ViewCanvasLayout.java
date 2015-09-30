@@ -57,7 +57,6 @@ public class ViewCanvasLayout extends CoordinatorLayout {
     }
 
     private void init() {
-        setSaveEnabled(true);
         setClipChildren(false);
     }
 

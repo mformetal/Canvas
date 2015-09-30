@@ -49,6 +49,7 @@ public class ViewCanvas extends FrameLayout {
 
     private EnumStore enumStore;
     private DrawingCurve drawingCurve;
+    private boolean isAnimating;
 
     @Inject EventBus bus;
 
@@ -82,6 +83,8 @@ public class ViewCanvas extends FrameLayout {
             drawingCurve = new DrawingCurve(getContext(), w, h);
         }
 
+        setBackgroundColor(drawingCurve.getCurrentBackgroundColor());
+
         enumStore.setListener(drawingCurve);
         enumStore.setValue(State.DRAW);
     }
@@ -99,6 +102,10 @@ public class ViewCanvas extends FrameLayout {
 
     @Override
     public boolean onTouchEvent(@NonNull MotionEvent event) {
+        if (isAnimating) {
+            return true;
+        }
+
         float eventX = event.getX();
         float eventY = event.getY();
         int actionMasked = MotionEventCompat.getActionMasked(event);
@@ -296,7 +303,13 @@ public class ViewCanvas extends FrameLayout {
         background.addListener(new AbstractAnimatorListener() {
 
             @Override
+            public void onAnimationStart(Animator animation) {
+                isAnimating = true;
+            }
+
+            @Override
             public void onAnimationEnd(Animator animation) {
+                isAnimating = false;
                 drawingCurve.drawColorToInternalCanvas(color);
             }
         });
