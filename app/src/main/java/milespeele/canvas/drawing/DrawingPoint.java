@@ -11,30 +11,13 @@ public class DrawingPoint {
 
     public float x;
     public float y;
-    public long time;
-
-    public float fromX;
-    public float fromY;
-    public float toX;
-    public float toY;
     public float width;
-    public int color;
-    public Paint paint;
+    public long time;
 
     public DrawingPoint(float x, float y, long time) {
         this.x = x;
         this.y = y;
         this.time = time;
-    }
-
-    public DrawingPoint(float fromX, float fromY, float toX, float toY, float width, int color, Paint paint) {
-        this.fromX = fromX;
-        this.fromY = fromY;
-        this.toX = toX;
-        this.toY = toY;
-        this.width = width;
-        this.color = color;
-        this.paint = paint;
     }
 
     public float distanceTo(DrawingPoint p) {
@@ -44,7 +27,7 @@ public class DrawingPoint {
     }
 
     public float velocityFrom(DrawingPoint p) {
-        long duration = Math.abs(time - p.time) / 100;
+        long duration = Math.abs(time - p.time);
         return (duration != 0) ? distanceTo(p) / duration : distanceTo(p);
     }
 
@@ -52,11 +35,11 @@ public class DrawingPoint {
         return new DrawingPoint((x + p2.x) / 2.0f, (y + p2.y) / 2, (time + p2.time) / 2);
     }
 
-    public float getMidX(DrawingPoint p, float percentage) {
+    public float getPercX(DrawingPoint p, float percentage) {
         return x + ((p.x - x) * percentage);
     }
 
-    public float getMidY(DrawingPoint p, float percentage) {
+    public float getPercY(DrawingPoint p, float percentage) {
         return y + ((p.y - y) * percentage);
     }
 

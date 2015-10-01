@@ -22,4 +22,9 @@ public class DrawingPoints extends ArrayList<DrawingPoint> {
         return get(size() - 1);
     }
 
+    public DrawingPoint[] lastFour() {
+        return new DrawingPoint[] {get(size() - 4), get(size() - 3),
+                get(size() - 2), get(size() - 1)};
+    }
+
 }

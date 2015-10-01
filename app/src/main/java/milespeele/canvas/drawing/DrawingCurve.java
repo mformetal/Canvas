@@ -35,14 +35,14 @@ public class DrawingCurve implements EnumStore.EnumListener {
     private final RectF dirtyRect = new RectF();
     private Bitmap mBitmap, cachedBitmap;
     private Canvas mCanvas;
-    private DrawingPoints currentPoints, currentPointsHistory;
+    private DrawingPoints currentPoints;
     private DrawingHistory redoPoints, allPoints;
     private Paint mPaint, inkPaint;
     private Random random;
     private ViewCanvas.State mState;
     private Context mContext;
 
-    private static final float VELOCITY_FILTER_WEIGHT = 0.3f;
+    private static final float VELOCITY_FILTER_WEIGHT = 0.4f;
     private static float STROKE_WIDTH = 10f;
     private static final float POINT_TOLERANCE = 5f;
     private int width, height;
@@ -67,7 +67,6 @@ public class DrawingCurve implements EnumStore.EnumListener {
         drawBitmapToInternalCanvas(cachedBitmap);
 
         currentPoints = new DrawingPoints();
-        currentPointsHistory = new DrawingPoints();
         allPoints = new DrawingHistory();
         redoPoints = new DrawingHistory();
 
@@ -107,7 +106,6 @@ public class DrawingCurve implements EnumStore.EnumListener {
         resetRect();
 
         currentPoints.clear();
-        currentPointsHistory.clear();
         allPoints.clear();
         redoPoints.clear();
 
@@ -159,9 +157,8 @@ public class DrawingCurve implements EnumStore.EnumListener {
 
         addPoint(eventX, eventY);
 
-        allPoints.push(currentPointsHistory);
+        allPoints.push(currentPoints);
         currentPoints.clear();
-        currentPointsHistory.clear();
     }
 
     public void addPoint(float x, float y) {
@@ -176,12 +173,13 @@ public class DrawingCurve implements EnumStore.EnumListener {
         updateRect(x, y);
 
         if (prevPoint == null) {
-            currentPoints.add(new DrawingPoint(x, y, SystemClock.currentThreadTimeMillis()));
-            currentPointsHistory.add(new DrawingPoint(x, y, x, y,
-                    mPaint.getStrokeWidth(), mPaint.getColor(), mPaint));
+            DrawingPoint toAdd = new DrawingPoint(x, y, SystemClock.elapsedRealtime());
+            toAdd.width = STROKE_WIDTH;
+            currentPoints.add(toAdd);
             mCanvas.drawPoint(x, y, mPaint);
         } else {
-            DrawingPoint currentPoint = new DrawingPoint(x, y, SystemClock.currentThreadTimeMillis());
+            DrawingPoint currentPoint = new DrawingPoint(x, y, SystemClock.elapsedRealtime());
+            currentPoint.width = calculatePointWidth(prevPoint, currentPoint);
             currentPoints.add(currentPoint);
             drawLine(prevPoint, currentPoint);
         }
@@ -192,6 +190,7 @@ public class DrawingCurve implements EnumStore.EnumListener {
             case DRAW:
             case RAINBOW:
                 algorithmDraw(previous, current);
+                break;
             case ERASE:
                 mCanvas.drawLine(previous.x, previous.y, current.x, current.y, mPaint);
                 break;
@@ -199,40 +198,14 @@ public class DrawingCurve implements EnumStore.EnumListener {
         }
     }
 
-    public void algorithmDraw(DrawingPoint previous, DrawingPoint current) {
-        DrawingPoint mid = current.midPoint(previous);
-        float velocity =  VELOCITY_FILTER_WEIGHT * current.velocityFrom(previous)
-                + (1 - VELOCITY_FILTER_WEIGHT);
-        float strokeWidth = Math.abs(STROKE_WIDTH - velocity);
-        float diff = strokeWidth - lastWidth;
+    private void algorithmDraw(DrawingPoint previous, DrawingPoint current) {
+        Logg.log(previous.width, current.width);
+        mCanvas.drawLine(previous.x, previous.y, current.x, current.y, mPaint);
+    }
 
-        float xa, xb, ya, yb, x, y, width;
-        for (float i = 0; i < 1; i += .1) {
-            xa = previous.getMidX(mid, i);
-            ya = previous.getMidY(mid, i);
-
-            xb = mid.getMidX(current, i);
-            yb = mid.getMidY(current, i);
-
-            x = xa + ((xb - xa) * i);
-            y = ya + ((yb - ya) * i);
-
-            width = lastWidth + diff * i;
-            if (!Float.isNaN(width) && width >= 0) {
-                mPaint.setStrokeWidth(width);
-            }
-
-            if (mState == ViewCanvas.State.RAINBOW) {
-                mPaint.setColor(rainbow[random.nextInt(rainbow.length)]);
-            }
-
-            currentPointsHistory.add(new DrawingPoint(previous.x, previous.y, x, y,
-                    mPaint.getStrokeWidth(), mPaint.getColor(), mPaint));
-            mCanvas.drawLine(previous.x, previous.y, x, y, mPaint);
-        }
-
-        lastWidth = strokeWidth;
-        lastVelocity = velocity;
+    private float calculatePointWidth(DrawingPoint previous, DrawingPoint current) {
+        float velocity = VELOCITY_FILTER_WEIGHT * current.velocityFrom(previous) + (1 - VELOCITY_FILTER_WEIGHT);
+        return Math.abs(STROKE_WIDTH - velocity);
     }
 
     public boolean redo() {
@@ -266,22 +239,22 @@ public class DrawingCurve implements EnumStore.EnumListener {
     }
 
     public void redraw() {
-        resetRect();
-        for (DrawingPoints points: allPoints) {
-            for (DrawingPoint point: points) {
-                if (point.paint != null) {
-                    mPaint.set(point.paint);
-                }
-                mPaint.setColor(point.color);
-                mPaint.setStrokeWidth(point.width);
-                if (point.fromX == point.toX) {
-                    mCanvas.drawPoint(point.fromX, point.fromY, mPaint);
-                } else {
-                    mCanvas.drawLine(point.fromX, point.fromY, point.toX, point.toY, mPaint);
-                }
-                updateRect(point.toX, point.toY);
-            }
-        }
+//        resetRect();
+//        for (DrawingPoints points: allPoints) {
+//            for (DrawingPoint point: points) {
+//                if (point.paint != null) {
+//                    mPaint.set(point.paint);
+//                }
+//                mPaint.setColor(point.color);
+//                mPaint.setStrokeWidth(point.width);
+//                if (point.fromX == point.toX) {
+//                    mCanvas.drawPoint(point.fromX, point.fromY, mPaint);
+//                } else {
+//                    mCanvas.drawLine(point.fromX, point.fromY, point.toX, point.toY, mPaint);
+//                }
+//                updateRect(point.toX, point.toY);
+//            }
+//        }
     }
 
     public void resetRect() {
