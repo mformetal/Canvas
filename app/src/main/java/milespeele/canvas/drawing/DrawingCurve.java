@@ -7,12 +7,15 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Picture;
+import android.graphics.Point;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.RectF;
 import android.os.Handler;
+import android.os.Message;
 import android.os.SystemClock;
 
+import java.lang.ref.WeakReference;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -35,15 +38,16 @@ public class DrawingCurve implements EnumStore.EnumListener {
     private final RectF dirtyRect = new RectF();
     private Bitmap mBitmap, cachedBitmap;
     private Canvas mCanvas;
-    private DrawingPoints currentPoints, currentPointsHistory;
+    private DrawingPoints currentPoints;
     private DrawingHistory redoPoints, allPoints;
     private Paint mPaint, inkPaint;
     private Random random;
     private ViewCanvas.State mState;
     private Context mContext;
 
-    private static final float VELOCITY_FILTER_WEIGHT = 0.3f;
+    private static final float VELOCITY_FILTER_WEIGHT = 0.2f;
     private static float STROKE_WIDTH = 10f;
+    private static final float POINT_MAX_WIDTH = 50f, POINT_MIN_WIDTH = 2f;
     private static final float POINT_TOLERANCE = 5f;
     private int width, height;
     private float lastTouchX, lastTouchY, lastWidth, lastVelocity;
@@ -67,7 +71,6 @@ public class DrawingCurve implements EnumStore.EnumListener {
         drawBitmapToInternalCanvas(cachedBitmap);
 
         currentPoints = new DrawingPoints();
-        currentPointsHistory = new DrawingPoints();
         allPoints = new DrawingHistory();
         redoPoints = new DrawingHistory();
 
@@ -107,7 +110,6 @@ public class DrawingCurve implements EnumStore.EnumListener {
         resetRect();
 
         currentPoints.clear();
-        currentPointsHistory.clear();
         allPoints.clear();
         redoPoints.clear();
 
@@ -159,9 +161,8 @@ public class DrawingCurve implements EnumStore.EnumListener {
 
         addPoint(eventX, eventY);
 
-        allPoints.push(currentPointsHistory);
+        allPoints.push(currentPoints);
         currentPoints.clear();
-        currentPointsHistory.clear();
     }
 
     public void addPoint(float x, float y) {
@@ -176,22 +177,22 @@ public class DrawingCurve implements EnumStore.EnumListener {
         updateRect(x, y);
 
         if (prevPoint == null) {
-            currentPoints.add(new DrawingPoint(x, y, SystemClock.currentThreadTimeMillis()));
-            currentPointsHistory.add(new DrawingPoint(x, y, x, y,
-                    mPaint.getStrokeWidth(), mPaint.getColor(), mPaint));
+            DrawingPoint toAdd = new DrawingPoint(x, y, SystemClock.currentThreadTimeMillis());
+            currentPoints.add(toAdd);
             mCanvas.drawPoint(x, y, mPaint);
         } else {
             DrawingPoint currentPoint = new DrawingPoint(x, y, SystemClock.currentThreadTimeMillis());
             currentPoints.add(currentPoint);
-            drawLine(prevPoint, currentPoint);
+            draw(prevPoint, currentPoint);
         }
     }
 
-    private void drawLine(DrawingPoint previous, DrawingPoint current) {
+    private void draw(DrawingPoint previous, DrawingPoint current) {
         switch (mState) {
             case DRAW:
             case RAINBOW:
                 algorithmDraw(previous, current);
+                break;
             case ERASE:
                 mCanvas.drawLine(previous.x, previous.y, current.x, current.y, mPaint);
                 break;
@@ -199,35 +200,30 @@ public class DrawingCurve implements EnumStore.EnumListener {
         }
     }
 
-    public void algorithmDraw(DrawingPoint previous, DrawingPoint current) {
+    private void algorithmDraw(DrawingPoint previous, DrawingPoint current) {
         DrawingPoint mid = current.midPoint(previous);
+
         float velocity =  VELOCITY_FILTER_WEIGHT * current.velocityFrom(previous)
-                + (1 - VELOCITY_FILTER_WEIGHT);
+                + (1 - VELOCITY_FILTER_WEIGHT) * lastVelocity;
         float strokeWidth = Math.abs(STROKE_WIDTH - velocity);
+        if (strokeWidth < POINT_MIN_WIDTH) { strokeWidth = POINT_MIN_WIDTH; }
+        if (strokeWidth > POINT_MAX_WIDTH) { strokeWidth = POINT_MAX_WIDTH; }
         float diff = strokeWidth - lastWidth;
 
-        float xa, xb, ya, yb, x, y, width;
-        for (float i = 0; i < 1; i += .1) {
-            xa = previous.getMidX(mid, i);
-            ya = previous.getMidY(mid, i);
+        float xa, xb, ya, yb, x, y;
+        for (float i = 0; i < 1; i += .01) {
+            xa = previous.x + (previous.x - mid.x) * i;
+            ya = previous.y + (previous.y - mid.y) * i;
 
-            xb = mid.getMidX(current, i);
-            yb = mid.getMidY(current, i);
+            xb = mid.x + (current.x - mid.x) * i;
+            yb = mid.y + (current.y - mid.y) * i;
 
             x = xa + ((xb - xa) * i);
             y = ya + ((yb - ya) * i);
 
-            width = lastWidth + diff * i;
-            if (!Float.isNaN(width) && width >= 0) {
-                mPaint.setStrokeWidth(width);
-            }
+            mPaint.setStrokeWidth(lastWidth + diff * i);
 
-            if (mState == ViewCanvas.State.RAINBOW) {
-                mPaint.setColor(rainbow[random.nextInt(rainbow.length)]);
-            }
-
-            currentPointsHistory.add(new DrawingPoint(previous.x, previous.y, x, y,
-                    mPaint.getStrokeWidth(), mPaint.getColor(), mPaint));
+            currentPoints.add(new DrawingPoint(x, y, 0));
             mCanvas.drawLine(previous.x, previous.y, x, y, mPaint);
         }
 
@@ -237,12 +233,8 @@ public class DrawingCurve implements EnumStore.EnumListener {
 
     public boolean redo() {
         if (!redoPoints.isEmpty()) {
-            reset();
-
             DrawingPoints points = redoPoints.pop();
             allPoints.push(points);
-
-            drawBitmapToInternalCanvas(cachedBitmap);
 
             redraw();
             return true;
@@ -252,12 +244,8 @@ public class DrawingCurve implements EnumStore.EnumListener {
 
     public boolean undo() {
         if (!allPoints.isEmpty()) {
-            reset();
-
             DrawingPoints points = allPoints.pop();
             redoPoints.push(points);
-
-            drawBitmapToInternalCanvas(cachedBitmap);
 
             redraw();
             return true;
@@ -266,22 +254,19 @@ public class DrawingCurve implements EnumStore.EnumListener {
     }
 
     public void redraw() {
-        resetRect();
+        long start = SystemClock.elapsedRealtimeNanos();
+//        resetRect();
         for (DrawingPoints points: allPoints) {
-            for (DrawingPoint point: points) {
-                if (point.paint != null) {
-                    mPaint.set(point.paint);
-                }
-                mPaint.setColor(point.color);
-                mPaint.setStrokeWidth(point.width);
-                if (point.fromX == point.toX) {
-                    mCanvas.drawPoint(point.fromX, point.fromY, mPaint);
-                } else {
-                    mCanvas.drawLine(point.fromX, point.fromY, point.toX, point.toY, mPaint);
-                }
-                updateRect(point.toX, point.toY);
-            }
+//            points.printPoints();
+            Paint paint = new Paint();
+            paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+            mCanvas.drawRect(points.left, points.top, points.right, points.bottom, paint);
+//            for (DrawingPoint point: points) {
+//                mCanvas.drawPoint(point.x, point.y, mPaint);
+//                updateRect(point.x, point.y);
+//            }
         }
+        Logg.log("ELAPSED: " + (SystemClock.elapsedRealtimeNanos() - start) / 1000000000.0);
     }
 
     public void resetRect() {
@@ -415,13 +400,16 @@ public class DrawingCurve implements EnumStore.EnumListener {
 
         switch (mState) {
             case ERASE:
+                mHandler.removeCallbacksAndMessages(null);
                 mPaint = PaintStyles.erase(currentBackgroundColor, 20f);
                 break;
             case DRAW:
-                mPaint.setColor(currentStrokeColor);
-                break;
             case INK:
+                mHandler.removeCallbacksAndMessages(null);
                 inkPaint.setColor(currentStrokeColor);
+                break;
+            case RAINBOW:
+                paintRunnable.run();
                 break;
         }
     }
@@ -430,4 +418,12 @@ public class DrawingCurve implements EnumStore.EnumListener {
         BitmapUtils.cacheBitmap(mContext, mBitmap);
         store.setLastBackgroundColor(currentBackgroundColor);
     }
+
+    private static final Handler mHandler = new Handler();
+    private Runnable paintRunnable = new Runnable() {
+        public void run() {
+            mPaint.setColor(rainbow[random.nextInt(rainbow.length)]);
+            mHandler.postDelayed(paintRunnable, 100);
+        }
+    };
 }

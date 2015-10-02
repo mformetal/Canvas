@@ -35,6 +35,7 @@ import milespeele.canvas.event.EventUndo;
 import milespeele.canvas.util.AbstractAnimatorListener;
 import milespeele.canvas.util.BitmapUtils;
 import milespeele.canvas.util.EnumStore;
+import milespeele.canvas.util.Logg;
 
 public class ViewCanvas extends FrameLayout {
 
@@ -49,7 +50,6 @@ public class ViewCanvas extends FrameLayout {
 
     private EnumStore enumStore;
     private DrawingCurve drawingCurve;
-    private boolean isAnimating;
 
     @Inject EventBus bus;
 
@@ -102,10 +102,6 @@ public class ViewCanvas extends FrameLayout {
 
     @Override
     public boolean onTouchEvent(@NonNull MotionEvent event) {
-        if (isAnimating) {
-            return true;
-        }
-
         float eventX = event.getX();
         float eventY = event.getY();
         int actionMasked = MotionEventCompat.getActionMasked(event);
@@ -304,12 +300,10 @@ public class ViewCanvas extends FrameLayout {
 
             @Override
             public void onAnimationStart(Animator animation) {
-                isAnimating = true;
             }
 
             @Override
             public void onAnimationEnd(Animator animation) {
-                isAnimating = false;
                 drawingCurve.drawColorToInternalCanvas(color);
             }
         });
