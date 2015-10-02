@@ -15,6 +15,7 @@ import android.support.v4.view.MotionEventCompat;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
@@ -37,7 +38,7 @@ import milespeele.canvas.util.BitmapUtils;
 import milespeele.canvas.util.EnumStore;
 import milespeele.canvas.util.Logg;
 
-public class ViewCanvas extends FrameLayout {
+public class ViewCanvas extends ViewGroup {
 
     public enum State {
         DRAW,
@@ -63,6 +64,11 @@ public class ViewCanvas extends FrameLayout {
         init();
     }
 
+    @Override
+    protected void onLayout(boolean changed, int l, int t, int r, int b) {
+
+    }
+
     public void init() {
         ((MainApp) getContext().getApplicationContext()).getApplicationComponent().inject(this);
         bus.register(this);
@@ -71,7 +77,6 @@ public class ViewCanvas extends FrameLayout {
 
         setWillNotDraw(false);
         setSaveEnabled(true);
-        setLayerType(LAYER_TYPE_HARDWARE, null);
     }
 
     @Override

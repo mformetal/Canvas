@@ -40,15 +40,14 @@ import milespeele.canvas.util.AbstractAnimatorListener;
 /**
  * Created by milespeele on 8/7/15.
  */
-public class ViewFabMenu extends ViewGroup
-    implements View.OnClickListener {
+public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
 
     @Bind(R.id.menu_show) ViewFab toggle;
     @Bind(R.id.menu_erase) ViewFab eraser;
     @Bind(R.id.menu_save) ViewFab saver;
     @Bind({R.id.menu_shape_chooser, R.id.menu_colorize,  R.id.menu_stroke_color, R.id.menu_size,
-            R.id.menu_undo, R.id.menu_redo, R.id.menu_erase, R.id.menu_new_canvas, R.id.menu_save})
-    List<ViewFab> buttonsList;
+            R.id.menu_undo, R.id.menu_redo, R.id.menu_erase, R.id.menu_new_canvas,
+            R.id.menu_save}) List<ViewFab> buttonsList;
 
     @Inject EventBus bus;
 
@@ -90,7 +89,9 @@ public class ViewFabMenu extends ViewGroup
     private void init() {
         ((MainApp) getContext().getApplicationContext()).getApplicationComponent().inject(this);
         bus.register(this);
+
         setDescendantFocusability(FOCUS_AFTER_DESCENDANTS);
+        setBackground(null);
     }
 
     @Override
@@ -99,6 +100,7 @@ public class ViewFabMenu extends ViewGroup
         ButterKnife.bind(this);
         close = ObjectAnimator.ofFloat(toggle, "rotation", -135f, -270f);
         close.setDuration(Math.round(DURATION * 1.5));
+
         open = ObjectAnimator.ofFloat(toggle, "rotation", 0f, -135f);
         open.start();
     }

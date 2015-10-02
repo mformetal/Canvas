@@ -28,7 +28,6 @@ public interface ApplicationComponent {
     void inject(ViewFabMenu viewFabMenu);
     void inject(ViewCanvas viewCanvas);
 
-    void inject(FragmentDrawer fragmentDrawer);
     void inject(FragmentColorPicker fragmentColorPicker);
     void inject(FragmentBrushPicker fragmentBrushPicker);
     void inject(FragmentFilename fragmentFilename);

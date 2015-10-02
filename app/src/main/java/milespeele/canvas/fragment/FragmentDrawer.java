@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 
 import javax.inject.Inject;
 
@@ -21,8 +22,6 @@ public class FragmentDrawer extends Fragment {
 
     @Bind(R.id.fragment_drawer_coordinator) ViewCanvasLayout coordinatorLayout;
 
-    @Inject EventBus bus;
-
     public FragmentDrawer() {}
 
     public static FragmentDrawer newInstance() {
@@ -36,15 +35,14 @@ public class FragmentDrawer extends Fragment {
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        ((MainApp) activity.getApplicationContext()).getApplicationComponent().inject(this);
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_drawer, container, false);
         ButterKnife.bind(this, v);
+
+        getActivity().getWindow().setFlags(
+                WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
+                WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
+
         return v;
     }
 

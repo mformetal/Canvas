@@ -12,6 +12,7 @@ public class DrawingPoint {
     public float x;
     public float y;
     public long time;
+    public int color;
 
     public DrawingPoint(float x, float y, long time) {
         this.x = x;
@@ -36,6 +37,6 @@ public class DrawingPoint {
 
     @Override
     public String toString() {
-        return "X: " + x + ", " + "Y: " + y + "TIME: " + time;
+        return "X: " + x + ", " + "Y: " + y + ", " + "TIME: " + time;
     }
 }

@@ -176,14 +176,14 @@ public class DrawingCurve implements EnumStore.EnumListener {
 
         updateRect(x, y);
 
+        DrawingPoint toAdd = new DrawingPoint(x, y, SystemClock.currentThreadTimeMillis());
+        toAdd.color = mPaint.getColor();
+        currentPoints.add(toAdd);
+
         if (prevPoint == null) {
-            DrawingPoint toAdd = new DrawingPoint(x, y, SystemClock.currentThreadTimeMillis());
-            currentPoints.add(toAdd);
             mCanvas.drawPoint(x, y, mPaint);
         } else {
-            DrawingPoint currentPoint = new DrawingPoint(x, y, SystemClock.currentThreadTimeMillis());
-            currentPoints.add(currentPoint);
-            draw(prevPoint, currentPoint);
+            draw(prevPoint, toAdd);
         }
     }
 
@@ -223,7 +223,9 @@ public class DrawingCurve implements EnumStore.EnumListener {
 
             mPaint.setStrokeWidth(lastWidth + diff * i);
 
-            currentPoints.add(new DrawingPoint(x, y, 0));
+            DrawingPoint toAdd = new DrawingPoint(x, y, 0);
+            toAdd.color = mPaint.getColor();
+            currentPoints.add(toAdd);
             mCanvas.drawLine(previous.x, previous.y, x, y, mPaint);
         }
 
@@ -253,18 +255,21 @@ public class DrawingCurve implements EnumStore.EnumListener {
         return false;
     }
 
-    public void redraw() {
+    private void redraw() {
         long start = SystemClock.elapsedRealtimeNanos();
-//        resetRect();
+
+        reset();
+
+        drawBitmapToInternalCanvas(cachedBitmap);
+
+        resetRect();
+
         for (DrawingPoints points: allPoints) {
-//            points.printPoints();
-            Paint paint = new Paint();
-            paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
-            mCanvas.drawRect(points.left, points.top, points.right, points.bottom, paint);
-//            for (DrawingPoint point: points) {
-//                mCanvas.drawPoint(point.x, point.y, mPaint);
-//                updateRect(point.x, point.y);
-//            }
+            for (DrawingPoint point: points) {
+                mPaint.setColor(point.color);
+                mCanvas.drawPoint(point.x, point.y, mPaint);
+                updateRect(point.x, point.y);
+            }
         }
         Logg.log("ELAPSED: " + (SystemClock.elapsedRealtimeNanos() - start) / 1000000000.0);
     }
