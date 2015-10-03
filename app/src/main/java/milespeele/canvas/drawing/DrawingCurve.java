@@ -1,48 +1,60 @@
 package milespeele.canvas.drawing;
 
+import android.animation.Animator;
+import android.animation.ArgbEvaluator;
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Path;
-import android.graphics.Picture;
-import android.graphics.Point;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.RectF;
 import android.os.Handler;
-import android.os.Message;
 import android.os.SystemClock;
 
-import java.lang.ref.WeakReference;
 import java.util.Random;
-import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
+import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
+import milespeele.canvas.R;
+import milespeele.canvas.event.EventColorChosen;
+import milespeele.canvas.event.EventRedo;
+import milespeele.canvas.event.EventShowColorize;
+import milespeele.canvas.event.EventShowErase;
+import milespeele.canvas.event.EventUndo;
 import milespeele.canvas.paint.PaintStyles;
+import milespeele.canvas.util.AbstractAnimatorListener;
 import milespeele.canvas.util.BitmapUtils;
 import milespeele.canvas.util.Datastore;
 import milespeele.canvas.util.EnumStore;
 import milespeele.canvas.util.Logg;
-import milespeele.canvas.view.ViewCanvas;
+import milespeele.canvas.view.ViewCanvasSurface;
 
 /**
  * Created by mbpeele on 9/25/15.
  */
-public class DrawingCurve implements EnumStore.EnumListener {
+public class DrawingCurve {
+
+    public enum State {
+        DRAW,
+        INK,
+        ERASE,
+        RAINBOW
+    }
 
     private final RectF inkRect = new RectF();
-    private final RectF dirtyRect = new RectF();
     private Bitmap mBitmap, cachedBitmap;
     private Canvas mCanvas;
     private DrawingPoints currentPoints;
     private DrawingHistory redoPoints, allPoints;
     private Paint mPaint, inkPaint;
     private Random random;
-    private ViewCanvas.State mState;
+    private State mState = State.DRAW;
     private Context mContext;
 
     private static final float VELOCITY_FILTER_WEIGHT = 0.2f;
@@ -55,24 +67,16 @@ public class DrawingCurve implements EnumStore.EnumListener {
     private int currentStrokeColor, currentBackgroundColor;
 
     @Inject Datastore store;
+    @Inject EventBus bus;
 
     public DrawingCurve(Context context, int w, int h) {
         ((MainApp) context.getApplicationContext()).getApplicationComponent().inject(this);
+        bus.register(this);
 
         mContext = context;
 
         width = w;
         height = h;
-
-        createInkRect(w, h);
-        mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-        cachedBitmap = BitmapUtils.getCachedBitmap(mContext);
-        mCanvas = new Canvas(mBitmap);
-        drawBitmapToInternalCanvas(cachedBitmap);
-
-        currentPoints = new DrawingPoints();
-        allPoints = new DrawingHistory();
-        redoPoints = new DrawingHistory();
 
         random = new Random();
         rainbow = getRainbowColors();
@@ -80,22 +84,42 @@ public class DrawingCurve implements EnumStore.EnumListener {
         currentStrokeColor = Color.argb(255, random.nextInt(256), random.nextInt(256), random.nextInt(256));
         currentBackgroundColor = store.getLastBackgroundColor();
 
+        createInkRect(w, h);
+        mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+        cachedBitmap = BitmapUtils.getCachedBitmap(mContext);
+        mCanvas = new Canvas(mBitmap);
+        mCanvas.drawColor(currentBackgroundColor);
+        drawBitmapToInternalCanvas(cachedBitmap);
+
+        currentPoints = new DrawingPoints();
+        allPoints = new DrawingHistory();
+        redoPoints = new DrawingHistory();
+
         mPaint = PaintStyles.normal(currentStrokeColor, STROKE_WIDTH);
         inkPaint = PaintStyles.normal(currentStrokeColor, STROKE_WIDTH);
         inkPaint.setStyle(Paint.Style.FILL_AND_STROKE);
         inkPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_ATOP));
     }
 
-    public void resize(int w, int h) {
-        width = w;
-        height = h;
+    public void onValueChanged(State newValue) {
+        mState = newValue;
 
-        Bitmap bitmap = Bitmap.createScaledBitmap(mBitmap, w, h, true);
-        mBitmap.recycle();
-        mBitmap = bitmap;
-        mCanvas = new Canvas(mBitmap);
-
-        drawBitmapToInternalCanvas(cachedBitmap);
+        switch (mState) {
+            case ERASE:
+                mHandler.removeCallbacksAndMessages(null);
+                mPaint = PaintStyles.erase(currentBackgroundColor, 20f);
+                break;
+            case DRAW:
+                mPaint = PaintStyles.normal(currentStrokeColor, STROKE_WIDTH);
+                break;
+            case INK:
+                mHandler.removeCallbacksAndMessages(null);
+                inkPaint.setColor(currentStrokeColor);
+                break;
+            case RAINBOW:
+                paintRunnable.run();
+                break;
+        }
     }
 
     public void reset() {
@@ -107,8 +131,6 @@ public class DrawingCurve implements EnumStore.EnumListener {
     }
 
     public void hardReset(int color) {
-        resetRect();
-
         currentPoints.clear();
         allPoints.clear();
         redoPoints.clear();
@@ -148,7 +170,7 @@ public class DrawingCurve implements EnumStore.EnumListener {
     public void drawToViewCanvas(Canvas canvas) {
         canvas.drawBitmap(mBitmap, 0, 0, null);
 
-        if (mState == ViewCanvas.State.INK) {
+        if (mState == State.INK) {
             canvas.drawRect(inkRect, inkPaint);
         }
     }
@@ -173,8 +195,6 @@ public class DrawingCurve implements EnumStore.EnumListener {
                 return;
             }
         }
-
-        updateRect(x, y);
 
         DrawingPoint toAdd = new DrawingPoint(x, y, SystemClock.currentThreadTimeMillis());
         toAdd.color = mPaint.getColor();
@@ -233,109 +253,98 @@ public class DrawingCurve implements EnumStore.EnumListener {
         lastVelocity = velocity;
     }
 
-    public boolean redo() {
+    public void onEvent(EventRedo eventRedo) {
         if (!redoPoints.isEmpty()) {
             DrawingPoints points = redoPoints.pop();
             allPoints.push(points);
 
-            redraw();
-            return true;
+            redraw(points, false);
+//            redraw();
         }
-        return false;
     }
 
-    public boolean undo() {
+    public void onEvent(EventUndo undo) {
         if (!allPoints.isEmpty()) {
             DrawingPoints points = allPoints.pop();
             redoPoints.push(points);
 
-            redraw();
-            return true;
+            redraw(points, true);
+//            redraw();
         }
-        return false;
     }
 
-    private void redraw() {
+    private void redraw(DrawingPoints points, boolean toUndo) {
         long start = SystemClock.elapsedRealtimeNanos();
 
-        reset();
+//        mCanvas.save();
 
-        drawBitmapToInternalCanvas(cachedBitmap);
-
-        resetRect();
-
-        for (DrawingPoints points: allPoints) {
+        if (toUndo) {
+            Paint paint = new Paint();
+            paint.setColor(currentBackgroundColor);
+            paint.setStrokeWidth(mPaint.getStrokeWidth() + STROKE_WIDTH / 2);
+            for (DrawingPoint point: points) {
+                int pixel = mBitmap.getPixel((int) point.x, (int) point.y);
+//                if (pixel != currentBackgroundColor) {
+//                    paint.setColor(pixel);
+//                }
+                mCanvas.drawPoint(point.x, point.y, paint);
+                paint.setColor(currentBackgroundColor);
+            }
+        } else {
             for (DrawingPoint point: points) {
                 mPaint.setColor(point.color);
                 mCanvas.drawPoint(point.x, point.y, mPaint);
-                updateRect(point.x, point.y);
             }
         }
+
+//        mCanvas.restore();
+
         Logg.log("ELAPSED: " + (SystemClock.elapsedRealtimeNanos() - start) / 1000000000.0);
     }
 
-    public void resetRect() {
-        resetRect(0, 0);
-    }
-
-    public void resetRect(float x, float y) {
-        dirtyRect.left = Math.min(lastTouchX, x);
-        dirtyRect.right = Math.max(lastTouchX, x);
-        dirtyRect.top = Math.min(lastTouchY, y);
-        dirtyRect.bottom = Math.max(lastTouchY, y);
-    }
-
-    public void updateRect(float x, float y) {
-        if (dirtyRect.left < x) {
-            dirtyRect.right = x;
+    public void onEvent(EventShowErase eventShowErase) {
+        if (mState == State.ERASE) {
+            onValueChanged(State.DRAW);
         } else {
-            dirtyRect.right = dirtyRect.left;
-            dirtyRect.left = x;
-        }
-
-        if (dirtyRect.top < y) {
-            dirtyRect.bottom = y;
-        } else {
-            dirtyRect.bottom = dirtyRect.top;
-            dirtyRect.top = y;
+            onValueChanged(State.ERASE);
         }
     }
 
-    public int getCurrentBackgroundColor() { return currentBackgroundColor; }
-
-    public int getPaintColor() {
-        return mPaint.getColor();
+    public void onEvent(EventShowColorize eventColorize) {
+        if (!(mState == State.INK)) {
+            onValueChanged(State.INK);
+        } else {
+            onValueChanged(State.DRAW);
+        }
     }
 
-    public int[] getDirtyRectPos() {
-        return new int[] {
-                Math.round(dirtyRect.left - STROKE_WIDTH / 2),
-                Math.round(dirtyRect.top - STROKE_WIDTH / 2),
-                Math.round(dirtyRect.right + STROKE_WIDTH / 2),
-                Math.round(dirtyRect.bottom + STROKE_WIDTH / 2)
-        };
+    public void onEvent(EventColorChosen eventColorChosen) {
+        if (eventColorChosen.color != 0) {
+            if (eventColorChosen.which.equals(mContext.getResources().getString(R.string.TAG_FRAGMENT_FILL))) {
+                fillCanvas(eventColorChosen.color);
+            } else {
+                changeColor(eventColorChosen.color, eventColorChosen.opacity);
+            }
+        }
     }
 
-    public int[] getInkRectPos() {
-        return new int[] {
-                Math.round(inkRect.left - STROKE_WIDTH / 2),
-                Math.round(inkRect.top - STROKE_WIDTH / 2),
-                Math.round(inkRect.right + STROKE_WIDTH /2),
-                Math.round(inkRect.bottom + STROKE_WIDTH / 2)
-        };
+    public void changeColor(int color, int opacity) {
+        onValueChanged(State.DRAW);
+        setPaintAlpha(opacity);
+        setPaintColor(color);
     }
 
-    public Paint getPaint() { return mPaint; }
+    public void fillCanvas(int color) {
+        onValueChanged(State.DRAW);
 
-    public int getWidth() { return width; }
+        hardReset(color);
 
-    public int getHeight() { return height; }
-
-    public Bitmap getBitmap() { return mBitmap; }
-
-    public float getStaticStrokeWidth() { return STROKE_WIDTH; }
-
-    public void setStaticStrokeWidth(float width) { STROKE_WIDTH = width; }
+        ValueAnimator colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(),
+                currentBackgroundColor, color);
+        colorAnimation.addUpdateListener(animator -> drawColorToInternalCanvas((Integer) animator.getAnimatedValue()));
+        colorAnimation.setDuration(1000);
+        colorAnimation.start();
+    }
 
     public int[] getRainbowColors() {
         return new int[] {
@@ -372,6 +381,8 @@ public class DrawingCurve implements EnumStore.EnumListener {
         }
     }
 
+    public State getState() { return mState; }
+
     public void setPaintThickness(float thickness) {
         mPaint.setStrokeWidth(thickness);
     }
@@ -396,26 +407,6 @@ public class DrawingCurve implements EnumStore.EnumListener {
             inkRect.top = h / 40;
             inkRect.right = h / 5;
             inkRect.bottom = h / 5;
-        }
-    }
-
-    @Override
-    public void onValueChanged(ViewCanvas.State newValue) {
-        mState = newValue;
-
-        switch (mState) {
-            case ERASE:
-                mHandler.removeCallbacksAndMessages(null);
-                mPaint = PaintStyles.erase(currentBackgroundColor, 20f);
-                break;
-            case DRAW:
-            case INK:
-                mHandler.removeCallbacksAndMessages(null);
-                inkPaint.setColor(currentStrokeColor);
-                break;
-            case RAINBOW:
-                paintRunnable.run();
-                break;
         }
     }
 

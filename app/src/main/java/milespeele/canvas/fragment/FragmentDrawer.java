@@ -39,10 +39,6 @@ public class FragmentDrawer extends Fragment {
         View v = inflater.inflate(R.layout.fragment_drawer, container, false);
         ButterKnife.bind(this, v);
 
-        getActivity().getWindow().setFlags(
-                WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
-                WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
-
         return v;
     }
 
