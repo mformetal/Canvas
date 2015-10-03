@@ -126,6 +126,10 @@ public class DrawingCurve {
         mCanvas.drawColor(currentBackgroundColor, PorterDuff.Mode.CLEAR);
     }
 
+    public void resize(int width, int height) {
+
+    }
+
     public void reset(int color) {
         mCanvas.drawColor(color, PorterDuff.Mode.CLEAR);
     }

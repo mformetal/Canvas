@@ -110,6 +110,13 @@ public class ViewCanvasSurface extends SurfaceView implements SurfaceHolder.Call
     }
 
     @Override
+    public void onWindowFocusChanged(boolean hasWindowFocus) {
+        if (!hasWindowFocus)  {
+            //thread.pause();
+        }
+    }
+
+    @Override
     protected Parcelable onSaveInstanceState() {
         thread.onSave();
         return super.onSaveInstanceState();

@@ -21,7 +21,6 @@ import milespeele.canvas.view.ViewCanvasSurface;
 public class DrawingThread extends Thread {
 
     private boolean mRun = false;
-    private int mWidth, mHeight;
 
     private SurfaceHolder mSurfaceHolder;
     private final Object mRunLock = new Object();
@@ -32,9 +31,6 @@ public class DrawingThread extends Thread {
         mSurfaceHolder = holder;
         mContext = context;
         drawingCurve = new DrawingCurve(context, width, height);
-
-        mWidth = width;
-        mHeight = height;
     }
 
     public void setRunning(boolean b) {
@@ -48,9 +44,18 @@ public class DrawingThread extends Thread {
     public void setSurfaceSize(int width, int height) {
         // synchronized to make sure these all change atomically
         synchronized (mSurfaceHolder) {
-            mWidth = width;
-            mHeight = height;
+            drawingCurve.resize(width, height);
         }
+    }
+
+    public void onPause() {
+        synchronized (mSurfaceHolder) {
+
+        }
+    }
+
+    public void onResume() {
+
     }
 
     @Override
@@ -65,13 +70,12 @@ public class DrawingThread extends Thread {
                     //
                     // If mRun has been toggled false, inhibit canvas operations.
                     synchronized (mRunLock) {
-                        if (mRun) doDraw(c);
+                        if (mRun)  {
+                            doDraw(c);
+                        }
                     }
                 }
             } finally {
-                // do this in a finally so that if an exception is thrown
-                // during the above, we don't leave the Surface in an
-                // inconsistent state
                 if (c != null) {
                     mSurfaceHolder.unlockCanvasAndPost(c);
                 }
@@ -94,12 +98,10 @@ public class DrawingThread extends Thread {
         }
 
 //        setInkPosition(event, eventX, eventY);
-//        setEraserPosition(event, eventX, eventY);
     }
 
     public void onTouchMove(MotionEvent event, float eventX, float eventY) {
 //        setInkPosition(event, eventX, eventY);
-//        setEraserPosition(event, eventX, eventY);
 
         switch (drawingCurve.getState()) {
             case RAINBOW:
@@ -116,8 +118,6 @@ public class DrawingThread extends Thread {
 
     public void onTouchUp(MotionEvent event, float eventX, float eventY) {
         //        setInkPosition(event, eventX, eventY);
-//        setEraserPosition(event, eventX, eventY);
-
         drawingCurve.onTouchUp(eventX, eventY);
     }
 
