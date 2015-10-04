@@ -20,22 +20,18 @@ public class BitmapUtils {
 
     private final static String FILENAME = "name";
 
-    public static void cacheBitmap(Context context, Bitmap bitmap) {
-        compressBitmapAsObservable(bitmap)
-                .subscribeOn(Schedulers.io())
-                .subscribe(bytes -> {
-                    try {
-                        final FileOutputStream fos = context.openFileOutput(FILENAME, Context.MODE_PRIVATE);
-                        try {
-                            fos.write(compressBitmapAsByteArray(bitmap));
-                            fos.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    }
-                });
+    public static void cache(Context context, byte[] bytes) {
+        try {
+            final FileOutputStream fos = context.openFileOutput(FILENAME, Context.MODE_PRIVATE);
+            try {
+                fos.write(bytes);
+                fos.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     public static Observable<byte[]> compressBitmapAsObservable(Bitmap bitmap) {

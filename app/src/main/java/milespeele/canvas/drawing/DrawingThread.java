@@ -8,12 +8,21 @@ import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 import javax.inject.Inject;
 
 import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
+import milespeele.canvas.util.BitmapUtils;
 import milespeele.canvas.util.EnumStore;
+import milespeele.canvas.util.Logg;
 import milespeele.canvas.view.ViewCanvasSurface;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
+import rx.schedulers.Schedulers;
 
 /**
  * Created by Miles Peele on 10/2/2015.
@@ -22,15 +31,41 @@ public class DrawingThread extends Thread {
 
     private boolean mRun = false;
 
-    private SurfaceHolder mSurfaceHolder;
+    private final SurfaceHolder mSurfaceHolder;
     private final Object mRunLock = new Object();
     private DrawingCurve drawingCurve;
     private Context mContext;
+
+    public final static int RUNNING = 1;
+    public final static int PAUSED = 2;
+    private int mMode;
 
     public DrawingThread(SurfaceHolder holder, Context context, int width, int height) {
         mSurfaceHolder = holder;
         mContext = context;
         drawingCurve = new DrawingCurve(context, width, height);
+    }
+
+    public void onDestroy() {
+        setRunning(false);
+
+        BitmapUtils.compressBitmapAsObservable(drawingCurve.getBitmap())
+                .subscribeOn(AndroidSchedulers.mainThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(bytes -> {
+                    BitmapUtils.cache(mContext, bytes);
+
+                    boolean retry = true;
+                    setRunning(false);
+                    while (retry) {
+                        try {
+                            join();
+                            retry = false;
+                        } catch (InterruptedException e) {
+                            Logg.log(e);
+                        }
+                    }
+                });
     }
 
     public void setRunning(boolean b) {
@@ -48,16 +83,6 @@ public class DrawingThread extends Thread {
         }
     }
 
-    public void onPause() {
-        synchronized (mSurfaceHolder) {
-
-        }
-    }
-
-    public void onResume() {
-
-    }
-
     @Override
     public void run() {
         while (mRun) {
@@ -65,12 +90,8 @@ public class DrawingThread extends Thread {
             try {
                 c = mSurfaceHolder.lockCanvas(null);
                 synchronized (mSurfaceHolder) {
-                    // Critical section. Do not allow mRun to be set false until
-                    // we are sure all canvas draw operations are complete.
-                    //
-                    // If mRun has been toggled false, inhibit canvas operations.
                     synchronized (mRunLock) {
-                        if (mRun)  {
+                        if (mRun && drawingCurve.isCanDraw())  {
                             doDraw(c);
                         }
                     }
@@ -96,13 +117,10 @@ public class DrawingThread extends Thread {
                 break;
             case INK:
         }
-
-//        setInkPosition(event, eventX, eventY);
     }
 
     public void onTouchMove(MotionEvent event, float eventX, float eventY) {
 //        setInkPosition(event, eventX, eventY);
-
         switch (drawingCurve.getState()) {
             case RAINBOW:
             case ERASE:
@@ -113,6 +131,8 @@ public class DrawingThread extends Thread {
                 drawingCurve.addPoint(eventX, eventY);
                 break;
             case INK:
+                drawingCurve.setInkPaintColorBasedOnPixel(eventX, eventY);
+                break;
         }
     }
 

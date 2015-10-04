@@ -15,6 +15,7 @@ import android.view.SurfaceView;
 
 import milespeele.canvas.drawing.DrawingThread;
 import milespeele.canvas.paint.PaintStyles;
+import milespeele.canvas.util.BitmapUtils;
 import milespeele.canvas.util.Logg;
 
 /**
@@ -48,20 +49,12 @@ public class ViewCanvasSurface extends SurfaceView implements SurfaceHolder.Call
     public void init() {
         setWillNotDraw(false);
         setSaveEnabled(true);
-    }
-
-    @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        super.onSizeChanged(w, h, oldw, oldh);
-
-        SurfaceHolder holder = getHolder();
-        holder.addCallback(this);
-
-        thread = new DrawingThread(holder, getContext(), w, h);
+        getHolder().addCallback(this);
     }
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
+        thread = new DrawingThread(holder, getContext(), getWidth(), getHeight());
         thread.setRunning(true);
         thread.start();
     }
@@ -73,16 +66,7 @@ public class ViewCanvasSurface extends SurfaceView implements SurfaceHolder.Call
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
-        boolean retry = true;
-        thread.setRunning(false);
-        while (retry) {
-            try {
-                thread.join();
-                retry = false;
-            } catch (InterruptedException e) {
-                Logg.log(e);
-            }
-        }
+        thread.onDestroy();
     }
 
     @Override
@@ -112,13 +96,7 @@ public class ViewCanvasSurface extends SurfaceView implements SurfaceHolder.Call
     @Override
     public void onWindowFocusChanged(boolean hasWindowFocus) {
         if (!hasWindowFocus)  {
-            //thread.pause();
+            thread.onSave();
         }
-    }
-
-    @Override
-    protected Parcelable onSaveInstanceState() {
-        thread.onSave();
-        return super.onSaveInstanceState();
     }
 }

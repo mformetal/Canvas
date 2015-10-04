@@ -13,6 +13,8 @@ public class DrawingPoint {
     public float y;
     public long time;
     public int color;
+    public float width;
+    public Paint paint;
 
     public DrawingPoint(float x, float y, long time) {
         this.x = x;

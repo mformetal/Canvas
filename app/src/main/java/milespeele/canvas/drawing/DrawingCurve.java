@@ -12,6 +12,7 @@ import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.RectF;
+import android.graphics.Xfermode;
 import android.os.Handler;
 import android.os.SystemClock;
 
@@ -65,6 +66,7 @@ public class DrawingCurve {
     private float lastTouchX, lastTouchY, lastWidth, lastVelocity;
     private int[] rainbow;
     private int currentStrokeColor, currentBackgroundColor;
+    private boolean canDraw = true;
 
     @Inject Datastore store;
     @Inject EventBus bus;
@@ -135,6 +137,8 @@ public class DrawingCurve {
     }
 
     public void hardReset(int color) {
+        canDraw = false;
+
         currentPoints.clear();
         allPoints.clear();
         redoPoints.clear();
@@ -154,6 +158,8 @@ public class DrawingCurve {
         }
 
         reset(color);
+
+        canDraw = true;
     }
 
     public void setPaint(Paint paint) {
@@ -187,8 +193,14 @@ public class DrawingCurve {
 
         addPoint(eventX, eventY);
 
+        onInkPaintTouchUp();
+
         allPoints.push(currentPoints);
         currentPoints.clear();
+
+        if (mState == State.INK) {
+            onValueChanged(State.DRAW);
+        }
     }
 
     public void addPoint(float x, float y) {
@@ -201,7 +213,7 @@ public class DrawingCurve {
         }
 
         DrawingPoint toAdd = new DrawingPoint(x, y, SystemClock.currentThreadTimeMillis());
-        toAdd.color = mPaint.getColor();
+        toAdd.paint = mPaint;
         currentPoints.add(toAdd);
 
         if (prevPoint == null) {
@@ -220,7 +232,6 @@ public class DrawingCurve {
             case ERASE:
                 mCanvas.drawLine(previous.x, previous.y, current.x, current.y, mPaint);
                 break;
-            case INK:
         }
     }
 
@@ -235,7 +246,7 @@ public class DrawingCurve {
         float diff = strokeWidth - lastWidth;
 
         float xa, xb, ya, yb, x, y;
-        for (float i = 0; i < 1; i += .01) {
+        for (float i = 0; i < 1; i += .1) {
             xa = previous.x + (previous.x - mid.x) * i;
             ya = previous.y + (previous.y - mid.y) * i;
 
@@ -248,7 +259,7 @@ public class DrawingCurve {
             mPaint.setStrokeWidth(lastWidth + diff * i);
 
             DrawingPoint toAdd = new DrawingPoint(x, y, 0);
-            toAdd.color = mPaint.getColor();
+            toAdd.paint = mPaint;
             currentPoints.add(toAdd);
             mCanvas.drawLine(previous.x, previous.y, x, y, mPaint);
         }
@@ -263,7 +274,6 @@ public class DrawingCurve {
             allPoints.push(points);
 
             redraw(points, false);
-//            redraw();
         }
     }
 
@@ -273,35 +283,44 @@ public class DrawingCurve {
             redoPoints.push(points);
 
             redraw(points, true);
-//            redraw();
         }
     }
 
     private void redraw(DrawingPoints points, boolean toUndo) {
         long start = SystemClock.elapsedRealtimeNanos();
 
-//        mCanvas.save();
-
         if (toUndo) {
-            Paint paint = new Paint();
-            paint.setColor(currentBackgroundColor);
-            paint.setStrokeWidth(mPaint.getStrokeWidth() + STROKE_WIDTH / 2);
-            for (DrawingPoint point: points) {
-                int pixel = mBitmap.getPixel((int) point.x, (int) point.y);
-//                if (pixel != currentBackgroundColor) {
-//                    paint.setColor(pixel);
+            Paint paint = PaintStyles.erase(currentBackgroundColor, mPaint.getStrokeWidth() + 2f);
+            paint.setStyle(Paint.Style.FILL_AND_STROKE);
+            for (int i = 0; i <= points.size(); i++) {
+                if (i == points.size() - 1) {
+                    DrawingPoint point = points.get(i);
+                    mCanvas.drawPoint(point.x, point.y, paint);
+                    break;
+                }
+                DrawingPoint from = points.get(i);
+                DrawingPoint to = points.get(i + 1);
+//                if (mBitmap.getPixel((int) from.x, (int) from.y) != currentBackgroundColor) {
+//                    Logg.log(mBitmap.getPixel((int) from.x, (int) from.y));
+//                    paint.setColor(mBitmap.getPixel((int) from.x, (int) from.y));
 //                }
-                mCanvas.drawPoint(point.x, point.y, paint);
-                paint.setColor(currentBackgroundColor);
+                mCanvas.drawLine(from.x, from.y, to.x, to.y, paint);
             }
         } else {
-            for (DrawingPoint point: points) {
-                mPaint.setColor(point.color);
-                mCanvas.drawPoint(point.x, point.y, mPaint);
+            Paint redo = new Paint(mPaint);
+            for (int i = 0; i <= points.size(); i++) {
+                if (i == points.size() - 1) {
+                    DrawingPoint point = points.get(i);
+                    redo.set(point.paint);
+                    mCanvas.drawPoint(point.x, point.y, mPaint);
+                    break;
+                }
+                DrawingPoint from = points.get(i);
+                DrawingPoint to = points.get(i + 1);
+                redo.set(to.paint);
+                mCanvas.drawLine(from.x, from.y, to.x, to.y, mPaint);
             }
         }
-
-//        mCanvas.restore();
 
         Logg.log("ELAPSED: " + (SystemClock.elapsedRealtimeNanos() - start) / 1000000000.0);
     }
@@ -348,6 +367,12 @@ public class DrawingCurve {
         colorAnimation.addUpdateListener(animator -> drawColorToInternalCanvas((Integer) animator.getAnimatedValue()));
         colorAnimation.setDuration(1000);
         colorAnimation.start();
+
+        currentBackgroundColor = color;
+    }
+
+    public boolean isCanDraw() {
+        return canDraw;
     }
 
     public int[] getRainbowColors() {
@@ -362,7 +387,7 @@ public class DrawingCurve {
         };
     }
 
-    public int setInkPaintColorBasedOnPixel(float eventX, float eventY) {
+    public void setInkPaintColorBasedOnPixel(float eventX, float eventY) {
         int color = mBitmap.getPixel(Math.round(eventX), Math.round(eventY));
         int colorToChangeTo;
         if (color != currentBackgroundColor)  {
@@ -372,7 +397,6 @@ public class DrawingCurve {
         }
 
         inkPaint.setColor(colorToChangeTo);
-        return colorToChangeTo;
     }
 
     public void onInkPaintTouchUp() {
@@ -387,9 +411,7 @@ public class DrawingCurve {
 
     public State getState() { return mState; }
 
-    public void setPaintThickness(float thickness) {
-        mPaint.setStrokeWidth(thickness);
-    }
+    public Bitmap getBitmap() { return mBitmap; }
 
     public void setPaintAlpha(int opacity) {
         mPaint.setAlpha(opacity);
@@ -415,7 +437,6 @@ public class DrawingCurve {
     }
 
     public void onSave() {
-        BitmapUtils.cacheBitmap(mContext, mBitmap);
         store.setLastBackgroundColor(currentBackgroundColor);
     }
 
