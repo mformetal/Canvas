@@ -1,14 +1,14 @@
 package milespeele.canvas.drawing;
 
-import android.animation.Animator;
 import android.animation.ArgbEvaluator;
-import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Path;
+import android.graphics.PixelXorXfermode;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.RectF;
@@ -29,12 +29,9 @@ import milespeele.canvas.event.EventShowColorize;
 import milespeele.canvas.event.EventShowErase;
 import milespeele.canvas.event.EventUndo;
 import milespeele.canvas.paint.PaintStyles;
-import milespeele.canvas.util.AbstractAnimatorListener;
 import milespeele.canvas.util.BitmapUtils;
 import milespeele.canvas.util.Datastore;
-import milespeele.canvas.util.EnumStore;
 import milespeele.canvas.util.Logg;
-import milespeele.canvas.view.ViewCanvasSurface;
 
 /**
  * Created by mbpeele on 9/25/15.
@@ -88,9 +85,9 @@ public class DrawingCurve {
 
         createInkRect(w, h);
         mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+        mBitmap.eraseColor(currentBackgroundColor);
         cachedBitmap = BitmapUtils.getCachedBitmap(mContext);
         mCanvas = new Canvas(mBitmap);
-        mCanvas.drawColor(currentBackgroundColor);
         drawBitmapToInternalCanvas(cachedBitmap);
 
         currentPoints = new DrawingPoints();
@@ -98,12 +95,13 @@ public class DrawingCurve {
         redoPoints = new DrawingHistory();
 
         mPaint = PaintStyles.normal(currentStrokeColor, STROKE_WIDTH);
+        mPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_OVER));
         inkPaint = PaintStyles.normal(currentStrokeColor, STROKE_WIDTH);
         inkPaint.setStyle(Paint.Style.FILL_AND_STROKE);
         inkPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_ATOP));
     }
 
-    public void onValueChanged(State newValue) {
+    public void changeState(State newValue) {
         mState = newValue;
 
         switch (mState) {
@@ -199,7 +197,7 @@ public class DrawingCurve {
         currentPoints.clear();
 
         if (mState == State.INK) {
-            onValueChanged(State.DRAW);
+            changeState(State.DRAW);
         }
     }
 
@@ -300,10 +298,6 @@ public class DrawingCurve {
                 }
                 DrawingPoint from = points.get(i);
                 DrawingPoint to = points.get(i + 1);
-//                if (mBitmap.getPixel((int) from.x, (int) from.y) != currentBackgroundColor) {
-//                    Logg.log(mBitmap.getPixel((int) from.x, (int) from.y));
-//                    paint.setColor(mBitmap.getPixel((int) from.x, (int) from.y));
-//                }
                 mCanvas.drawLine(from.x, from.y, to.x, to.y, paint);
             }
         } else {
@@ -327,17 +321,17 @@ public class DrawingCurve {
 
     public void onEvent(EventShowErase eventShowErase) {
         if (mState == State.ERASE) {
-            onValueChanged(State.DRAW);
+            changeState(State.DRAW);
         } else {
-            onValueChanged(State.ERASE);
+            changeState(State.ERASE);
         }
     }
 
     public void onEvent(EventShowColorize eventColorize) {
         if (!(mState == State.INK)) {
-            onValueChanged(State.INK);
+            changeState(State.INK);
         } else {
-            onValueChanged(State.DRAW);
+            changeState(State.DRAW);
         }
     }
 
@@ -352,13 +346,13 @@ public class DrawingCurve {
     }
 
     public void changeColor(int color, int opacity) {
-        onValueChanged(State.DRAW);
+        changeState(State.DRAW);
         setPaintAlpha(opacity);
         setPaintColor(color);
     }
 
     public void fillCanvas(int color) {
-        onValueChanged(State.DRAW);
+        changeState(State.DRAW);
 
         hardReset(color);
 
