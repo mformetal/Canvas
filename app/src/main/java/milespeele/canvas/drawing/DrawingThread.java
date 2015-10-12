@@ -108,37 +108,16 @@ public class DrawingThread extends Thread {
         drawingCurve.drawToViewCanvas(canvas);
     }
 
-    public void onTouchDown(MotionEvent event, float eventX, float eventY) {
-        switch (drawingCurve.getState()) {
-            case DRAW:
-            case RAINBOW:
-            case ERASE:
-                drawingCurve.addPoint(eventX, eventY);
-                break;
-            case INK:
-        }
+    public void onTouchDown(MotionEvent event) {
+        drawingCurve.addPoint(event.getX(), event.getY());
     }
 
-    public void onTouchMove(MotionEvent event, float eventX, float eventY) {
-//        setInkPosition(event, eventX, eventY);
-        switch (drawingCurve.getState()) {
-            case RAINBOW:
-            case ERASE:
-            case DRAW:
-                for (int i = 0; i < event.getHistorySize(); i++) {
-                    drawingCurve.addPoint(event.getHistoricalX(i), event.getHistoricalY(i));
-                }
-                drawingCurve.addPoint(eventX, eventY);
-                break;
-            case INK:
-                drawingCurve.setInkPaintColorBasedOnPixel(eventX, eventY);
-                break;
-        }
+    public void onTouchMove(MotionEvent event) {
+        drawingCurve.parseMotionEvent(event);
     }
 
-    public void onTouchUp(MotionEvent event, float eventX, float eventY) {
-        //        setInkPosition(event, eventX, eventY);
-        drawingCurve.onTouchUp(eventX, eventY);
+    public void onTouchUp(MotionEvent event) {
+        drawingCurve.onTouchUp(event.getX(), event.getY());
     }
 
     public void onSave() {

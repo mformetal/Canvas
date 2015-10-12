@@ -1,5 +1,7 @@
 package milespeele.canvas.drawing;
 
+import android.graphics.Paint;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -12,12 +14,20 @@ import milespeele.canvas.util.Logg;
  */
 public class DrawingPoints extends ArrayList<DrawingPoint> {
 
+    public Paint paint;
+
     public DrawingPoints() {
         super();
     }
 
     public DrawingPoints(DrawingPoints other) {
         super(other);
+        paint = new Paint(other.paint);
+    }
+
+    public DrawingPoints(Paint paint) {
+        super();
+        paint = new Paint(paint);
     }
 
     public DrawingPoint peek() {

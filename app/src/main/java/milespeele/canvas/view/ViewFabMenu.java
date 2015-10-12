@@ -23,6 +23,7 @@ import butterknife.OnClick;
 import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
+import milespeele.canvas.event.EventBrushChosen;
 import milespeele.canvas.event.EventColorChosen;
 import milespeele.canvas.event.EventFilenameChosen;
 import milespeele.canvas.event.EventParseError;
@@ -169,6 +170,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
         R.id.menu_redo, R.id.menu_erase, R.id.menu_show, R.id.menu_new_canvas, R.id.menu_save,
         R.id.menu_shape_chooser})
     public void onClick(View v) {
+        v.performClick();
         ViewCanvasLayout parent = ((ViewCanvasLayout) getParent());
         switch (v.getId()) {
             case R.id.menu_show:
@@ -179,7 +181,6 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
                 bus.post(new EventShowColorize());
                 break;
             case R.id.menu_size:
-                eraser.scaleDown();
                 bus.post(new EventShowBrushPicker(parent.getBrushWidth(), parent.getBrushColor()));
                 break;
             case R.id.menu_stroke_color:
@@ -315,6 +316,12 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
             } else {
                 eraser.scaleDown();
             }
+        }
+    }
+
+    public void onEvent(EventBrushChosen eventBrushChosen) {
+        if (eventBrushChosen.paint != null) {
+            eraser.scaleDown();
         }
     }
 

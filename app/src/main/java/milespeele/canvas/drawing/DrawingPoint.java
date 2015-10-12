@@ -2,6 +2,8 @@ package milespeele.canvas.drawing;
 
 import android.graphics.Paint;
 
+import com.google.common.base.Objects;
+
 import milespeele.canvas.util.Logg;
 
 /**
@@ -12,14 +14,20 @@ public class DrawingPoint {
     public float x;
     public float y;
     public long time;
-    public int color;
     public float width;
-    public Paint paint;
+    public int undo;
 
     public DrawingPoint(float x, float y, long time) {
         this.x = x;
         this.y = y;
         this.time = time;
+    }
+
+    public DrawingPoint(float x, float y, long time, float width) {
+        this.x = x;
+        this.y = y;
+        this.time = time;
+        this.width = width;
     }
 
     public float distanceTo(DrawingPoint p) {
@@ -35,6 +43,22 @@ public class DrawingPoint {
 
     public DrawingPoint midPoint(DrawingPoint p2) {
         return new DrawingPoint((x + p2.x) / 2.0f, (y + p2.y) / 2, (time + p2.time) / 2);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof DrawingPoint)) return false;
+        DrawingPoint point = (DrawingPoint) o;
+        return Objects.equal(x, point.x) &&
+                Objects.equal(y, point.y) &&
+                Objects.equal(time, point.time) &&
+                Objects.equal(width, point.width);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(x, y, time, width);
     }
 
     @Override

@@ -3,6 +3,8 @@ package milespeele.canvas.util;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.DisplayMetrics;
+import android.view.WindowManager;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
@@ -52,6 +54,12 @@ public class BitmapUtils {
         options.inMutable = true;
         options.inDither = true;
         options.inPreferQualityOverSpeed = true;
+        options.inScaled = false;
+
+        DisplayMetrics metrics = new DisplayMetrics();
+        WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        windowManager.getDefaultDisplay().getMetrics(metrics);
+        options.inDensity = metrics.densityDpi;
 
         try {
             FileInputStream test = context.openFileInput(FILENAME);

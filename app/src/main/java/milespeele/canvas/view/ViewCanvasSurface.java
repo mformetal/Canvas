@@ -78,16 +78,16 @@ public class ViewCanvasSurface extends SurfaceView implements SurfaceHolder.Call
         switch (actionMasked & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
             case MotionEvent.ACTION_POINTER_DOWN:
-                thread.onTouchDown(event, eventX, eventY);
+                thread.onTouchDown(event);
                 break;
 
             case MotionEvent.ACTION_MOVE:
-                thread.onTouchMove(event, eventX, eventY);
+                thread.onTouchMove(event);
                 break;
 
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_POINTER_UP:
-                thread.onTouchUp(event, eventX, eventY);
+                thread.onTouchUp(event);
                 break;
         }
         return true;
