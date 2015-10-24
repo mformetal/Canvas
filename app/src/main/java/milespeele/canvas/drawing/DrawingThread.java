@@ -1,28 +1,13 @@
 package milespeele.canvas.drawing;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.support.design.widget.Snackbar;
 import android.view.MotionEvent;
-import android.view.Surface;
 import android.view.SurfaceHolder;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-
-import javax.inject.Inject;
-
-import de.greenrobot.event.EventBus;
-import milespeele.canvas.MainApp;
 import milespeele.canvas.util.BitmapUtils;
-import milespeele.canvas.util.EnumStore;
 import milespeele.canvas.util.Logg;
-import milespeele.canvas.view.ViewCanvasSurface;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
-import rx.schedulers.Schedulers;
 
 /**
  * Created by Miles Peele on 10/2/2015.
@@ -35,10 +20,6 @@ public class DrawingThread extends Thread {
     private final Object mRunLock = new Object();
     private DrawingCurve drawingCurve;
     private Context mContext;
-
-    public final static int RUNNING = 1;
-    public final static int PAUSED = 2;
-    private int mMode;
 
     public DrawingThread(SurfaceHolder holder, Context context, int width, int height) {
         mSurfaceHolder = holder;
@@ -91,7 +72,7 @@ public class DrawingThread extends Thread {
                 c = mSurfaceHolder.lockCanvas(null);
                 synchronized (mSurfaceHolder) {
                     synchronized (mRunLock) {
-                        if (mRun && drawingCurve.isCanDraw())  {
+                        if (mRun && drawingCurve.canDraw())  {
                             doDraw(c);
                         }
                     }
@@ -122,5 +103,9 @@ public class DrawingThread extends Thread {
 
     public void onSave() {
         drawingCurve.onSave();
+    }
+
+    public DrawingCurve getDrawingCurve() {
+        return drawingCurve;
     }
 }

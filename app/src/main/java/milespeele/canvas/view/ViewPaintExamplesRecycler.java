@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.View;
+import android.widget.LinearLayout;
 
 import java.util.ArrayList;
 
@@ -15,14 +16,13 @@ import milespeele.canvas.adapter.AdapterPojoPaintExamples;
 import milespeele.canvas.paint.PaintStyles;
 import milespeele.canvas.pojo.PojoPaintExample;
 import milespeele.canvas.util.ItemClickSupport;
+import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.WrapContentLinearLayoutManager;
 
 /**
  * Created by Miles Peele on 9/17/2015.
  */
 public class ViewPaintExamplesRecycler extends RecyclerView implements ItemClickSupport.OnItemClickListener {
-
-    private AdapterPojoPaintExamples adapter;
 
     private int color;
 
@@ -50,26 +50,19 @@ public class ViewPaintExamplesRecycler extends RecyclerView implements ItemClick
 
     @Override
     public void onItemClicked(RecyclerView recyclerView, int position, View v) {
-        ViewBrushLayoutPaintExampleLayout layout = (ViewBrushLayoutPaintExampleLayout) v;
+        ViewBrushLayoutPaintExample example = (ViewBrushLayoutPaintExample) ((LinearLayout) v).getChildAt(1);
 
-       adapter.updateTextViewColorAtPosition(position, Color.WHITE);
-
-        ((ViewBrushLayout) getParent()).changeExamplePaint(layout.getPaintFromExample());
-
-        adapter.updateAllTextViewColors(position);
+        ((ViewBrushLayout) getParent()).changeExamplePaint(example.getExamplePaint());
     }
 
-    public void createList(Context context) {
+    private void createList(Context context) {
         String[] myResArray = context.getResources().getStringArray(R.array.paint_examples);
         ArrayList<PojoPaintExample> arrayList = new ArrayList<>();
         for (String res: myResArray) {
             arrayList.add(new PojoPaintExample(res.substring(0,1).toUpperCase() + res.substring(1),
                     PaintStyles.getStyleFromName(res, getColor())));
         }
-        adapter = new AdapterPojoPaintExamples(arrayList);
-        AlphaInAnimationAdapter alphaInAnimationAdapter = new AlphaInAnimationAdapter(adapter);
-        alphaInAnimationAdapter.setFirstOnly(false);
-        setAdapter(alphaInAnimationAdapter);
+        setAdapter(new AdapterPojoPaintExamples(arrayList));
     }
 
     public void setColor(int color) {

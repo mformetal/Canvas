@@ -61,20 +61,21 @@ public class ViewBrushLayoutSizer extends View {
     }
 
     private void init() {
-        setLayerType(LAYER_TYPE_SOFTWARE, null);
-
-        paint = PaintStyles.normal(Color.WHITE, 5f);
+        paint = PaintStyles.normal(Color.WHITE, 20f);
 
         rectPaint = PaintStyles.normal(getResources().getColor(R.color.primary_dark), 5f);
         rectPaint.setStyle(Paint.Style.FILL);
         rectPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
 
         path = new Path();
+
+        setWillNotDraw(false);
     }
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
+
         int startX = w / 10;
         int endX = w - startX;
         path.moveTo(startX, h / 2);

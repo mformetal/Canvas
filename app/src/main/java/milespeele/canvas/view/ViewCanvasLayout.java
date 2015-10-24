@@ -20,7 +20,7 @@ import milespeele.canvas.R;
  */
 public class ViewCanvasLayout extends CoordinatorLayout {
 
-//    @Bind(R.id.fragment_drawer_canvas) ViewCanvas drawer;
+    @Bind(R.id.fragment_drawer_canvas) ViewCanvasSurface drawer;
     @Bind(R.id.fragment_drawer_menu) ViewFabMenu menu;
 
     private boolean mIsMoving = false;
@@ -64,7 +64,7 @@ public class ViewCanvasLayout extends CoordinatorLayout {
     protected void onFinishInflate() {
         super.onFinishInflate();
         ButterKnife.bind(this);
-//        drawer.requestFocus();
+        drawer.requestFocus();
     }
 
     @Override
@@ -95,22 +95,14 @@ public class ViewCanvasLayout extends CoordinatorLayout {
     }
 
     public float getBrushWidth() {
-//        return drawer.getBrushWidth();
-        return 0;
+        return drawer.getBrushWidth();
     }
 
     public int getBrushColor() {
-//        return drawer.getCurrentStrokeColor();
-        return 0;
+        return drawer.getBrushColor();
     }
 
     public Bitmap getDrawerBitmap() {
-//        return drawer.getDrawingBitmap();
-        return null;
-    }
-
-    public int getDrawerColor() {
-//        return drawer.getCurrentStrokeColor();
-        return 0;
+        return drawer.getDrawingBitmap();
     }
 }

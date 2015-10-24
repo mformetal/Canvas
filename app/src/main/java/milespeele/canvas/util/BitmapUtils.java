@@ -71,4 +71,9 @@ public class BitmapUtils {
 
         return bitmap;
     }
+
+    public static Bitmap resize(Bitmap bitmap, int maxWidth, int maxHeight) {
+        int aspectRatio = bitmap.getWidth() / bitmap.getHeight();
+        return null;
+    }
 }

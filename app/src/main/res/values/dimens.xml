@@ -15,4 +15,6 @@
     <dimen name="dialog_body_text_size">15sp</dimen>
     <dimen name="dialog_view_vertical_margin">20dp</dimen>
     <dimen name="dialog_view_horizontal_margin">15dp</dimen>
+
+    <dimen name="title_text_size">30sp</dimen>
 </resources>

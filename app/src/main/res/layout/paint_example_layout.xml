@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<milespeele.canvas.view.ViewBrushLayoutPaintExampleLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="horizontal"
@@ -25,4 +25,4 @@
         android:layout_marginRight="@dimen/paint_example_items_margin"
         android:layout_marginEnd="@dimen/paint_example_items_margin" />
 
-</milespeele.canvas.view.ViewBrushLayoutPaintExampleLayout>
+</LinearLayout>

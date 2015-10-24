@@ -16,21 +16,18 @@ public class DrawingPoints extends ArrayList<DrawingPoint> {
 
     public Paint paint;
 
-    public DrawingPoints() {
-        super();
-    }
-
     public DrawingPoints(DrawingPoints other) {
         super(other);
         paint = new Paint(other.paint);
     }
 
-    public DrawingPoints(Paint paint) {
+    public DrawingPoints(Paint other) {
         super();
-        paint = new Paint(paint);
+        paint = new Paint(other);
     }
 
     public DrawingPoint peek() {
         return get(size() - 1);
     }
+
 }

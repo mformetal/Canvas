@@ -14,6 +14,7 @@ import butterknife.ButterKnife;
 import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
+import milespeele.canvas.event.EventDashboardButtonClicked;
 import milespeele.canvas.event.EventFilenameChosen;
 import milespeele.canvas.event.EventParseError;
 import milespeele.canvas.event.EventShowBrushPicker;
@@ -23,6 +24,7 @@ import milespeele.canvas.event.EventShowShapeChooser;
 import milespeele.canvas.event.EventShowStrokePickerColor;
 import milespeele.canvas.fragment.FragmentBrushPicker;
 import milespeele.canvas.fragment.FragmentColorPicker;
+import milespeele.canvas.fragment.FragmentDashboard;
 import milespeele.canvas.fragment.FragmentDrawer;
 import milespeele.canvas.fragment.FragmentFilename;
 import milespeele.canvas.parse.Masterpiece;
@@ -37,6 +39,7 @@ public class ActivityHome extends ActivityBase {
     private final static String TAG_FRAGMENT_FILL = "New Canvas Color";
     private final static String TAG_FRAGMENT_FILENAME = "name";
     private final static String TAG_FRAGMENT_BRUSH = "brush";
+    private final static String TAG_FRAGMENT_DASHBOARD = "dash";
 
     @Inject ParseUtils parseUtils;
     @Inject EventBus bus;
@@ -52,12 +55,29 @@ public class ActivityHome extends ActivityBase {
 
         bus.register(this);
 
-        addDrawerFragment();
+        addDashboardFragment();
+    }
+
+    @Override
+    public void onBackPressed() {
+        int count = getFragmentManager().getBackStackEntryCount();
+        if (count == 0) {
+            super.onBackPressed();
+        } else {
+            getFragmentManager().popBackStack();
+        }
     }
 
     private void addDrawerFragment() {
         getFragmentManager().beginTransaction()
-                .add(R.id.activity_home_fragment_frame, FragmentDrawer.newInstance(), TAG_FRAGMENT_DRAWER)
+                .replace(R.id.activity_home_fragment_frame, FragmentDrawer.newInstance(), TAG_FRAGMENT_DRAWER)
+                .addToBackStack(TAG_FRAGMENT_DRAWER)
+                .commit();
+    }
+
+    private void addDashboardFragment() {
+        getFragmentManager().beginTransaction()
+                .add(R.id.activity_home_fragment_frame, FragmentDashboard.newInstance(), TAG_FRAGMENT_DASHBOARD)
                 .commit();
     }
 
@@ -117,5 +137,16 @@ public class ActivityHome extends ActivityBase {
 
     public void onEvent(EventShowShapeChooser eventShowShapeChooser) {
 
+    }
+
+    public void onEvent(EventDashboardButtonClicked clicked) {
+        switch (clicked.id) {
+            case R.id.dashboard_draw:
+                addDrawerFragment();
+                break;
+            case R.id.dashboard_gallery:
+            case R.id.dashboard_profile:
+            case R.id.dashboard_social:
+        }
     }
 }

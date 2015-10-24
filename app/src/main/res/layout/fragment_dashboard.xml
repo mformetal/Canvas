@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<milespeele.canvas.view.ViewDashboard
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/primary"
+    android:id="@+id/fragment_dashboard_root" >
+
+    <milespeele.canvas.view.ViewTypefaceTextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/white"
+        android:gravity="center"
+        android:textSize="30sp"
+        android:text="@string/app_name" />
+
+    <milespeele.canvas.view.ViewDashboardButton
+        android:id="@+id/dashboard_draw"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:text="DRAW"
+        app:image="@drawable/ic_dashboard_new_painting"
+        app:squareColor="@color/primary_dark" />
+
+    <milespeele.canvas.view.ViewDashboardButton
+        app:image="@drawable/ic_dashboard_gallery"
+        android:id="@+id/dashboard_gallery"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:text="IMPORT"
+        app:squareColor="@color/accent" />
+
+    <milespeele.canvas.view.ViewDashboardButton
+        app:image="@drawable/ic_dashboard_social"
+        android:id="@+id/dashboard_social"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:text="SOCIAL"
+        app:squareColor="@color/primary_light" />
+
+    <milespeele.canvas.view.ViewDashboardButton
+        app:image="@drawable/ic_dashboard_profile"
+        android:id="@+id/dashboard_profile"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:text="PROFILE"
+        app:squareColor="@color/purple" />
+
+</milespeele.canvas.view.ViewDashboard>

@@ -118,7 +118,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
 
         int width = getDefaultSize(getSuggestedMinimumWidth(), widthMeasureSpec);
 
-        setMeasuredDimension(width, width);
+        setMeasuredDimension(width, width >> 1);
     }
 
     @Override
@@ -185,7 +185,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
                 break;
             case R.id.menu_stroke_color:
                 eraser.scaleDown();
-                bus.post(new EventShowStrokePickerColor(parent.getDrawerColor()));
+                bus.post(new EventShowStrokePickerColor(parent.getBrushColor()));
                 break;
             case R.id.menu_undo:
                 bus.post(new EventUndo());

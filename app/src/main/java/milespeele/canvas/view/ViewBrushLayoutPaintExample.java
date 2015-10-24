@@ -90,11 +90,6 @@ public class ViewBrushLayoutPaintExample extends View {
         invalidate();
     }
 
-    public void onThicknessChanged(float thickness) {
-        examplePaint.setStrokeWidth(thickness);
-        invalidate();
-    }
-
     public Paint getExamplePaint() {
         return examplePaint;
     }

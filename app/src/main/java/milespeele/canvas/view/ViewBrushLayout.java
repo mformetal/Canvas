@@ -47,7 +47,8 @@ public class ViewBrushLayout extends LinearLayout implements SeekBar.OnSeekBarCh
     }
 
     private void init() {
-        setClipChildren(false);
+        setOrientation(VERTICAL);
+        setClipChildren(true);
     }
 
     @Override

@@ -72,11 +72,7 @@ public class ViewTypefaceTextView extends TextView {
         }
     }
 
-    public void animateTextColorChange(int colorTo) {
-        if (getCurrentTextColor() != colorTo) {
-            ValueAnimator colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), getCurrentTextColor(), colorTo);
-            colorAnimation.addUpdateListener(animator -> setTextColor((Integer) animator.getAnimatedValue()));
-            colorAnimation.start();
-        }
+    public String getTextAsString() {
+        return getText().toString();
     }
 }

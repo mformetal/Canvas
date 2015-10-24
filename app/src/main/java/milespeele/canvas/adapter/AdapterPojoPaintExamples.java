@@ -33,10 +33,6 @@ public class AdapterPojoPaintExamples extends RecyclerView.Adapter<AdapterPojoPa
     }
 
     private List<PojoPaintExample> dataList;
-    private int mDuration = 300;
-    private Interpolator mInterpolator = new LinearInterpolator();
-    private int mLastPosition = -1;
-    private boolean isFirstOnly = true;
 
     public AdapterPojoPaintExamples(List<PojoPaintExample> list) {
         dataList = list;
@@ -44,12 +40,10 @@ public class AdapterPojoPaintExamples extends RecyclerView.Adapter<AdapterPojoPa
 
     @Override
     public AdapterPojoPaintExamples.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
-        View itemView = LayoutInflater.from(viewGroup.getContext())
+        return new ViewHolder(LayoutInflater.from(viewGroup.getContext())
                 .inflate(R.layout.paint_example_layout,
                         viewGroup,
-                        false);
-
-        return new ViewHolder(itemView);
+                        false));
     }
 
     @Override
@@ -69,16 +63,4 @@ public class AdapterPojoPaintExamples extends RecyclerView.Adapter<AdapterPojoPa
         return dataList.size();
     }
 
-    public void updateAllTextViewColors(int posNotToUpdate) {
-        for (int i = 0; i < dataList.size(); i++) {
-            if (i != posNotToUpdate) {
-                dataList.get(i).setColorForText(Color.WHITE);
-            }
-        }
-        notifyDataSetChanged();
-    }
-
-    public void updateTextViewColorAtPosition(int position, int color) {
-        dataList.get(position).setColorForText(color);
-    }
 }

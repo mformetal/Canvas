@@ -1,35 +1,30 @@
 package milespeele.canvas.fragment;
 
 import android.animation.Animator;
-import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
-import android.app.Activity;
 import android.app.Fragment;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
-
-import javax.inject.Inject;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import de.greenrobot.event.EventBus;
-import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
-import milespeele.canvas.util.Logg;
 import milespeele.canvas.view.ViewCanvasLayout;
+import milespeele.canvas.view.ViewDashboard;
 
-public class FragmentDrawer extends Fragment {
+/**
+ * Created by mbpeele on 10/19/15.
+ */
+public class FragmentDashboard extends Fragment {
 
-    @Bind(R.id.fragment_drawer_coordinator) ViewCanvasLayout coordinatorLayout;
+    @Bind(R.id.fragment_dashboard_root) ViewDashboard viewDashboard;
 
-    public FragmentDrawer() {}
+    public FragmentDashboard() {}
 
-    public static FragmentDrawer newInstance() {
-        return new FragmentDrawer();
+    public static FragmentDashboard newInstance() {
+        return new FragmentDashboard();
     }
 
     @Override
@@ -40,19 +35,25 @@ public class FragmentDrawer extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_drawer, container, false);
+        View v = inflater.inflate(R.layout.fragment_dashboard, container, false);
         ButterKnife.bind(this, v);
         return v;
     }
+
+//    @Override
+//    public Animator onCreateAnimator(int transit, boolean enter, int nextAnim) {
+//        if (enter) {
+//            return super.onCreateAnimator(transit, enter, nextAnim);
+//        } else {
+//            ObjectAnimator anim = ObjectAnimator.ofFloat(this, "alpha", 1, 0);
+//            anim.setDuration(300 << 2);
+//            return anim;
+//        }
+//    }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         ButterKnife.unbind(this);
     }
-
-    public Bitmap giveBitmapToActivity() {
-        return coordinatorLayout.getDrawerBitmap();
-    }
-
 }

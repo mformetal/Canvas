@@ -23,8 +23,6 @@ public class PojoPaintExample {
 
     public Paint getPaint() { return paint; }
 
-    public void setColorForText(int colorForText) { color = colorForText; }
-
     public int getColorForText() {
         return (color != 0) ? color : Color.WHITE; }
 

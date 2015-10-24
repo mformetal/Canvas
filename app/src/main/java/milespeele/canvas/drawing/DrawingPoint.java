@@ -50,10 +50,8 @@ public class DrawingPoint {
         if (this == o) return true;
         if (!(o instanceof DrawingPoint)) return false;
         DrawingPoint point = (DrawingPoint) o;
-        return Objects.equal(x, point.x) &&
-                Objects.equal(y, point.y) &&
-                Objects.equal(time, point.time) &&
-                Objects.equal(width, point.width);
+        return Objects.equal(Math.round(x), Math.round(point.x)) &&
+                Objects.equal(Math.round(y), Math.round(point.y));
     }
 
     @Override

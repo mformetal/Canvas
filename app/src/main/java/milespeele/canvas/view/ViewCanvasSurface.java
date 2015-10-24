@@ -1,9 +1,14 @@
 package milespeele.canvas.view;
 
+import android.animation.ObjectAnimator;
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.os.Build;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
@@ -71,8 +76,6 @@ public class ViewCanvasSurface extends SurfaceView implements SurfaceHolder.Call
 
     @Override
     public boolean onTouchEvent(@NonNull MotionEvent event) {
-        float eventX = event.getX();
-        float eventY = event.getY();
         int actionMasked = MotionEventCompat.getActionMasked(event);
 
         switch (actionMasked & MotionEvent.ACTION_MASK) {
@@ -98,5 +101,17 @@ public class ViewCanvasSurface extends SurfaceView implements SurfaceHolder.Call
         if (!hasWindowFocus)  {
             thread.onSave();
         }
+    }
+
+    public int getBrushColor() {
+        return thread.getDrawingCurve().getCurrentStrokeColor();
+    }
+
+    public Bitmap getDrawingBitmap() {
+        return thread.getDrawingCurve().getBitmap();
+    }
+
+    public float getBrushWidth() {
+        return thread.getDrawingCurve().getBrushWidth();
     }
 }

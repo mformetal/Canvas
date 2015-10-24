@@ -9,6 +9,14 @@ public class Logg {
 
     private static final String LOG_TAG = "Miles";
 
+    public static void log(Double value) {
+        Log.d(LOG_TAG, value.toString());
+    }
+
+    public static void log(int integer, float floater) {
+        Log.d(LOG_TAG, String.valueOf(integer) + ", " + String.valueOf(floater));
+    }
+
     public static void log(int[] array) {
         StringBuilder builder = new StringBuilder();
         for (int integer: array) {
