@@ -27,7 +27,39 @@ public class DrawingThread extends Thread {
         drawingCurve = new DrawingCurve(context, width, height);
     }
 
+    public void setRunning(boolean b) {
+        synchronized (mRunLock) {
+            mRun = b;
+        }
+    }
+
+    @Override
+    public void run() {
+        while (mRun) {
+            Canvas c = null;
+            try {
+                c = mSurfaceHolder.lockCanvas(null);
+                synchronized (mSurfaceHolder) {
+                    synchronized (mRunLock) {
+                        if (mRun && drawingCurve.canDraw())  {
+                            drawingCurve.drawToViewCanvas(c);
+                        }
+                    }
+                }
+            } finally {
+                if (c != null) {
+                    mSurfaceHolder.unlockCanvasAndPost(c);
+                }
+            }
+        }
+    }
+
+    public void unreveal() {
+        drawingCurve.unreveal();
+    }
+
     public void onDestroy() {
+        drawingCurve.saveBackgroundColor();
         setRunning(false);
 
         BitmapUtils.compressBitmapAsObservable(drawingCurve.getBitmap())
@@ -49,46 +81,6 @@ public class DrawingThread extends Thread {
                 });
     }
 
-    public void setRunning(boolean b) {
-        // Do not allow mRun to be modified while any canvas operations
-        // are potentially in-flight. See doDraw().
-        synchronized (mRunLock) {
-            mRun = b;
-        }
-    }
-
-    public void setSurfaceSize(int width, int height) {
-        // synchronized to make sure these all change atomically
-        synchronized (mSurfaceHolder) {
-            drawingCurve.resize(width, height);
-        }
-    }
-
-    @Override
-    public void run() {
-        while (mRun) {
-            Canvas c = null;
-            try {
-                c = mSurfaceHolder.lockCanvas(null);
-                synchronized (mSurfaceHolder) {
-                    synchronized (mRunLock) {
-                        if (mRun && drawingCurve.canDraw())  {
-                            doDraw(c);
-                        }
-                    }
-                }
-            } finally {
-                if (c != null) {
-                    mSurfaceHolder.unlockCanvasAndPost(c);
-                }
-            }
-        }
-    }
-
-    private void doDraw(Canvas canvas) {
-        drawingCurve.drawToViewCanvas(canvas);
-    }
-
     public void onTouchDown(MotionEvent event) {
         drawingCurve.addPoint(event.getX(), event.getY());
     }
@@ -99,10 +91,6 @@ public class DrawingThread extends Thread {
 
     public void onTouchUp(MotionEvent event) {
         drawingCurve.onTouchUp(event.getX(), event.getY());
-    }
-
-    public void onSave() {
-        drawingCurve.onSave();
     }
 
     public DrawingCurve getDrawingCurve() {

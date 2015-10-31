@@ -33,7 +33,7 @@ dependencies {
     compile 'jp.wasabeef:recyclerview-animators:1.3.0'
     compile 'com.google.dagger:dagger:2.0'
     compile 'com.android.support:appcompat-v7:22.2.1'
-    compile 'com.android.support:recyclerview-v7:23.+'
+    compile 'com.android.support:recyclerview-v7:22.+'
     compile 'com.jakewharton:butterknife:7.0.1'
     compile 'com.android.support:design:22.2.1'
     compile 'com.google.guava:guava:18.0'

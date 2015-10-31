@@ -6,7 +6,7 @@ import android.os.Build;
 import android.util.AttributeSet;
 import android.widget.EditText;
 
-import milespeele.canvas.util.FontUtils;
+import milespeele.canvas.util.TextUtils;
 
 /**
  * Created by mbpeele on 9/2/15.
@@ -31,7 +31,7 @@ public class ViewTypefaceEditText extends EditText {
     }
 
     private void init() {
-        setTypeface(FontUtils.getStaticTypeFace(getContext(), "Roboto.ttf"));
+        setTypeface(TextUtils.getStaticTypeFace(getContext(), "Roboto.ttf"));
     }
 
     public String getTextAsString() { return getText().toString(); }

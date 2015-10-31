@@ -6,7 +6,9 @@ import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.app.Fragment;
 import android.graphics.Bitmap;
+import android.graphics.Point;
 import android.os.Bundle;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,6 +47,10 @@ public class FragmentDrawer extends Fragment {
         return v;
     }
 
+    public void unreveal() {
+        coordinatorLayout.unreveal();
+    }
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
@@ -54,5 +60,4 @@ public class FragmentDrawer extends Fragment {
     public Bitmap giveBitmapToActivity() {
         return coordinatorLayout.getDrawerBitmap();
     }
-
 }

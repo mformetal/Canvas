@@ -61,6 +61,6 @@ public class DrawingPoint {
 
     @Override
     public String toString() {
-        return "X: " + x + ", " + "Y: " + y + ", " + "TIME: " + time;
+        return x + ", " + y;
     }
 }

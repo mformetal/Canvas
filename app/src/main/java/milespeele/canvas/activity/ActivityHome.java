@@ -1,8 +1,11 @@
 package milespeele.canvas.activity;
 
+import android.app.FragmentManager;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.Toolbar;
+import android.view.animation.AccelerateDecelerateInterpolator;
 
 import com.squareup.picasso.Picasso;
 
@@ -10,13 +13,14 @@ import java.lang.ref.WeakReference;
 
 import javax.inject.Inject;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
 import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
-import milespeele.canvas.event.EventDashboardButtonClicked;
 import milespeele.canvas.event.EventFilenameChosen;
 import milespeele.canvas.event.EventParseError;
+import milespeele.canvas.event.EventRevealFinished;
 import milespeele.canvas.event.EventShowBrushPicker;
 import milespeele.canvas.event.EventShowCanvasColorPicker;
 import milespeele.canvas.event.EventShowFilenameFragment;
@@ -30,7 +34,9 @@ import milespeele.canvas.fragment.FragmentFilename;
 import milespeele.canvas.parse.Masterpiece;
 import milespeele.canvas.parse.ParseUtils;
 import milespeele.canvas.util.ErrorDialog;
+import milespeele.canvas.util.Logg;
 import milespeele.canvas.view.ViewFab;
+import milespeele.canvas.view.ViewToolbar;
 
 public class ActivityHome extends ActivityBase {
 
@@ -45,11 +51,15 @@ public class ActivityHome extends ActivityBase {
     @Inject EventBus bus;
     @Inject Picasso picasso;
 
+    @Bind(R.id.activity_home_toolbar) ViewToolbar toolbar;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         ButterKnife.bind(this);
+
+        setSupportActionBar(toolbar);
 
         ((MainApp) getApplication()).getApplicationComponent().inject(this);
 
@@ -60,11 +70,19 @@ public class ActivityHome extends ActivityBase {
 
     @Override
     public void onBackPressed() {
-        int count = getFragmentManager().getBackStackEntryCount();
+        FragmentManager manager = getFragmentManager();
+        int count = manager.getBackStackEntryCount();
         if (count == 0) {
             super.onBackPressed();
         } else {
-            getFragmentManager().popBackStack();
+            FragmentManager.BackStackEntry entry = manager.getBackStackEntryAt(count - 1);
+            if (entry.getName().equals(TAG_FRAGMENT_DRAWER)) {
+                toolbar.animateIn();
+                FragmentDrawer drawer = (FragmentDrawer) getFragmentManager().findFragmentByTag(TAG_FRAGMENT_DRAWER);
+                drawer.unreveal();
+            } else {
+                manager.popBackStack();
+            }
         }
     }
 
@@ -73,11 +91,13 @@ public class ActivityHome extends ActivityBase {
                 .replace(R.id.activity_home_fragment_frame, FragmentDrawer.newInstance(), TAG_FRAGMENT_DRAWER)
                 .addToBackStack(TAG_FRAGMENT_DRAWER)
                 .commit();
+
+        toolbar.animateOut();
     }
 
     private void addDashboardFragment() {
         getFragmentManager().beginTransaction()
-                .add(R.id.activity_home_fragment_frame, FragmentDashboard.newInstance(), TAG_FRAGMENT_DASHBOARD)
+                .replace(R.id.activity_home_fragment_frame, FragmentDashboard.newInstance(), TAG_FRAGMENT_DASHBOARD)
                 .commit();
     }
 
@@ -139,14 +159,20 @@ public class ActivityHome extends ActivityBase {
 
     }
 
-    public void onEvent(EventDashboardButtonClicked clicked) {
-        switch (clicked.id) {
+    public void onDashboardButtonClicked(int clickedId) {
+        switch (clickedId) {
             case R.id.dashboard_draw:
                 addDrawerFragment();
                 break;
-            case R.id.dashboard_gallery:
+            case R.id.dashboard_import:
             case R.id.dashboard_profile:
             case R.id.dashboard_social:
+        }
+    }
+
+    public void onEvent(EventRevealFinished eventRevealFinished) {
+        if (!eventRevealFinished.bool) {
+            getFragmentManager().popBackStack();
         }
     }
 }

@@ -1,20 +1,20 @@
 package milespeele.canvas.view;
 
-import android.animation.ArgbEvaluator;
-import android.animation.ValueAnimator;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.widget.TextView;
 
 import milespeele.canvas.R;
 import milespeele.canvas.paint.PaintStyles;
-import milespeele.canvas.util.FontUtils;
+import milespeele.canvas.util.TextUtils;
 
 /**
  * Created by mbpeele on 9/2/15.
@@ -45,13 +45,16 @@ public class ViewTypefaceTextView extends TextView {
     }
 
     private void init(AttributeSet attrs) {
-        setTypeface(FontUtils.getStaticTypeFace(getContext(), "Roboto.ttf"));
+        if (isInEditMode()) {
+            return;
+        }
+
+        setTypeface(TextUtils.getStaticTypeFace(getContext(), "Roboto.ttf"));
 
         if (attrs != null) {
             TypedArray typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.ViewTypefaceTextView);
             if (typedArray.getBoolean(R.styleable.ViewTypefaceTextView_shouldDrawBorder, false)) {
-                int borderColor = typedArray.getColor(R.styleable.ViewTypefaceTextView_borderColor, Color.GRAY);
-                borderPaint = PaintStyles.normal(borderColor, 5f);
+                borderPaint = PaintStyles.normal(typedArray.getColor(R.styleable.ViewTypefaceTextView_borderColor, Color.GRAY), 5f);
             }
             typedArray.recycle();
         }

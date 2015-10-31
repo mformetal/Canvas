@@ -28,6 +28,7 @@ import milespeele.canvas.event.EventColorChosen;
 import milespeele.canvas.event.EventFilenameChosen;
 import milespeele.canvas.event.EventParseError;
 import milespeele.canvas.event.EventRedo;
+import milespeele.canvas.event.EventRevealFinished;
 import milespeele.canvas.event.EventShowBrushPicker;
 import milespeele.canvas.event.EventShowCanvasColorPicker;
 import milespeele.canvas.event.EventShowColorize;

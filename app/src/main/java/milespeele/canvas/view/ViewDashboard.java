@@ -1,40 +1,42 @@
 package milespeele.canvas.view;
 
-import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
-import android.graphics.RectF;
 import android.os.Build;
-import android.text.TextPaint;
-import android.transition.Fade;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.List;
+
 import javax.inject.Inject;
 
-import de.greenrobot.event.EventBus;
+import butterknife.Bind;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
-import milespeele.canvas.activity.ActivityHome;
-import milespeele.canvas.event.EventDashboardButtonClicked;
+import milespeele.canvas.util.Datastore;
 import milespeele.canvas.util.Logg;
 
 /**
  * Created by mbpeele on 10/19/15.
  */
-public class ViewDashboard extends ViewGroup {
+public class ViewDashboard extends ViewGroup implements View.OnClickListener {
 
-    private Rect bounds;
+    @Bind({R.id.dashboard_draw, R.id.dashboard_import, R.id.dashboard_profile,
+            R.id.dashboard_social}) List<ViewDashboardButton> buttons;
+
+    @Inject Datastore store;
+
+    private Rect rect = new Rect();
+
+    private ViewDashboardListener listener;
+    public interface ViewDashboardListener {
+        void onDashboardButtonClicked(int buttonId);
+    }
 
     public ViewDashboard(Context context) {
         super(context);
@@ -58,11 +60,37 @@ public class ViewDashboard extends ViewGroup {
     }
 
     private void init() {
-        bounds = new Rect();
+        ((MainApp) getContext().getApplicationContext()).getApplicationComponent().inject(this);
 
         setWillNotDraw(false);
         setSaveEnabled(true);
         setWillNotCacheDrawing(false);
+    }
+
+    @Override
+    protected void onFinishInflate() {
+        super.onFinishInflate();
+        ButterKnife.bind(this);
+    }
+
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+        int x = (int) ev.getX(), y = (int) ev.getY();
+        ViewDashboardButton draw = buttons.get(0);
+        draw.getHitRect(rect);
+        if (rect.contains(x, y)) {
+            store.putTouchRevealCoordinates(ev.getX(), ev.getY());
+        }
+        return super.onInterceptTouchEvent(ev);
+    }
+
+    @Override
+    @OnClick({R.id.dashboard_draw, R.id.dashboard_import, R.id.dashboard_profile,
+            R.id.dashboard_social})
+    public void onClick(View v) {
+        if (listener != null) {
+            listener.onDashboardButtonClicked(v.getId());
+        }
     }
 
     @Override
@@ -91,24 +119,21 @@ public class ViewDashboard extends ViewGroup {
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        final float children = (float) getChildCount() - 1;
+        final float children = (float) getChildCount();
 
-        ViewTypefaceTextView title = (ViewTypefaceTextView) getChildAt(0);
-        TextPaint titlePaint = title.getPaint();
-        titlePaint.getTextBounds("Py", 0, 2, bounds);
-        title.layout(l, t, r, (int) (bounds.height() * ((double) Math.max(r, b) / (double) Math.min(r, b))));
+        int curTop = b / 8;
 
-        int curTop = title.getHeight();
         int slice;
         if (children % 2 == 0) {
-            slice = Math.round((b - curTop) * (1 / (children / 2)));
+            slice = Math.round(((b - curTop) * (1 / (children / 2))));
         } else {
             slice = Math.round((b - curTop) * (1 / ((children + 1) / 2)));
         }
 
-        for (int x = 1; x <= children; x++) {
+        for (int x = 0; x < children; x++) {
             View child = getChildAt(x);
-            if (x % 2 != 0) {
+
+            if (x % 2 == 0) {
                 child.layout(
                         l,
                         curTop,
@@ -123,5 +148,9 @@ public class ViewDashboard extends ViewGroup {
                 curTop += slice;
             }
         }
+    }
+
+    public void setListener(ViewDashboardListener otherListener) {
+        listener = otherListener;
     }
 }

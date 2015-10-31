@@ -2,6 +2,7 @@ package milespeele.canvas.view;
 
 import android.animation.Animator;
 import android.animation.AnimatorSet;
+import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -13,20 +14,17 @@ import android.graphics.CornerPathEffect;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PathEffect;
-import android.graphics.Rect;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.graphics.RectF;
-import android.graphics.Region;
+import android.graphics.Xfermode;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.os.Handler;
 import android.support.v4.view.MotionEventCompat;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.BounceInterpolator;
-import android.view.animation.Interpolator;
-import android.view.animation.OvershootInterpolator;
 import android.widget.ImageView;
 
 import com.squareup.picasso.Cache;
@@ -38,30 +36,32 @@ import javax.inject.Inject;
 import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
-import milespeele.canvas.event.EventDashboardButtonClicked;
 import milespeele.canvas.paint.PaintStyles;
 import milespeele.canvas.util.AbstractAnimatorListener;
-import milespeele.canvas.util.FontUtils;
+import milespeele.canvas.util.ColorUtils;
 import milespeele.canvas.util.Logg;
+import milespeele.canvas.util.TextUtils;
 
 /**
  * Created by mbpeele on 10/22/15.
  */
 public class ViewDashboardButton extends ImageView implements Target {
 
-    private final static int SCALE_DURATION = 150;
-    private int width, height, baseLine;
+    private final static int DURATION = 400;
     private int id;
-    private int color;
+    private int color, darkenedColor;
+    private float lastTouchX, lastTouchY;
     private String text;
+    private float radius;
+    private boolean startRipple = false;
 
-    private Paint textPaint, rectPaint;
+    private Paint textPaint, rectPaint, ripplePaint;
     private Bitmap circlified;
     private RectF rectF;
     private Path path;
-    private AnimatorSet scale;
-    private static final PathEffect corner = new CornerPathEffect(15);
-    private static Interpolator INTERPOLATOR = new BounceInterpolator();
+    private AnimatorSet ripple;
+    private static final PathEffect CORNER = new CornerPathEffect(15);
+    private static final Xfermode DST_OVER = new PorterDuffXfermode(PorterDuff.Mode.DST_OVER);
 
     @Inject Picasso picasso;
     @Inject EventBus bus;
@@ -89,55 +89,62 @@ public class ViewDashboardButton extends ImageView implements Target {
     }
 
     private void init(AttributeSet attrs) {
+        if (isInEditMode()) {
+            return;
+        }
+
         ((MainApp) getContext().getApplicationContext()).getApplicationComponent().inject(this);
 
+        setBackground(null);
         setLayerType(LAYER_TYPE_SOFTWARE, null);
 
-        textPaint = PaintStyles.normal(Color.BLACK, 5f);
+        textPaint = PaintStyles.normal(Color.WHITE, 1f);
         textPaint.setTextAlign(Paint.Align.CENTER);
         textPaint.setStyle(Paint.Style.FILL_AND_STROKE);
-        textPaint.setTypeface(FontUtils.getStaticTypeFace(getContext(), "Roboto.ttf"));
+        textPaint.setTypeface(TextUtils.getStaticTypeFace(getContext(), "Roboto.ttf"));
 
         rectPaint = PaintStyles.normal(Color.WHITE, 5f);
         rectPaint.setStyle(Paint.Style.FILL_AND_STROKE);
-        rectPaint.setShadowLayer(12, 0, 0, Color.BLACK);
+        rectPaint.setShadowLayer(4, 0, 0, Color.BLACK);
+
+        ripplePaint = PaintStyles.normal(Color.WHITE, 5f);
+        ripplePaint.setStyle(Paint.Style.FILL_AND_STROKE);
+        ripplePaint.setAlpha(255);
+        ripplePaint.setShadowLayer(12, 0, 0, Color.BLACK);
 
         path = new Path();
 
         rectF = new RectF();
-
-        scale = new AnimatorSet();
 
         if (attrs != null) {
             TypedArray typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.ViewDashboardButton);
             text = typedArray.getString(R.styleable.ViewDashboardButton_text);
             id = typedArray.getResourceId(R.styleable.ViewDashboardButton_image, R.drawable.ic_brush_black_24dp);
             color = typedArray.getColor(R.styleable.ViewDashboardButton_squareColor, Color.WHITE);
+            darkenedColor = ColorUtils.darken(color, .3f);
             rectPaint.setColor(color);
+            ripplePaint.setColor(color);
             typedArray.recycle();
         }
     }
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        width = w;
-        height = h;
-
         float widthDiff = w * .45f;
-        int centerX = width / 2, centerY = height / 2;
+        int centerX = w / 2, centerY = h / 2;
         rectF.left = centerX - widthDiff;
         rectF.right = centerX + widthDiff;
         rectF.top = centerY - widthDiff;
         rectF.bottom = centerY + widthDiff;
 
-        adjustTextSize();
-        adjustTextScale();
+        TextUtils.adjustTextSize(textPaint, text, h);
+        TextUtils.adjustTextScale(textPaint, text, w, getPaddingLeft(), getPaddingRight());
 
         circlified = cache.get(String.valueOf(id));
         if (circlified == null) {
             setVisibility(View.GONE);
             picasso.load(id)
-                    .resize(Math.round(width * .7f), Math.round(width * .7f))
+                    .resize(Math.round(w * .5f), Math.round(w * .5f))
                     .into((Target) this);
         }
 
@@ -146,6 +153,17 @@ public class ViewDashboardButton extends ImageView implements Target {
         path.lineTo(rectF.right, rectF.top);
         path.lineTo(rectF.right, rectF.bottom * .4f);
         path.close();
+
+        ripple = new AnimatorSet();
+
+        ObjectAnimator circle = ObjectAnimator.ofFloat(this, "radius", 0, w / 4);
+        circle.setDuration(DURATION);
+
+        ObjectAnimator alpha =  ObjectAnimator.ofObject(ripplePaint, "alpha",
+                new ArgbEvaluator(), ripplePaint.getAlpha(), 0);
+        alpha.setDuration(DURATION);
+
+        ripple.playTogether(circle, alpha);
 
         super.onSizeChanged(w, h, oldw, oldh);
     }
@@ -181,112 +199,71 @@ public class ViewDashboardButton extends ImageView implements Target {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        float x = event.getX(), y = event.getY();
         int actionMasked = MotionEventCompat.getActionMasked(event);
 
         switch (actionMasked & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
-                if (rectF.contains(event.getX(), event.getY())) {
-                    scaleUp();
-                    textPaint.setColor(Color.WHITE);
-                    invalidate();
-                }
-                break;
-
-
-            case MotionEvent.ACTION_UP:
-                if (rectF.contains(event.getX(), event.getY())) {
-                    scaleDown();
-                    textPaint.setColor(Color.BLACK);
-                    invalidate();
-                    bus.post(new EventDashboardButtonClicked(getId()));
+                if (rectF.contains(x, y)) {
+                    lastTouchX = x;
+                    lastTouchY = y;
+                    callOnClick();
+//                    showRipple();
                 }
                 break;
         }
-        return true;
-    }
 
-    public static int darken(int color, double fraction) {
-        int red = Color.red(color);
-        int green = Color.green(color);
-        int blue = Color.blue(color);
-        red = darkenColor(red, fraction);
-        green = darkenColor(green, fraction);
-        blue = darkenColor(blue, fraction);
-        int alpha = Color.alpha(color);
-
-        return Color.argb(alpha, red, green, blue);
-    }
-
-    private static int darkenColor(int color, double fraction) {
-        return (int)Math.max(color - (color * fraction), 0);
+        return false;
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         canvas.drawRoundRect(rectF, 10, 10, rectPaint);
-        rectPaint.setColor(darken(color, .3f));
-        rectPaint.setPathEffect(corner);
+        rectPaint.setColor(darkenedColor);
+        rectPaint.setPathEffect(CORNER);
         canvas.drawPath(path, rectPaint);
         rectPaint.setColor(color);
         rectPaint.setPathEffect(null);
         if (circlified != null) {
-            canvas.drawBitmap(circlified, (width / 2) - circlified.getWidth() / 2,
-                    (height / 2) - Math.round(circlified.getHeight() * .65), null);
+            canvas.drawBitmap(circlified, (getWidth() / 2) - circlified.getWidth() / 2,
+                    (getHeight() / 2) - Math.round(circlified.getHeight() * .65), null);
         }
         canvas.drawText(text, rectF.centerX(), rectF.bottom - 20, textPaint);
+
+        if (startRipple) {
+            canvas.drawCircle(lastTouchX, lastTouchY, radius, ripplePaint);
+            ripplePaint.setXfermode(DST_OVER);
+            canvas.drawRoundRect(rectF, 10, 10, ripplePaint);
+            ripplePaint.setXfermode(null);
+        }
     }
 
-    private void adjustTextSize() {
-        textPaint.setTextSize(100);
-        textPaint.setTextScaleX(1.0f);
-        Rect bounds = new Rect();
-        // ask the paint for the bounding rect if it were to draw this
-        // text
-        textPaint.getTextBounds(text, 0, text.length(), bounds);
-        // get the height that would have been produced
-        int h = bounds.bottom - bounds.top;
-        // make the text text up 70% of the height
-        float target = (float) height * .1f;
-        // figure out what textSize setting would create that height
-        // of text
-        float size = ((target/h) * 100f);
-        // and set it into the paint
-        textPaint.setTextSize(size);
+    public void showRipple() {
+        if (!ripple.isRunning()) {
+            startRipple = true;
+
+            ripple.addListener(new AbstractAnimatorListener() {
+
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    ripplePaint.setAlpha(255);
+                    radius = 0;
+                    startRipple = false;
+                    callOnClick();
+                }
+            });
+
+            ripple.start();
+        }
     }
 
-    private void adjustTextScale() {
-        // do calculation with scale of 1.0 (no scale)
-        textPaint.setTextScaleX(1.0f);
-        Rect bounds = new Rect();
-        // ask the paint for the bounding rect if it were to draw this
-        // text.
-        textPaint.getTextBounds(text, 0, text.length(), bounds);
-        // determine the width
-        int w = bounds.right - bounds.left;
-        // calculate the baseline to use so that the
-        // entire text is visible including the descenders
-        int text = bounds.bottom - bounds.top;
-        baseLine = bounds.bottom + ((height-text) / 2);
-        // determine how much to scale the width to fit the view
-        float xscale = ((float) (width - getPaddingLeft() - getPaddingRight())) / w;
-        // set the scale for the text paint
-        textPaint.setTextScaleX(xscale * .5f);
+    public float getRadius() {
+        return radius;
     }
 
-    private void scaleUp() {
-        scale.playTogether(ObjectAnimator.ofFloat(this, "scaleX", 1f, 1.05f),
-                ObjectAnimator.ofFloat(this, "scaleY", 1f, 1.05f));
-        scale.setInterpolator(INTERPOLATOR);
-        scale.setDuration(SCALE_DURATION);
-        scale.start();
-    }
-
-    private void scaleDown() {
-        scale.playTogether(ObjectAnimator.ofFloat(this, "scaleX", 1f),
-                ObjectAnimator.ofFloat(this, "scaleY", 1f));
-        scale.setInterpolator(INTERPOLATOR);
-        scale.setDuration(SCALE_DURATION);
-        scale.start();
+    public void setRadius(float radius) {
+        this.radius = radius;
+        invalidate();
     }
 }

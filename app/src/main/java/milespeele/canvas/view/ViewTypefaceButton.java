@@ -6,7 +6,7 @@ import android.os.Build;
 import android.util.AttributeSet;
 import android.widget.Button;
 
-import milespeele.canvas.util.FontUtils;
+import milespeele.canvas.util.TextUtils;
 
 /**
  * Created by mbpeele on 9/2/15.
@@ -31,6 +31,6 @@ public class ViewTypefaceButton extends Button {
     }
 
     private void init() {
-        setTypeface(FontUtils.getStaticTypeFace(getContext(), "Roboto.ttf"));
+        setTypeface(TextUtils.getStaticTypeFace(getContext(), "Roboto.ttf"));
     }
 }

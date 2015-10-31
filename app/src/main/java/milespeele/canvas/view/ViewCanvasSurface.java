@@ -66,7 +66,7 @@ public class ViewCanvasSurface extends SurfaceView implements SurfaceHolder.Call
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-        thread.setSurfaceSize(width, height);
+
     }
 
     @Override
@@ -96,12 +96,7 @@ public class ViewCanvasSurface extends SurfaceView implements SurfaceHolder.Call
         return true;
     }
 
-    @Override
-    public void onWindowFocusChanged(boolean hasWindowFocus) {
-        if (!hasWindowFocus)  {
-            thread.onSave();
-        }
-    }
+    public DrawingThread getThread() { return thread; }
 
     public int getBrushColor() {
         return thread.getDrawingCurve().getCurrentStrokeColor();
