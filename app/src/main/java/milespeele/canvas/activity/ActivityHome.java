@@ -4,8 +4,6 @@ import android.app.FragmentManager;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.Toolbar;
-import android.view.animation.AccelerateDecelerateInterpolator;
 
 import com.squareup.picasso.Picasso;
 
@@ -20,7 +18,6 @@ import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
 import milespeele.canvas.event.EventFilenameChosen;
 import milespeele.canvas.event.EventParseError;
-import milespeele.canvas.event.EventRevealFinished;
 import milespeele.canvas.event.EventShowBrushPicker;
 import milespeele.canvas.event.EventShowCanvasColorPicker;
 import milespeele.canvas.event.EventShowFilenameFragment;
@@ -34,7 +31,6 @@ import milespeele.canvas.fragment.FragmentFilename;
 import milespeele.canvas.parse.Masterpiece;
 import milespeele.canvas.parse.ParseUtils;
 import milespeele.canvas.util.ErrorDialog;
-import milespeele.canvas.util.Logg;
 import milespeele.canvas.view.ViewFab;
 import milespeele.canvas.view.ViewToolbar;
 
@@ -65,7 +61,7 @@ public class ActivityHome extends ActivityBase {
 
         bus.register(this);
 
-        addDashboardFragment();
+        addDashboardFragment(null);
     }
 
     @Override
@@ -78,27 +74,32 @@ public class ActivityHome extends ActivityBase {
             FragmentManager.BackStackEntry entry = manager.getBackStackEntryAt(count - 1);
             if (entry.getName().equals(TAG_FRAGMENT_DRAWER)) {
                 toolbar.animateIn();
-                FragmentDrawer drawer = (FragmentDrawer) getFragmentManager().findFragmentByTag(TAG_FRAGMENT_DRAWER);
-                drawer.unreveal();
-            } else {
-                manager.popBackStack();
             }
+
+            manager.popBackStack();
         }
     }
 
-    private void addDrawerFragment() {
+    private void addDrawerFragment(float cx, float cy) {
         getFragmentManager().beginTransaction()
-                .replace(R.id.activity_home_fragment_frame, FragmentDrawer.newInstance(), TAG_FRAGMENT_DRAWER)
+                .replace(R.id.activity_home_fragment_frame, FragmentDrawer.newInstance(cx, cy), TAG_FRAGMENT_DRAWER)
                 .addToBackStack(TAG_FRAGMENT_DRAWER)
                 .commit();
 
         toolbar.animateOut();
     }
 
-    private void addDashboardFragment() {
-        getFragmentManager().beginTransaction()
-                .replace(R.id.activity_home_fragment_frame, FragmentDashboard.newInstance(), TAG_FRAGMENT_DASHBOARD)
-                .commit();
+    private void addDashboardFragment(String tag) {
+        if (tag == null) {
+            getFragmentManager().beginTransaction()
+                    .add(R.id.activity_home_fragment_frame, FragmentDashboard.newInstance(), TAG_FRAGMENT_DASHBOARD)
+                    .commit();
+        } else {
+            getFragmentManager().beginTransaction()
+                    .replace(R.id.activity_home_fragment_frame, FragmentDashboard.newInstance(), TAG_FRAGMENT_DASHBOARD)
+                    .addToBackStack(TAG_FRAGMENT_DASHBOARD)
+                    .commit();
+        }
     }
 
     public void showSavedImageSnackbar(Masterpiece object) {
@@ -159,20 +160,14 @@ public class ActivityHome extends ActivityBase {
 
     }
 
-    public void onDashboardButtonClicked(int clickedId) {
+    public void onDashboardButtonClicked(int clickedId, float cx, float cy) {
         switch (clickedId) {
             case R.id.dashboard_draw:
-                addDrawerFragment();
+                addDrawerFragment(cx, cy);
                 break;
             case R.id.dashboard_import:
             case R.id.dashboard_profile:
             case R.id.dashboard_social:
-        }
-    }
-
-    public void onEvent(EventRevealFinished eventRevealFinished) {
-        if (!eventRevealFinished.bool) {
-            getFragmentManager().popBackStack();
         }
     }
 }

@@ -1,22 +1,17 @@
 package milespeele.canvas.drawing;
 
 import android.animation.ArgbEvaluator;
-import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.content.Context;
-import android.graphics.AvoidXfermode;
 import android.graphics.Bitmap;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Path;
-import android.graphics.PixelXorXfermode;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.RectF;
 import android.graphics.Shader;
-import android.graphics.Xfermode;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.view.MotionEvent;
@@ -31,7 +26,6 @@ import milespeele.canvas.R;
 import milespeele.canvas.event.EventBrushChosen;
 import milespeele.canvas.event.EventColorChosen;
 import milespeele.canvas.event.EventRedo;
-import milespeele.canvas.event.EventRevealFinished;
 import milespeele.canvas.event.EventShowColorize;
 import milespeele.canvas.event.EventShowErase;
 import milespeele.canvas.event.EventUndo;
@@ -92,7 +86,7 @@ public class DrawingCurve {
 
         createInkRect(w, h);
         Bitmap cachedBitmap = BitmapUtils.getCachedBitmap(mContext);
-        mBitmap = cachedBitmap != null ? Bitmap.createBitmap(cachedBitmap) :
+        mBitmap = cachedBitmap != null ? cachedBitmap :
                 Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
         if (cachedBitmap == null) {
             mBitmap.eraseColor(currentBackgroundColor);
@@ -162,38 +156,7 @@ public class DrawingCurve {
 
     public void drawToViewCanvas(Canvas canvas) {
         if (canDraw) {
-            switch (drawType) {
-                case 0:
-                    canvas.drawColor(viewBackgroundColor);
-                    canvas.drawCircle(store.getRevealX(), store.getRevealY(), revealRadius, revealPaint);
-                    revealRadius += revealStep;
-                    revealStep += 1;
-
-                    if (revealRadius >= mBitmap.getHeight()) {
-                        bus.post(new EventRevealFinished(true));
-                        drawType = 1;
-                        revealStep = 10;
-                    }
-                    break;
-
-                case 1:
-                    canvas.drawBitmap(mBitmap, 0, 0, null);
-                    break;
-
-                case 2:
-                    canvas.drawColor(viewBackgroundColor);
-                    canvas.drawCircle(store.getRevealX(), store.getRevealY(), revealRadius, revealPaint);
-                    revealRadius -= revealStep;
-                    revealStep += 1;
-
-                    if (revealRadius <= 0) {
-                        bus.post(new EventRevealFinished(false));
-                    }
-                    break;
-
-                case 3:
-                    break;
-            }
+            canvas.drawBitmap(mBitmap, 0, 0, null);
 
             if (mState == State.INK) {
                 canvas.drawRect(inkRect, inkPaint);

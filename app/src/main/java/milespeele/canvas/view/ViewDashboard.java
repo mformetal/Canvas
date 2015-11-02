@@ -33,9 +33,11 @@ public class ViewDashboard extends ViewGroup implements View.OnClickListener {
 
     private Rect rect = new Rect();
 
+    private float lastX, lastY;
+
     private ViewDashboardListener listener;
     public interface ViewDashboardListener {
-        void onDashboardButtonClicked(int buttonId);
+        void onDashboardButtonClicked(int buttonId, float cx, float cy);
     }
 
     public ViewDashboard(Context context) {
@@ -79,7 +81,8 @@ public class ViewDashboard extends ViewGroup implements View.OnClickListener {
         ViewDashboardButton draw = buttons.get(0);
         draw.getHitRect(rect);
         if (rect.contains(x, y)) {
-            store.putTouchRevealCoordinates(ev.getX(), ev.getY());
+            lastX = ev.getX();
+            lastY = ev.getY();
         }
         return super.onInterceptTouchEvent(ev);
     }
@@ -88,9 +91,7 @@ public class ViewDashboard extends ViewGroup implements View.OnClickListener {
     @OnClick({R.id.dashboard_draw, R.id.dashboard_import, R.id.dashboard_profile,
             R.id.dashboard_social})
     public void onClick(View v) {
-        if (listener != null) {
-            listener.onDashboardButtonClicked(v.getId());
-        }
+        listener.onDashboardButtonClicked(v.getId(), lastX, lastY);
     }
 
     @Override

@@ -93,10 +93,9 @@ public class ViewCanvasSurface extends SurfaceView implements SurfaceHolder.Call
                 thread.onTouchUp(event);
                 break;
         }
+
         return true;
     }
-
-    public DrawingThread getThread() { return thread; }
 
     public int getBrushColor() {
         return thread.getDrawingCurve().getCurrentStrokeColor();

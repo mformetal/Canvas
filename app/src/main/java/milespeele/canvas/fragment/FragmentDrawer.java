@@ -1,27 +1,16 @@
 package milespeele.canvas.fragment;
 
 import android.animation.Animator;
-import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
-import android.app.Activity;
 import android.app.Fragment;
 import android.graphics.Bitmap;
-import android.graphics.Point;
 import android.os.Bundle;
-import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
-
-import javax.inject.Inject;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import de.greenrobot.event.EventBus;
-import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
-import milespeele.canvas.util.Logg;
 import milespeele.canvas.view.ViewCanvasLayout;
 
 public class FragmentDrawer extends Fragment {
@@ -30,8 +19,13 @@ public class FragmentDrawer extends Fragment {
 
     public FragmentDrawer() {}
 
-    public static FragmentDrawer newInstance() {
-        return new FragmentDrawer();
+    public static FragmentDrawer newInstance(float cx, float cy) {
+        FragmentDrawer drawer = new FragmentDrawer();
+        Bundle bundle = new Bundle();
+        bundle.putFloat("x", cx);
+        bundle.putFloat("y", cy);
+        drawer.setArguments(bundle);
+        return drawer;
     }
 
     @Override
@@ -47,14 +41,14 @@ public class FragmentDrawer extends Fragment {
         return v;
     }
 
-    public void unreveal() {
-        coordinatorLayout.unreveal();
+    @Override
+    public Animator onCreateAnimator(int transit, boolean enter, int nextAnim) {
+        return (enter) ? coordinatorLayout.reveal(getArguments().getFloat("x", 0),
+                getArguments().getFloat("y", 0)) : coordinatorLayout.unreveal();
     }
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        ButterKnife.unbind(this);
+    public void unreveal() {
+        coordinatorLayout.unreveal();
     }
 
     public Bitmap giveBitmapToActivity() {

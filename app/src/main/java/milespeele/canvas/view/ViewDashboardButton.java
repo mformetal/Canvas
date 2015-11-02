@@ -1,13 +1,12 @@
 package milespeele.canvas.view;
 
 import android.animation.Animator;
-import android.animation.AnimatorSet;
-import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
+import android.graphics.BlurMaskFilter;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.CornerPathEffect;
@@ -17,10 +16,8 @@ import android.graphics.PathEffect;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.RectF;
-import android.graphics.Xfermode;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import android.os.Handler;
 import android.support.v4.view.MotionEventCompat;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -47,24 +44,21 @@ import milespeele.canvas.util.TextUtils;
  */
 public class ViewDashboardButton extends ImageView implements Target {
 
-    private final static int DURATION = 400;
     private int id;
     private int color, darkenedColor;
-    private float lastTouchX, lastTouchY;
     private String text;
-    private float radius;
-    private boolean startRipple = false;
+    private float shadow = 0;
+    private float lastX, lastY;
+    private final static float MAX_SHADOW = 7.5f;
 
-    private Paint textPaint, rectPaint, ripplePaint;
+    private Paint textPaint, rectPaint, shadowPaint;
     private Bitmap circlified;
-    private RectF rectF;
+    private ObjectAnimator shadower;
+    private RectF rectF, shadowRect;
     private Path path;
-    private AnimatorSet ripple;
     private static final PathEffect CORNER = new CornerPathEffect(15);
-    private static final Xfermode DST_OVER = new PorterDuffXfermode(PorterDuff.Mode.DST_OVER);
 
     @Inject Picasso picasso;
-    @Inject EventBus bus;
     @Inject Cache cache;
 
     public ViewDashboardButton(Context context) {
@@ -95,26 +89,28 @@ public class ViewDashboardButton extends ImageView implements Target {
 
         ((MainApp) getContext().getApplicationContext()).getApplicationComponent().inject(this);
 
-        setBackground(null);
-        setLayerType(LAYER_TYPE_SOFTWARE, null);
-
         textPaint = PaintStyles.normal(Color.WHITE, 1f);
         textPaint.setTextAlign(Paint.Align.CENTER);
         textPaint.setStyle(Paint.Style.FILL_AND_STROKE);
         textPaint.setTypeface(TextUtils.getStaticTypeFace(getContext(), "Roboto.ttf"));
 
         rectPaint = PaintStyles.normal(Color.WHITE, 5f);
+        rectPaint.setMaskFilter(new BlurMaskFilter(MAX_SHADOW, BlurMaskFilter.Blur.NORMAL));
         rectPaint.setStyle(Paint.Style.FILL_AND_STROKE);
-        rectPaint.setShadowLayer(4, 0, 0, Color.BLACK);
 
-        ripplePaint = PaintStyles.normal(Color.WHITE, 5f);
-        ripplePaint.setStyle(Paint.Style.FILL_AND_STROKE);
-        ripplePaint.setAlpha(255);
-        ripplePaint.setShadowLayer(12, 0, 0, Color.BLACK);
+        shadowPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        shadowPaint.setColor(Color.BLACK);
+        shadowPaint.setStyle(Paint.Style.FILL);
+        shadowPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_OVER));
+        shadowPaint.setMaskFilter(new BlurMaskFilter(MAX_SHADOW, BlurMaskFilter.Blur.NORMAL));
 
         path = new Path();
 
         rectF = new RectF();
+
+        shadowRect = new RectF();
+
+        shadower = new ObjectAnimator();
 
         if (attrs != null) {
             TypedArray typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.ViewDashboardButton);
@@ -123,7 +119,6 @@ public class ViewDashboardButton extends ImageView implements Target {
             color = typedArray.getColor(R.styleable.ViewDashboardButton_squareColor, Color.WHITE);
             darkenedColor = ColorUtils.darken(color, .3f);
             rectPaint.setColor(color);
-            ripplePaint.setColor(color);
             typedArray.recycle();
         }
     }
@@ -136,6 +131,8 @@ public class ViewDashboardButton extends ImageView implements Target {
         rectF.right = centerX + widthDiff;
         rectF.top = centerY - widthDiff;
         rectF.bottom = centerY + widthDiff;
+
+        shadowRect.union(rectF);
 
         TextUtils.adjustTextSize(textPaint, text, h);
         TextUtils.adjustTextScale(textPaint, text, w, getPaddingLeft(), getPaddingRight());
@@ -154,17 +151,6 @@ public class ViewDashboardButton extends ImageView implements Target {
         path.lineTo(rectF.right, rectF.bottom * .4f);
         path.close();
 
-        ripple = new AnimatorSet();
-
-        ObjectAnimator circle = ObjectAnimator.ofFloat(this, "radius", 0, w / 4);
-        circle.setDuration(DURATION);
-
-        ObjectAnimator alpha =  ObjectAnimator.ofObject(ripplePaint, "alpha",
-                new ArgbEvaluator(), ripplePaint.getAlpha(), 0);
-        alpha.setDuration(DURATION);
-
-        ripple.playTogether(circle, alpha);
-
         super.onSizeChanged(w, h, oldw, oldh);
     }
 
@@ -172,17 +158,17 @@ public class ViewDashboardButton extends ImageView implements Target {
     public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
         circlified = bitmap;
         cache.set(String.valueOf(id), bitmap);
+
         postInvalidate();
+
         ObjectAnimator visibility = ObjectAnimator.ofFloat(this, "alpha", 0, 1);
         visibility.setDuration(300);
         visibility.addListener(new AbstractAnimatorListener() {
-
             @Override
             public void onAnimationStart(Animator animation) {
                 super.onAnimationEnd(animation);
                 setVisibility(View.VISIBLE);
             }
-
         });
         visibility.start();
     }
@@ -205,15 +191,18 @@ public class ViewDashboardButton extends ImageView implements Target {
         switch (actionMasked & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
                 if (rectF.contains(x, y)) {
-                    lastTouchX = x;
-                    lastTouchY = y;
-                    callOnClick();
-//                    showRipple();
+                    revealShadow();
                 }
+                break;
+
+            case MotionEvent.ACTION_CANCEL:
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_POINTER_UP:
+                unrevealShadow();
                 break;
         }
 
-        return false;
+        return true;
     }
 
     @Override
@@ -225,45 +214,50 @@ public class ViewDashboardButton extends ImageView implements Target {
         canvas.drawPath(path, rectPaint);
         rectPaint.setColor(color);
         rectPaint.setPathEffect(null);
+
         if (circlified != null) {
             canvas.drawBitmap(circlified, (getWidth() / 2) - circlified.getWidth() / 2,
                     (getHeight() / 2) - Math.round(circlified.getHeight() * .65), null);
         }
+
         canvas.drawText(text, rectF.centerX(), rectF.bottom - 20, textPaint);
 
-        if (startRipple) {
-            canvas.drawCircle(lastTouchX, lastTouchY, radius, ripplePaint);
-            ripplePaint.setXfermode(DST_OVER);
-            canvas.drawRoundRect(rectF, 10, 10, ripplePaint);
-            ripplePaint.setXfermode(null);
+        canvas.save();
+        canvas.drawRoundRect(shadowRect, 10, 10, shadowPaint);
+        canvas.restore();
+    }
+
+    public void revealShadow() {
+        callOnClick();
+
+        shadower = ObjectAnimator.ofFloat(this, "shadow", 0f, MAX_SHADOW);
+        shadower.setDuration(350);
+        shadower.start();
+    }
+
+    public void unrevealShadow() {
+        shadower = ObjectAnimator.ofFloat(this, "shadow", shadow, 0f);
+        shadower.setDuration(350);
+        shadower.start();
+    }
+
+    public float getShadow() {
+        return shadow;
+    }
+
+    public void setShadow(float shadow) {
+        if (this.shadow <= shadow) {
+            shadowRect.left = rectF.left - shadow;
+            shadowRect.right = rectF.right + shadow;
+            shadowRect.top = rectF.top - shadow;
+            shadowRect.bottom = rectF.bottom + shadow;
+        } else {
+            shadowRect.left += MAX_SHADOW - shadow;
+            shadowRect.right -= MAX_SHADOW - shadow;
+            shadowRect.top += MAX_SHADOW - shadow;
+            shadowRect.bottom -= MAX_SHADOW - shadow;
         }
-    }
-
-    public void showRipple() {
-        if (!ripple.isRunning()) {
-            startRipple = true;
-
-            ripple.addListener(new AbstractAnimatorListener() {
-
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    ripplePaint.setAlpha(255);
-                    radius = 0;
-                    startRipple = false;
-                    callOnClick();
-                }
-            });
-
-            ripple.start();
-        }
-    }
-
-    public float getRadius() {
-        return radius;
-    }
-
-    public void setRadius(float radius) {
-        this.radius = radius;
+        this.shadow = shadow;
         invalidate();
     }
 }

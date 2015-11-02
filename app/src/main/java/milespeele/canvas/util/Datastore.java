@@ -38,16 +38,4 @@ public class Datastore {
         return getPrefs().getInt(BACKGROUND, Color.WHITE);
     }
 
-    public void putTouchRevealCoordinates(float x, float y) {
-        getEditor().putFloat(REVEAL_X, x).putFloat(REVEAL_Y, y).commit();
-    }
-
-    public float getRevealX() {
-        return getPrefs().getFloat(REVEAL_X, 0);
-    }
-
-    public float getRevealY() {
-        return getPrefs().getFloat(REVEAL_Y, 0);
-    }
-
 }

@@ -46,13 +46,9 @@ public class FragmentDashboard extends Fragment implements ViewDashboard.ViewDas
     @Override
     public Animator onCreateAnimator(int transit, boolean enter, int nextAnim) {
         if (enter) {
-            ObjectAnimator anim = ObjectAnimator.ofFloat(this, "alpha", 0f, 1f);
-            anim.setDuration(350);
-            return anim;
+            return super.onCreateAnimator(transit, true, nextAnim);
         } else {
-            ObjectAnimator anim = ObjectAnimator.ofFloat(this, "alpha", 1f, 0f);
-            anim.setDuration(350);
-            return anim;
+            return ObjectAnimator.ofFloat(this, "alpha", 1f, 0f).setDuration(750);
         }
     }
 
@@ -63,10 +59,10 @@ public class FragmentDashboard extends Fragment implements ViewDashboard.ViewDas
     }
 
     @Override
-    public void onDashboardButtonClicked(int buttonId) {
+    public void onDashboardButtonClicked(int buttonId, float cx, float cy) {
         ActivityHome activityHome = (ActivityHome) getActivity();
         if (activityHome != null) {
-            activityHome.onDashboardButtonClicked(buttonId);
+            activityHome.onDashboardButtonClicked(buttonId, cx, cy);
         }
     }
 }

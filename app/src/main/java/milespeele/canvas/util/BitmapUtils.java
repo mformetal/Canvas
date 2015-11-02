@@ -50,11 +50,12 @@ public class BitmapUtils {
         Bitmap bitmap = null;
 
         BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+        options.inPreferredConfig = Bitmap.Config.RGB_565;
         options.inMutable = true;
         options.inDither = true;
         options.inPreferQualityOverSpeed = true;
         options.inScaled = false;
+        options.inJustDecodeBounds = false;
 
         DisplayMetrics metrics = new DisplayMetrics();
         WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);

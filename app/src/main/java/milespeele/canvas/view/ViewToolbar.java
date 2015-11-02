@@ -42,21 +42,20 @@ public class ViewToolbar extends Toolbar {
         SpannableString s = new SpannableString(text);
         s.setSpan(new TypefaceSpanner(getContext(), "Roboto.ttf"), 0, s.length(),
                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-
         setTitle(s);
-//        setTitleTextAppearance(getContext(), android.R.style.TextAppearance_DeviceDefault_Large);
     }
 
     public void animateOut() {
         animator = ObjectAnimator.ofFloat(this, "translationY", -getHeight());
-        animator.setDuration(1000);
+        animator.setDuration(750);
         animator.setInterpolator(INTERPOLATOR);
         animator.start();
     }
 
     public void animateIn() {
         animator = ObjectAnimator.ofFloat(this, "translationY", 0);
-        animator.setDuration(1000);
+        animator.setStartDelay(350);
+        animator.setDuration(500);
         animator.setInterpolator(INTERPOLATOR);
         animator.start();
     }

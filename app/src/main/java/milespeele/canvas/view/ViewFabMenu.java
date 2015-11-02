@@ -28,7 +28,6 @@ import milespeele.canvas.event.EventColorChosen;
 import milespeele.canvas.event.EventFilenameChosen;
 import milespeele.canvas.event.EventParseError;
 import milespeele.canvas.event.EventRedo;
-import milespeele.canvas.event.EventRevealFinished;
 import milespeele.canvas.event.EventShowBrushPicker;
 import milespeele.canvas.event.EventShowCanvasColorPicker;
 import milespeele.canvas.event.EventShowColorize;
@@ -53,8 +52,8 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
 
     @Inject EventBus bus;
 
-    private static ObjectAnimator close;
-    private static ObjectAnimator open;
+    private ObjectAnimator close;
+    private ObjectAnimator open;
     private static final Interpolator OVERSHOOT_INTERPOLATOR = new OvershootInterpolator();
     private static final Interpolator ANTICIPATE_INTERPOLATOR = new AnticipateInterpolator();
 
@@ -100,6 +99,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
     protected void onFinishInflate() {
         super.onFinishInflate();
         ButterKnife.bind(this);
+
         close = ObjectAnimator.ofFloat(toggle, "rotation", -135f, -270f);
         close.setDuration(Math.round(DURATION * 1.5));
 
