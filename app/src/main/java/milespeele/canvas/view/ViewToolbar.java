@@ -45,6 +45,11 @@ public class ViewToolbar extends Toolbar {
         setTitle(s);
     }
 
+    @Override
+    public void setElevation(float elevation) {
+        super.setElevation(4f);
+    }
+
     public void animateOut() {
         animator = ObjectAnimator.ofFloat(this, "translationY", -getHeight());
         animator.setDuration(750);

@@ -1,6 +1,7 @@
 package milespeele.canvas.fragment;
 
 import android.animation.Animator;
+import android.app.Activity;
 import android.app.Fragment;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -8,14 +9,23 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.common.eventbus.EventBus;
+
+import javax.inject.Inject;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
+import milespeele.canvas.activity.ActivityHome;
 import milespeele.canvas.view.ViewCanvasLayout;
+import milespeele.canvas.view.ViewFab;
+import milespeele.canvas.view.ViewFabMenu;
 
-public class FragmentDrawer extends Fragment {
+public class FragmentDrawer extends Fragment implements ViewFabMenu.ViewFabMenuListener {
 
     @Bind(R.id.fragment_drawer_coordinator) ViewCanvasLayout coordinatorLayout;
+
 
     public FragmentDrawer() {}
 
@@ -38,20 +48,27 @@ public class FragmentDrawer extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_drawer, container, false);
         ButterKnife.bind(this, v);
+        coordinatorLayout.setMenuListener(this);
         return v;
     }
 
     @Override
     public Animator onCreateAnimator(int transit, boolean enter, int nextAnim) {
-        return (enter) ? coordinatorLayout.reveal(getArguments().getFloat("x", 0),
-                getArguments().getFloat("y", 0)) : coordinatorLayout.unreveal();
+        return (enter) ? coordinatorLayout.reveal(getArguments().getFloat("x", 0f),
+                getArguments().getFloat("y", 0f)) : coordinatorLayout.unreveal();
     }
 
-    public void unreveal() {
-        coordinatorLayout.unreveal();
-    }
+    public ViewCanvasLayout getRootView() { return coordinatorLayout; }
 
-    public Bitmap giveBitmapToActivity() {
+    public Bitmap getDrawingBitmap() {
         return coordinatorLayout.getDrawerBitmap();
+    }
+
+    @Override
+    public void onFabMenuButtonClicked(ViewFab v) {
+        ActivityHome activityHome = (ActivityHome) getActivity();
+        if (activityHome != null) {
+            activityHome.onFabMenuButtonClicked(v);
+        }
     }
 }

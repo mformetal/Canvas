@@ -54,10 +54,6 @@ public class DrawingThread extends Thread {
         }
     }
 
-    public void unreveal() {
-        drawingCurve.unreveal();
-    }
-
     public void onDestroy() {
         drawingCurve.saveBackgroundColor();
         setRunning(false);

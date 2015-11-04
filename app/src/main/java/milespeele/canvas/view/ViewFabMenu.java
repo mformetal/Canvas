@@ -27,15 +27,6 @@ import milespeele.canvas.event.EventBrushChosen;
 import milespeele.canvas.event.EventColorChosen;
 import milespeele.canvas.event.EventFilenameChosen;
 import milespeele.canvas.event.EventParseError;
-import milespeele.canvas.event.EventRedo;
-import milespeele.canvas.event.EventShowBrushPicker;
-import milespeele.canvas.event.EventShowCanvasColorPicker;
-import milespeele.canvas.event.EventShowColorize;
-import milespeele.canvas.event.EventShowErase;
-import milespeele.canvas.event.EventShowFilenameFragment;
-import milespeele.canvas.event.EventShowShapeChooser;
-import milespeele.canvas.event.EventShowStrokePickerColor;
-import milespeele.canvas.event.EventUndo;
 import milespeele.canvas.util.AbstractAnimatorListener;
 
 /**
@@ -65,6 +56,11 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
     private final static int DELAY = 0;
     private final static int DURATION = 400;
     private final static int DELAY_INCREMENT = 15;
+
+    private ViewFabMenuListener listener;
+    public interface ViewFabMenuListener {
+        void onFabMenuButtonClicked(ViewFab v);
+    }
 
     public ViewFabMenu(Context context) {
         super(context);
@@ -171,6 +167,10 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
         R.id.menu_redo, R.id.menu_erase, R.id.menu_show, R.id.menu_new_canvas, R.id.menu_save,
         R.id.menu_shape_chooser})
     public void onClick(View v) {
+        if (listener != null) {
+            listener.onFabMenuButtonClicked((ViewFab) v);
+        }
+
         v.performClick();
         ViewCanvasLayout parent = ((ViewCanvasLayout) getParent());
         switch (v.getId()) {
@@ -179,36 +179,31 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
                 break;
             case R.id.menu_colorize:
                 eraser.scaleDown();
-                bus.post(new EventShowColorize());
-                break;
-            case R.id.menu_size:
-                bus.post(new EventShowBrushPicker(parent.getBrushWidth(), parent.getBrushColor()));
+                parent.ink();
                 break;
             case R.id.menu_stroke_color:
                 eraser.scaleDown();
-                bus.post(new EventShowStrokePickerColor(parent.getBrushColor()));
                 break;
             case R.id.menu_undo:
-                bus.post(new EventUndo());
+                parent.undo();
                 break;
             case R.id.menu_redo:
-                bus.post(new EventRedo());
+                parent.redo();
                 break;
             case R.id.menu_erase:
+                parent.erase();
                 eraser.toggleScaled();
-                bus.post(new EventShowErase());
                 break;
             case R.id.menu_new_canvas:
                 eraser.scaleDown();
-                bus.post(new EventShowCanvasColorPicker());
                 break;
             case R.id.menu_save:
-                bus.post(new EventShowFilenameFragment());
-                break;
-            case R.id.menu_shape_chooser:
-                bus.post(new EventShowShapeChooser());
                 break;
         }
+    }
+
+    public void setListener(ViewFabMenuListener otherListener) {
+        listener = otherListener;
     }
 
     public void toggleMenu() {
@@ -308,6 +303,10 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
             open.start();
             ButterKnife.apply(buttonsList, VISIBLE);
         }
+    }
+
+    public int[] getButtonDimens() {
+        return new int[] {eraser.getWidth(), eraser.getHeight()};
     }
 
     public void onEvent(EventColorChosen eventColorChosen) {

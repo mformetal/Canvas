@@ -25,10 +25,6 @@ import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
 import milespeele.canvas.event.EventBrushChosen;
 import milespeele.canvas.event.EventColorChosen;
-import milespeele.canvas.event.EventRedo;
-import milespeele.canvas.event.EventShowColorize;
-import milespeele.canvas.event.EventShowErase;
-import milespeele.canvas.event.EventUndo;
 import milespeele.canvas.paint.PaintStyles;
 import milespeele.canvas.util.BitmapUtils;
 import milespeele.canvas.util.Datastore;
@@ -273,7 +269,7 @@ public class DrawingCurve {
 //        return averagePixel / iterations;
     }
 
-    public void onEvent(EventRedo eventRedo) {
+    public void redo() {
         if (!redoPoints.isEmpty()) {
             DrawingPoints points = redoPoints.pop();
             allPoints.push(points);
@@ -282,7 +278,7 @@ public class DrawingCurve {
         }
     }
 
-    public void onEvent(EventUndo undo) {
+    public void undo() {
         if (!allPoints.isEmpty()) {
             DrawingPoints points = allPoints.pop();
             redoPoints.push(points);
@@ -323,7 +319,7 @@ public class DrawingCurve {
         Logg.log("ELAPSED: " + (SystemClock.elapsedRealtimeNanos() - start) / 1000000000.0);
     }
 
-    public void onEvent(EventShowErase eventShowErase) {
+    public void erase() {
         if (mState == State.ERASE) {
             changeState(State.DRAW);
         } else {
@@ -331,7 +327,7 @@ public class DrawingCurve {
         }
     }
 
-    public void onEvent(EventShowColorize eventColorize) {
+    public void ink() {
         if (mState == State.INK) {
             changeState(State.DRAW);
         } else {

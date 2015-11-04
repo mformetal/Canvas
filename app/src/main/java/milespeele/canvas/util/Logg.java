@@ -44,6 +44,15 @@ public class Logg {
         Log.d(LOG_TAG, builder.toString());
     }
 
+    public static void log(boolean... bools) {
+        StringBuilder builder = new StringBuilder();
+        for (boolean bool: bools) {
+            builder.append(String.valueOf(bool));
+            builder.append(", ");
+        }
+        Log.d(LOG_TAG, builder.toString());
+    }
+
     public static void log(boolean bool) {
         Log.d(LOG_TAG, String.valueOf(bool));
     }

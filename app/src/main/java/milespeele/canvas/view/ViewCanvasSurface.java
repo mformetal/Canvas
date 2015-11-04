@@ -97,6 +97,22 @@ public class ViewCanvasSurface extends SurfaceView implements SurfaceHolder.Call
         return true;
     }
 
+    public void redo() {
+        thread.getDrawingCurve().redo();
+    }
+
+    public void undo() {
+        thread.getDrawingCurve().undo();
+    }
+
+    public void erase() {
+        thread.getDrawingCurve().erase();
+    }
+
+    public void ink() {
+        thread.getDrawingCurve().ink();
+    }
+
     public int getBrushColor() {
         return thread.getDrawingCurve().getCurrentStrokeColor();
     }

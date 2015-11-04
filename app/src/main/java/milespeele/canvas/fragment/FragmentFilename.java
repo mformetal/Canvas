@@ -1,11 +1,16 @@
 package milespeele.canvas.fragment;
 
+import android.animation.Animator;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.app.Fragment;
 import android.os.Bundle;
+import android.transition.ArcMotion;
+import android.transition.TransitionManager;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
 import android.view.Window;
 
@@ -23,7 +28,7 @@ import milespeele.canvas.view.ViewTypefaceEditText;
 /**
  * Created by Miles Peele on 7/13/2015.
  */
-public class FragmentFilename extends DialogFragment implements View.OnClickListener {
+public class FragmentFilename extends Fragment implements View.OnClickListener {
 
     @Bind(R.id.fragment_filename_input) ViewTypefaceEditText input;
 
@@ -33,13 +38,6 @@ public class FragmentFilename extends DialogFragment implements View.OnClickList
 
     public static FragmentFilename newInstance() {
         return new FragmentFilename();
-    }
-
-    @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-        Dialog dialog = super.onCreateDialog(savedInstanceState);
-        dialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
-        return dialog;
     }
 
     @Override
@@ -53,12 +51,6 @@ public class FragmentFilename extends DialogFragment implements View.OnClickList
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         ((MainApp) activity.getApplicationContext()).getApplicationComponent().inject(this);
-    }
-
-    @Override
-    public void onActivityCreated(Bundle arg0) {
-        super.onActivityCreated(arg0);
-        getDialog().getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
     }
 
     @Override
@@ -77,6 +69,6 @@ public class FragmentFilename extends DialogFragment implements View.OnClickList
             case R.id.fragment_filename_neg_button:
                 break;
         }
-        dismiss();
+        getActivity().onBackPressed();
     }
 }

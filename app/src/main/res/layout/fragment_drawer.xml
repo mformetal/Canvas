@@ -22,4 +22,14 @@
         app:layout_anchorGravity="bottom|center_horizontal"
         app:layout_anchor="@id/fragment_drawer_coordinator" />
 
+    <FrameLayout
+        android:id="@+id/fragment_drawer_animator"
+        android:elevation="24dp"
+        app:layout_anchorGravity="center"
+        app:layout_anchor="@id/fragment_drawer_coordinator"
+        android:visibility="invisible"
+        android:layout_margin="30dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
 </milespeele.canvas.view.ViewCanvasLayout>

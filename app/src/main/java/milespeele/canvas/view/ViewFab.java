@@ -37,6 +37,7 @@ public class ViewFab extends FloatingActionButton implements View.OnLongClickLis
 
     private void init() {
         setOnLongClickListener(this);
+
         scaleUp = new AnimatorSet();
         scaleUp.playTogether(ObjectAnimator.ofFloat(this, "scaleX", 1f, 1.1f),
                 ObjectAnimator.ofFloat(this, "scaleY", 1f, 1.1f));

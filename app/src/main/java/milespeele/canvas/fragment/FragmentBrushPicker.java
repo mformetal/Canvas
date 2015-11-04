@@ -3,6 +3,7 @@ package milespeele.canvas.fragment;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,7 +24,7 @@ import milespeele.canvas.view.ViewBrushLayout;
 /**
  * Created by milespeele on 7/13/15.
  */
-public class FragmentBrushPicker extends DialogFragment implements View.OnClickListener {
+public class FragmentBrushPicker extends Fragment implements View.OnClickListener {
 
     @Bind(R.id.fragment_brush_picker_view) ViewBrushLayout root;
 
@@ -50,13 +51,6 @@ public class FragmentBrushPicker extends DialogFragment implements View.OnClickL
     }
 
     @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-        Dialog dialog = super.onCreateDialog(savedInstanceState);
-        dialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
-        return dialog;
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_brush_picker, container, false);
         ButterKnife.bind(this, v);
@@ -72,13 +66,7 @@ public class FragmentBrushPicker extends DialogFragment implements View.OnClickL
                 bus.post(new EventBrushChosen(root.getThickness(), root.getLastSelectedPaint()));
             case R.id.fragment_brush_picker_cancel:
         }
-        dismiss();
-    }
-
-    @Override
-    public void onActivityCreated(Bundle arg0) {
-        super.onActivityCreated(arg0);
-        getDialog().getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+        getActivity().onBackPressed();
     }
 
     @Override

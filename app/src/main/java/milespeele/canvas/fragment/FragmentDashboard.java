@@ -48,7 +48,7 @@ public class FragmentDashboard extends Fragment implements ViewDashboard.ViewDas
         if (enter) {
             return super.onCreateAnimator(transit, true, nextAnim);
         } else {
-            return ObjectAnimator.ofFloat(this, "alpha", 1f, 0f).setDuration(750);
+            return ObjectAnimator.ofFloat(this, "alpha", 1f, 0f).setDuration(350);
         }
     }
 
