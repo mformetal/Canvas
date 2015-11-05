@@ -7,6 +7,7 @@ import android.app.DialogFragment;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.transition.ArcMotion;
+import android.transition.Transition;
 import android.transition.TransitionManager;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,6 +24,7 @@ import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
 import milespeele.canvas.event.EventFilenameChosen;
+import milespeele.canvas.util.Logg;
 import milespeele.canvas.view.ViewTypefaceEditText;
 
 /**

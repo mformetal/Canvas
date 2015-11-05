@@ -4,39 +4,30 @@ import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
-import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BlurMaskFilter;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Point;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
-import android.graphics.Rect;
-import android.graphics.Shader;
 import android.os.Handler;
 import android.os.Message;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v7.app.AlertDialog;
 import android.transition.ArcMotion;
-import android.transition.Fade;
 import android.transition.TransitionManager;
 import android.util.AttributeSet;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewAnimationUtils;
-import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.AnticipateOvershootInterpolator;
-import android.view.animation.OvershootInterpolator;
 import android.widget.FrameLayout;
 
 import java.lang.ref.WeakReference;
@@ -44,9 +35,7 @@ import java.lang.ref.WeakReference;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import milespeele.canvas.R;
-import milespeele.canvas.fragment.FragmentColorPicker;
 import milespeele.canvas.transition.TransitionFabToDialog;
-import milespeele.canvas.util.AbstractAnimatorListener;
 import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.ViewUtils;
 
@@ -203,93 +192,17 @@ public class ViewCanvasLayout extends CoordinatorLayout implements ViewFabMenu.V
                 if (fabFrame.getWidth() > 0) {
                     fabFrame.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 
-                    int[] screenLocation = new int[2];
-                    view.getLocationOnScreen(screenLocation);
-
-                    int colorTo = getResources().getColor(R.color.primary_dark);
-                    if (view.getId() == R.id.menu_new_canvas || view.getId() == R.id.menu_stroke_color) {
-                        colorTo = Color.TRANSPARENT;
+                    int endColor = getResources().getColor(R.color.primary_dark);
+                    if (view.getId() == R.id.menu_stroke_color || view.getId() == R.id.menu_new_canvas) {
+                        endColor = Color.TRANSPARENT;
                     }
-
-                    TransitionFabToDialog transitionFabToDialog = new TransitionFabToDialog(
-                            getResources().getColor(R.color.accent), colorTo,
-                            screenLocation[0], screenLocation[1],
-                            width / 2, height / 2);
+                    TransitionFabToDialog transitionFabToDialog = new TransitionFabToDialog(endColor);
                     transitionFabToDialog.addTarget(view);
                     transitionFabToDialog.addTarget(fabFrame);
                     TransitionManager.beginDelayedTransition(ViewCanvasLayout.this, transitionFabToDialog);
                 }
             }
         });
-
-
-//        fabFrame.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-//            @Override
-//            public void onGlobalLayout() {
-//                if (fabFrame.getWidth() > view.getWidth()) {
-//                    fabFrame.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-//
-//                    float newWidth = fabFrame.getWidth(), newHeight = fabFrame.getHeight();
-//                    Logg.log(newWidth, newHeight);
-//
-//                    int[] screenLocation = new int[2];
-//                    view.getLocationOnScreen(screenLocation);
-//
-//                    int dur = 368;
-//
-//                    fabFrame.setTranslationX(screenLocation[0]);
-//                    fabFrame.setTranslationY(screenLocation[1] - view.getHeight() / 2);
-//                    fabFrame.setVisibility(View.VISIBLE);
-//
-//                    Animator reveal = ViewAnimationUtils.createCircularReveal(
-//                            fabFrame,
-//                            view.getWidth() / 2,
-//                            view.getHeight() / 2,
-//                            view.getWidth() / 2,
-//                            newWidth / 2)
-//                            .setDuration(dur);
-//
-//                    int colorTo = getResources().getColor(R.color.primary_dark);
-//                    if (view.getId() == R.id.menu_stroke_color || view.getId() == R.id.menu_new_canvas) {
-//                        colorTo = Color.TRANSPARENT;
-//                    }
-//                    Animator background = ObjectAnimator.ofArgb(fabFrame,
-//                            ViewUtils.BACKGROUND_PROPERTY,
-//                            getResources().getColor(R.color.accent),
-//                            colorTo)
-//                            .setDuration(dur);
-//
-//                    ArcMotion arcMotion = new ArcMotion();
-//                    arcMotion.setMinimumVerticalAngle(70f);
-//                    Path motionPath = arcMotion.getPath(fabFrame.getTranslationX(),
-//                            fabFrame.getTranslationY(),
-//                            width / 2 - newWidth * .6f,
-//                            height / 2 - newHeight / 2);
-//                    Animator position = ObjectAnimator.ofFloat(fabFrame, View.TRANSLATION_X, View
-//                            .TRANSLATION_Y, motionPath)
-//                            .setDuration(dur);
-//
-//                    Animator fadeOutFab = ObjectAnimator.ofFloat(view, View.ALPHA, 0f)
-//                            .setDuration(30);
-//
-//                    PropertyValuesHolder scaleX = PropertyValuesHolder.ofFloat("scaleX",
-//                            fabFrame.getScaleX(), newWidth / view.getWidth());
-//                    PropertyValuesHolder scaleY = PropertyValuesHolder.ofFloat("scaleY",
-//                            fabFrame.getScaleX(), newHeight / view.getHeight());
-//                    ObjectAnimator scale = ObjectAnimator.ofPropertyValuesHolder(fabFrame, scaleX, scaleY)
-//                        .setDuration(dur);
-//
-//                    AnimatorSet animatorSet = new AnimatorSet();
-//                    animatorSet.playTogether(reveal, background, fadeOutFab, position);
-//                    animatorSet.addListener(new AbstractAnimatorListener() {
-//                        @Override
-//                        public void onAnimationEnd(Animator animation) {
-//                        }
-//                    });
-//                    animatorSet.start();
-//                }
-//            }
-//        });
     }
 
     private void ifStillMoving() {

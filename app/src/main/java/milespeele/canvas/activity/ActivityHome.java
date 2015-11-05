@@ -6,8 +6,10 @@ import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
 import android.animation.TimeInterpolator;
 import android.app.ActionBar;
+import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.Path;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
@@ -21,6 +23,7 @@ import android.transition.TransitionManager;
 import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.animation.Animation;
 import android.view.animation.Transformation;
 import android.widget.FrameLayout;
@@ -45,6 +48,8 @@ import milespeele.canvas.fragment.FragmentDrawer;
 import milespeele.canvas.fragment.FragmentFilename;
 import milespeele.canvas.parse.Masterpiece;
 import milespeele.canvas.parse.ParseUtils;
+import milespeele.canvas.transition.TransitionFabToDialog;
+import milespeele.canvas.transition.TransitionHelper;
 import milespeele.canvas.util.AbstractAnimatorListener;
 import milespeele.canvas.util.ErrorDialog;
 import milespeele.canvas.util.Logg;
@@ -66,6 +71,7 @@ public class ActivityHome extends ActivityBase {
 
     @Bind(R.id.activity_home_root) CoordinatorLayout root;
     @Bind(R.id.activity_home_toolbar) ViewToolbar toolbar;
+    private FrameLayout fabFrame;
 
     private FragmentManager manager;
 
@@ -74,6 +80,7 @@ public class ActivityHome extends ActivityBase {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         ButterKnife.bind(this);
+        fabFrame = (FrameLayout) findViewById(R.id.fragment_drawer_animator);
 
         setSupportActionBar(toolbar);
 
@@ -139,41 +146,51 @@ public class ActivityHome extends ActivityBase {
         }
     }
 
-    public void showBrushChooser() {
+    public void showBrushChooser(ViewFab view) {
         FragmentDrawer frag = (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
         if (frag != null) {
+            FragmentBrushPicker picker = FragmentBrushPicker.newInstance(frag.getRootView().getBrushWidth(),
+                    frag.getRootView().getBrushColor());
             manager.beginTransaction()
-                    .replace(R.id.fragment_drawer_animator,
-                            FragmentBrushPicker.newInstance(frag.getRootView().getBrushWidth(), frag.getRootView().getBrushColor()))
+                    .replace(R.id.fragment_drawer_animator, picker)
                     .addToBackStack(TAG_FRAGMENT_BRUSH)
                     .commit();
+
+            setTransitions(view, picker);
         }
     }
 
-    public void showStrokeColorChooser() {
+    public void showStrokeColorChooser(ViewFab view) {
         FragmentDrawer frag = (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
         if (frag != null) {
+            FragmentColorPicker picker = FragmentColorPicker.newInstance(TAG_FRAGMENT_STROKE, frag.getRootView().getBrushColor());
             manager.beginTransaction()
-                    .replace(R.id.fragment_drawer_animator,
-                            FragmentColorPicker.newInstance(TAG_FRAGMENT_STROKE, frag.getRootView().getBrushColor()))
+                    .replace(R.id.fragment_drawer_animator, picker)
                     .addToBackStack(TAG_FRAGMENT_STROKE)
                     .commit();
+
+            setTransitions(view, picker);
         }
     }
 
-    public void showNewCanvasColorChooser() {
+    public void showNewCanvasColorChooser(ViewFab view) {
+        FragmentColorPicker picker = FragmentColorPicker.newInstance(TAG_FRAGMENT_FILL, 0);
         manager.beginTransaction()
-                .replace(R.id.fragment_drawer_animator,
-                        FragmentColorPicker.newInstance(TAG_FRAGMENT_FILL, 0))
+                .replace(R.id.fragment_drawer_animator, picker)
                 .addToBackStack(TAG_FRAGMENT_FILL)
                 .commit();
+
+        setTransitions(view, picker);
     }
 
-    public void showFilenameFragment() {
+    public void showFilenameFragment(ViewFab view) {
+        FragmentFilename filename = FragmentFilename.newInstance();
         manager.beginTransaction()
-                .replace(R.id.fragment_drawer_animator, FragmentFilename.newInstance(), TAG_FRAGMENT_FILENAME)
+                .replace(R.id.fragment_drawer_animator, filename, TAG_FRAGMENT_FILENAME)
                 .addToBackStack(TAG_FRAGMENT_FILENAME)
                 .commit();
+
+        setTransitions(view, filename);
     }
 
     public void onDashboardButtonClicked(int clickedId, float cx, float cy) {
@@ -188,19 +205,36 @@ public class ActivityHome extends ActivityBase {
     }
 
     public void onFabMenuButtonClicked(ViewFab view) {
+        fabFrame = (FrameLayout) findViewById(R.id.fragment_drawer_animator);
+
         switch (view.getId()) {
             case R.id.menu_size:
-                showBrushChooser();
+                showBrushChooser(view);
                 break;
             case R.id.menu_stroke_color:
-                showStrokeColorChooser();
+                showStrokeColorChooser(view);
                 break;
             case R.id.menu_new_canvas:
-                showNewCanvasColorChooser();
+                showNewCanvasColorChooser(view);
                 break;
             case R.id.menu_save:
-                showFilenameFragment();
+                showFilenameFragment(view);
                 break;
         }
+    }
+
+    private void setTransitions(ViewFab view, Fragment fragment) {
+        ViewTreeObserver observer = fabFrame.getViewTreeObserver();
+        observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                if (observer.isAlive()) {
+                    if (fabFrame.getWidth() > 0) {
+                        fabFrame.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                        TransitionHelper.makeFabDialogTransitions(ActivityHome.this, view, fabFrame, fragment);
+                    }
+                }
+            }
+        });
     }
 }
