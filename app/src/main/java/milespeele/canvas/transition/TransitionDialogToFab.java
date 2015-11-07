@@ -8,6 +8,7 @@ import android.graphics.Path;
 import android.transition.ArcMotion;
 import android.transition.ChangeBounds;
 import android.transition.TransitionValues;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
@@ -16,10 +17,13 @@ import android.widget.FrameLayout;
 
 import java.util.List;
 
+import butterknife.OnTouch;
 import milespeele.canvas.R;
 import milespeele.canvas.util.AbstractAnimatorListener;
 import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.ViewUtils;
+import milespeele.canvas.view.ViewCanvasLayout;
+import milespeele.canvas.view.ViewCanvasSurface;
 import milespeele.canvas.view.ViewFab;
 
 /**
@@ -66,11 +70,14 @@ public class TransitionDialogToFab extends ChangeBounds {
         List<View> views = getTargets();
         ViewFab fab = (ViewFab) views.get(0);
         FrameLayout fabFrame = (FrameLayout) views.get(1);
+        ViewCanvasLayout layout = (ViewCanvasLayout) views.get(2);
 
         float fabCenterX = (fab.getLeft() + fab.getRight()) / 2;
         float fabCenterY = (fab.getTop() + fab.getBottom()) / 2;
         float translationX = fabCenterX - fabFrame.getWidth() / 2 - fab.getWidth() * .75f;
         float translationY = fabCenterY + fab.getHeight() * 2;
+
+        Animator alpha = ObjectAnimator.ofArgb(layout, ViewCanvasLayout.ALPHA, 0);
 
         Animator background = ObjectAnimator.ofArgb(fabFrame,
                 ViewUtils.BACKGROUND_PROPERTY, startColor, endColor)
@@ -83,6 +90,14 @@ public class TransitionDialogToFab extends ChangeBounds {
                 .TRANSLATION_Y, motionPath)
                 .setDuration(350);
 
+        Animator oppositeReveal = ViewAnimationUtils.createCircularReveal(
+                fabFrame,
+                fabFrame.getWidth() / 2,
+                fabFrame.getHeight() / 2,
+                fabFrame.getWidth(),
+                0)
+                .setDuration(350);
+
         PropertyValuesHolder scalerX = PropertyValuesHolder.ofFloat("scaleX",
                 fabFrame.getScaleX(), (float) fab.getWidth() / (float) fabFrame.getWidth());
         PropertyValuesHolder scalerY = PropertyValuesHolder.ofFloat("scaleY",
@@ -91,12 +106,18 @@ public class TransitionDialogToFab extends ChangeBounds {
                 .setDuration(350);
 
         AnimatorSet animatorSet = new AnimatorSet();
-        animatorSet.playTogether(background, scale, position);
+        animatorSet.playTogether(alpha, oppositeReveal, background, scale, position);
         animatorSet.addListener(new AbstractAnimatorListener() {
             @Override
             public void onAnimationEnd(Animator animation) {
-                fabFrame.setVisibility(View.INVISIBLE);
-                fabFrame.animate().alpha(0f);
+                fabFrame.setVisibility(View.GONE);
+
+                for (int x = 0; x < layout.getChildCount(); x++) {
+                    View v = layout.getChildAt(x);
+                    if (!(v instanceof FrameLayout)) {
+                        enableView(v);
+                    }
+                }
 
                 Animator reveal = ViewAnimationUtils.createCircularReveal(
                         fab,
@@ -114,5 +135,21 @@ public class TransitionDialogToFab extends ChangeBounds {
         animatorSet.setInterpolator(new AccelerateDecelerateInterpolator());
 
         return animatorSet;
+    }
+
+    private static void enableView(View v) {
+        v.setEnabled(true);
+
+        if (v instanceof ViewCanvasSurface) {
+            v.setOnTouchListener((View.OnTouchListener) v);
+        }
+
+        if (v instanceof ViewGroup) {
+            ViewGroup vg = (ViewGroup) v;
+            for (int i = 0; i < vg.getChildCount(); i++) {
+                View child = vg.getChildAt(i);
+                enableView(child);
+            }
+        }
     }
 }

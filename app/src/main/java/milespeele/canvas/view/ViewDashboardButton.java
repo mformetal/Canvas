@@ -31,18 +31,14 @@ import com.squareup.picasso.Cache;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
-import java.lang.ref.SoftReference;
-
 import javax.inject.Inject;
 
-import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
 import milespeele.canvas.paint.PaintStyles;
 import milespeele.canvas.util.AbstractAnimatorListener;
-import milespeele.canvas.util.ColorUtils;
-import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.TextUtils;
+import milespeele.canvas.util.ViewUtils;
 
 /**
  * Created by mbpeele on 10/22/15.
@@ -124,7 +120,7 @@ public class ViewDashboardButton extends ImageView implements Target {
             text = typedArray.getString(R.styleable.ViewDashboardButton_text);
             id = typedArray.getResourceId(R.styleable.ViewDashboardButton_image, R.drawable.ic_brush_black_24dp);
             color = typedArray.getColor(R.styleable.ViewDashboardButton_squareColor, Color.WHITE);
-            darkenedColor = ColorUtils.darken(color, .3f);
+            darkenedColor = ViewUtils.darken(color, .3f);
             rectPaint.setColor(color);
             ripplePaint.setColor(color);
             typedArray.recycle();

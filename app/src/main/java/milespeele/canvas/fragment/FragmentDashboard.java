@@ -13,6 +13,7 @@ import butterknife.ButterKnife;
 import milespeele.canvas.R;
 import milespeele.canvas.activity.ActivityHome;
 import milespeele.canvas.util.Logg;
+import milespeele.canvas.util.ViewUtils;
 import milespeele.canvas.view.ViewCanvasLayout;
 import milespeele.canvas.view.ViewDashboard;
 
@@ -48,7 +49,7 @@ public class FragmentDashboard extends Fragment implements ViewDashboard.ViewDas
         if (enter) {
             return super.onCreateAnimator(transit, true, nextAnim);
         } else {
-            return ObjectAnimator.ofFloat(this, "alpha", 1f, 0f).setDuration(350);
+            return ObjectAnimator.ofFloat(this, ViewUtils.ALPHA_PROPERTY, 1f, 0f).setDuration(350);
         }
     }
 

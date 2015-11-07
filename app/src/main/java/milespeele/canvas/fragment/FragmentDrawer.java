@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.app.Activity;
 import android.app.Fragment;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,6 +19,7 @@ import butterknife.ButterKnife;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
 import milespeele.canvas.activity.ActivityHome;
+import milespeele.canvas.util.BitmapUtils;
 import milespeele.canvas.view.ViewCanvasLayout;
 import milespeele.canvas.view.ViewFab;
 import milespeele.canvas.view.ViewFabMenu;
@@ -25,7 +27,6 @@ import milespeele.canvas.view.ViewFabMenu;
 public class FragmentDrawer extends Fragment implements ViewFabMenu.ViewFabMenuListener {
 
     @Bind(R.id.fragment_drawer_coordinator) ViewCanvasLayout coordinatorLayout;
-
 
     public FragmentDrawer() {}
 
@@ -58,17 +59,17 @@ public class FragmentDrawer extends Fragment implements ViewFabMenu.ViewFabMenuL
                 getArguments().getFloat("y", 0f)) : coordinatorLayout.unreveal();
     }
 
-    public ViewCanvasLayout getRootView() { return coordinatorLayout; }
-
-    public Bitmap getDrawingBitmap() {
-        return coordinatorLayout.getDrawerBitmap();
-    }
-
     @Override
     public void onFabMenuButtonClicked(ViewFab v) {
         ActivityHome activityHome = (ActivityHome) getActivity();
         if (activityHome != null) {
             activityHome.onFabMenuButtonClicked(v);
         }
+    }
+
+    public ViewCanvasLayout getRootView() { return coordinatorLayout; }
+
+    public Bitmap getDrawingBitmap() {
+        return coordinatorLayout.getDrawerBitmap();
     }
 }

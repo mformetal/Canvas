@@ -1,9 +1,7 @@
 package milespeele.canvas.view;
 
 import android.animation.Animator;
-import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
-import android.animation.PropertyValuesHolder;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -14,18 +12,16 @@ import android.graphics.Path;
 import android.graphics.Point;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Handler;
 import android.os.Message;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.view.MotionEventCompat;
-import android.support.v7.app.AlertDialog;
-import android.transition.ArcMotion;
-import android.transition.TransitionManager;
 import android.util.AttributeSet;
+import android.util.Property;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewAnimationUtils;
 import android.view.ViewTreeObserver;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.FrameLayout;
@@ -35,7 +31,7 @@ import java.lang.ref.WeakReference;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import milespeele.canvas.R;
-import milespeele.canvas.transition.TransitionFabToDialog;
+import milespeele.canvas.util.BitmapUtils;
 import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.ViewUtils;
 
@@ -48,18 +44,21 @@ public class ViewCanvasLayout extends CoordinatorLayout implements ViewFabMenu.V
     @Bind(R.id.fragment_drawer_menu) ViewFabMenu menu;
     @Bind(R.id.fragment_drawer_animator) FrameLayout fabFrame;
 
-    private ViewFabMenu.ViewFabMenuListener listener;
     private float circle = 0;
     private static final int DURATION = 750;
     private float centerX, centerY;
-    private Paint revealPaint;
+    private Paint revealPaint, shadowPaint;
     private Path revealPath;
     private ObjectAnimator animator;
     private int height, width;
+    private int[] loc = new int[2];
+
+    private ViewFabMenu.ViewFabMenuListener listener;
 
     private boolean mIsMoving = false;
     private static final int MOVING_DELAY = 750;
     private final MyHandler handler = new MyHandler(this);
+
     private final static class MyHandler extends Handler {
         private final WeakReference<ViewCanvasLayout> ref;
 
@@ -95,10 +94,15 @@ public class ViewCanvasLayout extends CoordinatorLayout implements ViewFabMenu.V
 
         animator = new ObjectAnimator();
 
-        revealPaint = new Paint();
+        revealPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         revealPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
 
+        shadowPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        shadowPaint.setColor(Color.BLACK);
+        shadowPaint.setAlpha(0);
+
         setWillNotDraw(false);
+        setDrawingCacheEnabled(true);
         setClipChildren(false);
     }
 
@@ -107,7 +111,6 @@ public class ViewCanvasLayout extends CoordinatorLayout implements ViewFabMenu.V
         super.onFinishInflate();
         ButterKnife.bind(this);
         drawer.requestFocus();
-        menu.setListener(this);
     }
 
     @Override
@@ -121,6 +124,27 @@ public class ViewCanvasLayout extends CoordinatorLayout implements ViewFabMenu.V
     public void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         canvas.drawCircle(centerX, centerY, circle, revealPaint);
+    }
+
+    @Override
+    protected void dispatchDraw(Canvas canvas) {
+        super.dispatchDraw(canvas);
+        if (shadowPaint.getAlpha() != 0) {
+            fabFrame.getLocationOnScreen(loc);
+
+            float scaleWidth = fabFrame.getScaleX() * fabFrame.getWidth();
+            float scaleHeight = fabFrame.getScaleY() * fabFrame.getHeight();
+
+            float left = loc[0];
+            float top = fabFrame.getY();
+            float right = left + scaleWidth;
+            float bottom = top + scaleHeight;
+
+            canvas.drawRect(left, 0, right, top, shadowPaint);
+            canvas.drawRect(0, 0, left, canvas.getHeight(), shadowPaint);
+            canvas.drawRect(right, 0, canvas.getWidth(), canvas.getHeight(), shadowPaint);
+            canvas.drawRect(left, bottom, right, canvas.getHeight(), shadowPaint);
+        }
     }
 
     @Override
@@ -144,6 +168,11 @@ public class ViewCanvasLayout extends CoordinatorLayout implements ViewFabMenu.V
     }
 
     @Override
+    public void onFabMenuButtonClicked(final ViewFab v) {
+        listener.onFabMenuButtonClicked(v);
+    }
+
+    @Override
     public boolean onInterceptTouchEvent (MotionEvent ev) {
         final int action = MotionEventCompat.getActionMasked(ev);
         switch (action) {
@@ -158,51 +187,6 @@ public class ViewCanvasLayout extends CoordinatorLayout implements ViewFabMenu.V
                 break;
         }
         return false;
-    }
-
-    @Override
-    public void onFabMenuButtonClicked(ViewFab view) {
-        if (listener != null) {
-            if (view.getId() == R.id.menu_new_canvas) {
-                AlertDialog alert = new AlertDialog.Builder(getContext())
-                        .setTitle(getResources().getString(R.string.alert_dialog_new_canvas_title))
-                        .setMessage(getResources().getString(R.string.alert_dialog_new_canvas_body))
-                        .setPositiveButton(getResources().getString(R.string.alert_dialog_new_canvas_pos_button),
-                                (dialog, which) -> {
-                                    animateFabExpansion(view);
-                                })
-                        .setNegativeButton(getResources().getString(R.string.fragment_color_picker_nah),
-                                (dialog, which) -> {
-                                    dialog.dismiss();
-                                })
-                        .create();
-                alert.show();
-            } else {
-                animateFabExpansion(view);
-            }
-        }
-    }
-
-    private void animateFabExpansion(final ViewFab view) {
-        listener.onFabMenuButtonClicked(view);
-
-        fabFrame.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                if (fabFrame.getWidth() > 0) {
-                    fabFrame.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-
-                    int endColor = getResources().getColor(R.color.primary_dark);
-                    if (view.getId() == R.id.menu_stroke_color || view.getId() == R.id.menu_new_canvas) {
-                        endColor = Color.TRANSPARENT;
-                    }
-                    TransitionFabToDialog transitionFabToDialog = new TransitionFabToDialog(endColor);
-                    transitionFabToDialog.addTarget(view);
-                    transitionFabToDialog.addTarget(fabFrame);
-                    TransitionManager.beginDelayedTransition(ViewCanvasLayout.this, transitionFabToDialog);
-                }
-            }
-        });
     }
 
     private void ifStillMoving() {
@@ -242,6 +226,7 @@ public class ViewCanvasLayout extends CoordinatorLayout implements ViewFabMenu.V
 
     public void setMenuListener(ViewFabMenu.ViewFabMenuListener other) {
         listener = other;
+        menu.setListener(this);
     }
 
     public float getBrushWidth() {
@@ -280,4 +265,26 @@ public class ViewCanvasLayout extends CoordinatorLayout implements ViewFabMenu.V
         this.circle = circle;
         invalidate();
     }
+
+    public void setPaintAlpha(int alpha) {
+        shadowPaint.setAlpha(alpha);
+        invalidate();
+    }
+
+    public int getPaintAlpha() {
+        return shadowPaint.getAlpha();
+    }
+
+    public static final Property<ViewCanvasLayout, Integer> ALPHA = new ViewUtils.IntProperty<ViewCanvasLayout>("alpha") {
+
+        @Override
+        public void setValue(ViewCanvasLayout layout, int value) {
+            layout.setPaintAlpha(value);
+        }
+
+        @Override
+        public Integer get(ViewCanvasLayout layout) {
+            return layout.getPaintAlpha();
+        }
+    };
 }

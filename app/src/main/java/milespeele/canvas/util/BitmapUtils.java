@@ -3,6 +3,10 @@ package milespeele.canvas.util;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.renderscript.Allocation;
+import android.renderscript.Element;
+import android.renderscript.RenderScript;
+import android.renderscript.ScriptIntrinsicBlur;
 import android.util.DisplayMetrics;
 import android.view.WindowManager;
 
@@ -21,6 +25,9 @@ import rx.schedulers.Schedulers;
 public class BitmapUtils {
 
     private final static String FILENAME = "name";
+
+    private static final float BITMAP_SCALE = 0.4f;
+    private static final float BLUR_RADIUS = 7.5f;
 
     public static void cache(Context context, byte[] bytes) {
         try {
@@ -71,10 +78,5 @@ public class BitmapUtils {
         }
 
         return bitmap;
-    }
-
-    public static Bitmap resize(Bitmap bitmap, int maxWidth, int maxHeight) {
-        int aspectRatio = bitmap.getWidth() / bitmap.getHeight();
-        return null;
     }
 }

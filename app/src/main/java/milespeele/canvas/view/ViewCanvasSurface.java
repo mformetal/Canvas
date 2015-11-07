@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PixelFormat;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.os.Build;
@@ -17,7 +18,10 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.View;
 
+import butterknife.OnTouch;
+import milespeele.canvas.drawing.DrawingCurve;
 import milespeele.canvas.drawing.DrawingThread;
 import milespeele.canvas.paint.PaintStyles;
 import milespeele.canvas.util.BitmapUtils;
@@ -26,7 +30,7 @@ import milespeele.canvas.util.Logg;
 /**
  * Created by Miles Peele on 10/2/2015.
  */
-public class ViewCanvasSurface extends SurfaceView implements SurfaceHolder.Callback {
+public class ViewCanvasSurface extends SurfaceView implements SurfaceHolder.Callback, View.OnTouchListener {
 
     private DrawingThread thread;
 
@@ -54,6 +58,7 @@ public class ViewCanvasSurface extends SurfaceView implements SurfaceHolder.Call
     public void init() {
         setWillNotDraw(false);
         setSaveEnabled(true);
+        setOnTouchListener(this);
         getHolder().addCallback(this);
     }
 
@@ -75,7 +80,7 @@ public class ViewCanvasSurface extends SurfaceView implements SurfaceHolder.Call
     }
 
     @Override
-    public boolean onTouchEvent(@NonNull MotionEvent event) {
+    public boolean onTouch(View v, MotionEvent event) {
         int actionMasked = MotionEventCompat.getActionMasked(event);
 
         switch (actionMasked & MotionEvent.ACTION_MASK) {

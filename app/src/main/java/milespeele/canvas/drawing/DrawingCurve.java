@@ -227,7 +227,7 @@ public class DrawingCurve {
 
         int undo = averagePixel(current.x, current.y);
         float xa, xb, ya, yb, x, y;
-        for (float i = 0; i < 1; i += .01) {
+        for (float i = 0; i < 1; i += .02) {
             xa = previous.x + (previous.x - mid.x) * i;
             ya = previous.y + (previous.y - mid.y) * i;
 

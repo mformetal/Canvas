@@ -4,12 +4,13 @@ import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
-import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Path;
+import android.support.design.widget.CoordinatorLayout;
 import android.transition.ArcMotion;
 import android.transition.ChangeBounds;
 import android.transition.TransitionValues;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
@@ -19,8 +20,11 @@ import android.widget.FrameLayout;
 import java.util.List;
 
 import milespeele.canvas.R;
+import milespeele.canvas.util.AbstractAnimatorListener;
 import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.ViewUtils;
+import milespeele.canvas.view.ViewCanvasLayout;
+import milespeele.canvas.view.ViewCanvasSurface;
 import milespeele.canvas.view.ViewFab;
 
 /**
@@ -64,10 +68,11 @@ public class TransitionFabToDialog extends ChangeBounds {
         List<View> views = getTargets();
         ViewFab fab = (ViewFab) views.get(0);
         FrameLayout fabFrame = (FrameLayout) views.get(1);
+        ViewCanvasLayout layout = (ViewCanvasLayout) views.get(2);
 
         float fabCenterX = (fab.getLeft() + fab.getRight()) / 2;
         float fabCenterY = (fab.getTop() + fab.getBottom()) / 2;
-        float translationX = fabCenterX - fabFrame.getWidth() / 2 - fab.getWidth();
+        float translationX = fabCenterX - fabFrame.getWidth() / 2 - (3 * fab.getWidth()) / 4;
         float translationY = fabCenterY + fab.getHeight() * 2;
 
         fabFrame.setScaleX((float) fab.getWidth() / (float) fabFrame.getWidth());
@@ -76,20 +81,20 @@ public class TransitionFabToDialog extends ChangeBounds {
         fabFrame.setTranslationY(translationY);
         fabFrame.setVisibility(View.VISIBLE);
 
-        fabFrame.animate().alpha(1f);
+        Animator alpha = ObjectAnimator.ofArgb(layout, ViewCanvasLayout.ALPHA, 128);
 
         Animator fade = ObjectAnimator.ofFloat(fab, View.ALPHA, 0f).setDuration(50);
+
+        Animator background = ObjectAnimator.ofArgb(fabFrame,
+                ViewUtils.BACKGROUND_PROPERTY, startColor, endColor)
+                .setDuration(350);
 
         Animator reveal = ViewAnimationUtils.createCircularReveal(
                 fabFrame,
                 fabFrame.getWidth() / 2,
                 fabFrame.getHeight() / 2,
-                fab.getWidth() / 2,
-                (int) Math.hypot(fabFrame.getWidth() / 2, fabFrame.getHeight() / 2))
-                .setDuration(350);
-
-        Animator background = ObjectAnimator.ofArgb(fabFrame,
-                ViewUtils.BACKGROUND_PROPERTY, startColor, endColor)
+                fab.getWidth(),
+                fabFrame.getWidth())
                 .setDuration(350);
 
         ArcMotion arcMotion = new ArcMotion();
@@ -99,18 +104,43 @@ public class TransitionFabToDialog extends ChangeBounds {
                 .TRANSLATION_Y, motionPath)
                 .setDuration(350);
 
-        PropertyValuesHolder scalerX = PropertyValuesHolder.ofFloat("scaleX",
-                fabFrame.getScaleX(), 1f);
-        PropertyValuesHolder scalerY = PropertyValuesHolder.ofFloat("scaleY",
-                fabFrame.getScaleX(), 1f);
-        ObjectAnimator scale = ObjectAnimator.ofPropertyValuesHolder(fabFrame, scalerX, scalerY)
+        ObjectAnimator scale = ObjectAnimator.ofPropertyValuesHolder(fabFrame,
+                PropertyValuesHolder.ofFloat("scaleX", fabFrame.getScaleX(), 1f),
+                PropertyValuesHolder.ofFloat("scaleY", fabFrame.getScaleX(), 1f))
                 .setDuration(350);
 
         AnimatorSet animatorSet = new AnimatorSet();
-        animatorSet.playTogether(fade, reveal, background, scale, position);
+        animatorSet.playTogether(alpha, reveal, fade, background, position, scale);
+        animatorSet.addListener(new AbstractAnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                for (int x = 0; x < layout.getChildCount(); x++) {
+                    View v = layout.getChildAt(x);
+                    if (!(v instanceof FrameLayout)) {
+                        disableView(v);
+                    }
+                }
+            }
+        });
         animatorSet.setDuration(350);
         animatorSet.setInterpolator(new AccelerateDecelerateInterpolator());
 
         return animatorSet;
+    }
+
+    public static void disableView(View v) {
+        v.setEnabled(false);
+
+        if (v instanceof ViewCanvasSurface) {
+            v.setOnTouchListener(null);
+        }
+
+        if (v instanceof ViewGroup) {
+            ViewGroup vg = (ViewGroup) v;
+            for (int i = 0; i < vg.getChildCount(); i++) {
+                View child = vg.getChildAt(i);
+                disableView(child);
+            }
+        }
     }
 }

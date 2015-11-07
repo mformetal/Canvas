@@ -7,6 +7,7 @@ import android.app.DialogFragment;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.transition.ArcMotion;
+import android.transition.Fade;
 import android.transition.Transition;
 import android.transition.TransitionManager;
 import android.view.LayoutInflater;

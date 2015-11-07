@@ -151,12 +151,13 @@ public class ActivityHome extends ActivityBase {
         if (frag != null) {
             FragmentBrushPicker picker = FragmentBrushPicker.newInstance(frag.getRootView().getBrushWidth(),
                     frag.getRootView().getBrushColor());
+
+            TransitionHelper.makeFabDialogTransitions(ActivityHome.this, view, fabFrame, picker);
+
             manager.beginTransaction()
                     .replace(R.id.fragment_drawer_animator, picker)
                     .addToBackStack(TAG_FRAGMENT_BRUSH)
                     .commit();
-
-            setTransitions(view, picker);
         }
     }
 
@@ -164,33 +165,48 @@ public class ActivityHome extends ActivityBase {
         FragmentDrawer frag = (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
         if (frag != null) {
             FragmentColorPicker picker = FragmentColorPicker.newInstance(TAG_FRAGMENT_STROKE, frag.getRootView().getBrushColor());
+
+            TransitionHelper.makeFabDialogTransitions(ActivityHome.this, view, fabFrame, picker);
+
             manager.beginTransaction()
                     .replace(R.id.fragment_drawer_animator, picker)
                     .addToBackStack(TAG_FRAGMENT_STROKE)
                     .commit();
-
-            setTransitions(view, picker);
         }
     }
 
     public void showNewCanvasColorChooser(ViewFab view) {
-        FragmentColorPicker picker = FragmentColorPicker.newInstance(TAG_FRAGMENT_FILL, 0);
-        manager.beginTransaction()
-                .replace(R.id.fragment_drawer_animator, picker)
-                .addToBackStack(TAG_FRAGMENT_FILL)
-                .commit();
+        AlertDialog alert = new AlertDialog.Builder(this)
+                .setTitle(getResources().getString(R.string.alert_dialog_new_canvas_title))
+                .setMessage(getResources().getString(R.string.alert_dialog_new_canvas_body))
+                .setPositiveButton(getResources().getString(R.string.alert_dialog_new_canvas_pos_button),
+                        (dialog, which) -> {
+                            FragmentColorPicker picker = FragmentColorPicker.newInstance(TAG_FRAGMENT_FILL, 0);
 
-        setTransitions(view, picker);
+                            TransitionHelper.makeFabDialogTransitions(ActivityHome.this, view, fabFrame, picker);
+
+                            manager.beginTransaction()
+                                    .replace(R.id.fragment_drawer_animator, picker)
+                                    .addToBackStack(TAG_FRAGMENT_FILL)
+                                    .commit();
+                        })
+                .setNegativeButton(getResources().getString(R.string.fragment_color_picker_nah),
+                        (dialog, which) -> {
+                            dialog.dismiss();
+                        })
+                .create();
+        alert.show();
     }
 
     public void showFilenameFragment(ViewFab view) {
         FragmentFilename filename = FragmentFilename.newInstance();
+
+        TransitionHelper.makeFabDialogTransitions(ActivityHome.this, view, fabFrame, filename);
+
         manager.beginTransaction()
                 .replace(R.id.fragment_drawer_animator, filename, TAG_FRAGMENT_FILENAME)
                 .addToBackStack(TAG_FRAGMENT_FILENAME)
                 .commit();
-
-        setTransitions(view, filename);
     }
 
     public void onDashboardButtonClicked(int clickedId, float cx, float cy) {
@@ -221,20 +237,5 @@ public class ActivityHome extends ActivityBase {
                 showFilenameFragment(view);
                 break;
         }
-    }
-
-    private void setTransitions(ViewFab view, Fragment fragment) {
-        ViewTreeObserver observer = fabFrame.getViewTreeObserver();
-        observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                if (observer.isAlive()) {
-                    if (fabFrame.getWidth() > 0) {
-                        fabFrame.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                        TransitionHelper.makeFabDialogTransitions(ActivityHome.this, view, fabFrame, fragment);
-                    }
-                }
-            }
-        });
     }
 }

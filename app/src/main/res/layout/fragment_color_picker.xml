@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_margin="20dp"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="match_parent" >
 
     <milespeele.canvas.view.ViewTypefaceTextView
         android:layout_width="wrap_content"
@@ -34,23 +36,27 @@
     <milespeele.canvas.view.ViewTypefaceButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/selector_button"
-        android:text="@string/fragment_color_picker_nah"
-        android:textColor="@android:color/white"
-        android:id="@+id/fragment_color_picker_cancel"
-        android:layout_below="@+id/fragment_color_picker_opacity"
-        android:layout_alignLeft="@id/fragment_color_picker_view"
-        android:layout_marginLeft="50dp" />
-
-    <milespeele.canvas.view.ViewTypefaceButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@drawable/selector_button"
         android:text="@string/fragment_color_picker_choose"
         android:textColor="@android:color/white"
         android:id="@+id/fragment_color_picker_select"
         android:layout_below="@+id/fragment_color_picker_opacity"
-        android:layout_alignRight="@id/fragment_color_picker_view"
-        android:layout_marginRight="50dp" />
+        android:paddingBottom="@dimen/activity_horizontal_margin"
+        android:layout_alignParentEnd="true"
+        style="?android:attr/borderlessButtonStyle"
+        android:background="?android:attr/selectableItemBackground" />
+
+    <milespeele.canvas.view.ViewTypefaceButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/fragment_color_picker_nah"
+        android:textColor="@android:color/white"
+        android:id="@+id/fragment_color_picker_cancel"
+        android:layout_below="@+id/fragment_color_picker_opacity"
+        android:layout_alignBottom="@id/fragment_color_picker_select"
+        android:layout_alignBaseline="@id/fragment_color_picker_select"
+        android:layout_toStartOf="@id/fragment_color_picker_select"
+        android:paddingBottom="@dimen/activity_horizontal_margin"
+        style="?android:attr/borderlessButtonStyle"
+        android:background="?android:attr/selectableItemBackground"/>
 
 </RelativeLayout>

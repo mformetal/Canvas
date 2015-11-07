@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/fragment_brush_picker_reveal_layout"
     android:orientation="vertical"
     android:layout_width="match_parent"
@@ -28,7 +29,6 @@
         android:text="@string/fragment_brush_picker_pos_button_text"
         android:layout_gravity="end"
         android:layout_below="@id/fragment_brush_picker_view"
-        android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />
 
     <milespeele.canvas.view.ViewTypefaceButton
@@ -39,7 +39,6 @@
         android:id="@+id/fragment_brush_picker_cancel"
         android:text="@string/fragment_color_picker_nah"
         android:layout_below="@id/fragment_brush_picker_view"
-        android:layout_toLeftOf="@+id/fragment_brush_picker_pos"
         android:layout_toStartOf="@+id/fragment_brush_picker_pos" />
 
 </RelativeLayout>
