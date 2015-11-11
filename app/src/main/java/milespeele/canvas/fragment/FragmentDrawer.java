@@ -1,25 +1,19 @@
 package milespeele.canvas.fragment;
 
 import android.animation.Animator;
-import android.app.Activity;
 import android.app.Fragment;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.common.eventbus.EventBus;
-
-import javax.inject.Inject;
+import java.util.ArrayList;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
 import milespeele.canvas.activity.ActivityHome;
-import milespeele.canvas.util.BitmapUtils;
 import milespeele.canvas.view.ViewCanvasLayout;
 import milespeele.canvas.view.ViewFab;
 import milespeele.canvas.view.ViewFabMenu;
@@ -55,8 +49,12 @@ public class FragmentDrawer extends Fragment implements ViewFabMenu.ViewFabMenuL
 
     @Override
     public Animator onCreateAnimator(int transit, boolean enter, int nextAnim) {
-        return (enter) ? coordinatorLayout.reveal(getArguments().getFloat("x", 0f),
-                getArguments().getFloat("y", 0f)) : coordinatorLayout.unreveal();
+        if (getArguments().getFloat("x", 0f) == -1) {
+            return super.onCreateAnimator(transit, enter, nextAnim);
+        } else {
+            return (enter) ? coordinatorLayout.reveal(getArguments().getFloat("x", 0f),
+                    getArguments().getFloat("y", 0f)) : coordinatorLayout.unreveal();
+        }
     }
 
     @Override

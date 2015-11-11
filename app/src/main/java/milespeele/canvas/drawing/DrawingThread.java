@@ -5,13 +5,10 @@ import android.graphics.Canvas;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 
-import milespeele.canvas.util.BitmapUtils;
+import milespeele.canvas.util.FileUtils;
 import milespeele.canvas.util.Logg;
 import rx.android.schedulers.AndroidSchedulers;
 
-/**
- * Created by Miles Peele on 10/2/2015.
- */
 public class DrawingThread extends Thread {
 
     private boolean mRun = false;
@@ -55,14 +52,15 @@ public class DrawingThread extends Thread {
     }
 
     public void onDestroy() {
-        drawingCurve.saveBackgroundColor();
         setRunning(false);
 
-        BitmapUtils.compressBitmapAsObservable(drawingCurve.getBitmap())
+        drawingCurve.saveBackgroundColor();
+
+        FileUtils.compressBitmapAsObservable(drawingCurve.getBitmap())
                 .subscribeOn(AndroidSchedulers.mainThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(bytes -> {
-                    BitmapUtils.cache(mContext, bytes);
+                    FileUtils.cacheBitmap(mContext, bytes);
 
                     boolean retry = true;
                     setRunning(false);

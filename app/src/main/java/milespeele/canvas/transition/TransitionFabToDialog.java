@@ -4,15 +4,12 @@ import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
-import android.graphics.Color;
+import android.content.Context;
 import android.graphics.Path;
-import android.support.design.widget.CoordinatorLayout;
 import android.transition.ArcMotion;
 import android.transition.ChangeBounds;
 import android.transition.TransitionValues;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.FrameLayout;
@@ -21,7 +18,6 @@ import java.util.List;
 
 import milespeele.canvas.R;
 import milespeele.canvas.util.AbstractAnimatorListener;
-import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.ViewUtils;
 import milespeele.canvas.view.ViewCanvasLayout;
 import milespeele.canvas.view.ViewCanvasSurface;
@@ -32,38 +28,16 @@ import milespeele.canvas.view.ViewFab;
  */
 public class TransitionFabToDialog extends ChangeBounds {
 
-    private static final String COLOR = "milespeele.canvas:transitionFabToDialog:color";
-    private static final String X = "milespeele.canvas:transitionFabToDialog:x";
-    private static final String Y = "milespeele.canvas:transitionFabToDialog:y";
-    private static final String[] PROPERTIES = {COLOR, X, Y};
-    private int endColor;
+    private Context context;
 
-    public TransitionFabToDialog(int endColor) {
-        this.endColor = endColor;
-    }
-
-    @Override
-    public void captureStartValues(TransitionValues transitionValues) {
-        super.captureStartValues(transitionValues);
-        transitionValues.values.put(COLOR,
-                transitionValues.view.getContext().getResources().getColor(R.color.accent));
-    }
-
-    @Override
-    public void captureEndValues(TransitionValues transitionValues) {
-        super.captureEndValues(transitionValues);
-        transitionValues.values.put(COLOR, endColor);
-    }
-
-    @Override
-    public String[] getTransitionProperties() {
-        return PROPERTIES;
+    public TransitionFabToDialog(Context context) {
+        this.context = context;
     }
 
     @Override
     public Animator createAnimator(ViewGroup sceneRoot, TransitionValues startValues, TransitionValues endValues) {
-        Integer startColor = (Integer) startValues.values.get(COLOR);
-        Integer endColor = (Integer) endValues.values.get(COLOR);
+        int startColor = context.getResources().getColor(R.color.accent);
+        int endColor = context.getResources().getColor(R.color.primary_dark);
 
         List<View> views = getTargets();
         ViewFab fab = (ViewFab) views.get(0);
@@ -83,18 +57,8 @@ public class TransitionFabToDialog extends ChangeBounds {
 
         Animator alpha = ObjectAnimator.ofArgb(layout, ViewCanvasLayout.ALPHA, 128);
 
-        Animator fade = ObjectAnimator.ofFloat(fab, View.ALPHA, 0f).setDuration(50);
-
         Animator background = ObjectAnimator.ofArgb(fabFrame,
-                ViewUtils.BACKGROUND_PROPERTY, startColor, endColor)
-                .setDuration(350);
-
-        Animator reveal = ViewAnimationUtils.createCircularReveal(
-                fabFrame,
-                fabFrame.getWidth() / 2,
-                fabFrame.getHeight() / 2,
-                fab.getWidth(),
-                fabFrame.getWidth())
+                ViewUtils.BACKGROUND, startColor, endColor)
                 .setDuration(350);
 
         ArcMotion arcMotion = new ArcMotion();
@@ -110,10 +74,12 @@ public class TransitionFabToDialog extends ChangeBounds {
                 .setDuration(350);
 
         AnimatorSet animatorSet = new AnimatorSet();
-        animatorSet.playTogether(alpha, reveal, fade, background, position, scale);
+        animatorSet.playTogether(alpha, background, position, scale);
         animatorSet.addListener(new AbstractAnimatorListener() {
             @Override
             public void onAnimationStart(Animator animation) {
+                fab.setVisibility(View.GONE);
+
                 for (int x = 0; x < layout.getChildCount(); x++) {
                     View v = layout.getChildAt(x);
                     if (!(v instanceof FrameLayout)) {

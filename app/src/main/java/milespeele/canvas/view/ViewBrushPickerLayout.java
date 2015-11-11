@@ -15,33 +15,33 @@ import milespeele.canvas.R;
 /**
  * Created by milespeele on 8/8/15.
  */
-public class ViewBrushLayout extends LinearLayout implements SeekBar.OnSeekBarChangeListener {
+public class ViewBrushPickerLayout extends LinearLayout implements SeekBar.OnSeekBarChangeListener {
 
-    @Bind(R.id.fragment_brush_picker_view_example) ViewBrushLayoutSizer example;
+    @Bind(R.id.fragment_brush_picker_view_example) ViewBrushPickerCurrentBrush example;
     @Bind(R.id.fragment_brush_picker_view_sizer) SeekBar sizer;
     @Bind(R.id.fragment_brush_picker_view_recycler) ViewPaintExamplesRecycler recycler;
 
-    private final static int MAX_THICKNESS = 50;
+    private final static int MAX_THICKNESS = 100;
     private float thickness;
     private Paint lastSelectedPaint;
 
-    public ViewBrushLayout(Context context) {
+    public ViewBrushPickerLayout(Context context) {
         super(context);
         init();
     }
 
-    public ViewBrushLayout(Context context, AttributeSet attrs) {
+    public ViewBrushPickerLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
     }
 
-    public ViewBrushLayout(Context context, AttributeSet attrs, int defStyleAttr) {
+    public ViewBrushPickerLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init();
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public ViewBrushLayout(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public ViewBrushPickerLayout(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         init();
     }

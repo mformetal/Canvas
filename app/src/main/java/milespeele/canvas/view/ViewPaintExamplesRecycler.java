@@ -10,7 +10,6 @@ import android.widget.LinearLayout;
 
 import java.util.ArrayList;
 
-import jp.wasabeef.recyclerview.animators.adapters.AlphaInAnimationAdapter;
 import milespeele.canvas.R;
 import milespeele.canvas.adapter.AdapterPojoPaintExamples;
 import milespeele.canvas.paint.PaintStyles;
@@ -25,6 +24,9 @@ import milespeele.canvas.util.WrapContentLinearLayoutManager;
 public class ViewPaintExamplesRecycler extends RecyclerView implements ItemClickSupport.OnItemClickListener {
 
     private int color;
+    private int overallScroll;
+
+    private AdapterPojoPaintExamples adapter;
 
     public ViewPaintExamplesRecycler(Context context) {
         super(context);
@@ -50,9 +52,9 @@ public class ViewPaintExamplesRecycler extends RecyclerView implements ItemClick
 
     @Override
     public void onItemClicked(RecyclerView recyclerView, int position, View v) {
-        ViewBrushLayoutPaintExample example = (ViewBrushLayoutPaintExample) ((LinearLayout) v).getChildAt(1);
+        ViewBrushPickerPaintExample example = (ViewBrushPickerPaintExample) ((LinearLayout) v).getChildAt(1);
 
-        ((ViewBrushLayout) getParent()).changeExamplePaint(example.getExamplePaint());
+        ((ViewBrushPickerLayout) getParent()).changeExamplePaint(example.getExamplePaint());
     }
 
     private void createList(Context context) {
@@ -62,7 +64,7 @@ public class ViewPaintExamplesRecycler extends RecyclerView implements ItemClick
             arrayList.add(new PojoPaintExample(res.substring(0,1).toUpperCase() + res.substring(1),
                     PaintStyles.getStyleFromName(res, getColor())));
         }
-        setAdapter(new AdapterPojoPaintExamples(arrayList));
+        setAdapter((adapter = new AdapterPojoPaintExamples(arrayList)));
     }
 
     public void setColor(int color) {

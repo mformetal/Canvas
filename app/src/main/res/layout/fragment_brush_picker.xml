@@ -21,7 +21,6 @@
         android:id="@+id/fragment_brush_picker_view" />
 
     <milespeele.canvas.view.ViewTypefaceButton
-        style="?borderlessButtonStyle"
         android:textColor="@android:color/white"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -29,16 +28,19 @@
         android:text="@string/fragment_brush_picker_pos_button_text"
         android:layout_gravity="end"
         android:layout_below="@id/fragment_brush_picker_view"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentEnd="true"
+        style="?android:attr/borderlessButtonStyle"
+        android:background="?android:attr/selectableItemBackground" />
 
     <milespeele.canvas.view.ViewTypefaceButton
-        style="?borderlessButtonStyle"
         android:textColor="@android:color/white"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/fragment_brush_picker_cancel"
         android:text="@string/fragment_color_picker_nah"
         android:layout_below="@id/fragment_brush_picker_view"
-        android:layout_toStartOf="@+id/fragment_brush_picker_pos" />
+        android:layout_toStartOf="@+id/fragment_brush_picker_pos"
+        style="?android:attr/borderlessButtonStyle"
+        android:background="?android:attr/selectableItemBackground" />
 
 </RelativeLayout>

@@ -1,14 +1,11 @@
 package milespeele.canvas.fragment;
 
 import android.app.Activity;
-import android.app.Dialog;
-import android.app.DialogFragment;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 
 import javax.inject.Inject;
 
@@ -19,14 +16,14 @@ import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
 import milespeele.canvas.event.EventBrushChosen;
-import milespeele.canvas.view.ViewBrushLayout;
+import milespeele.canvas.view.ViewBrushPickerLayout;
 
 /**
  * Created by milespeele on 7/13/15.
  */
 public class FragmentBrushPicker extends Fragment implements View.OnClickListener {
 
-    @Bind(R.id.fragment_brush_picker_view) ViewBrushLayout root;
+    @Bind(R.id.fragment_brush_picker_view) ViewBrushPickerLayout root;
 
     @Inject EventBus bus;
 

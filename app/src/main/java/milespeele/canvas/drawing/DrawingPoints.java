@@ -17,24 +17,23 @@ public class DrawingPoints extends ArrayList<DrawingPoint> {
 
     private static final int CAPACITY = 3000;
 
-    public Paint paint;
     private HashSet<DrawingPoint> set;
 
     public DrawingPoints(DrawingPoints other) {
         super(other);
-        paint = new Paint(other.paint);
         set = new HashSet<>(CAPACITY);
     }
 
     public DrawingPoints(Paint other) {
         super();
-        paint = new Paint(other);
         set = new HashSet<>(CAPACITY);
     }
 
     public DrawingPoint peek() {
         return get(size() - 1);
     }
+
+    public DrawingPoint first() { return get(0); }
 
     @Override
     public boolean add(DrawingPoint object) {

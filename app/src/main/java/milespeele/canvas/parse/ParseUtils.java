@@ -15,7 +15,7 @@ import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.activity.ActivityHome;
 import milespeele.canvas.event.EventParseError;
-import milespeele.canvas.util.BitmapUtils;
+import milespeele.canvas.util.FileUtils;
 import milespeele.canvas.util.Logg;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -32,7 +32,7 @@ public class ParseUtils {
     }
 
     public void saveImageToServer(String filename, final WeakReference<ActivityHome> weakCxt, Bitmap bitmap) {
-        BitmapUtils.compressBitmapAsObservable(bitmap)
+        FileUtils.compressBitmapAsObservable(bitmap)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(bytes -> {
@@ -50,7 +50,6 @@ public class ParseUtils {
                                         if (e2 == null) {
                                             ActivityHome activityHome = weakCxt.get();
                                             if (activityHome != null && !activityHome.isFinishing()) {
-                                                activityHome.showSavedImageSnackbar(art);
                                             }
                                         } else {
                                             handleError(e2);

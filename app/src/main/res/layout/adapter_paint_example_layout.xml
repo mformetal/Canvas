@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<milespeele.canvas.view.ViewRippleLinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="horizontal"
+    android:layout_marginStart="@dimen/paint_example_items_margin"
+    android:layout_marginEnd="@dimen/paint_example_items_margin"
     android:layout_width="match_parent"
     android:layout_height="60dp" >
 
@@ -12,17 +14,13 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:gravity="center"
-        android:layout_marginLeft="@dimen/paint_example_items_margin"
-        android:layout_marginStart="@dimen/paint_example_items_margin"
         app:borderColor="@color/gray"
         app:shouldDrawBorder="true" />
 
-    <milespeele.canvas.view.ViewBrushLayoutPaintExample
+    <milespeele.canvas.view.ViewBrushPickerPaintExample
         android:layout_weight="4"
         android:id="@+id/paint_example_layout_paint"
         android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_marginRight="@dimen/paint_example_items_margin"
-        android:layout_marginEnd="@dimen/paint_example_items_margin" />
+        android:layout_height="match_parent" />
 
-</LinearLayout>
+</milespeele.canvas.view.ViewRippleLinearLayout>

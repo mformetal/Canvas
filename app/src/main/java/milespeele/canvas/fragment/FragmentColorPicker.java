@@ -1,21 +1,12 @@
 package milespeele.canvas.fragment;
 
 import android.app.Activity;
-import android.app.Dialog;
-import android.app.DialogFragment;
 import android.app.Fragment;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.widget.TextView;
-
-import com.larswerkman.holocolorpicker.ColorPicker;
-import com.larswerkman.holocolorpicker.OpacityBar;
-import com.larswerkman.holocolorpicker.SVBar;
+import android.widget.LinearLayout;
 
 import javax.inject.Inject;
 
@@ -25,29 +16,25 @@ import butterknife.OnClick;
 import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
-import milespeele.canvas.event.EventColorChosen;
+import milespeele.canvas.view.ViewColorPickerLayout;
+import milespeele.canvas.view.ViewTypefaceTextView;
 
 /**
  * Created by milespeele on 7/3/15.
  */
 public class FragmentColorPicker extends Fragment implements View.OnClickListener {
 
-    @Bind(R.id.fragment_color_picker_which) TextView which;
-    @Bind(R.id.fragment_color_picker_view) ColorPicker picker;
-    @Bind(R.id.fragment_color_picker_sv) SVBar svBar;
-    @Bind(R.id.fragment_color_picker_opacity) OpacityBar opacityBar;
+    @Bind(R.id.fragment_color_picker_view) ViewColorPickerLayout root;
 
     @Inject EventBus bus;
 
-    private final static String TAG = "which";
     private final static String PREV = "prev";
 
-    public FragmentColorPicker(){}
+    public FragmentColorPicker() {}
 
-    public static FragmentColorPicker newInstance(String whichColor, int previousColor) {
+    public static FragmentColorPicker newInstance(int previousColor) {
         FragmentColorPicker fragment = new FragmentColorPicker();
         Bundle args = new Bundle();
-        args.putString(TAG, whichColor);
         args.putInt(PREV, previousColor);
         fragment.setArguments(args);
         return fragment;
@@ -64,11 +51,7 @@ public class FragmentColorPicker extends Fragment implements View.OnClickListene
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_color_picker, container, false);
         ButterKnife.bind(this, v);
-        which.setText(getArguments().getString(TAG));
-        picker.setShowOldCenterColor(false);
-        picker.setColor(getArguments().getInt(PREV));
-        picker.addSVBar(svBar);
-        picker.addOpacityBar(opacityBar);
+        root.setCurrentColor(getArguments().getInt(PREV));
         return v;
     }
 
@@ -83,8 +66,8 @@ public class FragmentColorPicker extends Fragment implements View.OnClickListene
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.fragment_color_picker_select:
-                bus.post(new EventColorChosen(picker.getColor(), opacityBar.getOpacity(),
-                        getArguments().getString(TAG)));
+//                bus.post(new EventColorChosen(picker.getColor(), opacityBar.getOpacity(),
+//                        toggle.isChecked()));
                 break;
             case R.id.fragment_color_picker_cancel:
         }

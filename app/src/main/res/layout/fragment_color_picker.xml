@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_margin="20dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
@@ -9,29 +11,18 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
+        android:layout_marginBottom="@dimen/fragment_color_picker_view_vertical_margin"
+        android:text="@string/fragment_color_picker_title"
         android:textColor="@android:color/white"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:id="@+id/fragment_color_picker_which" />
+        android:id="@+id/fragment_color_picker_title" />
 
-    <com.larswerkman.holocolorpicker.ColorPicker
-        android:layout_width="wrap_content"
+    <include
+        layout="@layout/fragment_color_picker_view"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/fragment_color_picker_which"
-        android:id="@+id/fragment_color_picker_view" />
-
-    <com.larswerkman.holocolorpicker.SVBar
-        android:id="@+id/fragment_color_picker_sv"
-        android:layout_below="@id/fragment_color_picker_view"
-        android:layout_marginBottom="@dimen/activity_vertical_margin"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
-
-    <com.larswerkman.holocolorpicker.OpacityBar
-        android:id="@+id/fragment_color_picker_opacity"
-        android:layout_below="@id/fragment_color_picker_sv"
-        android:layout_marginBottom="@dimen/activity_vertical_margin"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:id="@+id/fragment_color_picker_view"
+        android:layout_below="@id/fragment_color_picker_title" />
 
     <milespeele.canvas.view.ViewTypefaceButton
         android:layout_width="wrap_content"
@@ -39,8 +30,7 @@
         android:text="@string/fragment_color_picker_choose"
         android:textColor="@android:color/white"
         android:id="@+id/fragment_color_picker_select"
-        android:layout_below="@+id/fragment_color_picker_opacity"
-        android:paddingBottom="@dimen/activity_horizontal_margin"
+        android:layout_below="@+id/fragment_color_picker_view"
         android:layout_alignParentEnd="true"
         style="?android:attr/borderlessButtonStyle"
         android:background="?android:attr/selectableItemBackground" />
@@ -51,11 +41,8 @@
         android:text="@string/fragment_color_picker_nah"
         android:textColor="@android:color/white"
         android:id="@+id/fragment_color_picker_cancel"
-        android:layout_below="@+id/fragment_color_picker_opacity"
-        android:layout_alignBottom="@id/fragment_color_picker_select"
-        android:layout_alignBaseline="@id/fragment_color_picker_select"
+        android:layout_below="@+id/fragment_color_picker_view"
         android:layout_toStartOf="@id/fragment_color_picker_select"
-        android:paddingBottom="@dimen/activity_horizontal_margin"
         style="?android:attr/borderlessButtonStyle"
         android:background="?android:attr/selectableItemBackground"/>
 

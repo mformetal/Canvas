@@ -9,8 +9,8 @@ import android.view.View;
  */
 public class ViewUtils {
 
-    public static String BACKGROUND_PROPERTY = "backgroundColor";
-    public static String ALPHA_PROPERTY = "alpha";
+    public static String BACKGROUND = "backgroundColor";
+    public static String ALPHA = "alpha";
 
     public static abstract class FloatProperty<T> extends Property<T, Float> {
         public FloatProperty(String name) {

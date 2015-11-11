@@ -21,34 +21,33 @@ import milespeele.canvas.paint.PaintStyles;
 /**
  * Created by milespeele on 7/13/15.
  */
-public class ViewBrushLayoutSizer extends View {
+public class ViewBrushPickerCurrentBrush extends View {
 
     private final static Interpolator INTERPOLATOR = new AccelerateDecelerateInterpolator();
 
-    private Paint paint;
-    private Paint rectPaint;
+    private Paint paint, rectPaint;
     private Path path;
     private ObjectAnimator reveal;
 
     private float rectWidth;
 
-    public ViewBrushLayoutSizer(Context context) {
+    public ViewBrushPickerCurrentBrush(Context context) {
         super(context);
         init();
     }
 
-    public ViewBrushLayoutSizer(Context context, AttributeSet attrs) {
+    public ViewBrushPickerCurrentBrush(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
     }
 
-    public ViewBrushLayoutSizer(Context context, AttributeSet attrs, int defStyleAttr) {
+    public ViewBrushPickerCurrentBrush(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init();
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public ViewBrushLayoutSizer(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public ViewBrushPickerCurrentBrush(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         init();
     }

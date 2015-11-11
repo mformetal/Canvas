@@ -2,7 +2,7 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
 
-    <dimen name="view_colorizer_size">50dp</dimen>
+    <dimen name="fragment_color_picker_view_vertical_margin">12dp</dimen>
 
     <dimen name="fab_margin">10dp</dimen>
     <dimen name="fab_padding">16dp</dimen>
@@ -17,4 +17,6 @@
     <dimen name="dialog_view_horizontal_margin">15dp</dimen>
 
     <dimen name="title_text_size">30sp</dimen>
+
+    <dimen name="adapter_colors_layout_view_dimens">20dp</dimen>
 </resources>

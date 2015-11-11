@@ -15,29 +15,29 @@ import milespeele.canvas.paint.PaintStyles;
 /**
  * Created by Miles Peele on 7/26/2015.
  */
-public class ViewBrushLayoutPaintExample extends View {
+public class ViewBrushPickerPaintExample extends View {
 
     private Paint examplePaint;
     private Path examplePath;
     private Paint borderPaint;
 
-    public ViewBrushLayoutPaintExample(Context context) {
+    public ViewBrushPickerPaintExample(Context context) {
         super(context);
         init(context, null);
     }
 
-    public ViewBrushLayoutPaintExample(Context context, AttributeSet attrs) {
+    public ViewBrushPickerPaintExample(Context context, AttributeSet attrs) {
         super(context, attrs);
         init(context, attrs);
     }
 
-    public ViewBrushLayoutPaintExample(Context context, AttributeSet attrs, int defStyleAttr) {
+    public ViewBrushPickerPaintExample(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(context, attrs);
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public ViewBrushLayoutPaintExample(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public ViewBrushPickerPaintExample(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         init(context, attrs);
     }
@@ -78,10 +78,7 @@ public class ViewBrushLayoutPaintExample extends View {
     }
 
     private void drawBorder(Canvas canvas) {
-        canvas.drawLine(0, 0, canvas.getWidth(), 0, borderPaint);
-        canvas.drawLine(0, canvas.getHeight(), canvas.getWidth(), canvas.getHeight(), borderPaint);
-        canvas.drawLine(0, 0, 0, canvas.getHeight(), borderPaint);
-        canvas.drawLine(canvas.getWidth(), 0, canvas.getWidth(), canvas.getHeight(), borderPaint);
+        canvas.drawRect(0, 0, canvas.getWidth(), canvas.getHeight(), borderPaint);
     }
 
     public void setPaint(Paint paint) {

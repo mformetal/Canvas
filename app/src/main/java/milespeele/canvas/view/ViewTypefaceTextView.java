@@ -68,10 +68,7 @@ public class ViewTypefaceTextView extends TextView {
 
     private void drawBorder(Canvas canvas) {
         if (borderPaint != null) {
-            canvas.drawLine(0, 0, canvas.getWidth(), 0, borderPaint);
-            canvas.drawLine(0, canvas.getHeight(), canvas.getWidth(), canvas.getHeight(), borderPaint);
-            canvas.drawLine(0, 0, 0, canvas.getHeight(), borderPaint);
-            canvas.drawLine(canvas.getWidth(), 0, canvas.getWidth(), canvas.getHeight(), borderPaint);
+            canvas.drawRect(0, 0, canvas.getWidth(), canvas.getHeight(), borderPaint);
         }
     }
 

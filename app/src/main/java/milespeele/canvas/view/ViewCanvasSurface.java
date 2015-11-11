@@ -1,18 +1,9 @@
 package milespeele.canvas.view;
 
-import android.animation.ObjectAnimator;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.PixelFormat;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
 import android.os.Build;
-import android.os.Parcelable;
-import android.support.annotation.NonNull;
 import android.support.v4.view.MotionEventCompat;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -20,12 +11,9 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 
-import butterknife.OnTouch;
-import milespeele.canvas.drawing.DrawingCurve;
+import java.util.ArrayList;
+
 import milespeele.canvas.drawing.DrawingThread;
-import milespeele.canvas.paint.PaintStyles;
-import milespeele.canvas.util.BitmapUtils;
-import milespeele.canvas.util.Logg;
 
 /**
  * Created by Miles Peele on 10/2/2015.
@@ -112,10 +100,6 @@ public class ViewCanvasSurface extends SurfaceView implements SurfaceHolder.Call
 
     public void erase() {
         thread.getDrawingCurve().erase();
-    }
-
-    public void ink() {
-        thread.getDrawingCurve().ink();
     }
 
     public int getBrushColor() {

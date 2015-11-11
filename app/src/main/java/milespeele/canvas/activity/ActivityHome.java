@@ -1,31 +1,7 @@
 package milespeele.canvas.activity;
 
-import android.animation.Animator;
-import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
-import android.animation.PropertyValuesHolder;
-import android.animation.TimeInterpolator;
-import android.app.ActionBar;
-import android.app.Fragment;
 import android.app.FragmentManager;
-import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.Path;
 import android.os.Bundle;
-import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.Snackbar;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.internal.widget.ViewUtils;
-import android.transition.ArcMotion;
-import android.transition.Scene;
-import android.transition.TransitionManager;
-import android.view.View;
-import android.view.ViewAnimationUtils;
-import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
-import android.view.animation.Animation;
-import android.view.animation.Transformation;
 import android.widget.FrameLayout;
 
 import com.squareup.picasso.Picasso;
@@ -34,7 +10,6 @@ import java.lang.ref.WeakReference;
 
 import javax.inject.Inject;
 
-import butterknife.Bind;
 import butterknife.ButterKnife;
 import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
@@ -43,34 +18,25 @@ import milespeele.canvas.event.EventFilenameChosen;
 import milespeele.canvas.event.EventParseError;
 import milespeele.canvas.fragment.FragmentBrushPicker;
 import milespeele.canvas.fragment.FragmentColorPicker;
-import milespeele.canvas.fragment.FragmentDashboard;
+import milespeele.canvas.fragment.FragmentColors;
 import milespeele.canvas.fragment.FragmentDrawer;
 import milespeele.canvas.fragment.FragmentFilename;
-import milespeele.canvas.parse.Masterpiece;
 import milespeele.canvas.parse.ParseUtils;
-import milespeele.canvas.transition.TransitionFabToDialog;
 import milespeele.canvas.transition.TransitionHelper;
-import milespeele.canvas.util.AbstractAnimatorListener;
 import milespeele.canvas.util.ErrorDialog;
-import milespeele.canvas.util.Logg;
 import milespeele.canvas.view.ViewFab;
-import milespeele.canvas.view.ViewToolbar;
 
 public class ActivityHome extends ActivityBase {
 
-    private final static String TAG_FRAGMENT_DRAWER = "fragd";
-    private final static String TAG_FRAGMENT_STROKE = "Stroke Color";
-    private final static String TAG_FRAGMENT_FILL = "New Canvas Color";
+    private final static String TAG_FRAGMENT_DRAWER = "drawer";
+    private final static String TAG_FRAGMENT_COLOR = "color";
     private final static String TAG_FRAGMENT_FILENAME = "name";
     private final static String TAG_FRAGMENT_BRUSH = "brush";
-    private final static String TAG_FRAGMENT_DASHBOARD = "dash";
 
     @Inject ParseUtils parseUtils;
     @Inject EventBus bus;
     @Inject Picasso picasso;
 
-    @Bind(R.id.activity_home_root) CoordinatorLayout root;
-    @Bind(R.id.activity_home_toolbar) ViewToolbar toolbar;
     private FrameLayout fabFrame;
 
     private FragmentManager manager;
@@ -82,15 +48,13 @@ public class ActivityHome extends ActivityBase {
         ButterKnife.bind(this);
         fabFrame = (FrameLayout) findViewById(R.id.fragment_drawer_animator);
 
-        setSupportActionBar(toolbar);
-
         ((MainApp) getApplication()).getApplicationComponent().inject(this);
 
         bus.register(this);
 
         manager = getFragmentManager();
 
-        addDashboardFragment();
+        addDrawerFragment(-1, -1);
     }
 
     @Override
@@ -99,11 +63,6 @@ public class ActivityHome extends ActivityBase {
         if (count == 0) {
             super.onBackPressed();
         } else {
-            FragmentManager.BackStackEntry entry = manager.getBackStackEntryAt(count - 1);
-            if (entry.getName().equals(TAG_FRAGMENT_DRAWER)) {
-                toolbar.animateIn();
-            }
-
             manager.popBackStack();
         }
     }
@@ -112,14 +71,6 @@ public class ActivityHome extends ActivityBase {
         manager.beginTransaction()
                 .replace(R.id.activity_home_fragment_frame, FragmentDrawer.newInstance(cx, cy), TAG_FRAGMENT_DRAWER)
                 .addToBackStack(TAG_FRAGMENT_DRAWER)
-                .commit();
-
-        toolbar.animateOut();
-    }
-
-    private void addDashboardFragment() {
-        manager.beginTransaction()
-                .add(R.id.activity_home_fragment_frame, FragmentDashboard.newInstance(), TAG_FRAGMENT_DASHBOARD)
                 .commit();
     }
 
@@ -132,17 +83,6 @@ public class ActivityHome extends ActivityBase {
         if (frag != null) {
             parseUtils.saveImageToServer(eventFilenameChosen.filename,
                     new WeakReference<>(this), frag.getDrawingBitmap());
-        }
-    }
-
-    public void showSavedImageSnackbar(Masterpiece object) {
-        ((ViewFab) findViewById(R.id.menu_save)).stopPulse();
-        FragmentDrawer frag = (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
-        if (frag != null && frag.getView() != null) {
-            Snackbar.make(frag.getView(), R.string.snackbar_activity_home_image_saved_title, Snackbar.LENGTH_LONG)
-                    .setAction(R.string.snackbar_activity_home_imaged_saved_body, v -> {
-                    })
-                    .show();
         }
     }
 
@@ -164,38 +104,15 @@ public class ActivityHome extends ActivityBase {
     public void showStrokeColorChooser(ViewFab view) {
         FragmentDrawer frag = (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
         if (frag != null) {
-            FragmentColorPicker picker = FragmentColorPicker.newInstance(TAG_FRAGMENT_STROKE, frag.getRootView().getBrushColor());
+            FragmentColorPicker picker = FragmentColorPicker.newInstance(frag.getRootView().getBrushColor());
 
             TransitionHelper.makeFabDialogTransitions(ActivityHome.this, view, fabFrame, picker);
 
             manager.beginTransaction()
                     .replace(R.id.fragment_drawer_animator, picker)
-                    .addToBackStack(TAG_FRAGMENT_STROKE)
+                    .addToBackStack(TAG_FRAGMENT_COLOR)
                     .commit();
         }
-    }
-
-    public void showNewCanvasColorChooser(ViewFab view) {
-        AlertDialog alert = new AlertDialog.Builder(this)
-                .setTitle(getResources().getString(R.string.alert_dialog_new_canvas_title))
-                .setMessage(getResources().getString(R.string.alert_dialog_new_canvas_body))
-                .setPositiveButton(getResources().getString(R.string.alert_dialog_new_canvas_pos_button),
-                        (dialog, which) -> {
-                            FragmentColorPicker picker = FragmentColorPicker.newInstance(TAG_FRAGMENT_FILL, 0);
-
-                            TransitionHelper.makeFabDialogTransitions(ActivityHome.this, view, fabFrame, picker);
-
-                            manager.beginTransaction()
-                                    .replace(R.id.fragment_drawer_animator, picker)
-                                    .addToBackStack(TAG_FRAGMENT_FILL)
-                                    .commit();
-                        })
-                .setNegativeButton(getResources().getString(R.string.fragment_color_picker_nah),
-                        (dialog, which) -> {
-                            dialog.dismiss();
-                        })
-                .create();
-        alert.show();
     }
 
     public void showFilenameFragment(ViewFab view) {
@@ -209,17 +126,6 @@ public class ActivityHome extends ActivityBase {
                 .commit();
     }
 
-    public void onDashboardButtonClicked(int clickedId, float cx, float cy) {
-        switch (clickedId) {
-            case R.id.dashboard_draw:
-                addDrawerFragment(cx, cy);
-                break;
-            case R.id.dashboard_import:
-            case R.id.dashboard_profile:
-            case R.id.dashboard_social:
-        }
-    }
-
     public void onFabMenuButtonClicked(ViewFab view) {
         fabFrame = (FrameLayout) findViewById(R.id.fragment_drawer_animator);
 
@@ -227,14 +133,8 @@ public class ActivityHome extends ActivityBase {
             case R.id.menu_size:
                 showBrushChooser(view);
                 break;
-            case R.id.menu_stroke_color:
+            case R.id.menu_color:
                 showStrokeColorChooser(view);
-                break;
-            case R.id.menu_new_canvas:
-                showNewCanvasColorChooser(view);
-                break;
-            case R.id.menu_save:
-                showFilenameFragment(view);
                 break;
         }
     }

@@ -16,6 +16,16 @@
         app:fabSize="mini" />
 
     <milespeele.canvas.view.ViewFab
+        android:id="@+id/menu_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_format_italic_black_24dp"
+        app:borderWidth="0dp"
+        app:elevation="@dimen/fab_elevation"
+        app:rippleColor="@color/primary_dark"
+        app:fabSize="mini" />
+
+    <milespeele.canvas.view.ViewFab
         android:id="@+id/menu_colorize"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -26,7 +36,7 @@
         app:fabSize="mini" />
 
     <milespeele.canvas.view.ViewFab
-        android:id="@+id/menu_stroke_color"
+        android:id="@+id/menu_color"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_format_paint_black_24dp"
@@ -76,20 +86,10 @@
         app:fabSize="mini" />
 
     <milespeele.canvas.view.ViewFab
-        android:id="@+id/menu_new_canvas"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_format_color_fill_black_24dp"
-        app:borderWidth="0dp"
-        app:elevation="@dimen/fab_elevation"
-        app:rippleColor="@color/primary_dark"
-        app:fabSize="mini" />
-
-    <milespeele.canvas.view.ViewFab
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/menu_save"
-        android:src="@drawable/ic_cloud_upload_black_24dp"
+        android:id="@+id/menu_settings"
+        android:src="@drawable/ic_build_black_24dp"
         app:borderWidth="0dp"
         app:elevation="@dimen/fab_elevation"
         app:rippleColor="@color/primary_dark"

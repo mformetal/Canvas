@@ -30,20 +30,17 @@ android {
 dependencies {
     provided 'com.google.dagger:dagger-compiler:2.0'
     provided 'org.glassfish:javax.annotation:10.0-b28'
-    compile 'jp.wasabeef:recyclerview-animators:1.3.0'
-    compile 'com.google.dagger:dagger:2.0'
-    compile 'com.android.support:appcompat-v7:22.2.1'
-    compile 'com.android.support:recyclerview-v7:22.+'
-    compile 'com.android.support:cardview-v7:21.0.+'
-    compile 'com.jakewharton:butterknife:7.0.1'
-    compile 'com.android.support:design:22.2.1'
     compile 'com.google.guava:guava:18.0'
+    compile 'com.android.support:design:22.2.1'
+    compile 'com.android.support:cardview-v7:22.2.1'
+    compile 'com.android.support:recyclerview-v7:22.2.1'
+    compile 'com.google.dagger:dagger:2.0'
+    compile 'com.jakewharton:butterknife:7.0.1'
     compile 'io.reactivex:rxandroid:0.25.0'
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.facebook.android:facebook-android-sdk:4.0.1'
     compile 'de.greenrobot:eventbus:2.4.0'
     compile 'com.larswerkman:HoloColorPicker:1.5'
-    compile 'com.google.guava:guava:18.0'
     compile project(':ParseLoginUI')
     compile files('libs/Parse-1.9.1.jar')
     compile files('libs/ParseFaceBookUtilsV4-1.9.1.jar')

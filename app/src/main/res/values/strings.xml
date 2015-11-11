@@ -7,8 +7,11 @@
     <string name="twitter_consumer_key">@string/twitter_key</string>
     <string name="twitter_consumer_secret">@string/twitter_secret</string>
 
+    <string name="fragment_color_picker_title">Choose Color</string>
     <string name="fragment_color_picker_choose">Choose</string>
     <string name="fragment_color_picker_nah">Cancel</string>
+    <string name="fragment_color_picker_for_canvas">For Canvas</string>
+    <string name="fragment_color_picker_for_stroke">For Stroke</string>
 
     <string name="snackbar_activity_home_image_saved_title">Saved Your Masterpiece!</string>
     <string name="snackbar_activity_home_imaged_saved_body">View</string>

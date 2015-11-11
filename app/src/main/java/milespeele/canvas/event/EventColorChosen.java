@@ -7,9 +7,9 @@ public class EventColorChosen {
 
     public int color;
     public int opacity;
-    public String which;
+    public boolean which;
 
-    public EventColorChosen(int color, int opacity, String which) {
+    public EventColorChosen(int color, int opacity, boolean which) {
         this.color = color;
         this.opacity = opacity;
         this.which = which;

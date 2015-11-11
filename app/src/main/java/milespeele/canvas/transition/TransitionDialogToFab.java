@@ -4,11 +4,11 @@ import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
+import android.content.Context;
 import android.graphics.Path;
 import android.transition.ArcMotion;
 import android.transition.ChangeBounds;
 import android.transition.TransitionValues;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
@@ -17,10 +17,8 @@ import android.widget.FrameLayout;
 
 import java.util.List;
 
-import butterknife.OnTouch;
 import milespeele.canvas.R;
 import milespeele.canvas.util.AbstractAnimatorListener;
-import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.ViewUtils;
 import milespeele.canvas.view.ViewCanvasLayout;
 import milespeele.canvas.view.ViewCanvasSurface;
@@ -31,41 +29,18 @@ import milespeele.canvas.view.ViewFab;
  */
 public class TransitionDialogToFab extends ChangeBounds {
 
-    private static final String COLOR = "milespeele.canvas:transitionFabToDialog:color";
-    private static final String X = "milespeele.canvas:transitionFabToDialog:x";
-    private static final String Y = "milespeele.canvas:transitionFabToDialog:y";
-    private static final String[] PROPERTIES = {COLOR, X, Y};
-    private int startColor;
+    private Context context;
 
-    public TransitionDialogToFab(int startColor) {
-        this.startColor = startColor;
-    }
-
-    @Override
-    public void captureStartValues(TransitionValues transitionValues) {
-        super.captureStartValues(transitionValues);
-        transitionValues.values.put(COLOR, startColor);
-    }
-
-    @Override
-    public void captureEndValues(TransitionValues transitionValues) {
-        super.captureEndValues(transitionValues);
-        transitionValues.values.put(COLOR,
-                transitionValues.view.getContext().getResources().getColor(R.color.accent));
-    }
-
-    @Override
-    public String[] getTransitionProperties() {
-        return PROPERTIES;
+    public TransitionDialogToFab(Context context) {
+        this.context = context;
     }
 
     @Override
     public Animator createAnimator(ViewGroup sceneRoot, TransitionValues startValues, TransitionValues endValues) {
         super.createAnimator(sceneRoot, startValues, endValues);
 
-//        Animator bounds = super.createAnimator(sceneRoot, startValues, endValues);
-        Integer startColor = (Integer) startValues.values.get(COLOR);
-        Integer endColor = (Integer) endValues.values.get(COLOR);
+        int startColor = context.getResources().getColor(R.color.primary_dark);
+        int endColor = context.getResources().getColor(R.color.accent);
 
         List<View> views = getTargets();
         ViewFab fab = (ViewFab) views.get(0);
@@ -80,7 +55,7 @@ public class TransitionDialogToFab extends ChangeBounds {
         Animator alpha = ObjectAnimator.ofArgb(layout, ViewCanvasLayout.ALPHA, 0);
 
         Animator background = ObjectAnimator.ofArgb(fabFrame,
-                ViewUtils.BACKGROUND_PROPERTY, startColor, endColor)
+                ViewUtils.BACKGROUND, startColor, endColor)
                 .setDuration(450);
 
         ArcMotion arcMotion = new ArcMotion();
@@ -88,14 +63,6 @@ public class TransitionDialogToFab extends ChangeBounds {
         Path motionPath = arcMotion.getPath(0, 0, translationX, translationY);
         Animator position = ObjectAnimator.ofFloat(fabFrame, View.TRANSLATION_X, View
                 .TRANSLATION_Y, motionPath)
-                .setDuration(350);
-
-        Animator oppositeReveal = ViewAnimationUtils.createCircularReveal(
-                fabFrame,
-                fabFrame.getWidth() / 2,
-                fabFrame.getHeight() / 2,
-                fabFrame.getWidth(),
-                0)
                 .setDuration(350);
 
         PropertyValuesHolder scalerX = PropertyValuesHolder.ofFloat("scaleX",
@@ -106,11 +73,12 @@ public class TransitionDialogToFab extends ChangeBounds {
                 .setDuration(350);
 
         AnimatorSet animatorSet = new AnimatorSet();
-        animatorSet.playTogether(alpha, oppositeReveal, background, scale, position);
+        animatorSet.playTogether(alpha, background, scale, position);
         animatorSet.addListener(new AbstractAnimatorListener() {
             @Override
             public void onAnimationEnd(Animator animation) {
                 fabFrame.setVisibility(View.GONE);
+                fab.setVisibility(View.VISIBLE);
 
                 for (int x = 0; x < layout.getChildCount(); x++) {
                     View v = layout.getChildAt(x);
@@ -119,16 +87,11 @@ public class TransitionDialogToFab extends ChangeBounds {
                     }
                 }
 
-                Animator reveal = ViewAnimationUtils.createCircularReveal(
+                ViewAnimationUtils.createCircularReveal(
                         fab,
                         fab.getWidth() / 2, fab.getHeight() / 2,
                         0, fab.getWidth() / 2)
-                        .setDuration(150);
-                Animator fade = ObjectAnimator.ofFloat(fab, View.ALPHA, 1f).setDuration(150);
-
-                AnimatorSet animator = new AnimatorSet();
-                animator.playTogether(reveal, fade);
-                animator.start();
+                        .setDuration(150).start();
             }
         });
         animatorSet.setDuration(350);

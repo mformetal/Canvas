@@ -3,35 +3,39 @@ package milespeele.canvas.util;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.renderscript.Allocation;
-import android.renderscript.Element;
-import android.renderscript.RenderScript;
-import android.renderscript.ScriptIntrinsicBlur;
+import android.os.Environment;
 import android.util.DisplayMetrics;
 import android.view.WindowManager;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 
 import rx.Observable;
-import rx.schedulers.Schedulers;
 
 /**
  * Created by Miles Peele on 9/23/2015.
  */
-public class BitmapUtils {
+public class FileUtils {
 
-    private final static String FILENAME = "name";
+    private final static String BITMAP_FILENAME = "canvas:bitmap";
+    private final static String COLORS_FILENAME = "canvas:colors";
 
-    private static final float BITMAP_SCALE = 0.4f;
-    private static final float BLUR_RADIUS = 7.5f;
-
-    public static void cache(Context context, byte[] bytes) {
+    public static void cacheBitmap(Context context, byte[] bytes) {
         try {
-            final FileOutputStream fos = context.openFileOutput(FILENAME, Context.MODE_PRIVATE);
+            final FileOutputStream fos = context.openFileOutput(BITMAP_FILENAME, Context.MODE_PRIVATE);
             try {
                 fos.write(bytes);
                 fos.close();
@@ -70,7 +74,7 @@ public class BitmapUtils {
         options.inDensity = metrics.densityDpi;
 
         try {
-            FileInputStream test = context.openFileInput(FILENAME);
+            FileInputStream test = context.openFileInput(BITMAP_FILENAME);
             bitmap = BitmapFactory.decodeStream(test, null, options);
             test.close();
         } catch (IOException e) {

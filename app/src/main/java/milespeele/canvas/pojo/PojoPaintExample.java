@@ -24,6 +24,7 @@ public class PojoPaintExample {
     public Paint getPaint() { return paint; }
 
     public int getColorForText() {
-        return (color != 0) ? color : Color.WHITE; }
+        return (color != 0) ? color : Color.WHITE;
+    }
 
 }

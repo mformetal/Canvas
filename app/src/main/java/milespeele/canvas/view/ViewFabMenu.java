@@ -5,9 +5,6 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
@@ -28,8 +25,6 @@ import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
 import milespeele.canvas.event.EventBrushChosen;
 import milespeele.canvas.event.EventColorChosen;
-import milespeele.canvas.event.EventFilenameChosen;
-import milespeele.canvas.event.EventParseError;
 import milespeele.canvas.util.AbstractAnimatorListener;
 
 /**
@@ -39,10 +34,9 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
 
     @Bind(R.id.menu_show) ViewFab toggle;
     @Bind(R.id.menu_erase) ViewFab eraser;
-    @Bind(R.id.menu_save) ViewFab saver;
-    @Bind({R.id.menu_shape_chooser, R.id.menu_colorize,  R.id.menu_stroke_color, R.id.menu_size,
-            R.id.menu_undo, R.id.menu_redo, R.id.menu_erase, R.id.menu_new_canvas,
-            R.id.menu_save}) List<ViewFab> buttonsList;
+    @Bind({R.id.menu_shape_chooser, R.id.menu_colorize,  R.id.menu_color, R.id.menu_size,
+            R.id.menu_undo, R.id.menu_redo, R.id.menu_erase, R.id.menu_settings, R.id.menu_text})
+    List<ViewFab> buttonsList;
 
     @Inject EventBus bus;
 
@@ -166,9 +160,8 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
     }
 
     @Override
-    @OnClick({R.id.menu_colorize, R.id.menu_size, R.id.menu_stroke_color, R.id.menu_undo,
-        R.id.menu_redo, R.id.menu_erase, R.id.menu_show, R.id.menu_new_canvas, R.id.menu_save,
-        R.id.menu_shape_chooser})
+    @OnClick({R.id.menu_colorize, R.id.menu_size, R.id.menu_color, R.id.menu_undo,
+        R.id.menu_redo, R.id.menu_erase, R.id.menu_show, R.id.menu_shape_chooser, R.id.menu_text})
     public void onClick(View v) {
         if (listener != null) {
             listener.onFabMenuButtonClicked((ViewFab) v);
@@ -182,9 +175,8 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
                 break;
             case R.id.menu_colorize:
                 eraser.scaleDown();
-                parent.ink();
                 break;
-            case R.id.menu_stroke_color:
+            case R.id.menu_color:
                 eraser.scaleDown();
                 break;
             case R.id.menu_undo:
@@ -196,11 +188,6 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
             case R.id.menu_erase:
                 parent.erase();
                 eraser.toggleScaled();
-                break;
-            case R.id.menu_new_canvas:
-                eraser.scaleDown();
-                break;
-            case R.id.menu_save:
                 break;
         }
     }
@@ -314,11 +301,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
 
     public void onEvent(EventColorChosen eventColorChosen) {
         if (eventColorChosen.color != 0) {
-            if (eventColorChosen.which.equals(getResources().getString(R.string.TAG_FRAGMENT_FILL))) {
-                eraser.scaleDown();
-            } else {
-                eraser.scaleDown();
-            }
+            eraser.scaleDown();
         }
     }
 
@@ -326,14 +309,6 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
         if (eventBrushChosen.paint != null) {
             eraser.scaleDown();
         }
-    }
-
-    public void onEvent(EventFilenameChosen eventFilenameChosen) {
-        saver.startPulse();
-    }
-
-    public void onEvent(EventParseError eventParseError) {
-        saver.stopPulse();
     }
 
     static final ButterKnife.Action<View> GONE = new ButterKnife.Action<View>() {

@@ -16,14 +16,12 @@ import milespeele.canvas.view.ViewFab;
 public class TransitionHelper {
 
     public static void makeFabDialogTransitions(Context context, ViewFab fab, FrameLayout fabFrame, Fragment fragment) {
-        int endColor = context.getResources().getColor(R.color.primary_dark);
-
-        TransitionFabToDialog transitionFabToDialog = new TransitionFabToDialog(endColor);
+        TransitionFabToDialog transitionFabToDialog = new TransitionFabToDialog(context);
         transitionFabToDialog.addTarget(fab);
         transitionFabToDialog.addTarget(fabFrame);
         transitionFabToDialog.addTarget((CoordinatorLayout) fabFrame.getParent());
 
-        TransitionDialogToFab transitionDialogToFab = new TransitionDialogToFab(endColor);
+        TransitionDialogToFab transitionDialogToFab = new TransitionDialogToFab(context);
         transitionDialogToFab.addTarget(fab);
         transitionDialogToFab.addTarget(fabFrame);
         transitionDialogToFab.addTarget((CoordinatorLayout) fabFrame.getParent());

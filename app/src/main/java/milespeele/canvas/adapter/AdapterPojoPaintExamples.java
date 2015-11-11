@@ -1,18 +1,15 @@
 package milespeele.canvas.adapter;
 
-import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Interpolator;
-import android.view.animation.LinearInterpolator;
 
 import java.util.List;
 
 import milespeele.canvas.R;
 import milespeele.canvas.pojo.PojoPaintExample;
-import milespeele.canvas.view.ViewBrushLayoutPaintExample;
+import milespeele.canvas.view.ViewBrushPickerPaintExample;
 import milespeele.canvas.view.ViewTypefaceTextView;
 
 /**
@@ -22,13 +19,12 @@ public class AdapterPojoPaintExamples extends RecyclerView.Adapter<AdapterPojoPa
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public ViewTypefaceTextView paintName;
-        public ViewBrushLayoutPaintExample paintExample;
+        public ViewBrushPickerPaintExample paintExample;
 
         public ViewHolder(View itemView) {
             super(itemView);
-
             paintName = (ViewTypefaceTextView) itemView.findViewById(R.id.paint_example_layout_text);
-            paintExample = (ViewBrushLayoutPaintExample) itemView.findViewById(R.id.paint_example_layout_paint);
+            paintExample = (ViewBrushPickerPaintExample) itemView.findViewById(R.id.paint_example_layout_paint);
         }
     }
 
@@ -41,7 +37,7 @@ public class AdapterPojoPaintExamples extends RecyclerView.Adapter<AdapterPojoPa
     @Override
     public AdapterPojoPaintExamples.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
         return new ViewHolder(LayoutInflater.from(viewGroup.getContext())
-                .inflate(R.layout.paint_example_layout,
+                .inflate(R.layout.adapter_paint_example_layout,
                         viewGroup,
                         false));
     }
@@ -54,7 +50,7 @@ public class AdapterPojoPaintExamples extends RecyclerView.Adapter<AdapterPojoPa
         textView.setText(example.getPaintName());
         textView.setTextColor(example.getColorForText());
 
-        ViewBrushLayoutPaintExample paintExample = viewHolder.paintExample;
+        ViewBrushPickerPaintExample paintExample = viewHolder.paintExample;
         paintExample.setPaint(example.getPaint());
     }
 
