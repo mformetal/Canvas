@@ -9,8 +9,9 @@ import android.view.View;
  */
 public class ViewUtils {
 
-    public static String BACKGROUND = "backgroundColor";
-    public static String ALPHA = "alpha";
+    public final static String BACKGROUND = "backgroundColor";
+    public final static String ALPHA = "alpha";
+    public final static String ROTATION = "rotation";
 
     public static abstract class FloatProperty<T> extends Property<T, Float> {
         public FloatProperty(String name) {
@@ -56,5 +57,28 @@ public class ViewUtils {
 
     public static float getCenterY(View view) {
         return (view.getTop() + view.getBottom()) / 2;
+    }
+
+    public static int[] rainbow() {
+        return new int[] {
+                Color.RED,
+                Color.parseColor("#FF7F00"),
+                Color.YELLOW,
+                Color.GREEN,
+                Color.BLUE,
+                Color.parseColor("#4B0082"),
+                Color.parseColor("#8B00FF"),
+                Color.parseColor("#DA70D6"),
+                Color.parseColor("#FF69B4"),
+                Color.parseColor("#A52A2A"),
+                Color.parseColor("#FFFFF0"),
+                Color.GRAY,
+                Color.WHITE,
+                Color.BLACK,
+                Color.CYAN,
+                Color.DKGRAY,
+                Color.LTGRAY,
+                Color.MAGENTA,
+        };
     }
 }

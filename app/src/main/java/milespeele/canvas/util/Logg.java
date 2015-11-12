@@ -9,6 +9,15 @@ public class Logg {
 
     private static final String LOG_TAG = "Miles";
 
+    public static void log(Double... doubles) {
+        StringBuilder builder = new StringBuilder();
+        for (double doubleVal: doubles) {
+            builder.append(doubleVal);
+            builder.append(", ");
+        }
+        Log.d(LOG_TAG, builder.toString());
+    }
+
     public static void log(Double value) {
         Log.d(LOG_TAG, value.toString());
     }

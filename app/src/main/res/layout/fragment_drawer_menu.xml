@@ -105,6 +105,6 @@
         app:borderWidth="0dp"
         app:elevation="@dimen/fab_elevation"
         app:rippleColor="@color/primary_dark"
-        app:fabSize="normal" />
+        app:fabSize="mini" />
 
 </milespeele.canvas.view.ViewFabMenu>

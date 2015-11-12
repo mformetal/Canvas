@@ -34,8 +34,8 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
 
     @Bind(R.id.menu_show) ViewFab toggle;
     @Bind(R.id.menu_erase) ViewFab eraser;
-    @Bind({R.id.menu_shape_chooser, R.id.menu_colorize,  R.id.menu_color, R.id.menu_size,
-            R.id.menu_undo, R.id.menu_redo, R.id.menu_erase, R.id.menu_settings, R.id.menu_text})
+    @Bind({R.id.menu_shape_chooser, R.id.menu_text, R.id.menu_colorize,  R.id.menu_color, R.id.menu_size,
+            R.id.menu_undo, R.id.menu_redo, R.id.menu_erase, R.id.menu_settings})
     List<ViewFab> buttonsList;
 
     @Inject EventBus bus;
@@ -141,7 +141,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
                 r / 2 + toggle.getMeasuredWidth() / 2,
                 getMeasuredHeight() - lps.bottomMargin);
 
-        final int radius = toggle.getMeasuredHeight() * 2;
+        final int radius = toggle.getMeasuredHeight() * 3;
         centreX = toggle.getX() + toggle.getWidth()  / 2;
         centreY = toggle.getY() + toggle.getHeight() / 2;
         final double slice = Math.PI / (count - 2);

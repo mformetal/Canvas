@@ -17,8 +17,7 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:id="@+id/fragment_color_picker_title" />
 
-    <include
-        layout="@layout/fragment_color_picker_view"
+    <milespeele.canvas.view.ViewColorPicker
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/fragment_color_picker_view"

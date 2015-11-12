@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 
 import javax.inject.Inject;
 
@@ -16,18 +15,18 @@ import butterknife.OnClick;
 import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
-import milespeele.canvas.view.ViewColorPickerLayout;
-import milespeele.canvas.view.ViewTypefaceTextView;
+import milespeele.canvas.view.ViewColorPicker;
 
 /**
  * Created by milespeele on 7/3/15.
  */
-public class FragmentColorPicker extends Fragment implements View.OnClickListener {
+public class FragmentColorPicker extends Fragment implements View.OnClickListener, ViewColorPicker.ViewColorPickerListener {
 
-    @Bind(R.id.fragment_color_picker_view) ViewColorPickerLayout root;
+    @Bind(R.id.fragment_color_picker_view) ViewColorPicker picker;
 
     @Inject EventBus bus;
 
+    private int currentColor;
     private final static String PREV = "prev";
 
     public FragmentColorPicker() {}
@@ -51,7 +50,10 @@ public class FragmentColorPicker extends Fragment implements View.OnClickListene
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_color_picker, container, false);
         ButterKnife.bind(this, v);
-        root.setCurrentColor(getArguments().getInt(PREV));
+
+        currentColor = getArguments().getInt(PREV);
+        picker.setCurrentColor(currentColor);
+        picker.setListener(this);
         return v;
     }
 
@@ -72,5 +74,10 @@ public class FragmentColorPicker extends Fragment implements View.OnClickListene
             case R.id.fragment_color_picker_cancel:
         }
         getActivity().onBackPressed();
+    }
+
+    @Override
+    public void onColorChanged(int newColor) {
+        currentColor = newColor;
     }
 }

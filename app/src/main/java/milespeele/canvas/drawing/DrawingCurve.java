@@ -37,6 +37,7 @@ import milespeele.canvas.paint.PaintStore;
 import milespeele.canvas.util.FileUtils;
 import milespeele.canvas.util.Datastore;
 import milespeele.canvas.util.Logg;
+import milespeele.canvas.util.ViewUtils;
 
 /**
  * Created by mbpeele on 9/25/15.
@@ -78,7 +79,7 @@ public class DrawingCurve implements PaintStore.PaintStoreListener {
 
         random = new Random();
 
-        rainbow = getRainbowColors();
+        rainbow = ViewUtils.rainbow();
 
         currentStrokeColor = Color.argb(255, random.nextInt(256), random.nextInt(256), random.nextInt(256));
         currentBackgroundColor = store.getLastBackgroundColor();
@@ -320,18 +321,6 @@ public class DrawingCurve implements PaintStore.PaintStoreListener {
 
     public boolean canDraw() {
         return canDraw;
-    }
-
-    public int[] getRainbowColors() {
-        return new int[] {
-                Color.RED,
-                Color.parseColor("#FF7F00"),
-                Color.YELLOW,
-                Color.GREEN,
-                Color.BLUE,
-                Color.parseColor("#4B0082"),
-                Color.parseColor("#8B00FF")
-        };
     }
 
     public int getCurrentStrokeColor() { return currentStrokeColor; }
