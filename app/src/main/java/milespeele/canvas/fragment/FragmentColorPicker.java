@@ -2,11 +2,14 @@ package milespeele.canvas.fragment;
 
 import android.app.Activity;
 import android.app.Fragment;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.larswerkman.holocolorpicker.ColorPicker;
+import com.larswerkman.holocolorpicker.OpacityBar;
+import com.larswerkman.holocolorpicker.SVBar;
 
 import javax.inject.Inject;
 
@@ -17,14 +20,17 @@ import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
 import milespeele.canvas.event.EventColorChosen;
-import milespeele.canvas.view.ViewColorPicker;
 import milespeele.canvas.view.ViewTypefaceButton;
 import milespeele.canvas.view.ViewTypefaceTextView;
 
-public class FragmentColorPicker extends Fragment implements View.OnClickListener, ViewColorPicker.ViewColorPickerListener {
+
+
+public class FragmentColorPicker extends Fragment implements View.OnClickListener, ColorPicker.OnColorChangedListener, ColorPicker.OnColorSelectedListener {
 
     @Bind(R.id.fragment_color_picker_title) ViewTypefaceTextView title;
-    @Bind(R.id.fragment_color_picker_view) ViewColorPicker picker;
+    @Bind(R.id.fragment_color_picker_view) ColorPicker picker;
+    @Bind(R.id.fragment_color_picker_sv) SVBar svBar;
+    @Bind(R.id.fragment_color_picker_opacity) OpacityBar opacityBar;
     @Bind(R.id.fragment_color_picker_canvas) ViewTypefaceButton canvasToggle;
     @Bind(R.id.fragment_color_picker_stroke) ViewTypefaceButton strokeToggle;
 
@@ -60,8 +66,12 @@ public class FragmentColorPicker extends Fragment implements View.OnClickListene
 
         currentColor = getArguments().getInt(PREV);
 
-        picker.setCurrentColor(currentColor);
-        picker.setListener(this);
+        picker.setShowOldCenterColor(false);
+        picker.setColor(getArguments().getInt(PREV));
+        picker.addSVBar(svBar);
+        picker.addOpacityBar(opacityBar);
+        picker.setOnColorSelectedListener(this);
+        picker.setOnColorChangedListener(this);
 
         title.setTextColor(currentColor);
         return v;
@@ -98,8 +108,14 @@ public class FragmentColorPicker extends Fragment implements View.OnClickListene
     }
 
     @Override
-    public void onColorChanged(int newColor) {
-        currentColor = newColor;
-        title.animateTextColor(currentColor, 150);
+    public void onColorChanged(int color) {
+        currentColor = color;
+        title.animateTextColor(color, 150);
+    }
+
+    @Override
+    public void onColorSelected(int color) {
+        currentColor = color;
+        title.animateTextColor(color, 150);
     }
 }
