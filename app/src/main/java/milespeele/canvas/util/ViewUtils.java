@@ -12,6 +12,9 @@ public class ViewUtils {
     public final static String BACKGROUND = "backgroundColor";
     public final static String ALPHA = "alpha";
     public final static String ROTATION = "rotation";
+    public final static String TRANSLATION_X = "translationX";
+    public final static String TRANSLATION_Y = "translationY";
+    private static int[] rainbow;
 
     public static abstract class FloatProperty<T> extends Property<T, Float> {
         public FloatProperty(String name) {
@@ -51,34 +54,49 @@ public class ViewUtils {
                 (int)Math.max(blue - (blue * fraction), 0));
     }
 
-    public static float getCenterX(View view) {
+    public static int getComplementaryColor(int color) {
+        float[] hsv = new float[3];
+        Color.RGBToHSV(Color.red(color), Color.green(color), Color.blue(color),
+                hsv);
+        if (hsv[2] < 0.5) {
+            hsv[2] = 0.7f;
+        } else {
+            hsv[2] = 0.3f;
+        }
+        hsv[1] = hsv[1] * 0.2f;
+        return Color.HSVToColor(hsv);
+    }
+
+    public static int centerX(View view) {
         return (view.getLeft() + view.getRight()) / 2;
     }
 
-    public static float getCenterY(View view) {
+    public static int centerY(View view) {
         return (view.getTop() + view.getBottom()) / 2;
     }
 
+    public static int[] center(View view) {
+        return new int[] { centerX(view), centerY(view) };
+    }
+
     public static int[] rainbow() {
-        return new int[] {
-                Color.RED,
-                Color.parseColor("#FF7F00"),
-                Color.YELLOW,
-                Color.GREEN,
-                Color.BLUE,
-                Color.parseColor("#4B0082"),
-                Color.parseColor("#8B00FF"),
-                Color.parseColor("#DA70D6"),
-                Color.parseColor("#FF69B4"),
-                Color.parseColor("#A52A2A"),
-                Color.parseColor("#FFFFF0"),
-                Color.GRAY,
-                Color.WHITE,
-                Color.BLACK,
-                Color.CYAN,
-                Color.DKGRAY,
-                Color.LTGRAY,
-                Color.MAGENTA,
-        };
+        if (rainbow == null) {
+            return (rainbow = new int[]{
+                    Color.RED,
+                    Color.parseColor("#FF7F00"), // ORANGE
+                    Color.YELLOW,
+                    Color.parseColor("#7FFF00"), // CHARTREUSE GREEN
+                    Color.GREEN,
+                    Color.parseColor("#00FF7F"), // SPRING GREEN
+                    Color.CYAN,
+                    Color.parseColor("#007FFF"), // AZURE
+                    Color.BLUE,
+                    Color.parseColor("#7F00FF"), // VIOLET
+                    Color.MAGENTA,
+                    Color.parseColor("#FF007F"), // ROSE
+            });
+        } else {
+            return rainbow;
+        }
     }
 }

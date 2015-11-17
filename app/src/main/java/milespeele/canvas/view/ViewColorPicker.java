@@ -2,23 +2,42 @@ package milespeele.canvas.view;
 
 import android.animation.ObjectAnimator;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.BlurMaskFilter;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Matrix;
+import android.graphics.LinearGradient;
 import android.graphics.Paint;
+import android.graphics.Path;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.RadialGradient;
+import android.graphics.Rect;
+import android.graphics.RectF;
+import android.graphics.Shader;
+import android.graphics.SweepGradient;
 import android.support.v4.view.MotionEventCompat;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
-import android.view.VelocityTracker;
 import android.view.View;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.BounceInterpolator;
+import android.view.animation.Interpolator;
+import android.view.animation.OvershootInterpolator;
 
-import java.util.Calendar;
+import com.google.common.primitives.Ints;
 
-import milespeele.canvas.drawing.DrawingPoint;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import milespeele.canvas.R;
+import milespeele.canvas.paint.PaintStyles;
 import milespeele.canvas.util.Logg;
+import milespeele.canvas.util.TextUtils;
 import milespeele.canvas.util.ViewUtils;
 
 /**
@@ -26,26 +45,20 @@ import milespeele.canvas.util.ViewUtils;
  */
 public class ViewColorPicker extends View {
 
-    private Paint colorSolidPaint;
-    private Bitmap items;
-    private GestureDetector detector;
-    private Matrix rotateMatrix;
+    private Paint circlePaint;
+    private Bitmap circleWheel;
+    private final static Interpolator INTERPOLATOR = new AccelerateDecelerateInterpolator();
 
-    private boolean allowRotation = true;
-    private boolean[] quadrantTouched;
-    private int width;
-    private float translation;
-    private float radius;
-    private int curColor;
-    private float rotater;
-    private double startAngle;
-    private long startClickTime;
+    private int width, height;
+    private float animRadius;
+    private float outerRadius;
+    private int curColor, ndx = -1;
 
-    private final static long MAX_CLICK_DURATION = 200;
-    private final static float CIRCLE_RADIUS = 25f;
-    private final static float SHADOW_RADIUS = 30f;
-    private static final int[] COLORS = ViewUtils.rainbow();
-    private static final double ANGLE = Math.toRadians(360 / COLORS.length);
+    private final static float OUTER_CIRCLE_RADIUS = 50f;
+    private final static float INNER_CIRCLE_RADIUS = OUTER_CIRCLE_RADIUS * 4;
+    private final static float STROKE_THICKNESS = 20f;
+    private static final List<Integer> COLORS = Ints.asList(ViewUtils.rainbow());
+    private static final double ANGLE = Math.toRadians(360 / COLORS.size());
 
     private ViewColorPickerListener listener;
     public interface ViewColorPickerListener {
@@ -73,21 +86,8 @@ public class ViewColorPicker extends View {
     }
 
     private void init() {
-        rotateMatrix = new Matrix();
-
-        quadrantTouched = new boolean[] { false, false, false, false, false };
-
-        detector = new GestureDetector(getContext(), new FlingDetector());
-
-        colorSolidPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        colorSolidPaint.setStyle(Paint.Style.FILL_AND_STROKE);
-    }
-
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int defaultSize = getDefaultSize(getSuggestedMinimumWidth(), widthMeasureSpec);
-
-        setMeasuredDimension((width = defaultSize), defaultSize);
+        circlePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        circlePaint.setStyle(Paint.Style.FILL_AND_STROKE);
     }
 
     @Override
@@ -95,13 +95,12 @@ public class ViewColorPicker extends View {
         super.onSizeChanged(w, h, oldw, oldh);
 
         width = w;
+        height = h;
 
-        radius = width / 4;
+        outerRadius = width / 3;
 
-        translation = width / 2;
-
-        items = Bitmap.createBitmap(w, w, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(items);
+        circleWheel = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(circleWheel);
         drawWheelItems(canvas);
     }
 
@@ -109,28 +108,40 @@ public class ViewColorPicker extends View {
         float centerX = canvas.getWidth() / 2;
         float centerY = canvas.getHeight() / 2;
 
-        for (int i = 0; i < COLORS.length; i++) {
+        for (int i = 0; i < COLORS.size(); i++) {
             double theta = i * ANGLE;
 
-            float dx = (float) (centerX + radius * Math.sin(theta));
-            float dy = (float) (centerY + -radius * Math.cos(theta));
+            float dx = (float) (centerX + outerRadius * Math.sin(theta));
+            float dy = (float) (centerY - outerRadius * Math.cos(theta));
 
-            colorSolidPaint.setColor(COLORS[i]);
+            circlePaint.setColor(COLORS.get(i));
 
-            canvas.drawCircle(dx, dy, CIRCLE_RADIUS, colorSolidPaint);
+            canvas.drawCircle(dx, dy, OUTER_CIRCLE_RADIUS, circlePaint);
         }
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        colorSolidPaint.setColor(curColor);
-        canvas.drawCircle(canvas.getWidth() / 2, canvas.getHeight() / 2, CIRCLE_RADIUS * 4, colorSolidPaint);
+        if (animRadius == 0) {
+            canvas.drawCircle(canvas.getWidth() / 2, canvas.getHeight() / 2, INNER_CIRCLE_RADIUS, circlePaint);
+        } else {
+            canvas.drawCircle(canvas.getWidth() / 2, canvas.getHeight() / 2, animRadius, circlePaint);
+        }
 
-        canvas.save();
-        canvas.concat(rotateMatrix);
-        canvas.drawBitmap(items, rotateMatrix, null);
-        canvas.restore();
+        canvas.drawBitmap(circleWheel, 0, 0, null);
+
+        if (COLORS.contains(curColor)) {
+            double theta = ndx * ANGLE;
+
+            float dx = (float) (canvas.getWidth() / 2 + outerRadius * Math.sin(theta));
+            float dy = (float) (canvas.getHeight() / 2 - outerRadius * Math.cos(theta));
+
+            circlePaint.setStrokeWidth(STROKE_THICKNESS);
+            circlePaint.setStyle(Paint.Style.STROKE);
+            canvas.drawLine(canvas.getWidth() / 2, canvas.getHeight() / 2, dx, dy, circlePaint);
+            circlePaint.setStyle(Paint.Style.FILL_AND_STROKE);
+        }
     }
 
     @Override
@@ -144,10 +155,7 @@ public class ViewColorPicker extends View {
                 break;
 
             case MotionEvent.ACTION_MOVE:
-                long clickDuration = Calendar.getInstance().getTimeInMillis() - startClickTime;
-                if (clickDuration >= MAX_CLICK_DURATION) {
-                    onTouchMove(event);
-                }
+                onTouchMove(event);
                 break;
 
             case MotionEvent.ACTION_UP:
@@ -157,125 +165,125 @@ public class ViewColorPicker extends View {
                 break;
         }
 
-        quadrantTouched[getQuadrant(event.getX() - (width / 2), width - event.getY() - (width / 2))] = true;
         invalidate();
 
         return true;
     }
 
     private void onTouchDown(MotionEvent event) {
-        startClickTime = Calendar.getInstance().getTimeInMillis();
-
-        for (int i = 0; i < quadrantTouched.length; i++) {
-            quadrantTouched[i] = false;
-        }
-
-        allowRotation = false;
-        rotater = (float) getAngle(event.getX(), event.getY());
+        getColorBasedOnPosition(event);
     }
 
     private void onTouchMove(MotionEvent event) {
-        double currentAngle = getAngle(event.getX(), event.getY());
-        rotate((float) (startAngle - currentAngle));
-        startAngle = currentAngle;
-    }
-
-    private void rotate(float degrees) {
-        rotateMatrix.postRotate(degrees, width / 2, width / 2);
-        rotater = degrees;
+        getColorBasedOnPosition(event);
     }
 
     private void onTouchUp(MotionEvent event) {
-        allowRotation = true;
     }
 
-    private double getAngle(double xTouch, double yTouch) {
-        double x = xTouch - (width / 2d);
-        double y = width - yTouch - (width / 2d);
+    private void getColorBasedOnPosition(MotionEvent event) {
+        int x = Math.round(event.getX()), y = Math.round(event.getY());
 
-        switch (getQuadrant(x, y)) {
-            case 1:
-                return Math.asin(y / Math.hypot(x, y)) * 180 / Math.PI;
-            case 2:
-                return 180 - Math.asin(y / Math.hypot(x, y)) * 180 / Math.PI;
-            case 3:
-                return 180 + (-1 * Math.asin(y / Math.hypot(x, y)) * 180 / Math.PI);
-            case 4:
-                return 360 + Math.asin(y / Math.hypot(x, y)) * 180 / Math.PI;
-            default:
-                return 0;
+        if (coordsInBitmap(x, y)) {
+            int color = circleWheel.getPixel(x, y);
+            if (COLORS.contains(color)) {
+                invalidateCenterColorCircle(color);
+            }
         }
     }
 
-    private static int getQuadrant(double x, double y) {
-        if (x >= 0) {
-            return y >= 0 ? 1 : 4;
-        } else {
-            return y >= 0 ? 2 : 3;
+    private boolean coordsInBitmap(int x, int y) {
+        return (x > 0 && x < circleWheel.getWidth() - 1) &&
+                (y > 0 && y < circleWheel.getHeight() - 1);
+    }
+
+    private void invalidateCenterColorCircle(int color) {
+        passColorToListener(color);
+
+        curColor = color;
+        circlePaint.setColor(color);
+
+        ndx = COLORS.indexOf(curColor);
+
+        ObjectAnimator bounce = ObjectAnimator.ofFloat(this, CIRCLE, 0, INNER_CIRCLE_RADIUS);
+        bounce.setDuration(150);
+        bounce.setInterpolator(INTERPOLATOR);
+        bounce.start();
+
+        int centerX = width / 2;
+        int centerY = height / 2;
+        int roundedRad = Math.round(INNER_CIRCLE_RADIUS);
+        invalidate(centerX - roundedRad, centerY - roundedRad,
+                centerX + roundedRad, centerY + roundedRad);
+    }
+
+    private void invalidateCenterColorCircle(float animRadius) {
+        int centerX = width / 2;
+        int centerY = height / 2;
+        int roundedRad = Math.round(animRadius);
+        invalidate(centerX - roundedRad, centerY - roundedRad,
+                centerX + roundedRad, centerY + roundedRad);
+    }
+
+    private void passColorToListener(int color) {
+        if (listener != null) {
+            listener.onColorChanged(color);
         }
     }
 
     public void setCurrentColor(int color) {
         curColor = color;
-        colorSolidPaint.setColor(color);
+        circlePaint.setColor(curColor);
         invalidate();
-    }
-
-    public void setColor(int color) {
-        colorSolidPaint.setColor(color);
-        invalidate();
-        if (listener != null) {
-            listener.onColorChanged(color);
-        }
     }
 
     public void setListener(ViewColorPickerListener listener) {
         this.listener = listener;
     }
 
+    public float getAnimRadius() {
+        return animRadius;
+    }
+
+    public void setAnimRadius(float animRadius) {
+        this.animRadius = animRadius;
+        invalidateCenterColorCircle(animRadius);
+    }
+
+    private static  int[] listToIntArray() {
+        int[] array = new int[COLORS.size()];
+        for(int i = 0; i < COLORS.size(); i++)  {
+            array[i] = COLORS.get(i);
+        }
+        return array;
+    }
+
     private class FlingDetector extends GestureDetector.SimpleOnGestureListener {
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            post(new FlingRunnable(velocityX + velocityY));
-
-            int q1 = getQuadrant(e1.getX() - (width / 2), width - e1.getY() - (width / 2));
-            int q2 = getQuadrant(e2.getX() - (width / 2), width - e2.getY() - (width / 2));
-
-            if ((q1 == 2 && q2 == 2 && Math.abs(velocityX) < Math.abs(velocityY))
-                    || (q1 == 3 && q2 == 3)
-                    || (q1 == 1 && q2 == 3)
-                    || (q1 == 4 && q2 == 4 && Math.abs(velocityX) > Math.abs(velocityY))
-                    || ((q1 == 2 && q2 == 3) || (q1 == 3 && q2 == 2))
-                    || ((q1 == 3 && q2 == 4) || (q1 == 4 && q2 == 3))
-                    || (q1 == 2 && q2 == 4 && quadrantTouched[3])
-                    || (q1 == 4 && q2 == 2 && quadrantTouched[3])) {
-
-                post(new FlingRunnable(-1 * (velocityX + velocityY)));
-            } else {
-                post(new FlingRunnable(velocityX + velocityY));
-            }
-
             return true;
         }
     }
 
     private class FlingRunnable implements Runnable {
 
-        private float velocity;
-
-        public FlingRunnable(float velocity) {
-            this.velocity = velocity;
+        public FlingRunnable() {
         }
 
         @Override
         public void run() {
-            if (Math.abs(velocity) > 5 && allowRotation) {
-                rotate(velocity / 75);
-
-                velocity /= 1.0666F;
-
-                post(this);
-            }
         }
     }
+
+    public static ViewUtils.FloatProperty<ViewColorPicker> CIRCLE = new ViewUtils.FloatProperty<ViewColorPicker>("circle") {
+        @Override
+        public void setValue(ViewColorPicker object, float value) {
+            object.setAnimRadius(value);
+        }
+
+        @Override
+        public Float get(ViewColorPicker object) {
+            return object.getAnimRadius();
+        }
+    };
 }

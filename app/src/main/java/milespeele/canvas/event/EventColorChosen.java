@@ -6,12 +6,10 @@ package milespeele.canvas.event;
 public class EventColorChosen {
 
     public int color;
-    public int opacity;
     public boolean which;
 
-    public EventColorChosen(int color, int opacity, boolean which) {
+    public EventColorChosen(int color, boolean which) {
         this.color = color;
-        this.opacity = opacity;
         this.which = which;
     }
 }

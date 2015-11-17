@@ -2,11 +2,22 @@ package milespeele.canvas.view;
 
 import android.animation.Animator;
 import android.animation.AnimatorSet;
+import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Path;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.RectF;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnticipateInterpolator;
@@ -20,41 +31,53 @@ import javax.inject.Inject;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.OnLongClick;
 import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
 import milespeele.canvas.event.EventBrushChosen;
 import milespeele.canvas.event.EventColorChosen;
+import milespeele.canvas.paint.PaintStyles;
 import milespeele.canvas.util.AbstractAnimatorListener;
+import milespeele.canvas.util.Logg;
+import milespeele.canvas.util.TextUtils;
+import milespeele.canvas.util.ViewUtils;
 
 /**
  * Created by milespeele on 8/7/15.
  */
-public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
+public class ViewFabMenu extends ViewGroup implements View.OnClickListener, View.OnLongClickListener {
 
-    @Bind(R.id.menu_show) ViewFab toggle;
+    @Bind(R.id.menu_toggle) ViewFab toggle;
     @Bind(R.id.menu_erase) ViewFab eraser;
-    @Bind({R.id.menu_shape_chooser, R.id.menu_text, R.id.menu_colorize,  R.id.menu_color, R.id.menu_size,
-            R.id.menu_undo, R.id.menu_redo, R.id.menu_erase, R.id.menu_settings})
+
+    @Bind({R.id.menu_shape_chooser, R.id.menu_text, R.id.menu_colorize,  R.id.menu_color,
+            R.id.menu_brush, R.id.menu_undo, R.id.menu_redo, R.id.menu_erase})
     List<ViewFab> buttonsList;
 
     @Inject EventBus bus;
 
-    private ObjectAnimator close;
-    private ObjectAnimator open;
+    private ObjectAnimator toggleClose;
+    private ObjectAnimator toggleOpen;
+    private Paint backgroundPaint;
+    private Bitmap background;
     private static final Interpolator OVERSHOOT_INTERPOLATOR = new OvershootInterpolator();
     private static final Interpolator ANTICIPATE_INTERPOLATOR = new AnticipateInterpolator();
 
     private boolean isMenuShowing = true;
     private boolean isAnimating = false;
     private boolean isMenuGone = false;
+    private float radius;
     private float centreX, centreY;
+    private static float MAX_RADIUS;
     private final static int VISIBILITY_DURATION = 350;
     private final static int DELAY = 0;
     private final static int DURATION = 400;
     private final static int DELAY_INCREMENT = 15;
+    private final static int HIDE_DIFF = 50;
 
     private ViewFabMenuListener listener;
+
     public interface ViewFabMenuListener {
         void onFabMenuButtonClicked(ViewFab v);
     }
@@ -84,8 +107,19 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
         ((MainApp) getContext().getApplicationContext()).getApplicationComponent().inject(this);
         bus.register(this);
 
+        backgroundPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        backgroundPaint.setAlpha(255);
+        backgroundPaint.setStyle(Paint.Style.FILL_AND_STROKE);
+        backgroundPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_OVER));
+        backgroundPaint.setColor(getResources().getColor(R.color.primary_dark));
+
+        setClickable(true);
+        setWillNotDraw(false);
         setDescendantFocusability(FOCUS_AFTER_DESCENDANTS);
         setBackground(null);
+        setDrawingCacheEnabled(true);
+        setDrawingCacheQuality(DRAWING_CACHE_QUALITY_HIGH);
+        buildDrawingCache();
     }
 
     @Override
@@ -93,11 +127,11 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
         super.onFinishInflate();
         ButterKnife.bind(this);
 
-        close = ObjectAnimator.ofFloat(toggle, "rotation", -135f, -270f);
-        close.setDuration(Math.round(DURATION * 1.5));
+        toggleClose = ObjectAnimator.ofFloat(toggle, "rotation", -135f, -270f);
+        toggleClose.setDuration(Math.round(DURATION * 1.5));
 
-        open = ObjectAnimator.ofFloat(toggle, "rotation", 0f, -135f);
-        open.start();
+        toggleOpen = ObjectAnimator.ofFloat(toggle, "rotation", 0f, -135f);
+        toggleOpen.start();
     }
 
     @Override
@@ -132,8 +166,11 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        final int count = getChildCount();
+        if (!changed) {
+            return;
+        }
 
+        final int count = getChildCount();
         MarginLayoutParams lps = (MarginLayoutParams) toggle.getLayoutParams();
 
         toggle.layout(r / 2 - toggle.getMeasuredWidth() / 2,
@@ -157,11 +194,23 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
                     (int) x + child.getMeasuredWidth() / 2,
                     (int) y + child.getMeasuredHeight() / 2);
         }
+
+        if (MAX_RADIUS == 0) {
+            float highest = getChildAt(0).getY();
+            for (int i = 0; i < getChildCount(); i++) {
+                View v = getChildAt(i);
+                if (v.getY() > highest) {
+                    highest = v.getY();
+                }
+            }
+            MAX_RADIUS = centreY;
+            this.radius = MAX_RADIUS;
+        }
     }
 
     @Override
-    @OnClick({R.id.menu_colorize, R.id.menu_size, R.id.menu_color, R.id.menu_undo,
-        R.id.menu_redo, R.id.menu_erase, R.id.menu_show, R.id.menu_shape_chooser, R.id.menu_text})
+    @OnClick({R.id.menu_colorize, R.id.menu_brush, R.id.menu_color, R.id.menu_undo,
+        R.id.menu_redo, R.id.menu_erase, R.id.menu_toggle, R.id.menu_shape_chooser, R.id.menu_text})
     public void onClick(View v) {
         if (listener != null) {
             listener.onFabMenuButtonClicked((ViewFab) v);
@@ -170,7 +219,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
         v.performClick();
         ViewCanvasLayout parent = ((ViewCanvasLayout) getParent());
         switch (v.getId()) {
-            case R.id.menu_show:
+            case R.id.menu_toggle:
                 toggleMenu();
                 break;
             case R.id.menu_colorize:
@@ -192,6 +241,19 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
         }
     }
 
+    @Override
+    @OnLongClick({R.id.menu_colorize, R.id.menu_brush, R.id.menu_color, R.id.menu_undo,
+            R.id.menu_redo, R.id.menu_erase, R.id.menu_toggle, R.id.menu_shape_chooser, R.id.menu_text})
+    public boolean onLongClick(View v) {
+        return false;
+    }
+
+    @Override
+    protected void dispatchDraw(Canvas canvas) {
+        canvas.drawCircle(centreX, centreY, radius, backgroundPaint);
+        super.dispatchDraw(canvas);
+    }
+
     public void setListener(ViewFabMenuListener otherListener) {
         listener = otherListener;
     }
@@ -199,7 +261,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
     public void toggleMenu() {
         if (!isAnimating) {
             if (isMenuGone) {
-                setVisibilityVisible();
+                fadeIn();
             } else {
                 if (isMenuShowing) {
                     hide();
@@ -214,16 +276,20 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
         if (!isMenuShowing && !isAnimating) {
             isAnimating = true;
             isMenuShowing = true;
-            open.start();
+            toggleOpen.start();
+
+            ObjectAnimator background = ObjectAnimator.ofFloat(this, "radius", MAX_RADIUS);
+            background.setDuration(DURATION + DELAY_INCREMENT * buttonsList.size());
+            background.setInterpolator(OVERSHOOT_INTERPOLATOR);
 
             int delay = DELAY;
             for (ViewFab view: buttonsList) {
                 float diffX = view.getX() - centreX, diffY = view.getY() - centreY;
 
                 AnimatorSet out = new AnimatorSet();
-                out.playTogether(ObjectAnimator.ofFloat(view, "translationX", diffX),
-                        ObjectAnimator.ofFloat(view, "translationY", diffY),
-                        ObjectAnimator.ofFloat(view, "alpha", 0.0f, 1.0f));
+                out.playTogether(ObjectAnimator.ofFloat(view, ViewUtils.TRANSLATION_X, diffX),
+                        ObjectAnimator.ofFloat(view, ViewUtils.TRANSLATION_Y, diffY),
+                        ObjectAnimator.ofFloat(view, ViewUtils.ALPHA, 0.0f, 1.0f));
                 out.setStartDelay(delay);
                 out.setDuration(DURATION);
                 out.setInterpolator(OVERSHOOT_INTERPOLATOR);
@@ -231,6 +297,9 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
                     @Override
                     public void onAnimationStart(Animator animation) {
                         view.setVisibility(View.VISIBLE);
+                        if (view == buttonsList.get(0)) {
+                            background.start();
+                        }
                     }
 
                     @Override
@@ -250,20 +319,31 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
         if (isMenuShowing && !isAnimating) {
             isAnimating = true;
             isMenuShowing = false;
-            close.start();
+            toggleClose.start();
+
+            ObjectAnimator background = ObjectAnimator.ofFloat(this, "radius", 0);
+            background.setDuration(HIDE_DIFF + DURATION + DELAY_INCREMENT * buttonsList.size());
+            background.setInterpolator(ANTICIPATE_INTERPOLATOR);
 
             int delay = DELAY;
             for (ViewFab view: buttonsList) {
                 float diffX = view.getX() - centreX, diffY = view.getY() - centreY;
 
                 AnimatorSet out = new AnimatorSet();
-                out.playTogether(ObjectAnimator.ofFloat(view, "translationY", -diffY),
-                        ObjectAnimator.ofFloat(view, "translationX", -diffX),
-                        ObjectAnimator.ofFloat(view, "alpha", 1.0f, 0.0f));
+                out.playTogether(ObjectAnimator.ofFloat(view, ViewUtils.TRANSLATION_Y, -diffY),
+                        ObjectAnimator.ofFloat(view, ViewUtils.TRANSLATION_X, -diffX),
+                        ObjectAnimator.ofFloat(view, ViewUtils.ALPHA, 1.0f, 0.0f));
                 out.setStartDelay(delay);
                 out.setDuration(DURATION);
                 out.setInterpolator(ANTICIPATE_INTERPOLATOR);
                 out.addListener(new AbstractAnimatorListener() {
+
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+                        if (view == buttonsList.get(0)) {
+                            background.start();
+                        }
+                    }
 
                     @Override
                     public void onAnimationEnd(Animator animation) {
@@ -279,24 +359,34 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
         }
     }
 
-    public void setVisibilityGone() {
+    public void fadeOut() {
         if (!isMenuGone && isMenuShowing) {
             isMenuGone = true;
-            close.start();
+            toggleClose.start();
+
+            ObjectAnimator fade = ObjectAnimator.ofObject(backgroundPaint, ViewUtils.ALPHA, new ArgbEvaluator(),
+                    backgroundPaint.getAlpha(), 0)
+                    .setDuration(VISIBILITY_DURATION);
+            fade.addUpdateListener(animation -> invalidate());
+            fade.start();
+
             ButterKnife.apply(buttonsList, GONE);
         }
     }
 
-    public void setVisibilityVisible() {
+    public void fadeIn() {
         if (isMenuGone) {
             isMenuGone = false;
-            open.start();
+            toggleOpen.start();
+
+            ObjectAnimator fade = ObjectAnimator.ofObject(backgroundPaint, ViewUtils.ALPHA, new ArgbEvaluator(),
+                    backgroundPaint.getAlpha(), 255)
+                    .setDuration(VISIBILITY_DURATION);
+            fade.addUpdateListener(animation -> invalidate());
+            fade.start();
+
             ButterKnife.apply(buttonsList, VISIBLE);
         }
-    }
-
-    public int[] getButtonDimens() {
-        return new int[] {eraser.getWidth(), eraser.getHeight()};
     }
 
     public void onEvent(EventColorChosen eventColorChosen) {
@@ -311,11 +401,28 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
         }
     }
 
-    static final ButterKnife.Action<View> GONE = new ButterKnife.Action<View>() {
+    public boolean isVisible() {
+        return !isMenuGone;
+    }
+
+    public float getCircleRadius() {
+        return MAX_RADIUS;
+    }
+
+    public float getRadius() {
+        return radius;
+    }
+
+    public void setRadius(float radius) {
+        this.radius = radius;
+        invalidate();
+    }
+
+    private static final ButterKnife.Action<View> GONE = new ButterKnife.Action<View>() {
 
         @Override
         public void apply(View view, int index) {
-            ObjectAnimator gone = ObjectAnimator.ofFloat(view, "alpha", 1f, 0f);
+            ObjectAnimator gone = ObjectAnimator.ofFloat(view, ViewUtils.ALPHA, 1f, 0f);
             gone.setDuration(VISIBILITY_DURATION);
             gone.addListener(new AbstractAnimatorListener() {
 
@@ -328,10 +435,10 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
         }
     };
 
-    static final ButterKnife.Action<View> VISIBLE = new ButterKnife.Action<View>() {
+    private static final ButterKnife.Action<View> VISIBLE = new ButterKnife.Action<View>() {
         @Override
         public void apply(View view, int index) {
-            ObjectAnimator gone = ObjectAnimator.ofFloat(view, "alpha", 0f, 1f);
+            ObjectAnimator gone = ObjectAnimator.ofFloat(view, ViewUtils.ALPHA, 0f, 1f);
             gone.setDuration(VISIBILITY_DURATION);
             gone.addListener(new AbstractAnimatorListener() {
 

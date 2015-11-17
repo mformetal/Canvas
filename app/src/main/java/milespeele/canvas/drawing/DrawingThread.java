@@ -39,7 +39,7 @@ public class DrawingThread extends Thread {
                 synchronized (mSurfaceHolder) {
                     synchronized (mRunLock) {
                         if (mRun && drawingCurve.canDraw())  {
-                            drawingCurve.drawToViewCanvas(c);
+                            drawingCurve.drawBitmapToCanvas(c);
                         }
                     }
                 }

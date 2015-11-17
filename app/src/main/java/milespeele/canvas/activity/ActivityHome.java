@@ -18,9 +18,9 @@ import milespeele.canvas.event.EventFilenameChosen;
 import milespeele.canvas.event.EventParseError;
 import milespeele.canvas.fragment.FragmentBrushPicker;
 import milespeele.canvas.fragment.FragmentColorPicker;
-import milespeele.canvas.fragment.FragmentColors;
 import milespeele.canvas.fragment.FragmentDrawer;
 import milespeele.canvas.fragment.FragmentFilename;
+import milespeele.canvas.fragment.FragmentText;
 import milespeele.canvas.parse.ParseUtils;
 import milespeele.canvas.transition.TransitionHelper;
 import milespeele.canvas.util.ErrorDialog;
@@ -32,6 +32,7 @@ public class ActivityHome extends ActivityBase {
     private final static String TAG_FRAGMENT_COLOR = "color";
     private final static String TAG_FRAGMENT_FILENAME = "name";
     private final static String TAG_FRAGMENT_BRUSH = "brush";
+    private final static String TAG_FRAGMENT_TEXT = "text";
 
     @Inject ParseUtils parseUtils;
     @Inject EventBus bus;
@@ -69,8 +70,7 @@ public class ActivityHome extends ActivityBase {
 
     private void addDrawerFragment(float cx, float cy) {
         manager.beginTransaction()
-                .replace(R.id.activity_home_fragment_frame, FragmentDrawer.newInstance(cx, cy), TAG_FRAGMENT_DRAWER)
-                .addToBackStack(TAG_FRAGMENT_DRAWER)
+                .add(R.id.activity_home_fragment_frame, FragmentDrawer.newInstance(cx, cy), TAG_FRAGMENT_DRAWER)
                 .commit();
     }
 
@@ -115,6 +115,17 @@ public class ActivityHome extends ActivityBase {
         }
     }
 
+    public void showTextFragment(ViewFab fab) {
+        FragmentText text = FragmentText.newInstance();
+
+        TransitionHelper.makeFabDialogTransitions(this, fab, fabFrame, text);
+
+        manager.beginTransaction()
+                .replace(R.id.fragment_drawer_animator, text)
+                .addToBackStack(TAG_FRAGMENT_TEXT)
+                .commit();
+    }
+
     public void showFilenameFragment(ViewFab view) {
         FragmentFilename filename = FragmentFilename.newInstance();
 
@@ -130,11 +141,14 @@ public class ActivityHome extends ActivityBase {
         fabFrame = (FrameLayout) findViewById(R.id.fragment_drawer_animator);
 
         switch (view.getId()) {
-            case R.id.menu_size:
+            case R.id.menu_brush:
                 showBrushChooser(view);
                 break;
             case R.id.menu_color:
                 showStrokeColorChooser(view);
+                break;
+            case R.id.menu_text:
+                showTextFragment(view);
                 break;
         }
     }

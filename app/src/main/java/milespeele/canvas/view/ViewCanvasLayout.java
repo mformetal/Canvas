@@ -17,6 +17,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.view.MotionEventCompat;
+import android.text.Layout;
 import android.util.AttributeSet;
 import android.util.Property;
 import android.view.Display;
@@ -24,13 +25,14 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import milespeele.canvas.R;
+import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.ViewUtils;
 
 /**
@@ -49,6 +51,7 @@ public class ViewCanvasLayout extends CoordinatorLayout implements ViewFabMenu.V
     private Path revealPath;
     private ObjectAnimator animator;
     private int height, width;
+    private Rect hitRect;
     private int[] loc = new int[2];
 
     private ViewFabMenu.ViewFabMenuListener listener;
@@ -88,6 +91,8 @@ public class ViewCanvasLayout extends CoordinatorLayout implements ViewFabMenu.V
     }
 
     private void init() {
+        hitRect = new Rect();
+
         revealPath = new Path();
 
         animator = new ObjectAnimator();
@@ -174,33 +179,30 @@ public class ViewCanvasLayout extends CoordinatorLayout implements ViewFabMenu.V
 
     @Override
     public boolean onInterceptTouchEvent (MotionEvent ev) {
+        final float x = ev.getX(), y = ev.getY();
+        if (fabFrame.getVisibility() == View.VISIBLE) {
+            fabFrame.getHitRect(hitRect);
+            if (!hitRect.contains((int) x, (int) y)) {
+                if (getContext() instanceof Activity) {
+                    ((Activity) getContext()).onBackPressed();
+                    return true;
+                }
+            }
+        }
+
         final int action = MotionEventCompat.getActionMasked(ev);
         switch (action) {
             case MotionEvent.ACTION_DOWN:
-                float x = ev.getX(), y = ev.getY();
-                if (fabFrame.getChildCount() > 0) {
-                    Rect hit = new Rect();
-                    fabFrame.getHitRect(hit);
-                    if (!hit.contains((int) x, (int) y)) {
-                        if (getContext() instanceof Activity) {
-                            ((Activity) getContext()).onBackPressed();
-                        }
-                    }
-                }
                 break;
 
             case MotionEvent.ACTION_MOVE:
-                if (fabFrame.getVisibility() != View.VISIBLE) {
-                    mIsMoving = true;
-                    ifStillMoving();
-                }
+                mIsMoving = true;
+                ifStillMoving();
                 break;
 
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
-                if (fabFrame.getVisibility() != View.VISIBLE) {
-                    mIsMoving = false;
-                }
+                mIsMoving = false;
                 break;
         }
         return false;
@@ -209,7 +211,7 @@ public class ViewCanvasLayout extends CoordinatorLayout implements ViewFabMenu.V
     private void ifStillMoving() {
         handler.postDelayed(() -> {
             if (mIsMoving) {
-                menu.setVisibilityGone();
+                menu.fadeOut();
                 handler.removeCallbacksAndMessages(null);
             }
         }, MOVING_DELAY);

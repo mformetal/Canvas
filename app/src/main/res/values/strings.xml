@@ -7,6 +7,9 @@
     <string name="twitter_consumer_key">@string/twitter_key</string>
     <string name="twitter_consumer_secret">@string/twitter_secret</string>
 
+    <string name="fragment_text_title">Enter Text</string>
+    <string name="fragment_text_input_hint">Will Be Drawn On Canvas</string>
+
     <string name="fragment_color_picker_title">Choose Color</string>
     <string name="fragment_color_picker_choose">Choose</string>
     <string name="fragment_color_picker_nah">Cancel</string>

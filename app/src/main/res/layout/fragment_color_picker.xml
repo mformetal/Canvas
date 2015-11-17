@@ -19,9 +19,33 @@
 
     <milespeele.canvas.view.ViewColorPicker
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="250dp"
         android:id="@+id/fragment_color_picker_view"
         android:layout_below="@id/fragment_color_picker_title" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:gravity="center_horizontal"
+        android:id="@+id/fragment_color_picker_toggle_layout"
+        android:layout_below="@id/fragment_color_picker_view" >
+
+        <milespeele.canvas.view.ViewTypefaceButton
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:id="@+id/fragment_color_picker_canvas"
+            android:text="@string/fragment_color_picker_for_canvas"
+            android:textAllCaps="true" />
+
+        <milespeele.canvas.view.ViewTypefaceButton
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:id="@+id/fragment_color_picker_stroke"
+            android:text="@string/fragment_color_picker_for_stroke"
+            android:textAllCaps="true" />
+
+    </LinearLayout>
 
     <milespeele.canvas.view.ViewTypefaceButton
         android:layout_width="wrap_content"
@@ -29,7 +53,7 @@
         android:text="@string/fragment_color_picker_choose"
         android:textColor="@android:color/white"
         android:id="@+id/fragment_color_picker_select"
-        android:layout_below="@+id/fragment_color_picker_view"
+        android:layout_below="@+id/fragment_color_picker_toggle_layout"
         android:layout_alignParentEnd="true"
         style="?android:attr/borderlessButtonStyle"
         android:background="?android:attr/selectableItemBackground" />
@@ -40,7 +64,7 @@
         android:text="@string/fragment_color_picker_nah"
         android:textColor="@android:color/white"
         android:id="@+id/fragment_color_picker_cancel"
-        android:layout_below="@+id/fragment_color_picker_view"
+        android:layout_below="@+id/fragment_color_picker_toggle_layout"
         android:layout_toStartOf="@id/fragment_color_picker_select"
         style="?android:attr/borderlessButtonStyle"
         android:background="?android:attr/selectableItemBackground"/>

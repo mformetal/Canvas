@@ -9,10 +9,15 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.text.DynamicLayout;
+import android.text.Layout;
+import android.text.StaticLayout;
+import android.text.TextPaint;
 import android.view.MotionEvent;
 
 import java.io.File;
@@ -32,11 +37,13 @@ import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
 import milespeele.canvas.event.EventBrushChosen;
 import milespeele.canvas.event.EventColorChosen;
+import milespeele.canvas.event.EventTextChosen;
 import milespeele.canvas.paint.PaintStyles;
 import milespeele.canvas.paint.PaintStore;
 import milespeele.canvas.util.FileUtils;
 import milespeele.canvas.util.Datastore;
 import milespeele.canvas.util.Logg;
+import milespeele.canvas.util.TextUtils;
 import milespeele.canvas.util.ViewUtils;
 
 /**
@@ -56,6 +63,7 @@ public class DrawingCurve implements PaintStore.PaintStoreListener {
     private DrawingPoints currentPoints;
     private DrawingHistory redoPoints, allPoints;
     private PaintStore mPaint;
+    private TextPaint textPaint;
     private Random random;
     private State mState = State.DRAW;
     private Context mContext;
@@ -67,6 +75,8 @@ public class DrawingCurve implements PaintStore.PaintStoreListener {
     private int[] rainbow;
     private int currentStrokeColor, currentBackgroundColor;
     private boolean canDraw = true;
+    private String textToBeDrawn;
+    private int width, height;
 
     @Inject Datastore store;
     @Inject EventBus bus;
@@ -74,6 +84,9 @@ public class DrawingCurve implements PaintStore.PaintStoreListener {
     public DrawingCurve(Context context, int w, int h) {
         ((MainApp) context.getApplicationContext()).getApplicationComponent().inject(this);
         bus.register(this);
+
+        width = w;
+        height = h;
 
         mContext = context;
 
@@ -97,6 +110,10 @@ public class DrawingCurve implements PaintStore.PaintStoreListener {
         mPaint = new PaintStore(currentStrokeColor, STROKE_WIDTH);
         mPaint.setListener(this);
 
+        textPaint = new TextPaint();
+        textPaint.setColor(currentStrokeColor);
+        textPaint.setStrokeWidth(STROKE_WIDTH);
+        textPaint.setTextAlign(Paint.Align.CENTER);
 
         currentPoints = new DrawingPoints(mPaint);
         allPoints = new DrawingHistory();
@@ -144,7 +161,7 @@ public class DrawingCurve implements PaintStore.PaintStoreListener {
         canDraw = true;
     }
 
-    public void drawToViewCanvas(Canvas canvas) {
+    public void drawBitmapToCanvas(Canvas canvas) {
         if (canDraw) {
             canvas.drawBitmap(mBitmap, 0, 0, null);
         }
@@ -283,7 +300,7 @@ public class DrawingCurve implements PaintStore.PaintStoreListener {
 
     public void onEvent(EventColorChosen eventColorChosen) {
         if (eventColorChosen.color != 0) {
-            if (eventColorChosen.which) {
+            if (!eventColorChosen.which) {
                 changeState(State.DRAW);
 
                 hardReset(eventColorChosen.color);
@@ -297,7 +314,6 @@ public class DrawingCurve implements PaintStore.PaintStoreListener {
                 currentBackgroundColor = eventColorChosen.color;
             } else {
                 changeState(State.DRAW);
-                setPaintAlpha(eventColorChosen.opacity);
                 setPaintColor(eventColorChosen.color);
             }
         }
@@ -319,6 +335,15 @@ public class DrawingCurve implements PaintStore.PaintStoreListener {
         setPaintThickness(eventBrushChosen.thickness);
     }
 
+    public void onEvent(EventTextChosen eventTextChosen) {
+        String text = eventTextChosen.text;
+        if (!text.isEmpty()) {
+            textToBeDrawn = text;
+            TextUtils.adjustTextSize(textPaint, textToBeDrawn, height);
+            TextUtils.adjustTextScale(textPaint, textToBeDrawn, width, 0, 0);
+        }
+    }
+
     public boolean canDraw() {
         return canDraw;
     }
@@ -335,11 +360,13 @@ public class DrawingCurve implements PaintStore.PaintStoreListener {
 
     public void setPaintColor(int color) {
         currentStrokeColor = color;
+        textPaint.setColor(currentStrokeColor);
         mPaint.setColor(currentStrokeColor);
     }
 
     public void setPaintThickness(float floater) {
         STROKE_WIDTH = floater;
+        textPaint.setStrokeWidth(STROKE_WIDTH);
         mPaint.setStrokeWidth(STROKE_WIDTH);
     }
 

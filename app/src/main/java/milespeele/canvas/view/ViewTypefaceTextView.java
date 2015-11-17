@@ -1,5 +1,8 @@
 package milespeele.canvas.view;
 
+import android.animation.ArgbEvaluator;
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -74,5 +77,13 @@ public class ViewTypefaceTextView extends TextView {
 
     public String getTextAsString() {
         return getText().toString();
+    }
+
+    public void animateTextColor(int color, long duration) {
+        ValueAnimator colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(),
+                getCurrentTextColor(), color);
+        colorAnimation.addUpdateListener(animator -> setTextColor((Integer) animator.getAnimatedValue()));
+        colorAnimation.setDuration(duration);
+        colorAnimation.start();
     }
 }

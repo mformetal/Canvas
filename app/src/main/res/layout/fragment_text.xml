@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:id="@+id/fragment_text_root">
+
+    <milespeele.canvas.view.ViewTypefaceTextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/fragment_text_title"
+        android:text="@string/fragment_text_title"
+        style="@style/DialogTitleText" />
+
+    <android.support.design.widget.TextInputLayout
+        android:layout_below="@id/fragment_text_title"
+        android:id="@+id/fragment_text_input_layout"
+        android:padding="@dimen/activity_horizontal_margin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <milespeele.canvas.view.ViewTypefaceEditText
+            android:id="@+id/fragment_text_input"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:singleLine="true"
+            android:imeOptions="actionDone"
+            android:textColor="@android:color/white"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/fragment_text_input_hint" />
+
+    </android.support.design.widget.TextInputLayout>
+
+    <milespeele.canvas.view.ViewTypefaceButton
+        android:id="@+id/fragment_text_pos_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/fragment_text_input_layout"
+        android:text="@string/fragment_filename_pos_button_text"
+        android:layout_alignParentEnd="true"
+        android:textColor="@android:color/white"
+        android:paddingBottom="@dimen/activity_horizontal_margin"
+        style="?android:attr/borderlessButtonStyle" />
+
+    <milespeele.canvas.view.ViewTypefaceButton
+        android:id="@+id/fragment_text_neg_button"
+        android:layout_width="wrap_content"
+        android:layout_below="@id/fragment_text_input_layout"
+        android:layout_height="wrap_content"
+        android:text="@string/fragment_filename_neg_button_text"
+        android:layout_alignBottom="@id/fragment_text_pos_button"
+        android:layout_alignBaseline="@id/fragment_text_pos_button"
+        android:layout_toStartOf="@id/fragment_text_pos_button"
+        android:textColor="@android:color/white"
+        android:paddingBottom="@dimen/activity_horizontal_margin"
+        style="?android:attr/borderlessButtonStyle" />
+
+</RelativeLayout>
