@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import butterknife.internal.ListenerClass;
 import milespeele.canvas.R;
 import milespeele.canvas.drawing.DrawingThread;
+import milespeele.canvas.util.Logg;
 
 /**
  * Created by Miles Peele on 10/2/2015.

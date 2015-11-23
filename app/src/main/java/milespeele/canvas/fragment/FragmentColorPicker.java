@@ -89,7 +89,11 @@ public class FragmentColorPicker extends Fragment implements View.OnClickListene
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.fragment_color_picker_select:
-                bus.post(new EventColorChosen(currentColor, forStroke));
+                if (currentColor == getArguments().getInt(PREV)) {
+                    bus.post(new EventColorChosen(picker.getColor(), forStroke));
+                } else {
+                    bus.post(new EventColorChosen(currentColor, forStroke));
+                }
             case R.id.fragment_color_picker_cancel:
                 getActivity().onBackPressed();
                 break;

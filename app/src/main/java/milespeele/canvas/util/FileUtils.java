@@ -3,31 +3,17 @@ package milespeele.canvas.util;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.Environment;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.WindowManager;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.lang.reflect.Array;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
 import java.util.ArrayList;
-import java.util.Scanner;
 
 import rx.Observable;
 
@@ -38,6 +24,7 @@ public class FileUtils {
 
     private final static String BITMAP_FILENAME = "canvas:bitmap";
     private final static String COLORS_FILENAME = "canvas:colors";
+    private final static String POINTS_FILENAME = "canvas:points";
 
     public static void cacheBitmap(Context context, byte[] bytes) {
         try {
@@ -96,7 +83,7 @@ public class FileUtils {
             ObjectOutputStream oos = new ObjectOutputStream(fos);
             oos.writeObject(colors);
             oos.close();
-        } catch(IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

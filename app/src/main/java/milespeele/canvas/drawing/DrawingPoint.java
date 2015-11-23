@@ -15,7 +15,6 @@ public class DrawingPoint {
     public float y;
     public long time;
     public float width;
-    public int undo;
 
     public DrawingPoint(float x, float y, long time) {
         this.x = x;
@@ -28,14 +27,6 @@ public class DrawingPoint {
         this.y = y;
         this.time = time;
         this.width = width;
-    }
-
-    public DrawingPoint(float x, float y, long time, float width, int undo) {
-        this.x = x;
-        this.y = y;
-        this.time = time;
-        this.width = width;
-        this.undo = undo;
     }
 
     public float distanceTo(DrawingPoint p) {
@@ -51,24 +42,5 @@ public class DrawingPoint {
 
     public DrawingPoint midPoint(DrawingPoint p2) {
         return new DrawingPoint((x + p2.x) / 2.0f, (y + p2.y) / 2, (time + p2.time) / 2);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof DrawingPoint)) return false;
-        DrawingPoint point = (DrawingPoint) o;
-        return Objects.equal(Math.round(x), Math.round(point.x)) &&
-                Objects.equal(Math.round(y), Math.round(point.y));
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(x, y, time, width);
-    }
-
-    @Override
-    public String toString() {
-        return x + ", " + y;
     }
 }

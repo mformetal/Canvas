@@ -2,7 +2,9 @@ package milespeele.canvas.drawing;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.support.v4.view.MotionEventCompat;
 import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.SurfaceHolder;
 
 import milespeele.canvas.util.FileUtils;
@@ -76,18 +78,38 @@ public class DrawingThread extends Thread {
     }
 
     public void onTouchDown(MotionEvent event) {
-        drawingCurve.addPoint(event.getX(), event.getY());
+        if (event.getPointerCount() > 1) {
+            for (int p = 0; p < event.getPointerCount(); p++) {
+                drawingCurve.addPoint(event.getX(p), event.getY(p), event.getPointerId(p));
+            }
+        } else {
+            drawingCurve.addPoint(event.getX(), event.getY(), 0);
+        }
     }
 
     public void onTouchMove(MotionEvent event) {
-        drawingCurve.parseMotionEvent(event);
+        if (event.getPointerCount() > 1) {
+            for (int h = 0; h < event.getHistorySize(); h++) {
+                for (int p = 0; p < event.getPointerCount(); p++) {
+                    drawingCurve.addPoint(event.getHistoricalX(p, h), event.getHistoricalY(p, h), event.getPointerId(p));
+                }
+            }
+        } else {
+            for (int i = 0; i < event.getHistorySize(); i++) {
+                drawingCurve.addPoint(event.getHistoricalX(i), event.getHistoricalY(i), 0);
+            }
+        }
     }
 
     public void onTouchUp(MotionEvent event) {
-        drawingCurve.onTouchUp(event.getX(), event.getY());
+        final int pointerIndex = (event.getAction() & MotionEvent.ACTION_POINTER_INDEX_MASK)
+                >> MotionEvent.ACTION_POINTER_INDEX_SHIFT;
+
+        drawingCurve.onTouchUp(pointerIndex);
     }
 
     public DrawingCurve getDrawingCurve() {
         return drawingCurve;
     }
+
 }
