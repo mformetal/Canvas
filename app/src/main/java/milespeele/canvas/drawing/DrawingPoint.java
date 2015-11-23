@@ -30,6 +30,14 @@ public class DrawingPoint {
         this.width = width;
     }
 
+    public DrawingPoint(float x, float y, long time, float width, int undo) {
+        this.x = x;
+        this.y = y;
+        this.time = time;
+        this.width = width;
+        this.undo = undo;
+    }
+
     public float distanceTo(DrawingPoint p) {
         float dx = x - p.x;
         float dy = y - p.y;

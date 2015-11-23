@@ -15,34 +15,29 @@ import milespeele.canvas.util.Logg;
  */
 public class DrawingPoints extends ArrayList<DrawingPoint> {
 
-    private static final int CAPACITY = 3000;
-
-    private HashSet<DrawingPoint> set;
+    private Paint restorePaint;
 
     public DrawingPoints(DrawingPoints other) {
         super(other);
-        set = new HashSet<>(CAPACITY);
+        restorePaint = new Paint(other.getRestorePaint());
     }
 
-    public DrawingPoints(Paint other) {
+    public DrawingPoints(Paint paint) {
         super();
-        set = new HashSet<>(CAPACITY);
+        restorePaint = new Paint(paint);
     }
 
     public DrawingPoint peek() {
         return get(size() - 1);
     }
 
-    public DrawingPoint first() { return get(0); }
-
     @Override
-    public boolean add(DrawingPoint object) {
-        set.add(object);
-        return super.add(object);
+    public void clear() {
+        super.clear();
+        restorePaint.reset();
     }
 
-    @Override
-    public boolean contains(Object object) {
-        return set.contains(object);
-    }
+    public Paint getRestorePaint() { return restorePaint; }
+
+    public void setRestorePaint(Paint paint) { restorePaint = new Paint(paint); }
 }

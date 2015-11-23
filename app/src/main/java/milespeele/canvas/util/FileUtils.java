@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.WindowManager;
 
 import java.io.BufferedReader;
@@ -16,12 +17,17 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.Array;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 import rx.Observable;
 
@@ -82,5 +88,29 @@ public class FileUtils {
         }
 
         return bitmap;
+    }
+
+    public static void cacheColors(Context context, ArrayList<Integer> colors) {
+        try {
+            FileOutputStream fos = context.openFileOutput(COLORS_FILENAME, Context.MODE_PRIVATE);
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(colors);
+            oos.close();
+        } catch(IOException e){
+            e.printStackTrace();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public static ArrayList<Integer> getColors(Context context) {
+        ArrayList<Integer> colors = new ArrayList<>();
+        try{
+            FileInputStream fis = context.openFileInput(COLORS_FILENAME);
+            ObjectInputStream ois = new ObjectInputStream(fis);
+            colors = (ArrayList<Integer>) ois.readObject();
+        } catch (ClassNotFoundException | IOException e) {
+            e.printStackTrace();
+        }
+        return colors;
     }
 }

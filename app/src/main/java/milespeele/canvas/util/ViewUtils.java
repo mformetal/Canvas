@@ -1,7 +1,11 @@
 package milespeele.canvas.util;
 
+import android.app.Activity;
+import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.util.Property;
+import android.view.Display;
 import android.view.View;
 
 /**
@@ -98,5 +102,19 @@ public class ViewUtils {
         } else {
             return rainbow;
         }
+    }
+
+    public static int getScreenWidth(Context context) {
+        Display display = ((Activity) context).getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        return size.x;
+    }
+
+    public static int getScreenHeight(Context context) {
+        Display display = ((Activity) context).getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        return size.y;
     }
 }

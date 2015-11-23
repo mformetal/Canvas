@@ -29,7 +29,7 @@ import milespeele.canvas.view.ViewFab;
 public class ActivityHome extends ActivityBase {
 
     private final static String TAG_FRAGMENT_DRAWER = "drawer";
-    private final static String TAG_FRAGMENT_COLOR = "color";
+    private final static String TAG_FRAGMENT_COLOR_PICKER = "color";
     private final static String TAG_FRAGMENT_FILENAME = "name";
     private final static String TAG_FRAGMENT_BRUSH = "brush";
     private final static String TAG_FRAGMENT_TEXT = "text";
@@ -110,7 +110,7 @@ public class ActivityHome extends ActivityBase {
 
             manager.beginTransaction()
                     .replace(R.id.fragment_drawer_animator, picker)
-                    .addToBackStack(TAG_FRAGMENT_COLOR)
+                    .addToBackStack(TAG_FRAGMENT_COLOR_PICKER)
                     .commit();
         }
     }

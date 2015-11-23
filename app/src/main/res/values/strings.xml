@@ -10,6 +10,8 @@
     <string name="fragment_text_title">Enter Text</string>
     <string name="fragment_text_input_hint">Will Be Drawn On Canvas</string>
 
+    <string name="fragment_colors_title">Choose Color On Canvas</string>
+
     <string name="fragment_color_picker_title">Choose Color</string>
     <string name="fragment_color_picker_choose">Choose</string>
     <string name="fragment_color_picker_nah">Cancel</string>
@@ -18,6 +20,8 @@
 
     <string name="snackbar_activity_home_image_saved_title">Saved Your Masterpiece!</string>
     <string name="snackbar_activity_home_imaged_saved_body">View</string>
+    <string name="snackbar_no_more_redo">No more strokes to redo!</string>
+    <string name="snackbar_no_more_undo">No more strokes to undo!</string>
 
     <string name="toast_fragment_filename_invalid">Must contain only alphanumeric characters</string>
     <string name="fragment_filename_title">Save Your Masterpiece</string>

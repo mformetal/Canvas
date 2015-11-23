@@ -16,6 +16,7 @@ import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Message;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v4.view.MotionEventCompat;
 import android.text.Layout;
 import android.util.AttributeSet;
@@ -23,11 +24,13 @@ import android.util.Property;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -50,8 +53,8 @@ public class ViewCanvasLayout extends CoordinatorLayout implements ViewFabMenu.V
     private Paint revealPaint, shadowPaint;
     private Path revealPath;
     private ObjectAnimator animator;
-    private int height, width;
     private Rect hitRect;
+    private int touchSlop;
     private int[] loc = new int[2];
 
     private ViewFabMenu.ViewFabMenuListener listener;
@@ -91,6 +94,8 @@ public class ViewCanvasLayout extends CoordinatorLayout implements ViewFabMenu.V
     }
 
     private void init() {
+        touchSlop = ViewConfiguration.get(getContext()).getScaledTouchSlop();
+
         hitRect = new Rect();
 
         revealPath = new Path();
@@ -114,13 +119,6 @@ public class ViewCanvasLayout extends CoordinatorLayout implements ViewFabMenu.V
         super.onFinishInflate();
         ButterKnife.bind(this);
         drawer.requestFocus();
-    }
-
-    @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        super.onSizeChanged(w, h, oldw, oldh);
-        height = h;
-        width = w;
     }
 
     @Override
@@ -180,6 +178,7 @@ public class ViewCanvasLayout extends CoordinatorLayout implements ViewFabMenu.V
     @Override
     public boolean onInterceptTouchEvent (MotionEvent ev) {
         final float x = ev.getX(), y = ev.getY();
+
         if (fabFrame.getVisibility() == View.VISIBLE) {
             fabFrame.getHitRect(hitRect);
             if (!hitRect.contains((int) x, (int) y)) {
@@ -189,6 +188,21 @@ public class ViewCanvasLayout extends CoordinatorLayout implements ViewFabMenu.V
                 }
             }
         }
+
+        if (menu.isVisible()) {
+            if (y >= getHeight() - menu.getHeight()) {
+                float centerX = ViewUtils.centerX(menu);
+                float centerY = getHeight();
+                double rad = Math.pow(menu.getCircleRadius(), 2);
+                double pyth = Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2);
+                if (pyth <= rad) {
+                    drawer.setOnTouchListener(null);
+                    return false;
+                }
+            }
+        }
+
+        drawer.setOnTouchListener(drawer);
 
         final int action = MotionEventCompat.getActionMasked(ev);
         switch (action) {
@@ -218,26 +232,23 @@ public class ViewCanvasLayout extends CoordinatorLayout implements ViewFabMenu.V
     }
 
     public Animator reveal(float cx, float cy) {
-        if (width == 0 || height == 0) {
-            Display display = ((Activity) getContext()).getWindowManager().getDefaultDisplay();
-            Point size = new Point();
-            display.getSize(size);
-
-            height = size.y;
-            width = size.x;
+        int width = getWidth(), height = getHeight();
+        if (getWidth() == 0 || getHeight() == 0) {
+            height = ViewUtils.getScreenHeight(getContext());
+            width = ViewUtils.getScreenWidth(getContext());
         }
 
         centerX = (cx == 0) ? width / 2 : cx;
         centerY = (cy == 0) ? height / 2 : cy;
 
-        animator = ObjectAnimator.ofFloat(this, "circle", height);
+        animator = ObjectAnimator.ofFloat(this, CIRCLE, height);
         animator.setDuration(DURATION);
         animator.setInterpolator(new AccelerateDecelerateInterpolator());
         return animator;
     }
 
     public Animator unreveal() {
-        animator = ObjectAnimator.ofFloat(this, "circle", 0);
+        animator = ObjectAnimator.ofFloat(this, CIRCLE, 0);
         animator.setDuration(DURATION);
         animator.setInterpolator(new AccelerateDecelerateInterpolator());
         return animator;
@@ -247,6 +258,8 @@ public class ViewCanvasLayout extends CoordinatorLayout implements ViewFabMenu.V
         listener = other;
         menu.setListener(this);
     }
+
+    public ArrayList<Integer> getCurrentColors() { return drawer.getCurrentColors(); }
 
     public float getBrushWidth() {
         return drawer.getBrushWidth();
@@ -261,11 +274,15 @@ public class ViewCanvasLayout extends CoordinatorLayout implements ViewFabMenu.V
     }
 
     public void redo() {
-        drawer.redo();
+        if (!drawer.redo()) {
+            Snackbar.make(this, R.string.snackbar_no_more_redo, Snackbar.LENGTH_SHORT).show();
+        }
     }
 
     public void undo() {
-        drawer.undo();
+        if (!drawer.undo()) {
+            Snackbar.make(this, R.string.snackbar_no_more_undo, Snackbar.LENGTH_SHORT).show();
+        }
     }
 
     public void erase() {
@@ -300,6 +317,19 @@ public class ViewCanvasLayout extends CoordinatorLayout implements ViewFabMenu.V
         @Override
         public Integer get(ViewCanvasLayout layout) {
             return layout.getPaintAlpha();
+        }
+    };
+
+    public static final Property<ViewCanvasLayout, Float> CIRCLE = new ViewUtils.FloatProperty<ViewCanvasLayout>("circle") {
+
+        @Override
+        public Float get(ViewCanvasLayout object) {
+            return object.getCircle();
+        }
+
+        @Override
+        public void setValue(ViewCanvasLayout object, float value) {
+            object.setCircle(value);
         }
     };
 }

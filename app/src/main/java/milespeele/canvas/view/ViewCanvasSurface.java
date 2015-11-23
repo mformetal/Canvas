@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Build;
+import android.support.design.widget.Snackbar;
 import android.support.v4.view.MotionEventCompat;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -13,6 +14,8 @@ import android.view.View;
 
 import java.util.ArrayList;
 
+import butterknife.internal.ListenerClass;
+import milespeele.canvas.R;
 import milespeele.canvas.drawing.DrawingThread;
 
 /**
@@ -44,6 +47,7 @@ public class ViewCanvasSurface extends SurfaceView implements SurfaceHolder.Call
     }
 
     public void init() {
+        setLayerType(LAYER_TYPE_NONE, null);
         setWillNotDraw(false);
         setSaveEnabled(true);
         setOnTouchListener(this);
@@ -90,12 +94,12 @@ public class ViewCanvasSurface extends SurfaceView implements SurfaceHolder.Call
         return true;
     }
 
-    public void redo() {
-        thread.getDrawingCurve().redo();
+    public boolean redo() {
+        return thread.getDrawingCurve().redo();
     }
 
-    public void undo() {
-        thread.getDrawingCurve().undo();
+    public boolean undo() {
+        return thread.getDrawingCurve().undo();
     }
 
     public void erase() {
@@ -112,5 +116,9 @@ public class ViewCanvasSurface extends SurfaceView implements SurfaceHolder.Call
 
     public float getBrushWidth() {
         return thread.getDrawingCurve().getBrushWidth();
+    }
+
+    public ArrayList<Integer> getCurrentColors() {
+        return thread.getDrawingCurve().getCurrentColors();
     }
 }

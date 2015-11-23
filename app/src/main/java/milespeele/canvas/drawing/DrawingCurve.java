@@ -3,14 +3,18 @@ package milespeele.canvas.drawing;
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.content.Context;
+import android.graphics.AvoidXfermode;
 import android.graphics.Bitmap;
+import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.graphics.Shader;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.SystemClock;
@@ -19,6 +23,7 @@ import android.text.Layout;
 import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.view.MotionEvent;
+import android.view.ViewConfiguration;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -57,7 +62,6 @@ public class DrawingCurve implements PaintStore.PaintStoreListener {
         RAINBOW
     }
 
-    private final RectF inkRect = new RectF();
     private Bitmap mBitmap;
     private Canvas mCanvas;
     private DrawingPoints currentPoints;
@@ -66,6 +70,7 @@ public class DrawingCurve implements PaintStore.PaintStoreListener {
     private TextPaint textPaint;
     private Random random;
     private State mState = State.DRAW;
+    private ArrayList<Integer> colors;
     private Context mContext;
 
     private static final float VELOCITY_FILTER_WEIGHT = 0.2f;
@@ -75,7 +80,6 @@ public class DrawingCurve implements PaintStore.PaintStoreListener {
     private int[] rainbow;
     private int currentStrokeColor, currentBackgroundColor;
     private boolean canDraw = true;
-    private String textToBeDrawn;
     private int width, height;
 
     @Inject Datastore store;
@@ -94,18 +98,17 @@ public class DrawingCurve implements PaintStore.PaintStoreListener {
 
         rainbow = ViewUtils.rainbow();
 
+        colors = FileUtils.getColors(mContext);
+
         currentStrokeColor = Color.argb(255, random.nextInt(256), random.nextInt(256), random.nextInt(256));
         currentBackgroundColor = store.getLastBackgroundColor();
 
-        createInkRect(w, h);
         Bitmap cachedBitmap = FileUtils.getCachedBitmap(mContext);
         mBitmap = cachedBitmap != null ? cachedBitmap :
-                Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-        if (cachedBitmap == null) {
-            mBitmap.eraseColor(currentBackgroundColor);
-        }
+                Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         mCanvas = new Canvas(mBitmap);
-        mCanvas.drawBitmap(mBitmap, 0, 0, null);
+
+        Logg.log(mBitmap.getAllocationByteCount() + ", " + mBitmap.getByteCount());
 
         mPaint = new PaintStore(currentStrokeColor, STROKE_WIDTH);
         mPaint.setListener(this);
@@ -122,6 +125,7 @@ public class DrawingCurve implements PaintStore.PaintStoreListener {
 
     @Override
     public void onColorChanged(int newColor) {
+        colors.add(newColor);
     }
 
     public void changeState(State newValue) {
@@ -191,11 +195,11 @@ public class DrawingCurve implements PaintStore.PaintStoreListener {
             if (Math.abs(prevPoint.x - x) < POINT_TOLERANCE && Math.abs(prevPoint.y - y) < POINT_TOLERANCE) {
                 return;
             }
+        } else {
+            currentPoints.setRestorePaint(mPaint);
         }
 
-        DrawingPoint toAdd = new DrawingPoint(x, y, SystemClock.currentThreadTimeMillis(),
-                mPaint.getStrokeWidth());
-        toAdd.width = mPaint.getStrokeWidth();
+        DrawingPoint toAdd = new DrawingPoint(x, y, SystemClock.currentThreadTimeMillis(), mPaint.getStrokeWidth());
         currentPoints.add(toAdd);
 
         if (prevPoint == null) {
@@ -235,10 +239,10 @@ public class DrawingCurve implements PaintStore.PaintStoreListener {
             x = xa + ((xb - xa) * i);
             y = ya + ((yb - ya) * i);
 
-            mPaint.setStrokeWidth(lastWidth + diff * i);
+            float width = lastWidth + diff * i;
+            mPaint.setStrokeWidth(width);
 
-            currentPoints.add(new DrawingPoint(x, y, (previous.time + current.time) / 2,
-                    mPaint.getStrokeWidth()));
+            currentPoints.add(new DrawingPoint(x, y, (previous.time + current.time) / 2, width));
             mCanvas.drawLine(lastX, lastY, x, y, mPaint);
 
             lastX = x;
@@ -249,31 +253,41 @@ public class DrawingCurve implements PaintStore.PaintStoreListener {
         lastVelocity = velocity;
     }
 
-    public void redo() {
+    public boolean redo() {
         if (!redoPoints.isEmpty()) {
             DrawingPoints points = redoPoints.pop();
             allPoints.push(points);
 
             redraw(points, true);
+            return true;
         }
+
+        return false;
     }
 
-    public void undo() {
+    public boolean undo() {
         if (!allPoints.isEmpty()) {
             DrawingPoints points = allPoints.pop();
             redoPoints.push(points);
 
             redraw(points, false);
+            return true;
         }
+
+        return false;
     }
 
     private void redraw(DrawingPoints points, boolean toRedo) {
         long start = SystemClock.elapsedRealtimeNanos();
 
         if (toRedo) {
-            for (DrawingPoint point: points) {
-                mPaint.setStrokeWidth(point.width);
-                mCanvas.drawPoint(point.x, point.y, mPaint);
+            Paint restore = points.getRestorePaint();
+
+            for (int i = 0; i < points.size() - 1; i++) {
+                DrawingPoint cur = points.get(i);
+                DrawingPoint next = points.get(i + 1);
+                restore.setStrokeWidth(cur.width);
+                mCanvas.drawLine(cur.x, cur.y, next.x, next.y, restore);
             }
         } else {
             Paint paint = new Paint(mPaint);
@@ -282,7 +296,7 @@ public class DrawingCurve implements PaintStore.PaintStoreListener {
             for (int i = 0; i < points.size() - 1; i++) {
                 DrawingPoint cur = points.get(i);
                 DrawingPoint next = points.get(i + 1);
-                paint.setStrokeWidth(Math.max(cur.width, next.width));
+                paint.setStrokeWidth(Math.max(cur.width, next.width) + 2f);
                 mCanvas.drawLine(cur.x, cur.y, next.x, next.y, paint);
             }
         }
@@ -335,28 +349,20 @@ public class DrawingCurve implements PaintStore.PaintStoreListener {
         setPaintThickness(eventBrushChosen.thickness);
     }
 
-    public void onEvent(EventTextChosen eventTextChosen) {
-        String text = eventTextChosen.text;
-        if (!text.isEmpty()) {
-            textToBeDrawn = text;
-            TextUtils.adjustTextSize(textPaint, textToBeDrawn, height);
-            TextUtils.adjustTextScale(textPaint, textToBeDrawn, width, 0, 0);
+    private int getPixelAtCoords(float x, float y) {
+        if (inRange(x, y)) {
+            return mBitmap.getPixel((int) x, (int) y);
         }
+        return 0;
     }
 
-    public boolean canDraw() {
-        return canDraw;
-    }
+    public ArrayList<Integer> getCurrentColors() { return colors; }
 
     public int getCurrentStrokeColor() { return currentStrokeColor; }
 
     public Bitmap getBitmap() { return mBitmap; }
 
     public float getBrushWidth() { return STROKE_WIDTH; }
-
-    public void setPaintAlpha(int opacity) {
-        mPaint.setAlpha(opacity);
-    }
 
     public void setPaintColor(int color) {
         currentStrokeColor = color;
@@ -370,27 +376,14 @@ public class DrawingCurve implements PaintStore.PaintStoreListener {
         mPaint.setStrokeWidth(STROKE_WIDTH);
     }
 
-    private void createInkRect(int w, int h) {
-        if (w < h) {
-            inkRect.left = w / 40;
-            inkRect.top = w / 40;
-            inkRect.right = w / 5;
-            inkRect.bottom = w / 5;
-        } else {
-            inkRect.left = h / 40;
-            inkRect.top = h / 40;
-            inkRect.right = h / 5;
-            inkRect.bottom = h / 5;
-        }
-    }
-
     public boolean inRange(float x, float y) {
         boolean xRange = x > 0 && x < mBitmap.getWidth();
         boolean yRange = y > 0 && y < mBitmap.getHeight();
         return xRange && yRange;
     }
 
-    public void saveBackgroundColor() {
+    public void onSave() {
+        FileUtils.cacheColors(mContext, colors);
         store.setLastBackgroundColor(currentBackgroundColor);
     }
 

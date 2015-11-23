@@ -13,16 +13,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <include
-        layout="@layout/fragment_drawer_menu"
-        android:id="@+id/fragment_drawer_menu"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|center_horizontal"
-        app:layout_behavior="milespeele.canvas.view.ViewFabMenuBehavior"
-        app:layout_anchorGravity="bottom|center_horizontal"
-        app:layout_anchor="@id/fragment_drawer_coordinator" />
-
     <android.support.v7.widget.CardView
         android:id="@+id/fragment_drawer_animator"
         android:elevation="24dp"
@@ -34,5 +24,15 @@
         android:layout_margin="30dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
+
+    <include
+        layout="@layout/fragment_drawer_menu"
+        android:id="@+id/fragment_drawer_menu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        app:layout_behavior="milespeele.canvas.view.ViewFabMenuBehavior"
+        app:layout_anchorGravity="bottom|center_horizontal"
+        app:layout_anchor="@id/fragment_drawer_coordinator" />
 
 </milespeele.canvas.view.ViewCanvasLayout>

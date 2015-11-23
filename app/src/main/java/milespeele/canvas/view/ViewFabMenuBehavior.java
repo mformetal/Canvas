@@ -6,12 +6,20 @@ import android.support.design.widget.Snackbar;
 import android.util.AttributeSet;
 import android.view.View;
 
+import milespeele.canvas.util.Logg;
+
 /**
  * Created by mbpeele on 9/4/15.
  */
 public class ViewFabMenuBehavior extends CoordinatorLayout.Behavior<ViewFabMenu> {
 
-    public ViewFabMenuBehavior(Context context, AttributeSet attrs) {}
+    public ViewFabMenuBehavior() {
+        super();
+    }
+
+    public ViewFabMenuBehavior(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
 
     @Override
     public boolean layoutDependsOn(CoordinatorLayout parent, ViewFabMenu child, View dependency) {
@@ -20,8 +28,8 @@ public class ViewFabMenuBehavior extends CoordinatorLayout.Behavior<ViewFabMenu>
 
     @Override
     public boolean onDependentViewChanged(CoordinatorLayout parent, ViewFabMenu child, View dependency) {
-        float translationY = Math.max(0, dependency.getHeight() - dependency.getTranslationY());
-        child.setTranslationY(-translationY);
+        float translationY = Math.min(0, dependency.getTranslationY() - dependency.getHeight());
+        child.setTranslationY(translationY);
         return true;
     }
 }

@@ -38,7 +38,7 @@ public class DrawingThread extends Thread {
                 c = mSurfaceHolder.lockCanvas(null);
                 synchronized (mSurfaceHolder) {
                     synchronized (mRunLock) {
-                        if (mRun && drawingCurve.canDraw())  {
+                        if (mRun)  {
                             drawingCurve.drawBitmapToCanvas(c);
                         }
                     }
@@ -54,7 +54,7 @@ public class DrawingThread extends Thread {
     public void onDestroy() {
         setRunning(false);
 
-        drawingCurve.saveBackgroundColor();
+        drawingCurve.onSave();
 
         FileUtils.compressBitmapAsObservable(drawingCurve.getBitmap())
                 .subscribeOn(AndroidSchedulers.mainThread())
