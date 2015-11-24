@@ -210,8 +210,16 @@ public class ViewCanvasLayout extends CoordinatorLayout implements ViewFabMenu.V
                 break;
 
             case MotionEvent.ACTION_MOVE:
-                mIsMoving = true;
-                ifStillMoving();
+                if (fabFrame.getVisibility() == View.VISIBLE) {
+                    fabFrame.getHitRect(hitRect);
+                    if (!hitRect.contains((int) x, (int) y)) {
+                        mIsMoving = true;
+                        ifStillMoving();
+                    }
+                } else {
+                    mIsMoving = true;
+                    ifStillMoving();
+                }
                 break;
 
             case MotionEvent.ACTION_UP:

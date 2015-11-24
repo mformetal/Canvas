@@ -3,6 +3,7 @@ package milespeele.canvas.view;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.os.Build;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.MotionEventCompat;
@@ -56,8 +57,14 @@ public class ViewCanvasSurface extends SurfaceView implements SurfaceHolder.Call
     }
 
     @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+        postInvalidateDelayed(1000);
+    }
+
+    @Override
     public void surfaceCreated(SurfaceHolder holder) {
-        thread = new DrawingThread(holder, getContext(), getWidth(), getHeight());
+        thread = new DrawingThread(this, holder, getContext(), getWidth(), getHeight());
         thread.setRunning(true);
         thread.start();
     }
