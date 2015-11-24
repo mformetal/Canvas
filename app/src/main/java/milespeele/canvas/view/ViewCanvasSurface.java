@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.RectF;
 import android.os.Build;
 import android.support.v4.view.MotionEventCompat;
 import android.util.AttributeSet;
@@ -27,7 +28,7 @@ public class ViewCanvasSurface extends SurfaceView implements SurfaceHolder.Call
 
     private DrawingCurve drawingCurve;
 
-    private boolean surfaceChanged;
+    private final RectF dirtyRect = new RectF();
 
     public ViewCanvasSurface(Context context) {
         super(context);
@@ -82,6 +83,7 @@ public class ViewCanvasSurface extends SurfaceView implements SurfaceHolder.Call
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
+
     }
 
     @Override
@@ -104,7 +106,7 @@ public class ViewCanvasSurface extends SurfaceView implements SurfaceHolder.Call
                 break;
         }
 
-        invalidate();
+        invalidate(drawingCurve.getDirtyRect());
 
         return true;
     }
@@ -120,9 +122,14 @@ public class ViewCanvasSurface extends SurfaceView implements SurfaceHolder.Call
     }
 
     public void onTouchMove(MotionEvent event) {
+        drawingCurve.resetDirtyRect(event.getX(), event.getY());
+
         if (event.getPointerCount() > 1) {
             for (int h = 0; h < event.getHistorySize(); h++) {
                 for (int p = 0; p < event.getPointerCount(); p++) {
+                    float historicalX = event.getHistoricalX(p, h);
+                    float historicalY = event.getHistoricalY(p, h);
+                    drawingCurve.expandDirtyRect(historicalX, historicalY);
                     drawingCurve.addPoint(event.getHistoricalX(p, h), event.getHistoricalY(p, h), event.getPointerId(p));
                 }
             }
@@ -139,7 +146,7 @@ public class ViewCanvasSurface extends SurfaceView implements SurfaceHolder.Call
     }
 
     public boolean redo() {
-        surfaceChanged = drawingCurve.redo();
+        boolean surfaceChanged = drawingCurve.redo();
         if (surfaceChanged) {
             invalidate();
         }
@@ -147,7 +154,7 @@ public class ViewCanvasSurface extends SurfaceView implements SurfaceHolder.Call
     }
 
     public boolean undo() {
-        surfaceChanged = drawingCurve.undo();
+        boolean surfaceChanged = drawingCurve.undo();
         if (surfaceChanged) {
             invalidate();
         }

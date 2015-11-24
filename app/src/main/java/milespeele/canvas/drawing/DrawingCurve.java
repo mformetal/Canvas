@@ -8,12 +8,15 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.view.MotionEvent;
 
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.Stack;
 
 import javax.inject.Inject;
 
@@ -39,10 +42,12 @@ public class DrawingCurve implements PaintStore.PaintStoreListener {
         RAINBOW
     }
 
+    private final RectF dirtyRect = new RectF();
+    private final Rect dirty = new Rect();
     private Bitmap mBitmap, cachedBitmap;
     private Canvas mCanvas;
     private DrawingPoints[] pointerPoints;
-    private DrawingHistory allPoints, redoPoints;
+    private Stack<DrawingPoints> allPoints, redoPoints;
     private PaintStore mPaint;
     private Random random;
     private State mState = State.DRAW;
@@ -55,6 +60,7 @@ public class DrawingCurve implements PaintStore.PaintStoreListener {
     private int[] rainbow;
     private int currentStrokeColor, currentBackgroundColor;
     private int width, height;
+    private float lastTouchX, lastTouchY;
 
     @Inject Datastore store;
     @Inject EventBus bus;
@@ -88,8 +94,8 @@ public class DrawingCurve implements PaintStore.PaintStoreListener {
         mPaint = new PaintStore(currentStrokeColor, STROKE_WIDTH);
         mPaint.setListener(this);
 
-        allPoints = new DrawingHistory();
-        redoPoints = new DrawingHistory();
+        allPoints = new Stack<>();
+        redoPoints = new Stack<>();
         pointerPoints = new DrawingPoints[4];
         for (int ndx = 0; ndx < 4; ndx++) {
             pointerPoints[ndx] = new DrawingPoints(mPaint);
@@ -134,13 +140,44 @@ public class DrawingCurve implements PaintStore.PaintStoreListener {
         mCanvas.drawColor(color, PorterDuff.Mode.CLEAR);
     }
 
+    public Rect getDirtyRect() {
+        dirty.set(Math.round(dirtyRect.left - mPaint.getStrokeWidth() / 2),
+                Math.round(dirtyRect.top - mPaint.getStrokeWidth() / 2),
+                Math.round(dirtyRect.right + mPaint.getStrokeWidth() / 2),
+                Math.round(dirtyRect.bottom + mPaint.getStrokeWidth() / 2));
+        return dirty;
+    }
+
+    public void expandDirtyRect(float historicalX, float historicalY) {
+        if (historicalX < dirtyRect.left) {
+            dirtyRect.left = historicalX;
+        } else if (historicalX > dirtyRect.right) {
+            dirtyRect.right = historicalX;
+        }
+        if (historicalY < dirtyRect.top) {
+            dirtyRect.top = historicalY;
+        } else if (historicalY > dirtyRect.bottom) {
+            dirtyRect.bottom = historicalY;
+        }
+    }
+
+    public void resetDirtyRect(float eventX, float eventY) {
+        dirtyRect.left = Math.min(lastTouchX, eventX);
+        dirtyRect.right = Math.max(lastTouchX, eventX);
+        dirtyRect.top = Math.min(lastTouchY, eventY);
+        dirtyRect.bottom = Math.max(lastTouchY, eventY);
+    }
+
     public void onTouchUp(MotionEvent event) {
         final int pointer = (event.getAction() & MotionEvent.ACTION_POINTER_INDEX_MASK)
                 >> MotionEvent.ACTION_POINTER_INDEX_SHIFT;
 
         DrawingPoints pointsToClear = pointerPoints[pointer];
-        allPoints.push(pointsToClear);
+        allPoints.push(new DrawingPoints(pointsToClear));
         pointsToClear.clear();
+
+        lastTouchX = event.getX();
+        lastTouchY = event.getY();
     }
 
     public void addPoint(float x, float y, int pointerId) {
@@ -243,8 +280,10 @@ public class DrawingCurve implements PaintStore.PaintStoreListener {
             mCanvas = new Canvas(mBitmap);
 
             for (DrawingPoints points: allPoints) {
+                Paint redraw = points.redrawPaint;
                 for (DrawingPoint point: points) {
-                    mCanvas.drawPoint(point.x, point.y, points.redrawPaint);
+                    redraw.setStrokeWidth(point.width);
+                    mCanvas.drawPoint(point.x, point.y, redraw);
                 }
             }
 
