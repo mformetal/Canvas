@@ -10,6 +10,7 @@ import milespeele.canvas.fragment.FragmentColorPicker;
 import milespeele.canvas.fragment.FragmentFilename;
 import milespeele.canvas.fragment.FragmentText;
 import milespeele.canvas.parse.ParseUtils;
+import milespeele.canvas.view.ViewCanvasSurface;
 import milespeele.canvas.view.ViewFabMenu;
 
 /**
@@ -25,6 +26,7 @@ public interface ApplicationComponent {
     void inject(ActivityHome activityHome);
 
     void inject(ViewFabMenu viewFabMenu);
+    void inject(ViewCanvasSurface surface);
 
     void inject(FragmentColorPicker fragmentColorPicker);
     void inject(FragmentBrushPicker fragmentBrushPicker);

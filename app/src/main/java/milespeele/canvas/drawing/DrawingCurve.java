@@ -6,12 +6,11 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.view.MotionEvent;
-
-import com.squareup.picasso.Cache;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -40,9 +39,10 @@ public class DrawingCurve implements PaintStore.PaintStoreListener {
         RAINBOW
     }
 
-    private Bitmap mBitmap;
+    private Bitmap mBitmap, cachedBitmap;
     private Canvas mCanvas;
     private DrawingPoints[] pointerPoints;
+    private DrawingHistory allPoints, redoPoints;
     private PaintStore mPaint;
     private Random random;
     private State mState = State.DRAW;
@@ -54,7 +54,6 @@ public class DrawingCurve implements PaintStore.PaintStoreListener {
     private static final float POINT_MAX_WIDTH = 50f, POINT_MIN_WIDTH = 2f, POINT_TOLERANCE = 5f;
     private int[] rainbow;
     private int currentStrokeColor, currentBackgroundColor;
-    private boolean canDraw = true;
     private int width, height;
 
     @Inject Datastore store;
@@ -78,20 +77,22 @@ public class DrawingCurve implements PaintStore.PaintStoreListener {
         currentStrokeColor = Color.argb(255, random.nextInt(256), random.nextInt(256), random.nextInt(256));
         currentBackgroundColor = store.getLastBackgroundColor();
 
-        Bitmap cachedBitmap = FileUtils.getCachedBitmap(mContext);
-        mBitmap = cachedBitmap != null ? Bitmap.createBitmap(cachedBitmap) :
-                Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-        mCanvas = new Canvas(mBitmap);
+        cachedBitmap = FileUtils.getCachedBitmap(mContext);
         if (cachedBitmap == null) {
-            mBitmap.eraseColor(currentBackgroundColor);
+            cachedBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+            cachedBitmap.eraseColor(currentBackgroundColor);
         }
+        mBitmap = cachedBitmap.copy(cachedBitmap.getConfig(), true);
+        mCanvas = new Canvas(mBitmap);
 
         mPaint = new PaintStore(currentStrokeColor, STROKE_WIDTH);
         mPaint.setListener(this);
 
+        allPoints = new DrawingHistory();
+        redoPoints = new DrawingHistory();
         pointerPoints = new DrawingPoints[4];
         for (int ndx = 0; ndx < 4; ndx++) {
-            pointerPoints[ndx] = new DrawingPoints();
+            pointerPoints[ndx] = new DrawingPoints(mPaint);
         }
     }
 
@@ -119,32 +120,27 @@ public class DrawingCurve implements PaintStore.PaintStoreListener {
     }
 
     public void reset(int color) {
-        canDraw = false;
-
         for (ArrayList list: pointerPoints) {
             list.clear();
         }
+
+        allPoints.clear();
+        redoPoints.clear();
 
         mBitmap.recycle();
         mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         mCanvas = new Canvas(mBitmap);
 
         mCanvas.drawColor(color, PorterDuff.Mode.CLEAR);
-
-        canDraw = true;
-    }
-
-    public void drawBitmapToCanvas(Canvas canvas) {
-        if (canDraw) {
-            canvas.drawBitmap(mBitmap, 0, 0, null);
-        }
     }
 
     public void onTouchUp(MotionEvent event) {
         final int pointer = (event.getAction() & MotionEvent.ACTION_POINTER_INDEX_MASK)
                 >> MotionEvent.ACTION_POINTER_INDEX_SHIFT;
 
-        pointerPoints[pointer].clear();
+        DrawingPoints pointsToClear = pointerPoints[pointer];
+        allPoints.push(pointsToClear);
+        pointsToClear.clear();
     }
 
     public void addPoint(float x, float y, int pointerId) {
@@ -170,7 +166,6 @@ public class DrawingCurve implements PaintStore.PaintStoreListener {
                 case RAINBOW:
                     points.add(nextPoint);
                     algorithmDraw(prevPoint, nextPoint, points);
-                    break;
             }
         }
     }
@@ -212,10 +207,50 @@ public class DrawingCurve implements PaintStore.PaintStoreListener {
     }
 
     public boolean redo() {
+        if (!redoPoints.isEmpty()) {
+            long start = SystemClock.currentThreadTimeMillis();
+
+            DrawingPoints redone = redoPoints.pop();
+            allPoints.push(redone);
+
+            mBitmap.recycle();
+            mBitmap = cachedBitmap.copy(cachedBitmap.getConfig(), true);
+            mCanvas = new Canvas(mBitmap);
+
+            for (DrawingPoints points: allPoints) {
+                Paint redraw = points.redrawPaint;
+                for (DrawingPoint point: points) {
+                    redraw.setStrokeWidth(point.width);
+                    mCanvas.drawPoint(point.x, point.y, redraw);
+                }
+            }
+
+            Logg.log("ELAPSED: " + (SystemClock.currentThreadTimeMillis() - start) / 1000.0);
+            return true;
+        }
         return false;
     }
 
     public boolean undo() {
+        if (!allPoints.isEmpty()) {
+            long start = SystemClock.currentThreadTimeMillis();
+
+            DrawingPoints undone = allPoints.pop();
+            redoPoints.push(undone);
+
+            mBitmap.recycle();
+            mBitmap = cachedBitmap.copy(cachedBitmap.getConfig(), true);
+            mCanvas = new Canvas(mBitmap);
+
+            for (DrawingPoints points: allPoints) {
+                for (DrawingPoint point: points) {
+                    mCanvas.drawPoint(point.x, point.y, points.redrawPaint);
+                }
+            }
+
+            Logg.log("ELAPSED: " + (SystemClock.currentThreadTimeMillis() - start) / 1000.0);
+            return true;
+        }
         return false;
     }
 
