@@ -199,9 +199,7 @@ public class DrawingCurve implements PaintStore.PaintStoreListener {
 
     public void onTouchDown(MotionEvent event) {
         if (mState == State.ERASE) {
-            eraseX = event.getX();
-            eraseY = event.getY();
-            mCanvas.drawPoint(eraseX, eraseY, mPaint);
+            addPoint(event.getX(), event.getY(), 0);
         } else {
             if (event.getPointerCount() > 1) {
                 for (int p = 0; p < event.getPointerCount(); p++) {
@@ -214,62 +212,56 @@ public class DrawingCurve implements PaintStore.PaintStoreListener {
     }
 
     public void onTouchMove(MotionEvent event) {
+        resetDirtyRect(event.getX(), event.getY());
+
+        int count = event.getPointerCount();
+
         if (mState == State.ERASE) {
-            float x = event.getX(), y = event.getY();
-            if ( Math.abs(x - eraseX) >= POINT_TOLERANCE || Math.abs(y - eraseY) >= POINT_TOLERANCE) {
-                mCanvas.drawLine(eraseX, eraseY, x, y, mPaint);
-                eraseX = x;
-                eraseY = y;
+            for (int i = 0; i < event.getHistorySize(); i++) {
+                addPoint(event.getHistoricalX(i), event.getHistoricalY(i), 0);
+            }
+            addPoint(event.getX(), event.getY(), 0);
+            return;
+        }
+
+        if (count > 1) {
+            if (count > 3) {
+                count -= 1;
+            }
+
+            for (int h = 0; h < event.getHistorySize(); h++) {
+                for (int p = 0; p < count; p++) {
+                    float historicalX = event.getHistoricalX(p, h);
+                    float historicalY = event.getHistoricalY(p, h);
+
+                    expandDirtyRect(historicalX, historicalY);
+                    addPoint(event.getHistoricalX(p, h), event.getHistoricalY(p, h), event.getPointerId(p));
+                }
             }
         } else {
-            resetDirtyRect(event.getX(), event.getY());
-
-            int count = event.getPointerCount();
-
-            if (count > 1) {
-                if (count > 3) {
-                    count -= 1;
-                }
-
-                for (int h = 0; h < event.getHistorySize(); h++) {
-                    for (int p = 0; p < count; p++) {
-                        float historicalX = event.getHistoricalX(p, h);
-                        float historicalY = event.getHistoricalY(p, h);
-
-                        expandDirtyRect(historicalX, historicalY);
-                        addPoint(event.getHistoricalX(p, h), event.getHistoricalY(p, h), event.getPointerId(p));
-                    }
-                }
-            } else {
-                for (int i = 0; i < event.getHistorySize(); i++) {
-                    addPoint(event.getHistoricalX(i), event.getHistoricalY(i), 0);
-                }
-                addPoint(event.getX(), event.getY(), 0);
+            for (int i = 0; i < event.getHistorySize(); i++) {
+                addPoint(event.getHistoricalX(i), event.getHistoricalY(i), 0);
             }
+            addPoint(event.getX(), event.getY(), 0);
         }
     }
 
     public void onTouchUp(MotionEvent event) {
+        int pointer = (event.getAction() & MotionEvent.ACTION_POINTER_INDEX_MASK)
+                >> MotionEvent.ACTION_POINTER_INDEX_SHIFT;
         if (mState == State.ERASE) {
-        } else {
-            final int pointer = (event.getAction() & MotionEvent.ACTION_POINTER_INDEX_MASK)
-                    >> MotionEvent.ACTION_POINTER_INDEX_SHIFT;
-
-            DrawingPoints pointsToClear = pointerPoints[pointer];
-            allPoints.push(new DrawingPoints(pointsToClear));
-            pointsToClear.clear();
-
-            lastTouchX = event.getX();
-            lastTouchY = event.getY();
+            pointer = 0;
         }
+
+        DrawingPoints pointsToClear = pointerPoints[pointer];
+        allPoints.push(new DrawingPoints(pointsToClear));
+        pointsToClear.clear();
+
+        lastTouchX = event.getX();
+        lastTouchY = event.getY();
     }
 
     public void addPoint(float x, float y, int pointerId) {
-        if (mState == State.ERASE) {
-            mCanvas.drawPoint(x, y, mPaint);
-            return;
-        }
-
         DrawingPoint prevPoint;
         DrawingPoint nextPoint = new DrawingPoint(x, y, SystemClock.currentThreadTimeMillis(),
                 mPaint.getStrokeWidth(), mPaint.getColor());
@@ -313,9 +305,11 @@ public class DrawingCurve implements PaintStore.PaintStoreListener {
             y = ya + ((yb - ya) * i);
 
             float width = points.getLastWidth() + diff * i;
-            mPaint.setStrokeWidth(width);
+            if (mState != State.ERASE) {
+                mPaint.setStrokeWidth(width);
+            }
 
-            points.add(new DrawingPoint(x, y, (previous.time + current.time) / 2, width, mPaint.getColor()));
+            points.add(new DrawingPoint(x, y, (previous.time + current.time) / 2, mPaint.getStrokeWidth(), mPaint.getColor()));
             mCanvas.drawLine(lastX, lastY, x, y, mPaint);
 
             lastX = x;
@@ -332,7 +326,7 @@ public class DrawingCurve implements PaintStore.PaintStoreListener {
             long start = SystemClock.currentThreadTimeMillis();
 
             DrawingPoints redone = redoPoints.pop();
-            allPoints.push(redone);
+            allPoints.push(new DrawingPoints(redone));
 
             mCanvas.drawBitmap(cachedBitmap, 0, 0, null);
 
@@ -358,7 +352,7 @@ public class DrawingCurve implements PaintStore.PaintStoreListener {
             long start = SystemClock.currentThreadTimeMillis();
 
             DrawingPoints undone = allPoints.pop();
-            redoPoints.push(undone);
+            redoPoints.push(new DrawingPoints(undone));
 
             mCanvas.drawBitmap(cachedBitmap, 0, 0, null);
 

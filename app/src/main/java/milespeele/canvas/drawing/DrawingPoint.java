@@ -17,6 +17,10 @@ public class DrawingPoint {
     public float width;
     public int color;
 
+    public DrawingPoint(float x, float y, float width, int color) {
+        init(x, y, 0, width, color);
+    }
+
     public DrawingPoint(float x, float y, long time) {
         init(x, y, time, 0, 0);
     }

@@ -20,12 +20,15 @@ import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
 import milespeele.canvas.event.EventColorChosen;
+import milespeele.canvas.util.AbstractAnimatorListener;
+import milespeele.canvas.util.Logg;
 import milespeele.canvas.view.ViewTypefaceButton;
 import milespeele.canvas.view.ViewTypefaceTextView;
 
 
 
-public class FragmentColorPicker extends Fragment implements View.OnClickListener, ColorPicker.OnColorChangedListener, ColorPicker.OnColorSelectedListener {
+public class FragmentColorPicker extends Fragment
+        implements View.OnClickListener, ColorPicker.OnColorChangedListener {
 
     @Bind(R.id.fragment_color_picker_title) ViewTypefaceTextView title;
     @Bind(R.id.fragment_color_picker_view) ColorPicker picker;
@@ -70,7 +73,6 @@ public class FragmentColorPicker extends Fragment implements View.OnClickListene
         picker.setColor(getArguments().getInt(PREV));
         picker.addSVBar(svBar);
         picker.addOpacityBar(opacityBar);
-        picker.setOnColorSelectedListener(this);
         picker.setOnColorChangedListener(this);
 
         title.setTextColor(currentColor);
@@ -114,12 +116,6 @@ public class FragmentColorPicker extends Fragment implements View.OnClickListene
     @Override
     public void onColorChanged(int color) {
         currentColor = color;
-        title.animateTextColor(color, 150);
-    }
-
-    @Override
-    public void onColorSelected(int color) {
-        currentColor = color;
-        title.animateTextColor(color, 150);
+        title.setTextColor(currentColor);
     }
 }
