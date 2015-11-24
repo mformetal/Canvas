@@ -7,7 +7,6 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.os.Handler;
@@ -30,6 +29,7 @@ import milespeele.canvas.util.FileUtils;
 import milespeele.canvas.util.Datastore;
 import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.ViewUtils;
+import rx.android.schedulers.AndroidSchedulers;
 
 /**
  * Created by mbpeele on 9/25/15.
@@ -61,9 +61,15 @@ public class DrawingCurve implements PaintStore.PaintStoreListener {
     private int currentStrokeColor, currentBackgroundColor;
     private int width, height;
     private float lastTouchX, lastTouchY;
+    private float eraseX, eraseY;
+    private boolean isSafeToDraw = true;
 
     @Inject Datastore store;
     @Inject EventBus bus;
+
+    private DrawingCurveListener listener;
+    public interface DrawingCurveListener {
+    }
 
     public DrawingCurve(Context context, int w, int h) {
         ((MainApp) context.getApplicationContext()).getApplicationComponent().inject(this);
@@ -96,8 +102,8 @@ public class DrawingCurve implements PaintStore.PaintStoreListener {
 
         allPoints = new Stack<>();
         redoPoints = new Stack<>();
-        pointerPoints = new DrawingPoints[4];
-        for (int ndx = 0; ndx < 4; ndx++) {
+        pointerPoints = new DrawingPoints[5];
+        for (int ndx = 0; ndx < 5; ndx++) {
             pointerPoints[ndx] = new DrawingPoints(mPaint);
         }
     }
@@ -105,6 +111,10 @@ public class DrawingCurve implements PaintStore.PaintStoreListener {
     @Override
     public void onColorChanged(int newColor) {
         colors.add(newColor);
+    }
+
+    public void setListener(DrawingCurveListener listener) {
+        this.listener = listener;
     }
 
     public void changeState(State newValue) {
@@ -117,7 +127,7 @@ public class DrawingCurve implements PaintStore.PaintStoreListener {
                 break;
             case DRAW:
                 mHandler.removeCallbacksAndMessages(null);
-                mPaint.changePaint(PaintStyles.normal(currentStrokeColor, STROKE_WIDTH));
+                mPaint.changePaint(PaintStyles.normal(currentStrokeColor, mPaint.getStrokeWidth()));
                 break;
             case RAINBOW:
                 paintRunnable.run();
@@ -126,6 +136,8 @@ public class DrawingCurve implements PaintStore.PaintStoreListener {
     }
 
     public void reset(int color) {
+        isSafeToDraw = false;
+
         for (ArrayList list: pointerPoints) {
             list.clear();
         }
@@ -133,11 +145,24 @@ public class DrawingCurve implements PaintStore.PaintStoreListener {
         allPoints.clear();
         redoPoints.clear();
 
+        cachedBitmap.recycle();
+        cachedBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        cachedBitmap.eraseColor(color);
+
         mBitmap.recycle();
         mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         mCanvas = new Canvas(mBitmap);
+        mCanvas.drawBitmap(cachedBitmap, 0, 0, null);
 
-        mCanvas.drawColor(color, PorterDuff.Mode.CLEAR);
+        ValueAnimator colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(),
+                currentBackgroundColor, color);
+        colorAnimation.addUpdateListener(animator -> mCanvas.drawColor((Integer) animator.getAnimatedValue()));
+        colorAnimation.setDuration(1000);
+        colorAnimation.start();
+
+        currentBackgroundColor = color;
+
+        isSafeToDraw = true;
     }
 
     public Rect getDirtyRect() {
@@ -168,21 +193,86 @@ public class DrawingCurve implements PaintStore.PaintStoreListener {
         dirtyRect.bottom = Math.max(lastTouchY, eventY);
     }
 
+    public void resetDirtyRect() {
+        dirtyRect.set(0, 0, 0, 0);
+    }
+
+    public void onTouchDown(MotionEvent event) {
+        if (mState == State.ERASE) {
+            eraseX = event.getX();
+            eraseY = event.getY();
+            mCanvas.drawPoint(eraseX, eraseY, mPaint);
+        } else {
+            if (event.getPointerCount() > 1) {
+                for (int p = 0; p < event.getPointerCount(); p++) {
+                    addPoint(event.getX(p), event.getY(p), event.getPointerId(p));
+                }
+            } else {
+                addPoint(event.getX(), event.getY(), 0);
+            }
+        }
+    }
+
+    public void onTouchMove(MotionEvent event) {
+        if (mState == State.ERASE) {
+            float x = event.getX(), y = event.getY();
+            if ( Math.abs(x - eraseX) >= POINT_TOLERANCE || Math.abs(y - eraseY) >= POINT_TOLERANCE) {
+                mCanvas.drawLine(eraseX, eraseY, x, y, mPaint);
+                eraseX = x;
+                eraseY = y;
+            }
+        } else {
+            resetDirtyRect(event.getX(), event.getY());
+
+            int count = event.getPointerCount();
+
+            if (count > 1) {
+                if (count > 3) {
+                    count -= 1;
+                }
+
+                for (int h = 0; h < event.getHistorySize(); h++) {
+                    for (int p = 0; p < count; p++) {
+                        float historicalX = event.getHistoricalX(p, h);
+                        float historicalY = event.getHistoricalY(p, h);
+
+                        expandDirtyRect(historicalX, historicalY);
+                        addPoint(event.getHistoricalX(p, h), event.getHistoricalY(p, h), event.getPointerId(p));
+                    }
+                }
+            } else {
+                for (int i = 0; i < event.getHistorySize(); i++) {
+                    addPoint(event.getHistoricalX(i), event.getHistoricalY(i), 0);
+                }
+                addPoint(event.getX(), event.getY(), 0);
+            }
+        }
+    }
+
     public void onTouchUp(MotionEvent event) {
-        final int pointer = (event.getAction() & MotionEvent.ACTION_POINTER_INDEX_MASK)
-                >> MotionEvent.ACTION_POINTER_INDEX_SHIFT;
+        if (mState == State.ERASE) {
+        } else {
+            final int pointer = (event.getAction() & MotionEvent.ACTION_POINTER_INDEX_MASK)
+                    >> MotionEvent.ACTION_POINTER_INDEX_SHIFT;
 
-        DrawingPoints pointsToClear = pointerPoints[pointer];
-        allPoints.push(new DrawingPoints(pointsToClear));
-        pointsToClear.clear();
+            DrawingPoints pointsToClear = pointerPoints[pointer];
+            allPoints.push(new DrawingPoints(pointsToClear));
+            pointsToClear.clear();
 
-        lastTouchX = event.getX();
-        lastTouchY = event.getY();
+            lastTouchX = event.getX();
+            lastTouchY = event.getY();
+        }
     }
 
     public void addPoint(float x, float y, int pointerId) {
+        if (mState == State.ERASE) {
+            mCanvas.drawPoint(x, y, mPaint);
+            return;
+        }
+
         DrawingPoint prevPoint;
-        DrawingPoint nextPoint = new DrawingPoint(x, y, SystemClock.currentThreadTimeMillis(), mPaint.getStrokeWidth());
+        DrawingPoint nextPoint = new DrawingPoint(x, y, SystemClock.currentThreadTimeMillis(),
+                mPaint.getStrokeWidth(), mPaint.getColor());
 
         DrawingPoints points = pointerPoints[pointerId];
         if (points.isEmpty()) {
@@ -195,15 +285,8 @@ public class DrawingCurve implements PaintStore.PaintStoreListener {
                 return;
             }
 
-            switch (mState) {
-                case ERASE:
-                    mCanvas.drawLine(prevPoint.x, prevPoint.y, nextPoint.x, nextPoint.y, mPaint);
-                    break;
-                case DRAW:
-                case RAINBOW:
-                    points.add(nextPoint);
-                    algorithmDraw(prevPoint, nextPoint, points);
-            }
+            points.add(nextPoint);
+            algorithmDraw(prevPoint, nextPoint, points);
         }
     }
 
@@ -211,11 +294,11 @@ public class DrawingCurve implements PaintStore.PaintStoreListener {
         DrawingPoint mid = current.midPoint(previous);
 
         float velocity =  VELOCITY_FILTER_WEIGHT * current.velocityFrom(previous)
-                + (1 - VELOCITY_FILTER_WEIGHT) * points.lastVelocity;
+                + (1 - VELOCITY_FILTER_WEIGHT) * points.getLastVelocity();
         float strokeWidth = Math.abs(STROKE_WIDTH - velocity);
         if (strokeWidth < POINT_MIN_WIDTH) { strokeWidth = POINT_MIN_WIDTH; }
         if (strokeWidth > POINT_MAX_WIDTH) { strokeWidth = POINT_MAX_WIDTH; }
-        float diff = strokeWidth - points.lastWidth;
+        float diff = strokeWidth - points.getLastWidth();
         float lastX = current.x, lastY = current.y;
 
         float xa, xb, ya, yb, x, y;
@@ -229,36 +312,37 @@ public class DrawingCurve implements PaintStore.PaintStoreListener {
             x = xa + ((xb - xa) * i);
             y = ya + ((yb - ya) * i);
 
-            float width = points.lastWidth + diff * i;
+            float width = points.getLastWidth() + diff * i;
             mPaint.setStrokeWidth(width);
 
-            points.add(new DrawingPoint(x, y, (previous.time + current.time) / 2, width));
+            points.add(new DrawingPoint(x, y, (previous.time + current.time) / 2, width, mPaint.getColor()));
             mCanvas.drawLine(lastX, lastY, x, y, mPaint);
 
             lastX = x;
             lastY = y;
         }
 
-        points.lastWidth = strokeWidth;
-        points.lastVelocity = velocity;
+        points.setLastWidth(strokeWidth);
+        points.setLastVelocity(velocity);
     }
 
     public boolean redo() {
         if (!redoPoints.isEmpty()) {
+            resetDirtyRect();
             long start = SystemClock.currentThreadTimeMillis();
 
             DrawingPoints redone = redoPoints.pop();
             allPoints.push(redone);
 
-            mBitmap.recycle();
-            mBitmap = cachedBitmap.copy(cachedBitmap.getConfig(), true);
-            mCanvas = new Canvas(mBitmap);
+            mCanvas.drawBitmap(cachedBitmap, 0, 0, null);
 
             for (DrawingPoints points: allPoints) {
-                Paint redraw = points.redrawPaint;
+                Paint redraw = points.getRedrawPaint();
                 for (DrawingPoint point: points) {
                     redraw.setStrokeWidth(point.width);
+                    redraw.setColor(point.color);
                     mCanvas.drawPoint(point.x, point.y, redraw);
+                    expandDirtyRect(point.x, point.y);
                 }
             }
 
@@ -270,20 +354,21 @@ public class DrawingCurve implements PaintStore.PaintStoreListener {
 
     public boolean undo() {
         if (!allPoints.isEmpty()) {
+            resetDirtyRect();
             long start = SystemClock.currentThreadTimeMillis();
 
             DrawingPoints undone = allPoints.pop();
             redoPoints.push(undone);
 
-            mBitmap.recycle();
-            mBitmap = cachedBitmap.copy(cachedBitmap.getConfig(), true);
-            mCanvas = new Canvas(mBitmap);
+            mCanvas.drawBitmap(cachedBitmap, 0, 0, null);
 
             for (DrawingPoints points: allPoints) {
-                Paint redraw = points.redrawPaint;
+                Paint redraw = points.getRedrawPaint();
                 for (DrawingPoint point: points) {
                     redraw.setStrokeWidth(point.width);
+                    redraw.setColor(point.color);
                     mCanvas.drawPoint(point.x, point.y, redraw);
+                    expandDirtyRect(point.x, point.y);
                 }
             }
 
@@ -307,14 +392,6 @@ public class DrawingCurve implements PaintStore.PaintStoreListener {
                 changeState(State.DRAW);
 
                 reset(eventColorChosen.color);
-
-                ValueAnimator colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(),
-                        currentBackgroundColor, eventColorChosen.color);
-                colorAnimation.addUpdateListener(animator -> mCanvas.drawColor((Integer) animator.getAnimatedValue()));
-                colorAnimation.setDuration(1000);
-                colorAnimation.start();
-
-                currentBackgroundColor = eventColorChosen.color;
             } else {
                 changeState(State.DRAW);
                 setPaintColor(eventColorChosen.color);
@@ -333,9 +410,17 @@ public class DrawingCurve implements PaintStore.PaintStoreListener {
             int prevColor = mPaint.getColor();
             mPaint.set(eventBrushChosen.paint);
             mPaint.setColor(prevColor);
+
+            for (DrawingPoints points: pointerPoints) {
+                points.setRedrawPaint(mPaint);
+            }
         }
 
         setPaintThickness(eventBrushChosen.thickness);
+    }
+
+    public boolean iSafeToDraw() {
+        return isSafeToDraw;
     }
 
     public ArrayList<Integer> getCurrentColors() { return colors; }
@@ -344,21 +429,36 @@ public class DrawingCurve implements PaintStore.PaintStoreListener {
 
     public Bitmap getBitmap() { return mBitmap; }
 
-    public float getBrushWidth() { return STROKE_WIDTH; }
+    public float getBrushWidth() { return mPaint.getStrokeWidth(); }
 
     public void setPaintColor(int color) {
         currentStrokeColor = color;
         mPaint.setColor(currentStrokeColor);
+
+        for (DrawingPoints points: pointerPoints) {
+            points.getRedrawPaint().setColor(currentStrokeColor);
+        }
     }
 
     public void setPaintThickness(float floater) {
         STROKE_WIDTH = floater;
         mPaint.setStrokeWidth(STROKE_WIDTH);
+
+        for (DrawingPoints points: pointerPoints) {
+            points.getRedrawPaint().setStrokeWidth(STROKE_WIDTH);
+        }
     }
 
     public void onSave() {
         FileUtils.cacheColors(mContext, colors);
         store.setLastBackgroundColor(currentBackgroundColor);
+
+        FileUtils.compressBitmapAsObservable(mBitmap)
+                .subscribeOn(AndroidSchedulers.mainThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(bytes -> {
+                    FileUtils.cacheBitmap(mContext, bytes);
+                });
     }
 
     private static final Handler mHandler = new Handler();
@@ -377,7 +477,6 @@ public class DrawingCurve implements PaintStore.PaintStoreListener {
             animator.setDuration(100);
             animator.start();
 
-            mPaint.setColor(rainbow[random.nextInt(rainbow.length)]);
             mHandler.postDelayed(paintRunnable, 100);
         }
     };

@@ -15,18 +15,22 @@ public class DrawingPoint {
     public float y;
     public long time;
     public float width;
+    public int color;
 
     public DrawingPoint(float x, float y, long time) {
-        this.x = x;
-        this.y = y;
-        this.time = time;
+        init(x, y, time, 0, 0);
     }
 
-    public DrawingPoint(float x, float y, long time, float width) {
+    public DrawingPoint(float x, float y, long time, float width, int color) {
+        init(x, y, time, width, color);
+    }
+
+    private void init(float x, float y, long time, float width, int color) {
         this.x = x;
         this.y = y;
         this.time = time;
         this.width = width;
+        this.color = color;
     }
 
     public float distanceTo(DrawingPoint p) {

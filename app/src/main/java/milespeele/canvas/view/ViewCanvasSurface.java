@@ -4,7 +4,6 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.RectF;
 import android.os.Build;
 import android.support.v4.view.MotionEventCompat;
 import android.util.AttributeSet;
@@ -13,22 +12,19 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 
-import com.squareup.picasso.Cache;
-
 import java.util.ArrayList;
 
-import javax.inject.Inject;
-
 import milespeele.canvas.drawing.DrawingCurve;
+import milespeele.canvas.util.Logg;
 
 /**
  * Created by Miles Peele on 10/2/2015.
  */
-public class ViewCanvasSurface extends SurfaceView implements SurfaceHolder.Callback, View.OnTouchListener {
+public class ViewCanvasSurface extends SurfaceView
+        implements SurfaceHolder.Callback, View.OnTouchListener, DrawingCurve.DrawingCurveListener {
 
     private DrawingCurve drawingCurve;
-
-    private final RectF dirtyRect = new RectF();
+    private DrawingThread thread;
 
     public ViewCanvasSurface(Context context) {
         super(context);
@@ -63,17 +59,14 @@ public class ViewCanvasSurface extends SurfaceView implements SurfaceHolder.Call
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
         drawingCurve = new DrawingCurve(getContext(), w, h);
-    }
-
-    @Override
-    protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
-        canvas.drawBitmap(drawingCurve.getBitmap(), 0, 0, null);
+        drawingCurve.setListener(this);
     }
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-
+        thread = new DrawingThread(holder);
+        thread.setRunning(true);
+        thread.start();
     }
 
     @Override
@@ -83,7 +76,8 @@ public class ViewCanvasSurface extends SurfaceView implements SurfaceHolder.Call
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
-
+        thread.onDestroy();
+        drawingCurve.onSave();
     }
 
     @Override
@@ -93,16 +87,16 @@ public class ViewCanvasSurface extends SurfaceView implements SurfaceHolder.Call
         switch (actionMasked & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
             case MotionEvent.ACTION_POINTER_DOWN:
-                onTouchDown(event);
+                drawingCurve.onTouchDown(event);
                 break;
 
             case MotionEvent.ACTION_MOVE:
-                onTouchMove(event);
+                drawingCurve.onTouchMove(event);
                 break;
 
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_POINTER_UP:
-                onTouchUp(event);
+                drawingCurve.onTouchUp(event);
                 break;
         }
 
@@ -111,44 +105,10 @@ public class ViewCanvasSurface extends SurfaceView implements SurfaceHolder.Call
         return true;
     }
 
-    public void onTouchDown(MotionEvent event) {
-        if (event.getPointerCount() > 1) {
-            for (int p = 0; p < event.getPointerCount(); p++) {
-                drawingCurve.addPoint(event.getX(p), event.getY(p), event.getPointerId(p));
-            }
-        } else {
-            drawingCurve.addPoint(event.getX(), event.getY(), 0);
-        }
-    }
-
-    public void onTouchMove(MotionEvent event) {
-        drawingCurve.resetDirtyRect(event.getX(), event.getY());
-
-        if (event.getPointerCount() > 1) {
-            for (int h = 0; h < event.getHistorySize(); h++) {
-                for (int p = 0; p < event.getPointerCount(); p++) {
-                    float historicalX = event.getHistoricalX(p, h);
-                    float historicalY = event.getHistoricalY(p, h);
-                    drawingCurve.expandDirtyRect(historicalX, historicalY);
-                    drawingCurve.addPoint(event.getHistoricalX(p, h), event.getHistoricalY(p, h), event.getPointerId(p));
-                }
-            }
-        } else {
-            for (int i = 0; i < event.getHistorySize(); i++) {
-                drawingCurve.addPoint(event.getHistoricalX(i), event.getHistoricalY(i), 0);
-            }
-            drawingCurve.addPoint(event.getX(), event.getY(), 0);
-        }
-    }
-
-    public void onTouchUp(MotionEvent event) {
-        drawingCurve.onTouchUp(event);
-    }
-
     public boolean redo() {
         boolean surfaceChanged = drawingCurve.redo();
         if (surfaceChanged) {
-            invalidate();
+            invalidate(drawingCurve.getDirtyRect());
         }
         return surfaceChanged;
     }
@@ -156,7 +116,7 @@ public class ViewCanvasSurface extends SurfaceView implements SurfaceHolder.Call
     public boolean undo() {
         boolean surfaceChanged = drawingCurve.undo();
         if (surfaceChanged) {
-            invalidate();
+            invalidate(drawingCurve.getDirtyRect());
         }
         return surfaceChanged;
     }
@@ -179,5 +139,60 @@ public class ViewCanvasSurface extends SurfaceView implements SurfaceHolder.Call
 
     public ArrayList<Integer> getCurrentColors() {
         return drawingCurve.getCurrentColors();
+    }
+
+    private class DrawingThread extends Thread {
+
+        private boolean mRun = false;
+
+        private final SurfaceHolder mSurfaceHolder;
+        private final Object mRunLock = new Object();
+
+        public DrawingThread(SurfaceHolder holder) {
+            mSurfaceHolder = holder;
+        }
+
+        public void setRunning(boolean b) {
+            synchronized (mRunLock) {
+                mRun = b;
+            }
+        }
+
+        @Override
+        public void run() {
+            while (mRun) {
+                Canvas c = null;
+                try {
+                    c = mSurfaceHolder.lockCanvas(null);
+                    synchronized (mSurfaceHolder) {
+                        synchronized (mRunLock) {
+                            if (mRun)  {
+                                if (drawingCurve.iSafeToDraw()) {
+                                    c.drawBitmap(drawingCurve.getBitmap(), 0, 0, null);
+                                }
+                            }
+                        }
+                    }
+                } finally {
+                    if (c != null) {
+                        mSurfaceHolder.unlockCanvasAndPost(c);
+                    }
+                }
+            }
+        }
+
+        public void onDestroy() {
+            boolean retry = true;
+            setRunning(false);
+            while (retry) {
+                try {
+                    join();
+                    retry = false;
+                } catch (InterruptedException e) {
+                    Logg.log(e);
+                }
+            }
+        }
+
     }
 }
