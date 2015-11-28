@@ -10,6 +10,7 @@ import milespeele.canvas.fragment.FragmentColorPicker;
 import milespeele.canvas.fragment.FragmentFilename;
 import milespeele.canvas.fragment.FragmentText;
 import milespeele.canvas.parse.ParseUtils;
+import milespeele.canvas.view.ViewCanvasLayout;
 import milespeele.canvas.view.ViewCanvasSurface;
 import milespeele.canvas.view.ViewFabMenu;
 

@@ -22,8 +22,7 @@ public class ViewBrushPickerLayout extends LinearLayout implements SeekBar.OnSee
     @Bind(R.id.fragment_brush_picker_view_recycler) ViewPaintExamplesRecycler recycler;
 
     private final static int MAX_THICKNESS = 100;
-    private float thickness;
-    private Paint lastSelectedPaint;
+    private Paint lastSelectedPaint = new Paint();
 
     public ViewBrushPickerLayout(Context context) {
         super(context);
@@ -60,28 +59,29 @@ public class ViewBrushPickerLayout extends LinearLayout implements SeekBar.OnSee
     }
 
     public void changeExamplePaint(Paint paint) {
-        lastSelectedPaint = paint;
+        lastSelectedPaint.set(paint);
         example.changePaint(paint);
     }
 
-    public void setInitialValues(float thickness, int color) {
-        recycler.setColor(color);
-        example.changePaintColor(color);
-        example.onThicknessChanged(thickness);
-        sizer.setProgress(Math.round(thickness));
-    }
+    public void setInitialValues(Paint paint) {
+        float thickness = paint.getStrokeWidth();
 
-    public float getThickness() {
-        return thickness;
+        lastSelectedPaint.set(paint);
+
+        recycler.setColor(paint.getColor());
+
+        example.setInitialPaint(paint);
+
+        sizer.setProgress(Math.round(thickness));
     }
 
     public Paint getLastSelectedPaint() { return lastSelectedPaint; }
 
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-        if (progress != 2) {
-            thickness = progress;
+        if (progress > 1) {
             example.onThicknessChanged(progress);
+            lastSelectedPaint.setStrokeWidth((float) progress);
         }
     }
 

@@ -27,19 +27,8 @@ public class FragmentDrawer extends Fragment implements ViewFabMenu.ViewFabMenuL
 
     public FragmentDrawer() {}
 
-    public static FragmentDrawer newInstance(float cx, float cy) {
-        FragmentDrawer drawer = new FragmentDrawer();
-        Bundle bundle = new Bundle();
-        bundle.putFloat("x", cx);
-        bundle.putFloat("y", cy);
-        drawer.setArguments(bundle);
-        return drawer;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setRetainInstance(true);
+    public static FragmentDrawer newInstance() {
+        return new FragmentDrawer();
     }
 
     @Override
@@ -48,16 +37,6 @@ public class FragmentDrawer extends Fragment implements ViewFabMenu.ViewFabMenuL
         ButterKnife.bind(this, v);
         coordinatorLayout.setMenuListener(this);
         return v;
-    }
-
-    @Override
-    public Animator onCreateAnimator(int transit, boolean enter, int nextAnim) {
-        if (getArguments().getFloat("x", 0f) == -1) {
-            return super.onCreateAnimator(transit, enter, nextAnim);
-        } else {
-            return (enter) ? coordinatorLayout.reveal(getArguments().getFloat("x", 0f),
-                    getArguments().getFloat("y", 0f)) : coordinatorLayout.unreveal();
-        }
     }
 
     @Override

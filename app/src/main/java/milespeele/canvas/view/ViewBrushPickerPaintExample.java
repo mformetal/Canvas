@@ -57,10 +57,10 @@ public class ViewBrushPickerPaintExample extends View {
         int endX = w - startX;
         examplePath.moveTo(startX, h / 2);
         examplePath.cubicTo(endX / 8, h / 4,
-                Math.round(endX * .375), h / 4,
+                endX * .375f, h / 4,
                 endX / 2, h / 2);
-        examplePath.cubicTo(Math.round(endX * .675), Math.round(h * .75),
-                Math.round(endX * .875), Math.round(h * .75),
+        examplePath.cubicTo(endX * .675f, h * .75f,
+                endX * .875f, h * .75f,
                 endX, h / 2);
     }
 

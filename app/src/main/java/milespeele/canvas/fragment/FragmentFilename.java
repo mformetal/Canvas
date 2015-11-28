@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.Toast;
 
 import javax.inject.Inject;
 
@@ -67,11 +68,19 @@ public class FragmentFilename extends Fragment implements View.OnClickListener {
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.fragment_filename_pos_button:
-                bus.post(new EventFilenameChosen(input.getTextAsString()));
+                String name = input.getTextAsString();
+                if (name.isEmpty()) {
+                    Toast.makeText(getActivity(),
+                            getResources().getString(R.string.fragment_filename_empty),
+                            Toast.LENGTH_SHORT).show();
+                } else {
+                    bus.post(new EventFilenameChosen(input.getTextAsString()));
+                    getActivity().onBackPressed();
+                }
                 break;
             case R.id.fragment_filename_neg_button:
+                getActivity().onBackPressed();
                 break;
         }
-        getActivity().onBackPressed();
     }
 }

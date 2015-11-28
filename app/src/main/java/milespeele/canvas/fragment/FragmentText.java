@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import javax.inject.Inject;
 
@@ -54,15 +55,23 @@ public class FragmentText extends Fragment implements View.OnClickListener {
     }
 
     @Override
-    @OnClick({R.id.fragment_text_pos_button, R.id.fragment_text_neg_button})
+    @OnClick({R.id.fragment_text_pos_button, R.id.fragment_text_neg_button, R.id.fragment_text_input})
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.fragment_text_pos_button:
-                bus.post(new EventTextChosen(input.getTextAsString()));
+                String text = input.getTextAsString();
+                if (text.isEmpty()) {
+                    Toast.makeText(getActivity(),
+                            R.string.toast_fragment_filename_invalid,
+                            Toast.LENGTH_SHORT).show();
+                } else {
+                    bus.post(new EventTextChosen(input.getTextAsString()));
+                    getActivity().onBackPressed();
+                }
                 break;
             case R.id.fragment_text_neg_button:
+                getActivity().onBackPressed();
                 break;
         }
-        getActivity().onBackPressed();
     }
 }

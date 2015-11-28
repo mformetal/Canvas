@@ -41,7 +41,7 @@ import com.parse.RequestPasswordResetCallback;
 public class ParseLoginHelpFragment extends ParseLoginFragmentBase implements OnClickListener {
 
   public interface ParseOnLoginHelpSuccessListener {
-    public void onLoginHelpSuccess();
+    void onLoginHelpSuccess();
   }
 
   private TextView instructionsTextView;

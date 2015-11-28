@@ -31,7 +31,9 @@ import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
 import milespeele.canvas.event.EventBrushChosen;
 import milespeele.canvas.event.EventColorChosen;
+import milespeele.canvas.event.EventFilenameChosen;
 import milespeele.canvas.util.AbstractAnimatorListener;
+import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.ViewUtils;
 
 /**
@@ -41,15 +43,15 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
 
     @Bind(R.id.menu_toggle) ViewFab toggle;
     @Bind(R.id.menu_erase) ViewFab eraser;
+    @Bind(R.id.menu_save) ViewFab saver;
 
-    @Bind({R.id.menu_shape_chooser, R.id.menu_text, R.id.menu_colorize,  R.id.menu_color,
-            R.id.menu_brush, R.id.menu_undo, R.id.menu_redo, R.id.menu_erase})
+    @Bind({R.id.menu_shape_chooser, R.id.menu_text,  R.id.menu_color, R.id.menu_brush,
+            R.id.menu_undo, R.id.menu_redo, R.id.menu_erase, R.id.menu_save})
     List<ViewFab> buttonsList;
 
     @Inject EventBus bus;
 
     private ObjectAnimator toggleClose, toggleOpen;
-    private Matrix rotateMatrix;
     private Paint backgroundPaint;
     private static final Interpolator OVERSHOOT_INTERPOLATOR = new OvershootInterpolator();
     private static final Interpolator ANTICIPATE_INTERPOLATOR = new AnticipateInterpolator();
@@ -101,8 +103,6 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
         backgroundPaint.setStyle(Paint.Style.FILL_AND_STROKE);
         backgroundPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_OVER));
         backgroundPaint.setColor(getResources().getColor(R.color.primary_dark));
-
-        rotateMatrix = new Matrix();
 
         setWillNotDraw(false);
         setDescendantFocusability(FOCUS_AFTER_DESCENDANTS);
@@ -182,22 +182,13 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
                     (int) y + child.getMeasuredHeight() / 2);
         }
 
-        float highest = getChildAt(0).getY();
-        for (int i = 0; i < getChildCount(); i++) {
-            View v = getChildAt(i);
-            if (v.getY() > highest) {
-                highest = v.getY();
-            }
-        }
-        MAX_RADIUS = centerY;
+        MAX_RADIUS = (toggle.getMeasuredHeight() * 3) + toggle.getMeasuredHeight();
         this.radius = MAX_RADIUS;
-
-        rotateMatrix.postRotate(30, centerX, centerY);
     }
 
     @Override
-    @OnClick({R.id.menu_colorize, R.id.menu_brush, R.id.menu_color, R.id.menu_undo,
-            R.id.menu_redo, R.id.menu_erase, R.id.menu_toggle, R.id.menu_shape_chooser, R.id.menu_text})
+    @OnClick({R.id.menu_brush, R.id.menu_color, R.id.menu_undo, R.id.menu_redo, R.id.menu_erase,
+            R.id.menu_toggle, R.id.menu_shape_chooser, R.id.menu_text, R.id.menu_save})
     public void onClick(View v) {
         if (listener != null) {
             listener.onFabMenuButtonClicked((ViewFab) v);
@@ -208,9 +199,6 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
         switch (v.getId()) {
             case R.id.menu_toggle:
                 toggleMenu();
-                break;
-            case R.id.menu_colorize:
-                eraser.scaleDown();
                 break;
             case R.id.menu_color:
                 eraser.scaleDown();

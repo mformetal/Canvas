@@ -51,11 +51,11 @@ import org.json.JSONObject;
 public class ParseLoginFragment extends ParseLoginFragmentBase {
 
   public interface ParseLoginFragmentListener {
-    public void onSignUpClicked(String username, String password);
+    void onSignUpClicked(String username, String password);
 
-    public void onLoginHelpClicked();
+    void onLoginHelpClicked();
 
-    public void onLoginSuccess();
+    void onLoginSuccess();
   }
 
   private static final String LOG_TAG = "ParseLoginFragment";

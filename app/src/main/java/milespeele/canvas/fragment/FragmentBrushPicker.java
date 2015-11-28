@@ -2,6 +2,7 @@ package milespeele.canvas.fragment;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,18 +28,13 @@ public class FragmentBrushPicker extends Fragment implements View.OnClickListene
 
     @Inject EventBus bus;
 
-    private static final String THICKNESS = "thick";
-    private static final String COLOR = "color";
+    private static Paint curPaint = new Paint();
 
     public FragmentBrushPicker() {}
 
-    public static FragmentBrushPicker newInstance(float canvasWidth, int color) {
-        FragmentBrushPicker fragmentBrushPicker = new FragmentBrushPicker();
-        Bundle args = new Bundle();
-        args.putFloat(THICKNESS, canvasWidth);
-        args.putInt(COLOR, color);
-        fragmentBrushPicker.setArguments(args);
-        return fragmentBrushPicker;
+    public static FragmentBrushPicker newInstance(Paint paint) {
+        curPaint.set(paint);
+        return new FragmentBrushPicker();
     }
 
     @Override
@@ -51,7 +47,7 @@ public class FragmentBrushPicker extends Fragment implements View.OnClickListene
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_brush_picker, container, false);
         ButterKnife.bind(this, v);
-        root.setInitialValues(getArguments().getFloat(THICKNESS), getArguments().getInt(COLOR));
+        root.setInitialValues(curPaint);
         return v;
     }
 
@@ -60,10 +56,11 @@ public class FragmentBrushPicker extends Fragment implements View.OnClickListene
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.fragment_brush_picker_pos:
-                bus.post(new EventBrushChosen(root.getThickness(), root.getLastSelectedPaint()));
+                bus.post(new EventBrushChosen(root.getLastSelectedPaint()));
             case R.id.fragment_brush_picker_cancel:
+                getActivity().onBackPressed();
+                break;
         }
-        getActivity().onBackPressed();
     }
 
     @Override

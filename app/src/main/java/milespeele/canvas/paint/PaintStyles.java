@@ -1,5 +1,6 @@
 package milespeele.canvas.paint;
 
+import android.graphics.BlurMaskFilter;
 import android.graphics.Color;
 import android.graphics.ComposePathEffect;
 import android.graphics.CornerPathEffect;
@@ -14,12 +15,12 @@ import android.graphics.Shader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import milespeele.canvas.util.ViewUtils;
+
 /**
  * Created by Miles Peele on 7/26/2015.
  */
 public class PaintStyles {
-
-    private static int[] rainbowColors;
 
     private final static ComposePathEffect composePathEffect = new ComposePathEffect(
             new DashPathEffect(new float[] {1, 51}, 0),
@@ -59,7 +60,7 @@ public class PaintStyles {
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeJoin(Paint.Join.ROUND);
         paint.setStrokeCap(Paint.Cap.ROUND);
-        paint.setMaskFilter(new EmbossMaskFilter(new float[]{1, 1, 1}, 0.4f, 6, 3.5f));
+        paint.setMaskFilter(new EmbossMaskFilter(new float[]{1, 1, 1}, 0.4f, 10, 8.2f));
         return paint;
     }
 
@@ -72,7 +73,7 @@ public class PaintStyles {
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeJoin(Paint.Join.ROUND);
         paint.setStrokeCap(Paint.Cap.ROUND);
-        paint.setMaskFilter(new EmbossMaskFilter(new float[]{0f, -1f, 0.5f}, 0.8f, 15f, 1f));
+        paint.setMaskFilter(new EmbossMaskFilter(new float[]{0f, -1f, 0.5f}, 0.8f, 13f, 7f));
         return paint;
     }
 
@@ -89,19 +90,6 @@ public class PaintStyles {
         return paint;
     }
 
-    public static Paint dashed(int currentColor, float width) {
-        Paint paint = new Paint();
-        paint.setAntiAlias(true);
-        paint.setDither(true);
-        paint.setColor(currentColor);
-        paint.setStrokeWidth(width);
-        paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeJoin(Paint.Join.ROUND);
-        paint.setStrokeCap(Paint.Cap.ROUND);
-        paint.setPathEffect(new DashPathEffect(new float[] {width, width * 5, width * 10}, 0));
-        return paint;
-    }
-
     public static Paint rainbow(int currentColor, float width) {
         Paint paint = new Paint();
         paint.setAntiAlias(true);
@@ -110,48 +98,52 @@ public class PaintStyles {
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeJoin(Paint.Join.ROUND);
         paint.setStrokeCap(Paint.Cap.ROUND);
-
-        LinearGradient linearGradient = new LinearGradient(0, 0, 0, 50, getRainbowColors(), null, Shader.TileMode.MIRROR);
-        Matrix matrix = new Matrix();
-        matrix.setRotate(90);
-        linearGradient.setLocalMatrix(matrix);
+        LinearGradient linearGradient = new LinearGradient(0, 0, 0, 50, ViewUtils.rainbow(), null, Shader.TileMode.MIRROR);
         paint.setShader(linearGradient);
         return paint;
     }
 
-    public static Paint jagged(int color, float width) {
+    public static Paint normalShadow(int color, float width) {
         Paint paint = new Paint();
         paint.setAntiAlias(true);
         paint.setDither(true);
         paint.setColor(color);
         paint.setStrokeWidth(width);
         paint.setStyle(Paint.Style.STROKE);
-        paint.setPathEffect(new DiscretePathEffect(width, width * 2));
+        paint.setMaskFilter(new BlurMaskFilter(15, BlurMaskFilter.Blur.NORMAL));
         return paint;
     }
 
-    public static Paint erase(int color, float width) {
-        Paint eraser = new Paint();
-        eraser.setColor(color);
-        eraser.setStrokeWidth(width);
-        eraser.setStrokeJoin(Paint.Join.ROUND);
-        eraser.setStrokeCap(Paint.Cap.ROUND);
-        eraser.setStyle(Paint.Style.STROKE);
-        return eraser;
+    public static Paint innerShadow(int color, float width) {
+        Paint paint = new Paint();
+        paint.setAntiAlias(true);
+        paint.setDither(true);
+        paint.setColor(color);
+        paint.setStrokeWidth(width);
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setMaskFilter(new BlurMaskFilter(15, BlurMaskFilter.Blur.INNER));
+        return paint;
     }
 
-    public static int[] getRainbowColors() {
-        if (rainbowColors == null) {
-            return rainbowColors = new int[] {
-                    Color.RED,
-                    Color.parseColor("#FF7F00"),
-                    Color.YELLOW,
-                    Color.GREEN,
-                    Color.BLUE,
-                    Color.parseColor("#4B0082"),
-                    Color.parseColor("#8B00FF")
-            };
-        }
-        return rainbowColors;
+    public static Paint outerShadow(int color, float width) {
+        Paint paint = new Paint();
+        paint.setAntiAlias(true);
+        paint.setDither(true);
+        paint.setColor(color);
+        paint.setStrokeWidth(width);
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setMaskFilter(new BlurMaskFilter(15, BlurMaskFilter.Blur.OUTER));
+        return paint;
+    }
+
+    public static Paint solidShadow(int color, float width) {
+        Paint paint = new Paint();
+        paint.setAntiAlias(true);
+        paint.setDither(true);
+        paint.setColor(color);
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeWidth(width);
+        paint.setMaskFilter(new BlurMaskFilter(15, BlurMaskFilter.Blur.SOLID));
+        return paint;
     }
 }

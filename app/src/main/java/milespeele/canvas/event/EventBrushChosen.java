@@ -7,11 +7,9 @@ import android.graphics.Paint;
  */
 public class EventBrushChosen {
 
-    public float thickness;
     public Paint paint;
 
-    public EventBrushChosen(float thickness, Paint paint) {
-        this.thickness = thickness;
+    public EventBrushChosen(Paint paint) {
         this.paint = paint;
     }
 }

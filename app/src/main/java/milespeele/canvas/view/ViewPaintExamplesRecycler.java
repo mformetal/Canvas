@@ -24,7 +24,6 @@ import milespeele.canvas.util.WrapContentLinearLayoutManager;
 public class ViewPaintExamplesRecycler extends RecyclerView implements ItemClickSupport.OnItemClickListener {
 
     private int color;
-    private int overallScroll;
 
     private AdapterPojoPaintExamples adapter;
 

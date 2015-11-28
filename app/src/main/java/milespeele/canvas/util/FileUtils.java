@@ -14,6 +14,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 import rx.Observable;
 
@@ -75,29 +77,5 @@ public class FileUtils {
         }
 
         return bitmap;
-    }
-
-    public static void cacheColors(Context context, ArrayList<Integer> colors) {
-        try {
-            FileOutputStream fos = context.openFileOutput(COLORS_FILENAME, Context.MODE_PRIVATE);
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(colors);
-            oos.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    public static ArrayList<Integer> getColors(Context context) {
-        ArrayList<Integer> colors = new ArrayList<>();
-        try{
-            FileInputStream fis = context.openFileInput(COLORS_FILENAME);
-            ObjectInputStream ois = new ObjectInputStream(fis);
-            colors = (ArrayList<Integer>) ois.readObject();
-        } catch (ClassNotFoundException | IOException e) {
-            e.printStackTrace();
-        }
-        return colors;
     }
 }

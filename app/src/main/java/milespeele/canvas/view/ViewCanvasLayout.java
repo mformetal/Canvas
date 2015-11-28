@@ -31,33 +31,39 @@ import android.widget.Toast;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Set;
+
+import javax.inject.Inject;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
+import de.greenrobot.event.EventBus;
+import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
+import milespeele.canvas.event.EventTextChosen;
+import milespeele.canvas.fragment.FragmentDrawer;
+import milespeele.canvas.paint.PaintStyles;
+import milespeele.canvas.util.AbstractAnimatorListener;
 import milespeele.canvas.util.Logg;
+import milespeele.canvas.util.TextUtils;
 import milespeele.canvas.util.ViewUtils;
 
 /**
  * Created by milespeele on 8/7/15.
  */
-public class ViewCanvasLayout extends CoordinatorLayout implements ViewFabMenu.ViewFabMenuListener {
+public class ViewCanvasLayout extends CoordinatorLayout implements View.OnClickListener {
 
     @Bind(R.id.fragment_drawer_canvas) ViewCanvasSurface drawer;
     @Bind(R.id.fragment_drawer_menu) ViewFabMenu menu;
     @Bind(R.id.fragment_drawer_animator) FrameLayout fabFrame;
+    @Bind(R.id.fragment_drawer_button) ViewTypefaceButton button;
+
+    private final Rect hitRect = new Rect();
+    private Paint shadowPaint;
 
     private float circle = 0;
-    private static final int DURATION = 750;
-    private float centerX, centerY;
-    private Paint revealPaint, shadowPaint;
-    private Path revealPath;
-    private ObjectAnimator animator;
-    private Rect hitRect;
-    private int touchSlop;
     private int[] loc = new int[2];
-
-    private ViewFabMenu.ViewFabMenuListener listener;
 
     private boolean mIsMoving = false;
     private static final int MOVING_DELAY = 750;
@@ -94,24 +100,13 @@ public class ViewCanvasLayout extends CoordinatorLayout implements ViewFabMenu.V
     }
 
     private void init() {
-        touchSlop = ViewConfiguration.get(getContext()).getScaledTouchSlop();
-
-        hitRect = new Rect();
-
-        revealPath = new Path();
-
-        animator = new ObjectAnimator();
-
-        revealPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        revealPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
-
         shadowPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         shadowPaint.setColor(Color.BLACK);
         shadowPaint.setAlpha(0);
 
         setWillNotDraw(false);
-        setDrawingCacheEnabled(true);
         setClipChildren(false);
+        setSaveEnabled(true);
     }
 
     @Override
@@ -119,12 +114,6 @@ public class ViewCanvasLayout extends CoordinatorLayout implements ViewFabMenu.V
         super.onFinishInflate();
         ButterKnife.bind(this);
         drawer.requestFocus();
-    }
-
-    @Override
-    public void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
-        canvas.drawCircle(centerX, centerY, circle, revealPaint);
     }
 
     @Override
@@ -151,33 +140,9 @@ public class ViewCanvasLayout extends CoordinatorLayout implements ViewFabMenu.V
     }
 
     @Override
-    protected boolean drawChild(Canvas canvas, View child, long drawingTime) {
-        if (animator.isRunning()) {
-            final int state = canvas.save();
-
-            revealPath.reset();
-            revealPath.addCircle(centerX, centerY, circle, Path.Direction.CW);
-
-            canvas.clipPath(revealPath);
-
-            boolean isInvalided = super.drawChild(canvas, child, drawingTime);
-
-            canvas.restoreToCount(state);
-
-            return isInvalided;
-        }
-
-        return super.drawChild(canvas, child, drawingTime);
-    }
-
-    @Override
-    public void onFabMenuButtonClicked(final ViewFab v) {
-        listener.onFabMenuButtonClicked(v);
-    }
-
-    @Override
-    public boolean onInterceptTouchEvent (MotionEvent ev) {
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
         final float x = ev.getX(), y = ev.getY();
+        final int action = MotionEventCompat.getActionMasked(ev);
 
         if (fabFrame.getVisibility() == View.VISIBLE) {
             fabFrame.getHitRect(hitRect);
@@ -204,7 +169,6 @@ public class ViewCanvasLayout extends CoordinatorLayout implements ViewFabMenu.V
 
         drawer.setOnTouchListener(drawer);
 
-        final int action = MotionEventCompat.getActionMasked(ev);
         switch (action) {
             case MotionEvent.ACTION_DOWN:
                 break;
@@ -230,6 +194,40 @@ public class ViewCanvasLayout extends CoordinatorLayout implements ViewFabMenu.V
         return false;
     }
 
+    @Override
+    @OnClick(R.id.fragment_drawer_button)
+    public void onClick(View v) {
+        drawer.getDrawingCurve().onButtonClicked();
+    }
+
+    public void setButtonGone() {
+        ObjectAnimator gone = ObjectAnimator.ofFloat(button, ViewUtils.ALPHA, 1f, 0f);
+        gone.setDuration(350);
+        gone.addListener(new AbstractAnimatorListener() {
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                button.setVisibility(View.GONE);
+            }
+        });
+        gone.start();
+    }
+
+    public void setButtonVisible(String text) {
+        button.setText(text);
+
+        ObjectAnimator visibility = ObjectAnimator.ofFloat(button, ViewUtils.ALPHA, 0f, 1f);
+        visibility.setDuration(350);
+        visibility.addListener(new AbstractAnimatorListener() {
+
+            @Override
+            public void onAnimationStart(Animator animation) {
+                button.setVisibility(View.VISIBLE);
+            }
+        });
+        visibility.start();
+    }
+
     private void ifStillMoving() {
         handler.postDelayed(() -> {
             if (mIsMoving) {
@@ -239,39 +237,11 @@ public class ViewCanvasLayout extends CoordinatorLayout implements ViewFabMenu.V
         }, MOVING_DELAY);
     }
 
-    public Animator reveal(float cx, float cy) {
-        int width = getWidth(), height = getHeight();
-        if (getWidth() == 0 || getHeight() == 0) {
-            height = ViewUtils.getScreenHeight(getContext());
-            width = ViewUtils.getScreenWidth(getContext());
-        }
-
-        centerX = (cx == 0) ? width / 2 : cx;
-        centerY = (cy == 0) ? height / 2 : cy;
-
-        animator = ObjectAnimator.ofFloat(this, CIRCLE, height);
-        animator.setDuration(DURATION);
-        animator.setInterpolator(new AccelerateDecelerateInterpolator());
-        return animator;
-    }
-
-    public Animator unreveal() {
-        animator = ObjectAnimator.ofFloat(this, CIRCLE, 0);
-        animator.setDuration(DURATION);
-        animator.setInterpolator(new AccelerateDecelerateInterpolator());
-        return animator;
-    }
-
     public void setMenuListener(ViewFabMenu.ViewFabMenuListener other) {
-        listener = other;
-        menu.setListener(this);
+        menu.setListener(other);
     }
 
-    public ArrayList<Integer> getCurrentColors() { return drawer.getCurrentColors(); }
-
-    public float getBrushWidth() {
-        return drawer.getBrushWidth();
-    }
+    public Paint getCurrentPaint() { return drawer.getCurrentPaint(); }
 
     public int getBrushColor() {
         return drawer.getBrushColor();

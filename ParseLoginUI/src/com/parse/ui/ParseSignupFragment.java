@@ -79,8 +79,8 @@ public class ParseSignupFragment extends ParseLoginFragmentBase implements OnCli
       minPasswordLength = config.getParseSignupMinPasswordLength();
     }
 
-    String username = (String) args.getString(USERNAME);
-    String password = (String) args.getString(PASSWORD);
+    String username = args.getString(USERNAME);
+    String password = args.getString(PASSWORD);
 
     View v = inflater.inflate(R.layout.com_parse_ui_parse_signup_fragment,
         parent, false);

@@ -81,7 +81,7 @@ public class ParseLoginFragmentBase extends Fragment {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
       return activity == null || activity.isDestroyed();
     } else {
-      return activity == null || ((ParseLoginActivity) activity).isDestroyed();
+      return activity == null || activity.isDestroyed();
     }
   }
 }

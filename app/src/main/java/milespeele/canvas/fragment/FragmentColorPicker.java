@@ -2,6 +2,7 @@ package milespeele.canvas.fragment;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,7 +34,6 @@ public class FragmentColorPicker extends Fragment
     @Bind(R.id.fragment_color_picker_title) ViewTypefaceTextView title;
     @Bind(R.id.fragment_color_picker_view) ColorPicker picker;
     @Bind(R.id.fragment_color_picker_sv) SVBar svBar;
-    @Bind(R.id.fragment_color_picker_opacity) OpacityBar opacityBar;
     @Bind(R.id.fragment_color_picker_canvas) ViewTypefaceButton canvasToggle;
     @Bind(R.id.fragment_color_picker_stroke) ViewTypefaceButton strokeToggle;
 
@@ -70,9 +70,8 @@ public class FragmentColorPicker extends Fragment
         currentColor = getArguments().getInt(PREV);
 
         picker.setShowOldCenterColor(false);
-        picker.setColor(getArguments().getInt(PREV));
+        picker.setColor(currentColor);
         picker.addSVBar(svBar);
-        picker.addOpacityBar(opacityBar);
         picker.setOnColorChangedListener(this);
 
         title.setTextColor(currentColor);
@@ -91,11 +90,7 @@ public class FragmentColorPicker extends Fragment
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.fragment_color_picker_select:
-                if (currentColor == getArguments().getInt(PREV)) {
-                    bus.post(new EventColorChosen(picker.getColor(), forStroke));
-                } else {
-                    bus.post(new EventColorChosen(currentColor, forStroke));
-                }
+                bus.post(new EventColorChosen(picker.getColor(), forStroke));
             case R.id.fragment_color_picker_cancel:
                 getActivity().onBackPressed();
                 break;

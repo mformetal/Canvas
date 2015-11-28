@@ -8,6 +8,10 @@ import android.util.Property;
 import android.view.Display;
 import android.view.View;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 /**
  * Created by mbpeele on 11/4/15.
  */
@@ -77,10 +81,6 @@ public class ViewUtils {
 
     public static int centerY(View view) {
         return (view.getTop() + view.getBottom()) / 2;
-    }
-
-    public static int[] center(View view) {
-        return new int[] { centerX(view), centerY(view) };
     }
 
     public static int[] rainbow() {

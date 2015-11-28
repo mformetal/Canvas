@@ -50,6 +50,7 @@ public class ParseUtils {
                                         if (e2 == null) {
                                             ActivityHome activityHome = weakCxt.get();
                                             if (activityHome != null && !activityHome.isFinishing()) {
+                                                activityHome.showSavedImageSnackbar(art);
                                             }
                                         } else {
                                             handleError(e2);

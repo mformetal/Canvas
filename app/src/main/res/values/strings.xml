@@ -7,6 +7,8 @@
     <string name="twitter_consumer_key">@string/twitter_key</string>
     <string name="twitter_consumer_secret">@string/twitter_secret</string>
 
+    <string name="toast_fragment_text_chosen">Drag then press "Drop" when finished</string>
+    <string name="toast_fragment_text_empty">Input some text to be drawn!</string>
     <string name="fragment_text_title">Enter Text</string>
     <string name="fragment_text_input_hint">Will Be Drawn On Canvas</string>
 
@@ -24,6 +26,7 @@
     <string name="snackbar_no_more_undo">No more strokes to undo!</string>
 
     <string name="toast_fragment_filename_invalid">Must contain only alphanumeric characters</string>
+    <string name="fragment_filename_empty">Put in a name to save!</string>
     <string name="fragment_filename_title">Save Your Masterpiece</string>
     <string name="fragment_filename_edittext_hint">Enter name</string>
     <string name="fragment_filename_pos_button_text">Save!</string>
@@ -35,11 +38,13 @@
     <string-array name="paint_examples">
         <item>normal</item>
         <item>dots</item>
-        <item>dashed</item>
         <item>emboss</item>
         <item>deboss</item>
         <item>rainbow</item>
-        <item>jagged</item>
+        <item>normalShadow</item>
+        <item>innerShadow</item>
+        <item>outerShadow</item>
+        <item>solidShadow</item>
     </string-array>
     
     <string name="TAG_FRAGMENT_FILL">New Canvas Color</string>

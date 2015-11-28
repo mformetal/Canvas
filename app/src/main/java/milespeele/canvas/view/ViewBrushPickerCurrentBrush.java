@@ -3,8 +3,10 @@ package milespeele.canvas.view;
 import android.animation.ObjectAnimator;
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.graphics.BlurMaskFilter;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.MaskFilter;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PorterDuff;
@@ -17,6 +19,7 @@ import android.view.animation.Interpolator;
 
 import milespeele.canvas.R;
 import milespeele.canvas.paint.PaintStyles;
+import milespeele.canvas.util.Logg;
 
 /**
  * Created by milespeele on 7/13/15.
@@ -60,7 +63,7 @@ public class ViewBrushPickerCurrentBrush extends View {
     }
 
     private void init() {
-        paint = PaintStyles.normal(Color.WHITE, 20f);
+        paint = new Paint();
 
         rectPaint = PaintStyles.normal(getResources().getColor(R.color.primary_dark), 5f);
         rectPaint.setStyle(Paint.Style.FILL);
@@ -69,6 +72,7 @@ public class ViewBrushPickerCurrentBrush extends View {
         path = new Path();
 
         setWillNotDraw(false);
+        setLayerType(LAYER_TYPE_SOFTWARE, null);
     }
 
     @Override
@@ -79,10 +83,10 @@ public class ViewBrushPickerCurrentBrush extends View {
         int endX = w - startX;
         path.moveTo(startX, h / 2);
         path.cubicTo(endX / 8, h / 4,
-                Math.round(endX * .375), h / 4,
+                endX * .375f, h / 4,
                 endX / 2, h / 2);
-        path.cubicTo(Math.round(endX * .675), Math.round(h * .75),
-                Math.round(endX * .875), Math.round(h * .75),
+        path.cubicTo(endX * .675f, h * .75f,
+                endX * .875f, h * .75f,
                 endX, h / 2);
     }
 
@@ -103,16 +107,16 @@ public class ViewBrushPickerCurrentBrush extends View {
         }
     }
 
-    public void changePaintColor(int color) {
-        paint.setColor(color);
+    public void setInitialPaint(Paint initialPaint) {
+        paint.set(initialPaint);
     }
 
     public void changePaint(Paint newPaint) {
-        float paintThickness = paint.getStrokeWidth();
-        int color = paint.getColor();
+        int oldColor = paint.getColor();
+        float picker = paint.getStrokeWidth();
         paint.set(newPaint);
-        paint.setColor(color);
-        paint.setStrokeWidth(paintThickness);
+        paint.setStrokeWidth(picker);
+        paint.setColor(oldColor);
 
         reveal = ObjectAnimator.ofFloat(this, "rectWidth", 0, getMeasuredWidth());
         reveal.setDuration(1000);

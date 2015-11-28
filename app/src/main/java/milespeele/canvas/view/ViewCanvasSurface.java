@@ -4,6 +4,8 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.PixelFormat;
 import android.os.Build;
 import android.support.v4.view.MotionEventCompat;
 import android.util.AttributeSet;
@@ -13,7 +15,9 @@ import android.view.SurfaceView;
 import android.view.View;
 
 import java.util.ArrayList;
+import java.util.Set;
 
+import milespeele.canvas.R;
 import milespeele.canvas.drawing.DrawingCurve;
 import milespeele.canvas.util.Logg;
 
@@ -76,13 +80,13 @@ public class ViewCanvasSurface extends SurfaceView
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
-        thread.onDestroy();
         drawingCurve.onSave();
+        thread.onDestroy();
     }
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-        int actionMasked = MotionEventCompat.getActionMasked(event);
+        int actionMasked = event.getActionMasked();
 
         switch (actionMasked & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
@@ -96,29 +100,20 @@ public class ViewCanvasSurface extends SurfaceView
 
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_POINTER_UP:
+            case MotionEvent.ACTION_CANCEL:
                 drawingCurve.onTouchUp(event);
                 break;
         }
-
-        invalidate(drawingCurve.getDirtyRect());
 
         return true;
     }
 
     public boolean redo() {
-        boolean surfaceChanged = drawingCurve.redo();
-        if (surfaceChanged) {
-            invalidate(drawingCurve.getDirtyRect());
-        }
-        return surfaceChanged;
+        return drawingCurve.redo();
     }
 
     public boolean undo() {
-        boolean surfaceChanged = drawingCurve.undo();
-        if (surfaceChanged) {
-            invalidate(drawingCurve.getDirtyRect());
-        }
-        return surfaceChanged;
+        return drawingCurve.undo();
     }
 
     public void erase() {
@@ -133,12 +128,18 @@ public class ViewCanvasSurface extends SurfaceView
         return drawingCurve.getBitmap();
     }
 
-    public float getBrushWidth() {
-        return drawingCurve.getBrushWidth();
+    public Paint getCurrentPaint() { return drawingCurve.getCurrentPaint(); }
+
+    public DrawingCurve getDrawingCurve() { return drawingCurve; }
+
+    @Override
+    public void showButton(String text) {
+        ((ViewCanvasLayout) getParent()).setButtonVisible(text);
     }
 
-    public ArrayList<Integer> getCurrentColors() {
-        return drawingCurve.getCurrentColors();
+    @Override
+    public void hideButton() {
+        ((ViewCanvasLayout) getParent()).setButtonGone();
     }
 
     private class DrawingThread extends Thread {
@@ -163,13 +164,11 @@ public class ViewCanvasSurface extends SurfaceView
             while (mRun) {
                 Canvas c = null;
                 try {
-                    c = mSurfaceHolder.lockCanvas(null);
+                    c = mSurfaceHolder.lockCanvas();
                     synchronized (mSurfaceHolder) {
                         synchronized (mRunLock) {
                             if (mRun)  {
-                                if (drawingCurve.iSafeToDraw()) {
-                                    c.drawBitmap(drawingCurve.getBitmap(), 0, 0, null);
-                                }
+                                drawingCurve.drawToSurfaceView(c);
                             }
                         }
                     }

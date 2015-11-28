@@ -9,7 +9,7 @@ import java.util.ArrayList;
  */
 public class DrawingPoints extends ArrayList<DrawingPoint> {
 
-    private float lastWidth, lastVelocity;
+    private float lastWidth =1, lastVelocity = 1;
     private Paint redrawPaint;
 
     public DrawingPoints(Paint paint) {
@@ -28,11 +28,19 @@ public class DrawingPoints extends ArrayList<DrawingPoint> {
         return get(size() - 1);
     }
 
+    public DrawingPoint getFirst() { return get(0); }
+
+    public void add(DrawingPoint... points) {
+        for (DrawingPoint point: points) {
+            add(point);
+        }
+    }
+
     @Override
     public void clear() {
         super.clear();
-        lastWidth = 0;
-        lastVelocity = 0;
+        lastWidth = 1;
+        lastVelocity = 1;
     }
 
     public float getLastWidth() {
@@ -55,7 +63,7 @@ public class DrawingPoints extends ArrayList<DrawingPoint> {
         return redrawPaint;
     }
 
-    public void setRedrawPaint(Paint redrawPaint) {
-        this.redrawPaint.set(redrawPaint);
+    public void setRedrawPaint(Paint paint) {
+        redrawPaint.set(paint);
     }
 }
