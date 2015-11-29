@@ -15,12 +15,12 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 
 import java.util.Random;
-import java.util.Set;
 import java.util.Stack;
 
 import javax.inject.Inject;
 
 import de.greenrobot.event.EventBus;
+import milespeele.canvas.drawing.DrawingPoints.DrawingPoint;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.event.EventBrushChosen;
 import milespeele.canvas.event.EventColorChosen;
@@ -31,6 +31,7 @@ import milespeele.canvas.util.Datastore;
 import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.TextUtils;
 import milespeele.canvas.util.ViewUtils;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 /**
@@ -50,7 +51,7 @@ public class DrawingCurve {
     private Bitmap mBitmap, cachedBitmap;
     private Canvas mCanvas;
     private DrawingPoints[] pointerPoints;
-    private Stack<DrawingPoints> redoPoints, allPoints;
+    private DrawingHistory redo, all;
     private Paint mPaint;
     private TextPaint textPaint;
     private Random random;
@@ -61,11 +62,10 @@ public class DrawingCurve {
     private static float STROKE_WIDTH = 10f;
     private static final float POINT_MAX_WIDTH = 50f, POINT_MIN_WIDTH = 2f, POINT_TOLERANCE = 5f;
     private static final int MAX_POINTERS = 2;
-    private float scaleFactor = 1;
+    private float scaleFactor = 1f;
     private int[] rainbow;
     private int activePointer = 0;
     private int currentStrokeColor, currentBackgroundColor;
-    private int width, height;
     private String textToBeDrawn;
     private float textX, textY;
     private boolean isSafeToDraw = true;
@@ -75,16 +75,13 @@ public class DrawingCurve {
 
     private DrawingCurveListener listener;
     public interface DrawingCurveListener {
-        void showButton(String text);
+        void showButton(String buttonText);
         void hideButton();
     }
 
     public DrawingCurve(Context context, int w, int h) {
         ((MainApp) context.getApplicationContext()).getApplicationComponent().inject(this);
         bus.register(this);
-
-        width = w;
-        height = h;
 
         mContext = context;
 
@@ -113,8 +110,8 @@ public class DrawingCurve {
 
         scaleGestureDetector = new ScaleGestureDetector(mContext, new ScaleListener());
 
-        allPoints = new Stack<>();
-        redoPoints = new Stack<>();
+        all = FileUtils.getAllPoints(mContext);
+        redo = FileUtils.getRedoPoints(mContext);
         pointerPoints = new DrawingPoints[MAX_POINTERS];
         for (int ndx = 0; ndx < pointerPoints.length; ndx++) {
             pointerPoints[ndx] = new DrawingPoints(mPaint);
@@ -126,7 +123,12 @@ public class DrawingCurve {
             case TEXT:
                 listener.hideButton();
 
+                mCanvas.save();
+                mCanvas.scale(scaleFactor, scaleFactor);
                 mCanvas.drawText(textToBeDrawn, textX, textY, textPaint);
+                mCanvas.restore();
+
+                all.push(new DrawingText(textToBeDrawn, textX, textY, scaleFactor, textPaint));
 
                 changeState(State.DRAW);
                 break;
@@ -138,12 +140,16 @@ public class DrawingCurve {
     }
 
     public void drawToSurfaceView(Canvas canvas) {
-        if (isSafeToDraw) {
+
+        if (isSafeToDraw && mBitmap != null && canvas != null) {
             canvas.drawBitmap(mBitmap, 0, 0, null);
 
             switch (mState) {
                 case TEXT:
+                    canvas.save();
+                    canvas.scale(scaleFactor, scaleFactor);
                     canvas.drawText(textToBeDrawn, textX, textY, textPaint);
+                    canvas.restore();
                     break;
             }
         }
@@ -170,22 +176,22 @@ public class DrawingCurve {
 
     public void reset(int color) {
         isSafeToDraw = false;
+        int width = mBitmap.getWidth(), height = mBitmap.getHeight();
 
         for (DrawingPoints list: pointerPoints) {
             list.clear();
         }
 
-        allPoints.clear();
-        redoPoints.clear();
+        all.clear();
+        redo.clear();
 
         cachedBitmap.recycle();
         cachedBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         cachedBitmap.eraseColor(color);
 
         mBitmap.recycle();
-        mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        mBitmap = cachedBitmap.copy(cachedBitmap.getConfig(), true);
         mCanvas = new Canvas(mBitmap);
-        mCanvas.drawBitmap(cachedBitmap, 0, 0, null);
 
         ValueAnimator colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(),
                 currentBackgroundColor, color);
@@ -198,103 +204,123 @@ public class DrawingCurve {
         isSafeToDraw = true;
     }
 
-    public void onTouchDown(MotionEvent event) {
-        switch (mState) {
-            case ERASE:
-            case DRAW:
-            case RAINBOW:
-                downDraw(event);
+    public boolean onTouchEvent(MotionEvent event) {
+        int actionMasked = event.getActionMasked();
+
+        onTouchStart(event);
+
+        switch (actionMasked & MotionEvent.ACTION_MASK) {
+            case MotionEvent.ACTION_DOWN:
+            case MotionEvent.ACTION_POINTER_DOWN:
+                onTouchDown(event);
                 break;
+
+            case MotionEvent.ACTION_MOVE:
+                onTouchMove(event);
+                break;
+
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_POINTER_UP:
+            case MotionEvent.ACTION_CANCEL:
+                onTouchUp(event);
+                break;
+        }
+
+        return true;
+    }
+
+    public void onTouchStart(MotionEvent event) {
+        switch (mState) {
             case TEXT:
-                textX = event.getX() - textPaint.measureText(textToBeDrawn) / 2;
-                textY = event.getY();
+                scaleGestureDetector.onTouchEvent(event);
                 break;
         }
     }
 
-    public void downDraw(MotionEvent event) {
+    public void onTouchDown(MotionEvent event) {
         activePointer = event.getPointerId(0);
 
-        if (mState == State.ERASE) {
-            addPoint(event.getX(), event.getY(), 0);
-        } else {
-            if (event.getPointerCount() > 1) {
-                for (int p = 0; p < MAX_POINTERS; p++) {
-                    addPoint(event.getX(p), event.getY(p), p);
+        switch (mState) {
+            case ERASE:
+                addPoint(event.getX(), event.getY(), 0);
+                break;
+            case DRAW:
+            case RAINBOW:
+                if (event.getPointerCount() > 1) {
+                    for (int p = 0; p < MAX_POINTERS; p++) {
+                        addPoint(event.getX(p), event.getY(p), p);
+                    }
+                } else {
+                    addPoint(event.getX(), event.getY(), activePointer);
                 }
-            } else {
-                addPoint(event.getX(), event.getY(), activePointer);
-            }
+                break;
+            case TEXT:
+                if (!scaleGestureDetector.isInProgress()) {
+                    textX = event.getX(activePointer) - textPaint.measureText(textToBeDrawn) / 2;
+                    textY = event.getY(activePointer);
+                }
+                break;
         }
     }
 
     public void onTouchMove(MotionEvent event) {
         switch (mState) {
             case ERASE:
+                for (int i = 0; i < event.getHistorySize(); i++) {
+                    addPoint(event.getHistoricalX(i), event.getHistoricalY(i), 0);
+                }
+                addPoint(event.getX(), event.getY(), 0);
+                break;
             case DRAW:
             case RAINBOW:
-                moveDraw(event);
+                if (event.getPointerCount() > 1) {
+                    for (int h = 0; h < event.getHistorySize(); h++) {
+                        for (int p = 0; p < MAX_POINTERS; p++) {
+                            addPoint(event.getHistoricalX(p, h), event.getHistoricalY(p, h), p);
+                        }
+                    }
+                } else {
+                    for (int i = 0; i < event.getHistorySize(); i++) {
+                        addPoint(event.getHistoricalX(i), event.getHistoricalY(i), activePointer);
+                    }
+                    addPoint(event.getX(), event.getY(), activePointer);
+                }
                 break;
             case TEXT:
-                textX = event.getX() - textPaint.measureText(textToBeDrawn) / 2;
-                textY = event.getY();
-                break;
-        }
-    }
+                if (!scaleGestureDetector.isInProgress()) {
+                    final int ndx = event.findPointerIndex(activePointer);
 
-    public void moveDraw(MotionEvent event) {
-        if (mState == State.ERASE) {
-            for (int i = 0; i < event.getHistorySize(); i++) {
-                addPoint(event.getHistoricalX(i), event.getHistoricalY(i), 0);
-            }
-            addPoint(event.getX(), event.getY(), 0);
-            return;
-        }
-
-        if (event.getPointerCount() > 1) {
-            for (int h = 0; h < event.getHistorySize(); h++) {
-                for (int p = 0; p < MAX_POINTERS; p++) {
-                    float x = event.getHistoricalX(p, h), y = event.getHistoricalY(p, h);
-                    addPoint(x, y, p);
+                    textX = event.getX(ndx) - textPaint.measureText(textToBeDrawn) / 2;
+                    textY = event.getY(ndx);
                 }
-            }
-        } else {
-            for (int i = 0; i < event.getHistorySize(); i++) {
-                float x = event.getHistoricalX(i), y = event.getHistoricalY(i);
-                addPoint(x, y, activePointer);
-            }
-            addPoint(event.getX(), event.getY(), activePointer);
+                break;
         }
     }
 
     public void onTouchUp(MotionEvent event) {
-        switch (mState) {
-            case ERASE:
-            case DRAW:
-            case RAINBOW:
-                upDraw(event);
-                break;
-            case TEXT:
-                break;
-        }
-    }
-
-    public void upDraw(MotionEvent event) {
-        int pointer = (event.getAction() & MotionEvent.ACTION_POINTER_INDEX_MASK)
+        final int pointer = (event.getAction() & MotionEvent.ACTION_POINTER_INDEX_MASK)
                 >> MotionEvent.ACTION_POINTER_INDEX_SHIFT;
         int pointerId = event.getPointerId(pointer);
-        if (mState == State.ERASE) {
-            pointerId = 0;
-        }
-
-        if (pointerId < pointerPoints.length) {
-            DrawingPoints pointsToClear = pointerPoints[pointerId];
-            allPoints.push(new DrawingPoints(pointsToClear));
-            pointsToClear.clear();
-        }
 
         if (pointerId == activePointer && event.getPointerCount() > 1) {
             activePointer = 1;
+        }
+
+        switch (mState) {
+            case ERASE:
+                pointerId = 0;
+            case DRAW:
+            case RAINBOW:
+                if (pointerId < pointerPoints.length) {
+                    DrawingPoints pointsToClear = pointerPoints[pointerId];
+                    all.push(pointsToClear);
+                    pointsToClear.clear();
+                }
+                break;
+            case TEXT:
+                textX = event.getX(activePointer) - textPaint.measureText(textToBeDrawn) / 2;
+                textY = event.getY(activePointer);
+                break;
         }
     }
 
@@ -356,22 +382,15 @@ public class DrawingCurve {
     }
 
     public boolean redo() {
-        if (!redoPoints.isEmpty()) {
+        if (!redo.isEmpty()) {
             long start = SystemClock.currentThreadTimeMillis();
 
-            DrawingPoints redone = redoPoints.pop();
-            allPoints.push(new DrawingPoints(redone));
+            Object redone = redo.pop();
+            all.push(redone);
 
             mCanvas.drawBitmap(cachedBitmap, 0, 0, null);
 
-            for (DrawingPoints points: allPoints) {
-                Paint redraw = points.getRedrawPaint();
-                for (DrawingPoint point: points) {
-                    redraw.setStrokeWidth(point.width);
-                    redraw.setColor(point.color);
-                    mCanvas.drawPoint(point.x, point.y, redraw);
-                }
-            }
+            all.redraw(mCanvas);
 
             Logg.log("ELAPSED: " + (SystemClock.currentThreadTimeMillis() - start) / 1000.0);
             return true;
@@ -380,22 +399,15 @@ public class DrawingCurve {
     }
 
     public boolean undo() {
-        if (!allPoints.isEmpty()) {
+        if (!all.isEmpty()) {
             long start = SystemClock.currentThreadTimeMillis();
 
-            DrawingPoints undone = allPoints.pop();
-            redoPoints.push(new DrawingPoints(undone));
+            Object undone = all.pop();
+            redo.push(undone);
 
             mCanvas.drawBitmap(cachedBitmap, 0, 0, null);
 
-            for (DrawingPoints points: allPoints) {
-                Paint redraw = points.getRedrawPaint();
-                for (DrawingPoint point: points) {
-                    redraw.setStrokeWidth(point.width);
-                    redraw.setColor(point.color);
-                    mCanvas.drawPoint(point.x, point.y, redraw);
-                }
-            }
+            all.redraw(mCanvas);
 
             Logg.log("ELAPSED: " + (SystemClock.currentThreadTimeMillis() - start) / 1000.0);
             return true;
@@ -412,11 +424,15 @@ public class DrawingCurve {
     }
 
     public void onEvent(EventTextChosen eventTextChosen) {
+        int width = mBitmap.getWidth(), height = mBitmap.getHeight();
+
         textToBeDrawn = eventTextChosen.text;
         textPaint.setColor(currentStrokeColor);
 
         TextUtils.adjustTextSize(textPaint, textToBeDrawn, height);
         TextUtils.adjustTextScale(textPaint, textToBeDrawn, width, 0, 0);
+
+        textPaint.getTextBounds("a", 0, 1, textBounds);
 
         textX = (width - textPaint.measureText(textToBeDrawn)) / 2;
         textY = height / 2;
@@ -488,11 +504,14 @@ public class DrawingCurve {
     public void onSave() {
         store.setLastBackgroundColor(currentBackgroundColor);
 
+        FileUtils.cacheAllPoints(mContext, all);
+
+        FileUtils.cacheRedoPoints(mContext, redo);
+
         FileUtils.compressBitmapAsObservable(mBitmap)
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(Schedulers.immediate())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.handlerThread(new Handler()))
                 .subscribe(bytes -> {
-                    Logg.log("CALL");
                     FileUtils.cacheBitmap(mContext, bytes);
                 });
     }
@@ -505,14 +524,12 @@ public class DrawingCurve {
         }
     };
 
-    private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
+    private final class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
 
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
             scaleFactor *= detector.getScaleFactor();
-
             scaleFactor = Math.max(.01f, Math.min(scaleFactor, 5.0f));
-
             return true;
         }
     }

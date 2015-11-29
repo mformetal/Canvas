@@ -25,6 +25,8 @@ import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
+import android.view.ViewTreeObserver;
+import android.view.WindowManager;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.Toast;
@@ -197,7 +199,7 @@ public class ViewCanvasLayout extends CoordinatorLayout implements View.OnClickL
     @Override
     @OnClick(R.id.fragment_drawer_button)
     public void onClick(View v) {
-        drawer.getDrawingCurve().onButtonClicked();
+        drawer.onButtonClicked();
     }
 
     public void setButtonGone() {

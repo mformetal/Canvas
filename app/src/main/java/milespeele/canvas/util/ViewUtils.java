@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.util.DisplayMetrics;
 import android.util.Property;
 import android.view.Display;
 import android.view.View;
@@ -22,6 +23,7 @@ public class ViewUtils {
     public final static String ROTATION = "rotation";
     public final static String TRANSLATION_X = "translationX";
     public final static String TRANSLATION_Y = "translationY";
+    public final static String SCALE_Y = "scaleY";
     private static int[] rainbow;
 
     public static abstract class FloatProperty<T> extends Property<T, Float> {
@@ -116,5 +118,15 @@ public class ViewUtils {
         Point size = new Point();
         display.getSize(size);
         return size.y;
+    }
+
+    public static float dpToPx(float dp, Context context) {
+        DisplayMetrics metric = context.getResources().getDisplayMetrics();
+        return dp * (metric.densityDpi / 160f);
+    }
+
+    public static float pxToDp(float px, Context context) {
+        DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+        return px / (metrics.densityDpi / 160f);
     }
 }

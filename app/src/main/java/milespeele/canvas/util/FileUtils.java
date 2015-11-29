@@ -13,10 +13,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Stack;
 
+import milespeele.canvas.drawing.DrawingHistory;
+import milespeele.canvas.drawing.DrawingPoints;
 import rx.Observable;
 
 /**
@@ -26,7 +26,8 @@ public class FileUtils {
 
     private final static String BITMAP_FILENAME = "canvas:bitmap";
     private final static String COLORS_FILENAME = "canvas:colors";
-    private final static String POINTS_FILENAME = "canvas:points";
+    private final static String ALL_POINTS_FILENAME = "canvas:allPoints";
+    private final static String REDO_POINTS_FILENAME = "canvas:redoPoints";
 
     public static void cacheBitmap(Context context, byte[] bytes) {
         try {
@@ -77,5 +78,53 @@ public class FileUtils {
         }
 
         return bitmap;
+    }
+
+    public static void cacheAllPoints(Context context, DrawingHistory points) {
+        try {
+            FileOutputStream fos = context.openFileOutput(ALL_POINTS_FILENAME, Context.MODE_PRIVATE);
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(points);
+            oos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void cacheRedoPoints(Context context, DrawingHistory points) {
+        try {
+            FileOutputStream fos = context.openFileOutput(REDO_POINTS_FILENAME, Context.MODE_PRIVATE);
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(points);
+            oos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public static DrawingHistory getAllPoints(Context context) {
+        DrawingHistory points = new DrawingHistory();
+        try {
+            FileInputStream fis = context.openFileInput(ALL_POINTS_FILENAME);
+            ObjectInputStream ois = new ObjectInputStream(fis);
+            points = (DrawingHistory) ois.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return points;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static DrawingHistory getRedoPoints(Context context) {
+        DrawingHistory points = new DrawingHistory();
+        try {
+            FileInputStream fis = context.openFileInput(REDO_POINTS_FILENAME);
+            ObjectInputStream ois = new ObjectInputStream(fis);
+            points = (DrawingHistory) ois.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return points;
     }
 }

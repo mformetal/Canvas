@@ -53,21 +53,30 @@ public class ViewCanvasSurface extends SurfaceView
 
     public void init() {
         setLayerType(LAYER_TYPE_NONE, null);
+
         setWillNotDraw(false);
         setSaveEnabled(true);
         setOnTouchListener(this);
+
         getHolder().addCallback(this);
     }
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        drawingCurve = new DrawingCurve(getContext(), w, h);
-        drawingCurve.setListener(this);
+
+        // Only instantiate once
+        if (oldh == 0 || oldw == 0) {
+            drawingCurve = new DrawingCurve(getContext(), w, h);
+            drawingCurve.setListener(this);
+        }
     }
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
+        holder.setFixedSize(getWidth(), getHeight());
+        holder.setKeepScreenOn(true);
+
         thread = new DrawingThread(holder);
         thread.setRunning(true);
         thread.start();
@@ -75,7 +84,6 @@ public class ViewCanvasSurface extends SurfaceView
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-
     }
 
     @Override
@@ -86,27 +94,20 @@ public class ViewCanvasSurface extends SurfaceView
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-        int actionMasked = event.getActionMasked();
-
-        switch (actionMasked & MotionEvent.ACTION_MASK) {
-            case MotionEvent.ACTION_DOWN:
-            case MotionEvent.ACTION_POINTER_DOWN:
-                drawingCurve.onTouchDown(event);
-                break;
-
-            case MotionEvent.ACTION_MOVE:
-                drawingCurve.onTouchMove(event);
-                break;
-
-            case MotionEvent.ACTION_UP:
-            case MotionEvent.ACTION_POINTER_UP:
-            case MotionEvent.ACTION_CANCEL:
-                drawingCurve.onTouchUp(event);
-                break;
-        }
-
-        return true;
+        return drawingCurve.onTouchEvent(event);
     }
+
+    @Override
+    public void showButton(String text) {
+        ((ViewCanvasLayout) getParent()).setButtonVisible(text);
+    }
+
+    @Override
+    public void hideButton() {
+        ((ViewCanvasLayout) getParent()).setButtonGone();
+    }
+
+    public void onButtonClicked() { drawingCurve.onButtonClicked(); }
 
     public boolean redo() {
         return drawingCurve.redo();
@@ -130,17 +131,7 @@ public class ViewCanvasSurface extends SurfaceView
 
     public Paint getCurrentPaint() { return drawingCurve.getCurrentPaint(); }
 
-    public DrawingCurve getDrawingCurve() { return drawingCurve; }
 
-    @Override
-    public void showButton(String text) {
-        ((ViewCanvasLayout) getParent()).setButtonVisible(text);
-    }
-
-    @Override
-    public void hideButton() {
-        ((ViewCanvasLayout) getParent()).setButtonGone();
-    }
 
     private class DrawingThread extends Thread {
 
