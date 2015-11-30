@@ -265,6 +265,10 @@ public class ViewCanvasLayout extends CoordinatorLayout implements View.OnClickL
         }
     }
 
+    public void ink() {
+        drawer.ink();
+    }
+
     public void erase() {
         drawer.erase();
     }

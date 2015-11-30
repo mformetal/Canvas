@@ -7,7 +7,6 @@ import android.animation.ObjectAnimator;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
@@ -31,7 +30,6 @@ import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
 import milespeele.canvas.event.EventBrushChosen;
 import milespeele.canvas.event.EventColorChosen;
-import milespeele.canvas.event.EventFilenameChosen;
 import milespeele.canvas.util.AbstractAnimatorListener;
 import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.ViewUtils;
@@ -44,9 +42,10 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
     @Bind(R.id.menu_toggle) ViewFab toggle;
     @Bind(R.id.menu_erase) ViewFab eraser;
     @Bind(R.id.menu_save) ViewFab saver;
+    @Bind(R.id.menu_ink) ViewFab inker;
 
-    @Bind({R.id.menu_shape_chooser, R.id.menu_text,  R.id.menu_color, R.id.menu_brush,
-            R.id.menu_undo, R.id.menu_redo, R.id.menu_erase, R.id.menu_save})
+    @Bind({R.id.menu_save, R.id.menu_shape_chooser, R.id.menu_text,  R.id.menu_color, R.id.menu_brush,
+            R.id.menu_ink, R.id.menu_undo, R.id.menu_redo, R.id.menu_erase})
     List<ViewFab> buttonsList;
 
     @Inject EventBus bus;
@@ -63,7 +62,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
     private float centerX, centerY;
     private static float MAX_RADIUS;
     private final static int VISIBILITY_DURATION = 350;
-    private final static int DELAY = 0;
+    private final static int INITIAL_DELAY = 0;
     private final static int DURATION = 400;
     private final static int DELAY_INCREMENT = 15;
     private final static int HIDE_DIFF = 50;
@@ -182,13 +181,13 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
                     (int) y + child.getMeasuredHeight() / 2);
         }
 
-        MAX_RADIUS = (toggle.getMeasuredHeight() * 3) + toggle.getMeasuredHeight();
+        MAX_RADIUS = toggle.getMeasuredHeight() * 4;
         this.radius = MAX_RADIUS;
     }
 
     @Override
     @OnClick({R.id.menu_brush, R.id.menu_color, R.id.menu_undo, R.id.menu_redo, R.id.menu_erase,
-            R.id.menu_toggle, R.id.menu_shape_chooser, R.id.menu_text, R.id.menu_save})
+            R.id.menu_toggle, R.id.menu_shape_chooser, R.id.menu_text, R.id.menu_save, R.id.menu_ink})
     public void onClick(View v) {
         if (listener != null) {
             listener.onFabMenuButtonClicked((ViewFab) v);
@@ -212,6 +211,9 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
             case R.id.menu_erase:
                 parent.erase();
                 eraser.toggleScaled();
+                break;
+            case R.id.menu_ink:
+                parent.ink();
                 break;
         }
     }
@@ -250,7 +252,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
             background.setDuration(DURATION + DELAY_INCREMENT * buttonsList.size());
             background.setInterpolator(OVERSHOOT_INTERPOLATOR);
 
-            int delay = DELAY;
+            int delay = INITIAL_DELAY;
             for (ViewFab view: buttonsList) {
                 float diffX = view.getX() - centerX, diffY = view.getY() - centerY;
 
@@ -293,7 +295,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
             background.setDuration(HIDE_DIFF + DURATION + DELAY_INCREMENT * buttonsList.size());
             background.setInterpolator(ANTICIPATE_INTERPOLATOR);
 
-            int delay = DELAY;
+            int delay = INITIAL_DELAY;
             for (ViewFab view: buttonsList) {
                 float diffX = view.getX() - centerX, diffY = view.getY() - centerY;
 

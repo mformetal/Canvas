@@ -9,13 +9,13 @@ import java.util.ArrayList;
  */
 public class DrawingText {
 
-    public String text;
+    public CharSequence text;
     public float x;
     public float y;
     public float scale;
     public Paint textPaint;
 
-    public DrawingText(String text, float x, float y, float scale, Paint textPaint) {
+    public DrawingText(CharSequence text, float x, float y, float scale, Paint textPaint) {
         this.text = text;
         this.x = x;
         this.y = y;

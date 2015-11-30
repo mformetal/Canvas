@@ -77,6 +77,14 @@ public class ViewUtils {
         return Color.HSVToColor(hsv);
     }
 
+    public static int oppositeColor(int oldColor) {
+        return Color.argb(
+                Color.alpha(oldColor),
+                Color.red(255 - Color.red(oldColor)),
+                Color.red(255 - Color.green(oldColor)),
+                Color.blue(255 - Color.blue(oldColor)));
+    }
+
     public static int centerX(View view) {
         return (view.getLeft() + view.getRight()) / 2;
     }

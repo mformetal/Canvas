@@ -26,7 +26,7 @@ public class DrawingHistory extends Stack<Object> {
             if (object instanceof DrawingPoints) {
                 DrawingPoints points = (DrawingPoints) object;
                 Paint redraw = points.getRedrawPaint();
-                for (DrawingPoints.DrawingPoint point: points) {
+                for (DrawingPoint point: points) {
                     redraw.setStrokeWidth(point.width);
                     redraw.setColor(point.color);
                     canvas.drawPoint(point.x, point.y, redraw);
@@ -35,7 +35,7 @@ public class DrawingHistory extends Stack<Object> {
                 DrawingText texts = (DrawingText) object;
                 canvas.save();
                 canvas.scale(texts.scale, texts.scale);
-                canvas.drawText(texts.text, texts.x, texts.y, texts.textPaint);
+                canvas.drawText((String) texts.text, texts.x, texts.y, texts.textPaint);
                 canvas.restore();
             }
         }

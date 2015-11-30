@@ -87,6 +87,7 @@ public class FileUtils {
             oos.writeObject(points);
             oos.close();
         } catch (IOException e) {
+//            Logg.log(e);
             e.printStackTrace();
         }
     }
@@ -98,6 +99,7 @@ public class FileUtils {
             oos.writeObject(points);
             oos.close();
         } catch (IOException e) {
+//            Logg.log(e);
             e.printStackTrace();
         }
     }
@@ -110,6 +112,7 @@ public class FileUtils {
             ObjectInputStream ois = new ObjectInputStream(fis);
             points = (DrawingHistory) ois.readObject();
         } catch (IOException | ClassNotFoundException e) {
+//            Logg.log(e);
             e.printStackTrace();
         }
         return points;
@@ -123,6 +126,7 @@ public class FileUtils {
             ObjectInputStream ois = new ObjectInputStream(fis);
             points = (DrawingHistory) ois.readObject();
         } catch (IOException | ClassNotFoundException e) {
+//            Logg.log(e);
             e.printStackTrace();
         }
         return points;

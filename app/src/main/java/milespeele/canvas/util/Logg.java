@@ -11,7 +11,15 @@ public class Logg {
     private static final String LOG_TAG = "Miles";
 
     public static void mainLog(String string) {
-        Log.d(LOG_TAG, string);
+        if (string != null) {
+            if (!string.isEmpty()) {
+                Log.d(LOG_TAG, string);
+            } else {
+                Log.d(LOG_TAG, "printLn needs a Message");
+            }
+        } else {
+            Log.d(LOG_TAG, "Argument to Logg is null");
+        }
     }
 
     public static void log(Double... doubles) {
@@ -25,10 +33,6 @@ public class Logg {
 
     public static void log(Double value) {
         mainLog(value.toString());
-    }
-
-    public static void log(int integer, float floater) {
-        mainLog(String.valueOf(integer) + ", " + String.valueOf(floater));
     }
 
     public static void log(int[] array) {
@@ -79,10 +83,6 @@ public class Logg {
         mainLog(String.valueOf(integer));
     }
 
-    public static void log(int integer, String string) {
-        mainLog(string + " " + integer);
-    }
-
     public static void log(String string) {
         mainLog(string);
     }
@@ -104,11 +104,10 @@ public class Logg {
         for (String toPrint: strings) {
            builder.append(toPrint);
         }
-
         mainLog(builder.toString() + throwable.getLocalizedMessage());
     }
 
     public static void log(Throwable throwable) {
-        mainLog(throwable.getLocalizedMessage());
+        mainLog(throwable.toString());
     }
 }
