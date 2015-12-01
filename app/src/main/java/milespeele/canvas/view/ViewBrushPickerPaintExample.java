@@ -10,7 +10,7 @@ import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
 
-import milespeele.canvas.paint.PaintStyles;
+import milespeele.canvas.util.PaintStyles;
 
 /**
  * Created by Miles Peele on 7/26/2015.

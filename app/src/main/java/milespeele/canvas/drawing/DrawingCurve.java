@@ -6,18 +6,14 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.Rect;
 import android.os.Handler;
 import android.os.SystemClock;
-import android.support.v4.view.MotionEventCompat;
 import android.text.DynamicLayout;
 import android.text.Layout;
 import android.text.TextPaint;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
-import android.view.ViewConfiguration;
 
 import java.util.Random;
 
@@ -28,10 +24,11 @@ import milespeele.canvas.MainApp;
 import milespeele.canvas.event.EventBrushChosen;
 import milespeele.canvas.event.EventColorChosen;
 import milespeele.canvas.event.EventTextChosen;
-import milespeele.canvas.paint.PaintStyles;
 import milespeele.canvas.util.FileUtils;
 import milespeele.canvas.util.Datastore;
 import milespeele.canvas.util.Logg;
+import milespeele.canvas.util.PaintStyles;
+import milespeele.canvas.util.SerializablePaint;
 import milespeele.canvas.util.TextUtils;
 import milespeele.canvas.util.ViewUtils;
 import rx.schedulers.Schedulers;
@@ -51,12 +48,12 @@ public class DrawingCurve {
 
     private DynamicLayout textLayout;
     private ScaleGestureDetector scaleGestureDetector;
-    private Bitmap mBitmap, cachedBitmap;
+    private Bitmap mBitmap;
     private Canvas mCanvas;
     private DrawingPoints[] pointerPoints;
     private DrawingHistory redoneHistory, allHistory;
-    private Paint mPaint;
-    private TextPaint textPaint;
+    private SerializablePaint mSerializablePaint;
+    private TextPaint textSerializablePaint;
     private Random random;
     private State mState = State.DRAW;
     private final Context mContext;
@@ -69,7 +66,7 @@ public class DrawingCurve {
     private float lastX, lastY;
     private float translateX, translateY;
     private int activePointer = 0;
-    private int currentStrokeColor, currentBackgroundColor, inkedColor;
+    private int currentStrokeColor, currentBackgroundColor, oppositeBackgroundColor, inkedColor;
     private boolean isSafeToDraw = true;
 
     @Inject Datastore store;
@@ -93,29 +90,32 @@ public class DrawingCurve {
 
         currentStrokeColor = Color.argb(255, random.nextInt(256), random.nextInt(256), random.nextInt(256));
         currentBackgroundColor = store.getLastBackgroundColor();
+        oppositeBackgroundColor = ViewUtils.getComplementaryColor(currentBackgroundColor);
+        inkedColor = currentStrokeColor;
 
-        cachedBitmap = FileUtils.getCachedBitmap(mContext);
+        Bitmap cachedBitmap = FileUtils.getCachedBitmap(mContext);
         if (cachedBitmap == null) {
             cachedBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
             cachedBitmap.eraseColor(currentBackgroundColor);
         }
 
-        mBitmap = cachedBitmap.copy(cachedBitmap.getConfig(), true);
+        mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
         mCanvas = new Canvas(mBitmap);
+        mCanvas.drawBitmap(cachedBitmap, 0, 0, null);
 
-        mPaint = PaintStyles.normal(currentStrokeColor, STROKE_WIDTH);
+        mSerializablePaint = new SerializablePaint(PaintStyles.normal(currentStrokeColor, STROKE_WIDTH));
 
-        textPaint = new TextPaint(TextPaint.ANTI_ALIAS_FLAG);
-        textPaint.setColor(currentStrokeColor);
-        textPaint.setStyle(Paint.Style.FILL_AND_STROKE);
+        textSerializablePaint = new TextPaint(TextPaint.ANTI_ALIAS_FLAG);
+        textSerializablePaint.setColor(currentStrokeColor);
+        textSerializablePaint.setStyle(SerializablePaint.Style.FILL_AND_STROKE);
 
         scaleGestureDetector = new ScaleGestureDetector(mContext, new ScaleListener());
 
-        allHistory = FileUtils.getAllPoints(mContext);
-        redoneHistory = FileUtils.getRedoPoints(mContext);
+        allHistory = FileUtils.getAllHistory(mContext);
+        redoneHistory = FileUtils.getRedoneHistory(mContext);
         pointerPoints = new DrawingPoints[MAX_POINTERS];
         for (int ndx = 0; ndx < pointerPoints.length; ndx++) {
-            pointerPoints[ndx] = new DrawingPoints(mPaint);
+            pointerPoints[ndx] = new DrawingPoints(mSerializablePaint);
         }
     }
 
@@ -129,9 +129,12 @@ public class DrawingCurve {
                 textLayout.draw(mCanvas);
                 mCanvas.restore();
 
-//                allHistory.push(new DrawingText(textLayout.getText(), lastX, lastY, scaleFactor, textPaint));
+//                allHistory.push(new DrawingText(textLayout.getText(), lastX, lastY, scaleFactor, textSerializablePaint));
 
                 changeState(State.DRAW);
+
+                translateX = 0;
+                translateY = 0;
 
                 textLayout = null;
                 break;
@@ -154,9 +157,9 @@ public class DrawingCurve {
                     canvas.restore();
                     break;
                 case INK:
-                    int prevColor = mPaint.getColor();
-                    float prevWidth = mPaint.getStrokeWidth();
-                    mPaint.setStrokeWidth(20f);
+                    int prevColor = mSerializablePaint.getColor();
+                    float prevWidth = mSerializablePaint.getStrokeWidth();
+                    mSerializablePaint.setStrokeWidth(20f);
 
                     canvas.save();
                     canvas.translate(translateX, translateY);
@@ -165,20 +168,20 @@ public class DrawingCurve {
                     float middleX = canvas.getWidth() / 2f, middleY = canvas.getHeight() / 2f;
 
                     // base "pointer"
-                    mPaint.setColor(ViewUtils.getComplementaryColor(currentBackgroundColor));
-                    canvas.drawLine(middleX + xSpace, middleY, middleX + xSpace + lineSize, middleY, mPaint);
-                    canvas.drawLine(middleX - xSpace, middleY, middleX - xSpace - lineSize, middleY, mPaint);
-                    canvas.drawLine(middleX, middleY + xSpace, middleX, middleY + xSpace + lineSize, mPaint);
-                    canvas.drawLine(middleX, middleY - xSpace, middleX, middleY - xSpace - lineSize, mPaint);
-                    canvas.drawCircle(middleX, middleY, xSpace + lineSize, mPaint);
+                    mSerializablePaint.setColor(oppositeBackgroundColor);
+                    canvas.drawLine(middleX + xSpace, middleY, middleX + xSpace + lineSize, middleY, mSerializablePaint);
+                    canvas.drawLine(middleX - xSpace, middleY, middleX - xSpace - lineSize, middleY, mSerializablePaint);
+                    canvas.drawLine(middleX, middleY + xSpace, middleX, middleY + xSpace + lineSize, mSerializablePaint);
+                    canvas.drawLine(middleX, middleY - xSpace, middleX, middleY - xSpace - lineSize, mSerializablePaint);
+                    canvas.drawCircle(middleX, middleY, xSpace + lineSize, mSerializablePaint);
 
                     // ink circle
-                    mPaint.setColor(inkedColor);
-                    canvas.drawCircle(middleX, middleY, xSpace + lineSize - mPaint.getStrokeWidth(), mPaint);
+                    mSerializablePaint.setColor(inkedColor);
+                    canvas.drawCircle(middleX, middleY, xSpace + lineSize - mSerializablePaint.getStrokeWidth(), mSerializablePaint);
                     canvas.restore();
 
-                    mPaint.setColor(prevColor);
-                    mPaint.setStrokeWidth(prevWidth);
+                    mSerializablePaint.setColor(prevColor);
+                    mSerializablePaint.setStrokeWidth(prevWidth);
                     break;
             }
         }
@@ -190,16 +193,16 @@ public class DrawingCurve {
         switch (mState) {
             case ERASE:
                 mHandler.removeCallbacksAndMessages(null);
-                mPaint.setColor(currentBackgroundColor);
-                setPaintThickness(20f);
+                mSerializablePaint.setColor(currentBackgroundColor);
+                setSerializablePaintThickness(20f);
                 break;
             case DRAW:
                 mHandler.removeCallbacksAndMessages(null);
-                mPaint.setColor(currentStrokeColor);
-                mPaint.setStrokeWidth(STROKE_WIDTH);
+                mSerializablePaint.setColor(currentStrokeColor);
+                mSerializablePaint.setStrokeWidth(STROKE_WIDTH);
                 break;
             case RAINBOW:
-                paintRunnable.run();
+                SerializablePaintRunnable.run();
                 break;
         }
     }
@@ -212,24 +215,26 @@ public class DrawingCurve {
             list.clear();
         }
 
+        FileUtils.deleteAllHistoryFile(mContext);
+        FileUtils.deleteRedoneHistoryFile(mContext);
+        FileUtils.deleteBitmapFile(mContext);
+
         allHistory.clear();
         redoneHistory.clear();
 
-        cachedBitmap.recycle();
-        cachedBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        cachedBitmap.eraseColor(color);
-
         mBitmap.recycle();
-        mBitmap = cachedBitmap.copy(cachedBitmap.getConfig(), true);
+        mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         mCanvas = new Canvas(mBitmap);
 
-        ValueAnimator colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(),
-                currentBackgroundColor, color);
-        colorAnimation.addUpdateListener(animator -> mCanvas.drawColor((Integer) animator.getAnimatedValue()));
+        ValueAnimator colorAnimation = ValueAnimator.ofObject(
+                new ArgbEvaluator(), currentBackgroundColor, color);
+        colorAnimation.addUpdateListener(animator ->
+                mCanvas.drawColor((Integer) animator.getAnimatedValue()));
         colorAnimation.setDuration(1000);
         colorAnimation.start();
 
         currentBackgroundColor = color;
+        oppositeBackgroundColor = ViewUtils.getComplementaryColor(currentBackgroundColor);
 
         isSafeToDraw = true;
     }
@@ -285,8 +290,8 @@ public class DrawingCurve {
                 }
                 break;
             case TEXT:
-                translateX = x - mBitmap.getWidth() / 2f;
-                translateY = y - mBitmap.getHeight() / 2f;
+//                translateX = x - mBitmap.getWidth() / 2f;
+//                translateY = y - mBitmap.getHeight() / 2f;
                 break;
             case INK:
                 translateX = x - mBitmap.getWidth() / 2f;
@@ -373,7 +378,7 @@ public class DrawingCurve {
                 break;
             case INK:
                 currentStrokeColor = inkedColor;
-                mPaint.setColor(currentStrokeColor);
+                mSerializablePaint.setColor(currentStrokeColor);
                 changeState(State.DRAW);
                 break;
         }
@@ -385,15 +390,15 @@ public class DrawingCurve {
     public void addPoint(float x, float y, int pointerId) {
         DrawingPoint prevPoint;
         DrawingPoint nextPoint = new DrawingPoint(x, y, SystemClock.currentThreadTimeMillis(),
-                mPaint.getStrokeWidth(), mPaint.getColor());
+                mSerializablePaint.getStrokeWidth(), mSerializablePaint.getColor());
 
         DrawingPoints points = pointerPoints[pointerId];
         if (points.isEmpty()) {
-            float width = mPaint.getStrokeWidth();
-            mPaint.setStrokeWidth(width / 2);
-            mCanvas.drawPoint(x, y, mPaint);
+            float width = mSerializablePaint.getStrokeWidth();
+            mSerializablePaint.setStrokeWidth(width / 2);
+            mCanvas.drawPoint(x, y, mSerializablePaint);
             points.add(nextPoint);
-            mPaint.setStrokeWidth(width);
+            mSerializablePaint.setStrokeWidth(width);
         } else {
             prevPoint = points.getLast();
 
@@ -416,7 +421,7 @@ public class DrawingCurve {
         float diff = strokeWidth - points.getLastWidth();
 
         float xa, xb, ya, yb, x, y;
-        for (float i = 0; i < 1; i += (mPaint.getStrokeWidth() > 40f) ? .1 : .02) {
+        for (float i = 0; i < 1; i += (mSerializablePaint.getStrokeWidth() > 40f) ? .1 : .02) {
             xa = previous.x + (previous.x - mid.x) * i;
             ya = previous.y + (previous.y - mid.y) * i;
 
@@ -428,11 +433,11 @@ public class DrawingCurve {
 
             float width = points.getLastWidth() + diff * i;
             if (mState != State.ERASE) {
-                mPaint.setStrokeWidth(width);
+                mSerializablePaint.setStrokeWidth(width);
             }
 
-            points.add(new DrawingPoint(x, y, mid.time, mPaint.getStrokeWidth(), mPaint.getColor()));
-            mCanvas.drawPoint(x, y, mPaint);
+            points.add(new DrawingPoint(x, y, mid.time, mSerializablePaint.getStrokeWidth(), mSerializablePaint.getColor()));
+            mCanvas.drawPoint(x, y, mSerializablePaint);
         }
 
         points.setLastWidth(strokeWidth);
@@ -445,7 +450,7 @@ public class DrawingCurve {
 
             allHistory.push(redoneHistory.pop());
 
-            mCanvas.drawBitmap(cachedBitmap, 0, 0, null);
+            mCanvas.drawColor(currentBackgroundColor);
 
             allHistory.redraw(mCanvas);
 
@@ -461,7 +466,7 @@ public class DrawingCurve {
 
             redoneHistory.push(allHistory.pop());
 
-            mCanvas.drawBitmap(cachedBitmap, 0, 0, null);
+            mCanvas.drawColor(currentBackgroundColor);
 
             allHistory.redraw(mCanvas);
 
@@ -492,12 +497,12 @@ public class DrawingCurve {
         int width = mBitmap.getWidth(), height = mBitmap.getHeight();
 
         String textToBeDrawn = eventTextChosen.text;
-        textPaint.setColor(currentStrokeColor);
+        textSerializablePaint.setColor(currentStrokeColor);
 
-        TextUtils.adjustTextSize(textPaint, textToBeDrawn, height);
-        TextUtils.adjustTextScale(textPaint, textToBeDrawn, width, 0, 0);
+        TextUtils.adjustTextSize(textSerializablePaint, textToBeDrawn, height);
+        TextUtils.adjustTextScale(textSerializablePaint, textToBeDrawn, width, 0, 0);
 
-        textLayout = new DynamicLayout(textToBeDrawn, textPaint, mBitmap.getWidth(),
+        textLayout = new DynamicLayout(textToBeDrawn, textSerializablePaint, mBitmap.getWidth(),
                 Layout.Alignment.ALIGN_CENTER, 0, 0, false);
 
         changeState(State.TEXT);
@@ -507,66 +512,59 @@ public class DrawingCurve {
 
     public void onEvent(EventColorChosen eventColorChosen) {
         if (eventColorChosen.color != 0) {
-            switch (mState) {
-                case DRAW:
-                    if (!eventColorChosen.which) {
-                        changeState(State.DRAW);
+            if (!eventColorChosen.which) {
+                changeState(State.DRAW);
 
-                        reset(eventColorChosen.color);
-                    } else {
-                        changeState(State.DRAW);
+                reset(eventColorChosen.color);
+            } else {
+                changeState(State.DRAW);
 
-                        setPaintColor(eventColorChosen.color);
-                    }
-                    break;
-                case TEXT:
-                    setPaintColor(eventColorChosen.color);
-                    break;
+                setSerializablePaintColor(eventColorChosen.color);
             }
         }
     }
 
     public void onEvent(EventBrushChosen eventBrushChosen) {
-        Paint newPaint = eventBrushChosen.paint;
+        Paint newSerializablePaint = eventBrushChosen.paint;
 
-        if (newPaint.getShader() != null) {
-            newPaint.setShader(null);
+        if (newSerializablePaint.getShader() != null) {
+            newSerializablePaint.setShader(null);
             changeState(State.RAINBOW);
         } else {
             changeState(State.DRAW);
         }
 
-        int prevColor = mPaint.getColor();
-        mPaint.set(newPaint);
-        mPaint.setColor(prevColor);
+        int prevColor = mSerializablePaint.getColor();
+        mSerializablePaint.set(newSerializablePaint);
+        mSerializablePaint.setColor(prevColor);
 
         for (DrawingPoints points : pointerPoints) {
-            points.setRedrawPaint(mPaint);
+            points.setRedrawPaint(mSerializablePaint);
         }
 
-        setPaintThickness(newPaint.getStrokeWidth());
+        setSerializablePaintThickness(newSerializablePaint.getStrokeWidth());
     }
 
     public int getCurrentStrokeColor() { return currentStrokeColor; }
 
     public Bitmap getBitmap() { return mBitmap; }
 
-    public Paint getCurrentPaint() { return mPaint; }
+    public SerializablePaint getCurrentSerializablePaint() { return mSerializablePaint; }
 
-    public void setPaintColor(int color) {
+    public void setSerializablePaintColor(int color) {
         currentStrokeColor = color;
-        textPaint.setColor(currentStrokeColor);
-        mPaint.setColor(currentStrokeColor);
+        textSerializablePaint.setColor(currentStrokeColor);
+        mSerializablePaint.setColor(currentStrokeColor);
 
         for (DrawingPoints points: pointerPoints) {
             points.getRedrawPaint().setColor(currentStrokeColor);
         }
     }
 
-    public void setPaintThickness(float floater) {
+    public void setSerializablePaintThickness(float floater) {
         STROKE_WIDTH = floater;
-        textPaint.setStrokeWidth(STROKE_WIDTH);
-        mPaint.setStrokeWidth(STROKE_WIDTH);
+        textSerializablePaint.setStrokeWidth(STROKE_WIDTH);
+        mSerializablePaint.setStrokeWidth(STROKE_WIDTH);
 
         for (DrawingPoints points: pointerPoints) {
             points.getRedrawPaint().setStrokeWidth(STROKE_WIDTH);
@@ -581,21 +579,21 @@ public class DrawingCurve {
     public void onSave() {
         store.setLastBackgroundColor(currentBackgroundColor);
 
-        FileUtils.cacheAllPoints(mContext, allHistory);
-
-        FileUtils.cacheRedoPoints(mContext, redoneHistory);
+        FileUtils.cacheAllHistory(mContext, allHistory);
+        FileUtils.cacheRedoneHistory(mContext, redoneHistory);
 
         FileUtils.compressBitmapAsObservable(mBitmap)
                 .subscribeOn(Schedulers.io())
                 .subscribe(bytes -> {
+                    Logg.log("CACHED BITMAP");
                     FileUtils.cacheBitmap(mContext, bytes);
                 });
     }
 
     private static final Handler mHandler = new Handler();
-    private Runnable paintRunnable = new Runnable() {
+    private Runnable SerializablePaintRunnable = new Runnable() {
         public void run() {
-            mPaint.setColor(rainbow[random.nextInt(rainbow.length)]);
+            mSerializablePaint.setColor(rainbow[random.nextInt(rainbow.length)]);
             mHandler.postDelayed(this, 100);
         }
     };

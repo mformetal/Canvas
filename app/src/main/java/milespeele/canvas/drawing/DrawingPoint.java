@@ -1,14 +1,23 @@
 package milespeele.canvas.drawing;
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+
 /**
  * Created by mbpeele on 11/29/15.
  */
-public class DrawingPoint {
+public class DrawingPoint implements Externalizable {
 
     public float x, y;
     public long time;
     public float width;
     public int color;
+
+    public DrawingPoint() {
+
+    }
 
     public DrawingPoint(float x, float y, long time, float width, int color) {
         this.x = x;
@@ -31,5 +40,23 @@ public class DrawingPoint {
 
     public DrawingPoint midPoint(DrawingPoint p2) {
         return new DrawingPoint((x + p2.x) / 2.0f, (y + p2.y) / 2, (time + p2.time) / 2, p2.width, p2.color);
+    }
+
+    @Override
+    public void readExternal(ObjectInput input) throws IOException, ClassNotFoundException {
+        x = input.readFloat();
+        y = input.readFloat();
+        time = input.readLong();
+        width = input.readFloat();
+        color = input.readInt();
+    }
+
+    @Override
+    public void writeExternal(ObjectOutput output) throws IOException {
+        output.writeFloat(x);
+        output.writeFloat(y);
+        output.writeLong(time);
+        output.writeFloat(width);
+        output.writeInt(color);
     }
 }

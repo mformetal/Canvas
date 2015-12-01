@@ -15,7 +15,7 @@ import android.widget.LinearLayout;
 
 import java.util.Calendar;
 
-import milespeele.canvas.paint.PaintStyles;
+import milespeele.canvas.util.PaintStyles;
 import milespeele.canvas.util.AbstractAnimatorListener;
 import milespeele.canvas.util.ViewUtils;
 

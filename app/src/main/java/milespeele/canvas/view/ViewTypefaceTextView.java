@@ -2,7 +2,6 @@ package milespeele.canvas.view;
 
 import android.animation.Animator;
 import android.animation.ArgbEvaluator;
-import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -10,14 +9,12 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.AttributeSet;
-import android.view.MotionEvent;
 import android.widget.TextView;
 
 import milespeele.canvas.R;
-import milespeele.canvas.paint.PaintStyles;
+import milespeele.canvas.util.PaintStyles;
 import milespeele.canvas.util.TextUtils;
 
 /**

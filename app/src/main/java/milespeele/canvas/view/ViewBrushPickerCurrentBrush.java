@@ -3,10 +3,7 @@ package milespeele.canvas.view;
 import android.animation.ObjectAnimator;
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.graphics.BlurMaskFilter;
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.MaskFilter;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PorterDuff;
@@ -18,8 +15,7 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Interpolator;
 
 import milespeele.canvas.R;
-import milespeele.canvas.paint.PaintStyles;
-import milespeele.canvas.util.Logg;
+import milespeele.canvas.util.PaintStyles;
 
 /**
  * Created by milespeele on 7/13/15.

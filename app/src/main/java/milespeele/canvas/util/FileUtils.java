@@ -25,7 +25,6 @@ import rx.Observable;
 public class FileUtils {
 
     private final static String BITMAP_FILENAME = "canvas:bitmap";
-    private final static String COLORS_FILENAME = "canvas:colors";
     private final static String ALL_POINTS_FILENAME = "canvas:allPoints";
     private final static String REDO_POINTS_FILENAME = "canvas:redoPoints";
 
@@ -80,55 +79,66 @@ public class FileUtils {
         return bitmap;
     }
 
-    public static void cacheAllPoints(Context context, DrawingHistory points) {
+    public static void cacheAllHistory(Context context, DrawingHistory points) {
         try {
-            FileOutputStream fos = context.openFileOutput(ALL_POINTS_FILENAME, Context.MODE_PRIVATE);
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            ObjectOutputStream oos = new ObjectOutputStream(
+                    context.openFileOutput(ALL_POINTS_FILENAME, Context.MODE_PRIVATE));
+//            points.writeExternal(oos);
             oos.writeObject(points);
             oos.close();
         } catch (IOException e) {
-//            Logg.log(e);
+            Logg.log(e);
             e.printStackTrace();
         }
     }
 
-    public static void cacheRedoPoints(Context context, DrawingHistory points) {
+    public static void cacheRedoneHistory(Context context, DrawingHistory points) {
         try {
-            FileOutputStream fos = context.openFileOutput(REDO_POINTS_FILENAME, Context.MODE_PRIVATE);
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            ObjectOutputStream oos = new ObjectOutputStream(
+                    context.openFileOutput(REDO_POINTS_FILENAME, Context.MODE_PRIVATE));
             oos.writeObject(points);
             oos.close();
         } catch (IOException e) {
-//            Logg.log(e);
+            Logg.log(e);
             e.printStackTrace();
         }
     }
 
     @SuppressWarnings("unchecked")
-    public static DrawingHistory getAllPoints(Context context) {
+    public static DrawingHistory getAllHistory(Context context) {
         DrawingHistory points = new DrawingHistory();
         try {
-            FileInputStream fis = context.openFileInput(ALL_POINTS_FILENAME);
-            ObjectInputStream ois = new ObjectInputStream(fis);
+            ObjectInputStream ois = new ObjectInputStream(context.openFileInput(ALL_POINTS_FILENAME));
             points = (DrawingHistory) ois.readObject();
+            ois.close();
         } catch (IOException | ClassNotFoundException e) {
-//            Logg.log(e);
             e.printStackTrace();
         }
         return points;
     }
 
     @SuppressWarnings("unchecked")
-    public static DrawingHistory getRedoPoints(Context context) {
+    public static DrawingHistory getRedoneHistory(Context context) {
         DrawingHistory points = new DrawingHistory();
         try {
-            FileInputStream fis = context.openFileInput(REDO_POINTS_FILENAME);
-            ObjectInputStream ois = new ObjectInputStream(fis);
+            ObjectInputStream ois = new ObjectInputStream(context.openFileInput(REDO_POINTS_FILENAME));
             points = (DrawingHistory) ois.readObject();
+            ois.close();
         } catch (IOException | ClassNotFoundException e) {
-//            Logg.log(e);
             e.printStackTrace();
         }
         return points;
+    }
+
+    public static void deleteAllHistoryFile(Context context) {
+        context.deleteFile(ALL_POINTS_FILENAME);
+    }
+
+    public static void deleteRedoneHistoryFile(Context context) {
+        context.deleteFile(REDO_POINTS_FILENAME);
+    }
+
+    public static void deleteBitmapFile(Context context) {
+        context.deleteFile(BITMAP_FILENAME);
     }
 }

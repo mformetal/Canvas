@@ -8,47 +8,25 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Path;
-import android.graphics.Point;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Message;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.MotionEventCompat;
-import android.text.Layout;
 import android.util.AttributeSet;
 import android.util.Property;
-import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewConfiguration;
-import android.view.ViewTreeObserver;
-import android.view.WindowManager;
-import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.FrameLayout;
-import android.widget.Toast;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.Set;
-
-import javax.inject.Inject;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import de.greenrobot.event.EventBus;
-import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
-import milespeele.canvas.event.EventTextChosen;
-import milespeele.canvas.fragment.FragmentDrawer;
-import milespeele.canvas.paint.PaintStyles;
 import milespeele.canvas.util.AbstractAnimatorListener;
-import milespeele.canvas.util.Logg;
-import milespeele.canvas.util.TextUtils;
 import milespeele.canvas.util.ViewUtils;
 
 /**

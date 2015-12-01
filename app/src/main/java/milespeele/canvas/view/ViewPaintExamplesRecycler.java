@@ -12,10 +12,9 @@ import java.util.ArrayList;
 
 import milespeele.canvas.R;
 import milespeele.canvas.adapter.AdapterPojoPaintExamples;
-import milespeele.canvas.paint.PaintStyles;
+import milespeele.canvas.util.PaintStyles;
 import milespeele.canvas.pojo.PojoPaintExample;
 import milespeele.canvas.util.ItemClickSupport;
-import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.WrapContentLinearLayoutManager;
 
 /**

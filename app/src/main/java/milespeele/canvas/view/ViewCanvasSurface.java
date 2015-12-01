@@ -131,7 +131,7 @@ public class ViewCanvasSurface extends SurfaceView
         return drawingCurve.getBitmap();
     }
 
-    public Paint getCurrentPaint() { return drawingCurve.getCurrentPaint(); }
+    public Paint getCurrentPaint() { return drawingCurve.getCurrentSerializablePaint(); }
 
     private class DrawingThread extends Thread {
 
