@@ -2,31 +2,23 @@ package milespeele.canvas.util;
 
 import android.graphics.Paint;
 
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.KryoSerializable;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
+
 import java.io.Serializable;
 
 /**
- * Created by mbpeele on 11/30/15.
+ * Created by mbpeele on 12/1/15.
  */
-public class SerializablePaint extends Paint implements Externalizable {
+public class SerializablePaint extends Paint implements Serializable {
 
     public SerializablePaint() {
+
     }
 
     public SerializablePaint(Paint paint) {
         super(paint);
-    }
-
-    @Override
-    public void readExternal(ObjectInput input) throws IOException, ClassNotFoundException {
-
-    }
-
-    @Override
-    public void writeExternal(ObjectOutput output) throws IOException {
-
     }
 }

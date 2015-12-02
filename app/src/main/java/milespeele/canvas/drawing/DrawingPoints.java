@@ -2,27 +2,22 @@ package milespeele.canvas.drawing;
 
 import android.graphics.Paint;
 
-import java.io.EOFException;
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-import java.io.Serializable;
+import com.esotericsoftware.kryo.serializers.FieldSerializer;
+
 import java.util.ArrayList;
 
-import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.SerializablePaint;
 
 /**
  * Created by mbpeele on 11/23/15.
  */
-public class DrawingPoints extends ArrayList<DrawingPoint> implements Externalizable {
+public class DrawingPoints extends ArrayList<DrawingPoint> {
 
-    private float lastWidth = 1, lastVelocity = 1;
-    private SerializablePaint redrawPaint;
+    public float lastWidth = 1, lastVelocity = 1;
+    public SerializablePaint redrawPaint;
 
     public DrawingPoints() {
-
+        redrawPaint = new SerializablePaint();
     }
 
     public DrawingPoints(Paint paint) {
@@ -37,7 +32,7 @@ public class DrawingPoints extends ArrayList<DrawingPoint> implements Externaliz
         redrawPaint = new SerializablePaint(other.redrawPaint);
     }
 
-    public DrawingPoint getLast() {
+    public DrawingPoint peek() {
         return get(size() - 1);
     }
 
@@ -47,51 +42,5 @@ public class DrawingPoints extends ArrayList<DrawingPoint> implements Externaliz
         redrawPaint.reset();
         lastWidth = 1;
         lastVelocity = 1;
-    }
-
-    public float getLastWidth() {
-        return lastWidth;
-    }
-
-    public void setLastWidth(float lastWidth) {
-        this.lastWidth = lastWidth;
-    }
-
-    public float getLastVelocity() {
-        return lastVelocity;
-    }
-
-    public void setLastVelocity(float lastVelocity) {
-        this.lastVelocity = lastVelocity;
-    }
-
-    public Paint getRedrawPaint() {
-        return redrawPaint;
-    }
-
-    public void setRedrawPaint(Paint paint) {
-        redrawPaint.set(paint);
-    }
-
-    @Override
-    public void readExternal(ObjectInput input) throws IOException, ClassNotFoundException {
-        lastWidth = input.readFloat();
-        lastVelocity = input.readFloat();
-        redrawPaint = (SerializablePaint) input.readObject();
-        int size = input.readInt();
-        for (int x = 0; x < size; x++) {
-            add((DrawingPoint) input.readObject());
-        }
-    }
-
-    @Override
-    public void writeExternal(ObjectOutput output) throws IOException {
-        output.writeFloat(lastWidth);
-        output.writeFloat(lastVelocity);
-        output.writeObject(redrawPaint);
-        output.writeInt(size());
-        for (DrawingPoint point: this) {
-            output.writeObject(point);
-        }
     }
 }

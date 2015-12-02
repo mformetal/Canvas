@@ -15,11 +15,9 @@ import milespeele.canvas.util.Logg;
 /**
  * Created by mbpeele on 11/29/15.
  */
-public class DrawingHistory extends Stack<Object> implements Externalizable {
+public class DrawingHistory extends Stack<Object> {
 
-    public DrawingHistory() {
-
-    }
+    public DrawingHistory() {}
 
     @Override
     public Object push(Object object) {
@@ -36,7 +34,7 @@ public class DrawingHistory extends Stack<Object> implements Externalizable {
         for (Object object: this) {
             if (object instanceof DrawingPoints) {
                 DrawingPoints points = (DrawingPoints) object;
-                Paint redraw = points.getRedrawPaint();
+                Paint redraw = points.redrawPaint;
                 for (DrawingPoint point: points) {
                     redraw.setStrokeWidth(point.width);
                     redraw.setColor(point.color);
@@ -48,27 +46,6 @@ public class DrawingHistory extends Stack<Object> implements Externalizable {
                 canvas.scale(texts.scale, texts.scale);
                 canvas.drawText((String) texts.text, texts.x, texts.y, texts.textPaint);
                 canvas.restore();
-            }
-        }
-    }
-
-    @Override
-    public void readExternal(ObjectInput input) throws IOException, ClassNotFoundException {
-        int size = input.readInt();
-        if (size > 0) {
-            for (int x = 0; x < size; x++) {
-                super.push(input.readObject());
-            }
-        }
-    }
-
-    @Override
-    public void writeExternal(ObjectOutput output) throws IOException {
-        int size = size();
-        output.writeInt(size);
-        if (size > 0) {
-            for (Object object: this) {
-                output.writeObject(object);
             }
         }
     }
