@@ -48,7 +48,7 @@ public class DrawingCurve {
     private ScaleGestureDetector scaleGestureDetector;
     private Bitmap mBitmap;
     private Canvas mCanvas;
-    private DrawingPoints[] pointerPoints;
+    private DrawingPoints currentPoints;
     private DrawingHistory redoneHistory, allHistory;
     private Paint mPaint;
     private TextPaint textSerializablePaint;
@@ -59,11 +59,11 @@ public class DrawingCurve {
     private static final float VELOCITY_FILTER_WEIGHT = 0.2f;
     private static float STROKE_WIDTH = 10f;
     private static final float POINT_MAX_WIDTH = 50f, POINT_MIN_WIDTH = 2f, POINT_TOLERANCE = 5f;
-    private static final int MAX_POINTERS = 2;
     private int[] rainbow;
-    private float lastX, lastY;
-    private float translateX, translateY;
     private int activePointer = 0;
+    private float lastX, lastY;
+    private float lastWidth, lastVelocity;
+    private float translateX, translateY;
     private int currentStrokeColor, currentBackgroundColor, oppositeBackgroundColor, inkedColor;
     private boolean isSafeToDraw = true;
 
@@ -111,10 +111,7 @@ public class DrawingCurve {
 
         allHistory = fileUtils.getAllHistory();
         redoneHistory = fileUtils.getRedoneHistory();
-        pointerPoints = new DrawingPoints[MAX_POINTERS];
-        for (int ndx = 0; ndx < pointerPoints.length; ndx++) {
-            pointerPoints[ndx] = new DrawingPoints(mPaint);
-        }
+        currentPoints = new DrawingPoints();
     }
 
     public void onButtonClicked() {
@@ -214,9 +211,7 @@ public class DrawingCurve {
         fileUtils.deleteRedoneHistoryFile();
         fileUtils.deleteBitmapFile();
 
-        for (DrawingPoints points: pointerPoints) {
-            points.clear();
-        }
+        currentPoints.clear();
         allHistory.clear();
         redoneHistory.clear();
 
@@ -238,25 +233,21 @@ public class DrawingCurve {
     }
 
     public boolean onTouchEvent(MotionEvent event) {
-        int actionMasked = event.getActionMasked();
+        int action = event.getAction();
 
         onTouchStart(event);
 
-        switch (actionMasked & MotionEvent.ACTION_MASK) {
+        switch (action & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
                 onTouchDown(event);
-                break;
-
-            case MotionEvent.ACTION_POINTER_DOWN:
-                onPointerDown(event);
                 break;
 
             case MotionEvent.ACTION_MOVE:
                 onTouchMove(event);
                 break;
 
-            case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
+            case MotionEvent.ACTION_UP:
                 onTouchUp(event);
                 break;
 
@@ -268,7 +259,7 @@ public class DrawingCurve {
         return true;
     }
 
-    public void onTouchStart(MotionEvent event) {
+    private void onTouchStart(MotionEvent event) {
         switch (mState) {
             case TEXT:
                 scaleGestureDetector.onTouchEvent(event);
@@ -276,15 +267,14 @@ public class DrawingCurve {
         }
     }
 
-    public void onTouchDown(MotionEvent event) {
+    private void onTouchDown(MotionEvent event) {
         float x = event.getX(), y = event.getY();
-        activePointer = event.getPointerId(0);
 
         switch (mState) {
             case ERASE:
             case DRAW:
             case RAINBOW:
-                addPoint(x, y, activePointer);
+                addPoint(x, y);
                 break;
             case TEXT:
                 translateX = x - mBitmap.getWidth() / 2f;
@@ -301,44 +291,24 @@ public class DrawingCurve {
                 break;
         }
 
+        activePointer = event.getPointerId(0);
         lastX = event.getX();
         lastY = event.getY();
     }
 
-    public void onPointerDown(MotionEvent event) {
-        final int pointerIndex = (event.getAction() & MotionEvent.ACTION_POINTER_INDEX_MASK)
-                >> MotionEvent.ACTION_POINTER_INDEX_SHIFT;
+    private void onTouchMove(MotionEvent event) {
+        int pointerIndex = event.findPointerIndex(activePointer);
         float x = event.getX(pointerIndex), y = event.getY(pointerIndex);
-        addPoint(x, y, pointerIndex);
-
-        lastX = x;
-        lastY = y;
-    }
-
-    public void onTouchMove(MotionEvent event) {
-        float x = event.getX(), y = event.getY();
 
         switch (mState) {
             case ERASE:
-                for (int i = 0; i < event.getHistorySize(); i++) {
-                    addPoint(event.getHistoricalX(i), event.getHistoricalY(i), 0);
-                }
-                addPoint(x, y, 0);
-                break;
             case DRAW:
             case RAINBOW:
-                if (event.getPointerCount() > 1) {
-                    for (int h = 0; h < event.getHistorySize(); h++) {
-                        for (int p = 0; p < MAX_POINTERS; p++) {
-                            addPoint(event.getHistoricalX(p, h), event.getHistoricalY(p, h), p);
-                        }
-                    }
-                } else {
-                    for (int i = 0; i < event.getHistorySize(); i++) {
-                        addPoint(event.getHistoricalX(i), event.getHistoricalY(i), activePointer);
-                    }
-                    addPoint(x, y, activePointer);
+                for (int i = 0; i < event.getHistorySize(); i++) {
+                    addPoint(event.getHistoricalX(pointerIndex, i),
+                            event.getHistoricalY(pointerIndex, i));
                 }
+                addPoint(x, y);
                 break;
             case TEXT:
                 translateX += x - lastX;
@@ -359,12 +329,13 @@ public class DrawingCurve {
         lastY = y;
     }
 
-    public void onTouchUp(MotionEvent event) {
+    private void onTouchUp(MotionEvent event) {
+        activePointer = -1;
+
         switch (mState) {
             case ERASE:
             case DRAW:
             case RAINBOW:
-                DrawingPoints currentPoints = pointerPoints[0];
                 allHistory.push(currentPoints);
                 currentPoints.clear();
                 break;
@@ -381,57 +352,58 @@ public class DrawingCurve {
         lastY = event.getY();
     }
 
-    public void onPointerUp(MotionEvent event) {
-        final int ndx = (event.getAction() & MotionEvent.ACTION_POINTER_INDEX_MASK)
+    private void onPointerUp(MotionEvent event) {
+        // Extract the index of the pointer that left the touch sensor
+        currentPoints.clear();
+        allHistory.push(currentPoints);
+
+        final int pointerIndex = (event.getAction() & MotionEvent.ACTION_POINTER_INDEX_MASK)
                 >> MotionEvent.ACTION_POINTER_INDEX_SHIFT;
-        final int pointerId = event.getPointerId(ndx);
+        final int pointerId = event.getPointerId(pointerIndex);
         if (pointerId == activePointer) {
-            final int newPointerIndex = ndx == 0 ? 1 : 0;
-            lastX = event.getX(ndx);
-            lastY = event.getY(ndx);
+            // This was our active pointer going up. Choose a new
+            // active pointer and adjust accordingly.
+            final int newPointerIndex = pointerIndex == 0 ? 1 : 0;
+            lastX = event.getX(newPointerIndex);
+            lastY = event.getY(newPointerIndex);
             activePointer = event.getPointerId(newPointerIndex);
         }
-
-        if (ndx < pointerPoints.length) {
-            DrawingPoints points = pointerPoints[ndx];
-            allHistory.push(points);
-            points.clear();
-        }
-
     }
 
-    public void addPoint(float x, float y, int pointerId) {
-        DrawingPoint prevPoint;
-        DrawingPoint nextPoint = new DrawingPoint(x, y, SystemClock.currentThreadTimeMillis(),
-                mPaint.getStrokeWidth(), mPaint.getColor());
+    public void addPoint(float x, float y) {
+        DrawingPoint nextPoint;
+        if (currentPoints.isEmpty()) {
+            nextPoint = new DrawingPoint(x, y, SystemClock.currentThreadTimeMillis(),
+                    mPaint.getStrokeWidth(), mPaint.getColor());
 
-        DrawingPoints points = pointerPoints[pointerId];
-        if (points.isEmpty()) {
-            float width = mPaint.getStrokeWidth();
-            mPaint.setStrokeWidth(width / 2);
+            mPaint.setStrokeWidth(mPaint.getStrokeWidth() / 2);
             mCanvas.drawPoint(x, y, mPaint);
-            points.add(nextPoint);
-            mPaint.setStrokeWidth(width);
+            currentPoints.add(nextPoint);
+            mPaint.setStrokeWidth(mPaint.getStrokeWidth() * 2);
         } else {
-            prevPoint = points.peek();
+            DrawingPoint prevPoint = currentPoints.peek();
 
-            if (Math.abs(prevPoint.x - x) < POINT_TOLERANCE && Math.abs(prevPoint.y - y) < POINT_TOLERANCE) {
+            if (Math.abs(prevPoint.x - x) < POINT_TOLERANCE &&
+                    Math.abs(prevPoint.y - y) < POINT_TOLERANCE) {
                 return;
             }
 
-            points.add(nextPoint);
-            algorithmDraw(prevPoint, nextPoint, points);
+            nextPoint = new DrawingPoint(x, y, SystemClock.currentThreadTimeMillis(),
+                    mPaint.getStrokeWidth(), mPaint.getColor());
+
+            currentPoints.add(nextPoint);
+            algorithmDraw(prevPoint, nextPoint);
         }
     }
 
-    private void algorithmDraw(DrawingPoint previous, DrawingPoint current, DrawingPoints points) {
+    private void algorithmDraw(DrawingPoint previous, DrawingPoint current) {
         DrawingPoint mid = current.midPoint(previous);
         float velocity =  VELOCITY_FILTER_WEIGHT * current.velocityFrom(previous)
-                + (1 - VELOCITY_FILTER_WEIGHT) * points.lastVelocity;
+                + (1 - VELOCITY_FILTER_WEIGHT) * lastVelocity;
         float strokeWidth = Math.abs(STROKE_WIDTH - velocity);
         if (strokeWidth < POINT_MIN_WIDTH) { strokeWidth = POINT_MIN_WIDTH; }
         if (strokeWidth > POINT_MAX_WIDTH) { strokeWidth = POINT_MAX_WIDTH; }
-        float diff = strokeWidth - points.lastWidth;
+        float diff = strokeWidth - lastWidth;
 
         float xa, xb, ya, yb, x, y;
         for (float i = 0; i < 1; i += (mPaint.getStrokeWidth() > 40f) ? .1 : .02) {
@@ -444,17 +416,17 @@ public class DrawingCurve {
             x = xa + ((xb - xa) * i);
             y = ya + ((yb - ya) * i);
 
-            float width = points.lastWidth + diff * i;
+            float width = lastWidth + diff * i;
             if (mState != State.ERASE) {
                 mPaint.setStrokeWidth(width);
             }
 
-            points.add(new DrawingPoint(x, y, mid.time, mPaint.getStrokeWidth(), mPaint.getColor()));
+            currentPoints.add(new DrawingPoint(x, y, mid.time, mPaint.getStrokeWidth(), mPaint.getColor()));
             mCanvas.drawPoint(x, y, mPaint);
         }
 
-        points.lastWidth = strokeWidth;
-        points.lastVelocity = velocity;
+        lastWidth = strokeWidth;
+        lastVelocity = velocity;
     }
 
     public boolean redo() {
@@ -557,9 +529,7 @@ public class DrawingCurve {
         mPaint.set(newSerializablePaint);
         mPaint.setColor(prevColor);
 
-        for (DrawingPoints points : pointerPoints) {
-            points.redrawPaint.set(mPaint);
-        }
+        currentPoints.redrawPaint.set(mPaint);
 
         setSerializablePaintThickness(newSerializablePaint.getStrokeWidth());
     }
@@ -575,9 +545,7 @@ public class DrawingCurve {
         textSerializablePaint.setColor(currentStrokeColor);
         mPaint.setColor(currentStrokeColor);
 
-        for (DrawingPoints points: pointerPoints) {
-            points.redrawPaint.setColor(currentStrokeColor);
-        }
+        currentPoints.redrawPaint.setColor(currentStrokeColor);
     }
 
     public void setSerializablePaintThickness(float floater) {
@@ -585,9 +553,7 @@ public class DrawingCurve {
         textSerializablePaint.setStrokeWidth(STROKE_WIDTH);
         mPaint.setStrokeWidth(STROKE_WIDTH);
 
-        for (DrawingPoints points: pointerPoints) {
-            points.redrawPaint.setStrokeWidth(STROKE_WIDTH);
-        }
+        currentPoints.redrawPaint.setStrokeWidth(STROKE_WIDTH);
     }
 
     private boolean eventCoordsInRange(int x, int y) {

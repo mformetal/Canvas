@@ -3,6 +3,8 @@ package milespeele.canvas.util;
 import android.graphics.RectF;
 import android.util.Log;
 
+import milespeele.canvas.drawing.DrawingPoint;
+
 /**
  * Created by milespeele on 7/3/15.
  */
@@ -19,6 +21,16 @@ public class Logg {
             }
         } else {
             Log.d(LOG_TAG, "Argument to Logg is null");
+        }
+    }
+
+    public static void log(DrawingPoint point) {
+        log(point.x, point.y);
+    }
+
+    public static void log(DrawingPoint... points) {
+        for (DrawingPoint point: points) {
+            log(point);
         }
     }
 

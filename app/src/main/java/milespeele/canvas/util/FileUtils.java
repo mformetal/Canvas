@@ -114,7 +114,7 @@ public class FileUtils {
             kryo.writeObject(output, points);
             output.close();
         } catch (FileNotFoundException e) {
-            Logg.log(e);
+//            Logg.log(e);
             e.printStackTrace();
         }
     }
@@ -138,7 +138,7 @@ public class FileUtils {
             points = kryo.readObject(input, DrawingHistory.class);
             input.close();
         } catch (IOException e) {
-            Logg.log(e);
+//            Logg.log(e);
             e.printStackTrace();
         }
         return points;
