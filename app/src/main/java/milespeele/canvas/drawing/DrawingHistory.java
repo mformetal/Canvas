@@ -1,5 +1,6 @@
 package milespeele.canvas.drawing;
 
+import android.animation.ObjectAnimator;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 
@@ -11,6 +12,7 @@ import java.io.ObjectOutput;
 import java.util.Stack;
 
 import milespeele.canvas.util.Logg;
+import milespeele.canvas.util.ViewUtils;
 
 /**
  * Created by mbpeele on 11/29/15.
@@ -34,12 +36,7 @@ public class DrawingHistory extends Stack<Object> {
         for (Object object: this) {
             if (object instanceof DrawingPoints) {
                 DrawingPoints points = (DrawingPoints) object;
-                Paint redraw = points.redrawPaint;
-                for (DrawingPoint point: points) {
-                    redraw.setStrokeWidth(point.width);
-                    redraw.setColor(point.color);
-                    canvas.drawPoint(point.x, point.y, redraw);
-                }
+                canvas.drawLines(points.redrawPts, points.redrawPaint);
             } else if (object instanceof DrawingText) {
                 DrawingText texts = (DrawingText) object;
                 canvas.save();

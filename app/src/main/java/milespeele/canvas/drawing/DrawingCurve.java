@@ -7,7 +7,6 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.os.Handler;
 import android.os.SystemClock;
 import android.text.DynamicLayout;
 import android.text.Layout;
@@ -46,23 +45,18 @@ public class DrawingCurve {
 
     private DynamicLayout textLayout;
     private ScaleGestureDetector scaleGestureDetector;
-    private Bitmap mBitmap;
+    private Bitmap mBitmap, cachedBitmap;
     private Canvas mCanvas;
     private DrawingPoints currentPoints;
     private DrawingHistory redoneHistory, allHistory;
-    private Paint mPaint;
+    private DrawingPaint mPaint;
     private TextPaint textSerializablePaint;
-    private Random random;
     private State mState = State.DRAW;
     private FileUtils fileUtils;
 
-    private static final float VELOCITY_FILTER_WEIGHT = 0.2f;
-    private static float STROKE_WIDTH = 10f;
-    private static final float POINT_MAX_WIDTH = 50f, POINT_MIN_WIDTH = 2f, POINT_TOLERANCE = 5f;
-    private int[] rainbow;
+    private static final float TOLERANCE = 5f;
     private int activePointer = 0;
     private float lastX, lastY;
-    private float lastWidth, lastVelocity;
     private float translateX, translateY;
     private int currentStrokeColor, currentBackgroundColor, oppositeBackgroundColor, inkedColor;
     private boolean isSafeToDraw = true;
@@ -82,16 +76,14 @@ public class DrawingCurve {
 
         fileUtils = new FileUtils(context);
 
-        random = new Random();
-
-        rainbow = ViewUtils.rainbow();
+        Random random = new Random();
 
         currentStrokeColor = Color.argb(255, random.nextInt(256), random.nextInt(256), random.nextInt(256));
         currentBackgroundColor = store.getLastBackgroundColor();
         oppositeBackgroundColor = ViewUtils.getComplementaryColor(currentBackgroundColor);
         inkedColor = currentStrokeColor;
 
-        Bitmap cachedBitmap = fileUtils.getCachedBitmap();
+        cachedBitmap = fileUtils.getCachedBitmap();
         if (cachedBitmap == null) {
             cachedBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
             cachedBitmap.eraseColor(currentBackgroundColor);
@@ -101,7 +93,7 @@ public class DrawingCurve {
         mCanvas = new Canvas(mBitmap);
         mCanvas.drawBitmap(cachedBitmap, 0, 0, null);
 
-        mPaint = new Paint(PaintStyles.normal(currentStrokeColor, STROKE_WIDTH));
+        mPaint = new DrawingPaint(PaintStyles.normal(currentStrokeColor, 10f));
 
         textSerializablePaint = new TextPaint(TextPaint.ANTI_ALIAS_FLAG);
         textSerializablePaint.setColor(currentStrokeColor);
@@ -109,9 +101,9 @@ public class DrawingCurve {
 
         scaleGestureDetector = new ScaleGestureDetector(context, new ScaleListener());
 
-        allHistory = fileUtils.getAllHistory();
-        redoneHistory = fileUtils.getRedoneHistory();
-        currentPoints = new DrawingPoints();
+        allHistory = new DrawingHistory();
+        redoneHistory = new DrawingHistory();
+        currentPoints = new DrawingPoints(mPaint);
     }
 
     public void onButtonClicked() {
@@ -182,38 +174,36 @@ public class DrawingCurve {
         }
     }
 
-    public void changeState(State newValue) {
+    private void changeState(State newValue) {
         mState = newValue;
 
         switch (mState) {
             case ERASE:
-                mHandler.removeCallbacksAndMessages(null);
-                mPaint.setColor(currentBackgroundColor);
-                setSerializablePaintThickness(20f);
+                setPaintColor(currentBackgroundColor);
+                setPaintThickness(20f);
                 break;
             case DRAW:
-                mHandler.removeCallbacksAndMessages(null);
-                mPaint.setColor(currentStrokeColor);
-                mPaint.setStrokeWidth(STROKE_WIDTH);
+                setPaintColor(currentStrokeColor);
                 break;
             case RAINBOW:
-                SerializablePaintRunnable.run();
+
                 break;
         }
     }
 
-    public void reset(int color) {
+    private void reset(int color) {
         isSafeToDraw = false;
         int width = mBitmap.getWidth(), height = mBitmap.getHeight();
 
-
-        fileUtils.deleteAllHistoryFile();
-        fileUtils.deleteRedoneHistoryFile();
         fileUtils.deleteBitmapFile();
 
         currentPoints.clear();
         allHistory.clear();
         redoneHistory.clear();
+
+        cachedBitmap.recycle();
+        cachedBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        cachedBitmap.eraseColor(color);
 
         mBitmap.recycle();
         mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
@@ -336,6 +326,7 @@ public class DrawingCurve {
             case ERASE:
             case DRAW:
             case RAINBOW:
+                currentPoints.storePoints();
                 allHistory.push(currentPoints);
                 currentPoints.clear();
                 break;
@@ -353,16 +344,10 @@ public class DrawingCurve {
     }
 
     private void onPointerUp(MotionEvent event) {
-        // Extract the index of the pointer that left the touch sensor
-        currentPoints.clear();
-        allHistory.push(currentPoints);
-
-        final int pointerIndex = (event.getAction() & MotionEvent.ACTION_POINTER_INDEX_MASK)
+        int pointerIndex = (event.getAction() & MotionEvent.ACTION_POINTER_INDEX_MASK)
                 >> MotionEvent.ACTION_POINTER_INDEX_SHIFT;
-        final int pointerId = event.getPointerId(pointerIndex);
+        int pointerId = event.getPointerId(pointerIndex);
         if (pointerId == activePointer) {
-            // This was our active pointer going up. Choose a new
-            // active pointer and adjust accordingly.
             final int newPointerIndex = pointerIndex == 0 ? 1 : 0;
             lastX = event.getX(newPointerIndex);
             lastY = event.getY(newPointerIndex);
@@ -370,7 +355,7 @@ public class DrawingCurve {
         }
     }
 
-    public void addPoint(float x, float y) {
+    private void addPoint(float x, float y) {
         DrawingPoint nextPoint;
         if (currentPoints.isEmpty()) {
             nextPoint = new DrawingPoint(x, y, SystemClock.currentThreadTimeMillis(),
@@ -383,8 +368,8 @@ public class DrawingCurve {
         } else {
             DrawingPoint prevPoint = currentPoints.peek();
 
-            if (Math.abs(prevPoint.x - x) < POINT_TOLERANCE &&
-                    Math.abs(prevPoint.y - y) < POINT_TOLERANCE) {
+            if (Math.abs(prevPoint.x - x) < TOLERANCE &&
+                    Math.abs(prevPoint.y - y) < TOLERANCE) {
                 return;
             }
 
@@ -397,36 +382,7 @@ public class DrawingCurve {
     }
 
     private void algorithmDraw(DrawingPoint previous, DrawingPoint current) {
-        DrawingPoint mid = current.midPoint(previous);
-        float velocity =  VELOCITY_FILTER_WEIGHT * current.velocityFrom(previous)
-                + (1 - VELOCITY_FILTER_WEIGHT) * lastVelocity;
-        float strokeWidth = Math.abs(STROKE_WIDTH - velocity);
-        if (strokeWidth < POINT_MIN_WIDTH) { strokeWidth = POINT_MIN_WIDTH; }
-        if (strokeWidth > POINT_MAX_WIDTH) { strokeWidth = POINT_MAX_WIDTH; }
-        float diff = strokeWidth - lastWidth;
-
-        float xa, xb, ya, yb, x, y;
-        for (float i = 0; i < 1; i += (mPaint.getStrokeWidth() > 40f) ? .1 : .02) {
-            xa = previous.x + (previous.x - mid.x) * i;
-            ya = previous.y + (previous.y - mid.y) * i;
-
-            xb = mid.x + (current.x - mid.x) * i;
-            yb = mid.y + (current.y - mid.y) * i;
-
-            x = xa + ((xb - xa) * i);
-            y = ya + ((yb - ya) * i);
-
-            float width = lastWidth + diff * i;
-            if (mState != State.ERASE) {
-                mPaint.setStrokeWidth(width);
-            }
-
-            currentPoints.add(new DrawingPoint(x, y, mid.time, mPaint.getStrokeWidth(), mPaint.getColor()));
-            mCanvas.drawPoint(x, y, mPaint);
-        }
-
-        lastWidth = strokeWidth;
-        lastVelocity = velocity;
+        mCanvas.drawLine(previous.x, previous.y, current.x, current.y, mPaint);
     }
 
     public boolean redo() {
@@ -436,13 +392,12 @@ public class DrawingCurve {
 
             allHistory.push(redoneHistory.pop());
 
-            mCanvas.drawColor(currentBackgroundColor);
+            mCanvas.drawBitmap(cachedBitmap, 0, 0, null);
 
             allHistory.redraw(mCanvas);
 
             Logg.log("ELAPSED: " + (SystemClock.currentThreadTimeMillis() - start) / 1000.0);
             isSafeToDraw = true;
-
             return isSafeToDraw;
         }
         return false;
@@ -451,17 +406,18 @@ public class DrawingCurve {
     public boolean undo() {
         if (!allHistory.isEmpty()) {
             isSafeToDraw = false;
+
             long start = SystemClock.currentThreadTimeMillis();
 
             redoneHistory.push(allHistory.pop());
 
-            mCanvas.drawColor(currentBackgroundColor);
+            mCanvas.drawBitmap(cachedBitmap, 0, 0, null);
 
             allHistory.redraw(mCanvas);
 
             Logg.log("ELAPSED: " + (SystemClock.currentThreadTimeMillis() - start) / 1000.0);
-            isSafeToDraw = true;
 
+            isSafeToDraw = true;
             return isSafeToDraw;
         }
         return false;
@@ -510,7 +466,7 @@ public class DrawingCurve {
             } else {
                 changeState(State.DRAW);
 
-                setSerializablePaintColor(eventColorChosen.color);
+                setPaintColor(eventColorChosen.color);
             }
         }
     }
@@ -518,29 +474,22 @@ public class DrawingCurve {
     public void onEvent(EventBrushChosen eventBrushChosen) {
         Paint newSerializablePaint = eventBrushChosen.paint;
 
-        if (newSerializablePaint.getShader() != null) {
-            newSerializablePaint.setShader(null);
-            changeState(State.RAINBOW);
-        } else {
-            changeState(State.DRAW);
-        }
+        changeState(State.DRAW);
 
-        int prevColor = mPaint.getColor();
         mPaint.set(newSerializablePaint);
-        mPaint.setColor(prevColor);
-
+        mPaint.setColor(currentStrokeColor);
         currentPoints.redrawPaint.set(mPaint);
 
-        setSerializablePaintThickness(newSerializablePaint.getStrokeWidth());
+        setPaintThickness(newSerializablePaint.getStrokeWidth());
     }
 
-    public int getCurrentStrokeColor() { return currentStrokeColor; }
+    public int getStrokeColor() { return currentStrokeColor; }
 
     public Bitmap getBitmap() { return mBitmap; }
 
-    public Paint getCurrentSerializablePaint() { return mPaint; }
+    public Paint getPaint() { return mPaint; }
 
-    public void setSerializablePaintColor(int color) {
+    private void setPaintColor(int color) {
         currentStrokeColor = color;
         textSerializablePaint.setColor(currentStrokeColor);
         mPaint.setColor(currentStrokeColor);
@@ -548,12 +497,10 @@ public class DrawingCurve {
         currentPoints.redrawPaint.setColor(currentStrokeColor);
     }
 
-    public void setSerializablePaintThickness(float floater) {
-        STROKE_WIDTH = floater;
-        textSerializablePaint.setStrokeWidth(STROKE_WIDTH);
-        mPaint.setStrokeWidth(STROKE_WIDTH);
-
-        currentPoints.redrawPaint.setStrokeWidth(STROKE_WIDTH);
+    private void setPaintThickness(float floater) {
+        textSerializablePaint.setStrokeWidth(floater);
+        mPaint.setStrokeWidth(floater);
+        currentPoints.redrawPaint.setStrokeWidth(floater);
     }
 
     private boolean eventCoordsInRange(int x, int y) {
@@ -563,19 +510,8 @@ public class DrawingCurve {
 
     public void onSave() {
         store.setLastBackgroundColor(currentBackgroundColor);
-
-        fileUtils.cacheAllHistory(allHistory);
-        fileUtils.cacheRedoneHistory(redoneHistory);
         fileUtils.cacheBitmap(mBitmap);
     }
-
-    private static final Handler mHandler = new Handler();
-    private Runnable SerializablePaintRunnable = new Runnable() {
-        public void run() {
-            mPaint.setColor(rainbow[random.nextInt(rainbow.length)]);
-            mHandler.postDelayed(this, 100);
-        }
-    };
 
     private final class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
 

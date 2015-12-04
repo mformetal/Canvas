@@ -5,6 +5,7 @@ package milespeele.canvas.drawing;
  */
 public class DrawingPoint {
 
+    private final static int CONTROLS = 4;
     public float x, y;
     public long time;
     public float width;
@@ -32,6 +33,6 @@ public class DrawingPoint {
     }
 
     public DrawingPoint midPoint(DrawingPoint p2) {
-        return new DrawingPoint((x + p2.x) / 2.0f, (y + p2.y) / 2, (time + p2.time) / 2, p2.width, p2.color);
+        return new DrawingPoint((x + p2.x) / 2.0f, (y + p2.y) / 2.0f, (time + p2.time) / 2, p2.width, p2.color);
     }
 }

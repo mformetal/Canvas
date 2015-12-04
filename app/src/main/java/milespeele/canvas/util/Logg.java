@@ -11,6 +11,7 @@ import milespeele.canvas.drawing.DrawingPoint;
 public class Logg {
 
     private static final String LOG_TAG = "Miles";
+    private static final StringBuilder builder = new StringBuilder();
 
     public static void mainLog(String string) {
         if (string != null) {
@@ -22,6 +23,7 @@ public class Logg {
         } else {
             Log.d(LOG_TAG, "Argument to Logg is null");
         }
+        builder.setLength(0);
     }
 
     public static void log(DrawingPoint point) {
@@ -30,12 +32,16 @@ public class Logg {
 
     public static void log(DrawingPoint... points) {
         for (DrawingPoint point: points) {
-            log(point);
+            builder.append("POINT ");
+            builder.append(String.valueOf(point.x));
+            builder.append(", ");
+            builder.append(String.valueOf(point.y));
+            builder.append(", ");
         }
+        mainLog(builder.toString());
     }
 
     public static void log(Double... doubles) {
-        StringBuilder builder = new StringBuilder();
         for (double doubleVal: doubles) {
             builder.append(doubleVal);
             builder.append(", ");
@@ -48,7 +54,6 @@ public class Logg {
     }
 
     public static void log(int[] array) {
-        StringBuilder builder = new StringBuilder();
         for (int integer: array) {
             builder.append(String.valueOf(integer));
             builder.append(", ");
@@ -57,7 +62,6 @@ public class Logg {
     }
 
     public static void log(Integer... integers) {
-        StringBuilder builder = new StringBuilder();
         for (int integer: integers) {
             builder.append(String.valueOf(integer));
             builder.append(", ");
@@ -66,7 +70,6 @@ public class Logg {
     }
 
     public static void log(Float... integers) {
-        StringBuilder builder = new StringBuilder();
         for (float integer: integers) {
             builder.append(String.valueOf(integer));
             builder.append(", ");
@@ -75,7 +78,6 @@ public class Logg {
     }
 
     public static void log(boolean... bools) {
-        StringBuilder builder = new StringBuilder();
         for (boolean bool: bools) {
             builder.append(String.valueOf(bool));
             builder.append(", ");
@@ -104,7 +106,6 @@ public class Logg {
     }
 
     public static void log(String... strings) {
-        StringBuilder builder = new StringBuilder();
         for (String toPrint: strings) {
             builder.append(toPrint);
         }
@@ -112,7 +113,6 @@ public class Logg {
     }
 
     public static void log(Throwable throwable, String... strings) {
-        StringBuilder builder = new StringBuilder();
         for (String toPrint: strings) {
            builder.append(toPrint);
         }

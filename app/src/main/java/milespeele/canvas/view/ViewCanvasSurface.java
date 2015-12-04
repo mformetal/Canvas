@@ -5,19 +5,13 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.PixelFormat;
 import android.os.Build;
-import android.support.v4.view.MotionEventCompat;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 
-import java.util.ArrayList;
-import java.util.Set;
-
-import milespeele.canvas.R;
 import milespeele.canvas.drawing.DrawingCurve;
 import milespeele.canvas.util.Logg;
 
@@ -124,14 +118,14 @@ public class ViewCanvasSurface extends SurfaceView
     }
 
     public int getBrushColor() {
-        return drawingCurve.getCurrentStrokeColor();
+        return drawingCurve.getStrokeColor();
     }
 
     public Bitmap getDrawingBitmap() {
         return drawingCurve.getBitmap();
     }
 
-    public Paint getCurrentPaint() { return drawingCurve.getCurrentSerializablePaint(); }
+    public Paint getCurrentPaint() { return drawingCurve.getPaint(); }
 
     private class DrawingThread extends Thread {
 

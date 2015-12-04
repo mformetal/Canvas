@@ -108,64 +108,6 @@ public class FileUtils {
         return bitmap;
     }
 
-    public void cacheAllHistory(DrawingHistory points) {
-        try {
-            Output output = new Output(context.openFileOutput(ALL_POINTS_FILENAME, Context.MODE_PRIVATE));
-            kryo.writeObject(output, points);
-            output.close();
-        } catch (FileNotFoundException e) {
-//            Logg.log(e);
-            e.printStackTrace();
-        }
-    }
-
-    public void cacheRedoneHistory(DrawingHistory points) {
-        try {
-            Output output = new Output(context.openFileOutput(REDO_POINTS_FILENAME, Context.MODE_PRIVATE));
-            kryo.writeObject(output, points);
-            output.close();
-        } catch (FileNotFoundException e) {
-//            Logg.log(e);
-            e.printStackTrace();
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    public DrawingHistory getAllHistory() {
-        DrawingHistory points = new DrawingHistory();
-        try {
-            Input input = new Input(context.openFileInput(ALL_POINTS_FILENAME));
-            points = kryo.readObject(input, DrawingHistory.class);
-            input.close();
-        } catch (IOException e) {
-//            Logg.log(e);
-            e.printStackTrace();
-        }
-        return points;
-    }
-
-    @SuppressWarnings("unchecked")
-    public DrawingHistory getRedoneHistory() {
-        DrawingHistory points = new DrawingHistory();
-        try {
-            Input input = new Input(context.openFileInput(REDO_POINTS_FILENAME));
-            points = kryo.readObject(input, DrawingHistory.class);
-            input.close();
-        } catch (IOException e) {
-//            Logg.log(e);
-            e.printStackTrace();
-        }
-        return points;
-    }
-
-    public void deleteAllHistoryFile() {
-        context.deleteFile(ALL_POINTS_FILENAME);
-    }
-
-    public void deleteRedoneHistoryFile() {
-        context.deleteFile(REDO_POINTS_FILENAME);
-    }
-
     public void deleteBitmapFile() {
         context.deleteFile(BITMAP_FILENAME);
     }
