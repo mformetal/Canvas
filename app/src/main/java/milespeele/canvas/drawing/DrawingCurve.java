@@ -15,6 +15,7 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 import javax.inject.Inject;
@@ -55,6 +56,7 @@ public class DrawingCurve {
     private State mState = State.DRAW;
     private FileUtils fileUtils;
 
+    private ArrayList<Integer> colors;
     private static final float TOLERANCE = 5f;
     private int activePointer = 0;
     private float lastX, lastY;
@@ -91,6 +93,8 @@ public class DrawingCurve {
         mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
         mCanvas = new Canvas(mBitmap);
         mCanvas.drawBitmap(cachedBitmap, 0, 0, null);
+
+        colors = fileUtils.getColors();
 
         mPaint = new DrawingPaint(PaintStyles.normal(currentStrokeColor, 10f));
 
@@ -457,9 +461,12 @@ public class DrawingCurve {
     }
 
     public void onEvent(EventColorChosen eventColorChosen) {
+        int color = eventColorChosen.color;
+        colors.add(color);
+
         changeState(State.DRAW);
 
-        setPaintColor(eventColorChosen.color);
+        setPaintColor(color);
     }
 
     public void onEvent(EventBrushChosen eventBrushChosen) {
@@ -479,6 +486,8 @@ public class DrawingCurve {
     public Bitmap getBitmap() { return mBitmap; }
 
     public Paint getPaint() { return mPaint; }
+
+    public ArrayList<Integer> getCurrentColors() { return colors; }
 
     private void setPaintColor(int color) {
         currentStrokeColor = color;
@@ -501,6 +510,7 @@ public class DrawingCurve {
 
     public void onSave() {
         store.setLastBackgroundColor(currentBackgroundColor);
+        fileUtils.cacheColors(colors);
         fileUtils.cacheBitmap(mBitmap);
     }
 

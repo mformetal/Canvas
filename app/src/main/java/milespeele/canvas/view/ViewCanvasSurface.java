@@ -12,6 +12,8 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 
+import java.util.ArrayList;
+
 import milespeele.canvas.drawing.DrawingCurve;
 import milespeele.canvas.util.Logg;
 
@@ -125,6 +127,8 @@ public class ViewCanvasSurface extends SurfaceView
     }
 
     public Paint getCurrentPaint() { return drawingCurve.getPaint(); }
+    
+    public ArrayList<Integer> getCurrentColors() { return drawingCurve.getCurrentColors(); }
 
     private class DrawingThread extends Thread {
 

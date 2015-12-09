@@ -22,6 +22,7 @@ import android.view.ViewConfiguration;
 import android.widget.FrameLayout;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -196,6 +197,8 @@ public class ViewCanvasLayout extends CoordinatorLayout implements View.OnClickL
     public void setMenuListener(ViewFabMenu.ViewFabMenuListener other) {
         menu.setListener(other);
     }
+
+    public ArrayList<Integer> getCurrentColors() { return drawer.getCurrentColors(); }
 
     public Paint getCurrentPaint() { return drawer.getCurrentPaint(); }
 

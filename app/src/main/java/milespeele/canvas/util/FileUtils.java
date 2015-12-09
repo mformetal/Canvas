@@ -10,6 +10,7 @@ import android.view.WindowManager;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+import com.google.common.primitives.Ints;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
@@ -18,6 +19,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Stack;
 
 import milespeele.canvas.drawing.DrawingHistory;
@@ -32,20 +37,12 @@ import rx.schedulers.Schedulers;
 public class FileUtils {
 
     private final static String BITMAP_FILENAME = "canvas:bitmap";
-    private final static String ALL_POINTS_FILENAME = "canvas:allPoints";
-    private final static String REDO_POINTS_FILENAME = "canvas:redoPoints";
+    private final static String COLORS_FILENAME = "canvas:colors";
 
     private Context context;
-    private Kryo kryo;
 
     public FileUtils(Context otherContext) {
         context = otherContext;
-
-        kryo = new Kryo();
-        kryo.register(DrawingHistory.class, 0);
-        kryo.register(DrawingPoints.class, 1);
-        kryo.register(DrawingPoint.class, 2);
-        kryo.register(SerializablePaint.class, 3);
     }
 
     public void cacheBitmap(Bitmap bitmap) {
@@ -53,13 +50,9 @@ public class FileUtils {
                 .subscribeOn(Schedulers.io())
                 .subscribe(bytes -> {
                     try {
-                        final FileOutputStream fos = context.openFileOutput(BITMAP_FILENAME, Context.MODE_PRIVATE);
-                        try {
-                            fos.write(bytes);
-                            fos.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+                        Output output = new Output(context.openFileOutput(BITMAP_FILENAME, Context.MODE_PRIVATE));
+                        output.write(bytes);
+                        output.close();
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
                     }
@@ -98,7 +91,7 @@ public class FileUtils {
         options.inDensity = metrics.densityDpi;
 
         try {
-            FileInputStream test = context.openFileInput(BITMAP_FILENAME);
+            Input test = new Input(context.openFileInput(BITMAP_FILENAME));
             bitmap = BitmapFactory.decodeStream(test, null, options);
             test.close();
         } catch (IOException e) {
@@ -106,6 +99,30 @@ public class FileUtils {
         }
 
         return bitmap;
+    }
+
+    public void cacheColors(ArrayList<Integer> colors) {
+        try {
+            Output output = new Output(context.openFileOutput(COLORS_FILENAME, Context.MODE_PRIVATE));
+            output.writeInt(colors.size());
+            output.writeInts(Ints.toArray(colors));
+            output.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public ArrayList<Integer> getColors() {
+        ArrayList<Integer> colors = new ArrayList<>();
+        try {
+            Input input = new Input(context.openFileInput(COLORS_FILENAME));
+            int length = input.readInt();
+            int[] ints = input.readInts(length);
+            for (int primitive: ints) { colors.add(primitive); }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        return colors;
     }
 
     public void deleteBitmapFile() {

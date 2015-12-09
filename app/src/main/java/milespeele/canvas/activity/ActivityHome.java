@@ -123,7 +123,8 @@ public class ActivityHome extends ActivityBase {
     public void showStrokeColorChooser(ViewFab view) {
         FragmentDrawer frag = (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
         if (frag != null) {
-            FragmentColorPicker picker = FragmentColorPicker.newInstance(frag.getRootView().getBrushColor());
+            FragmentColorPicker picker = FragmentColorPicker.
+                    newInstance(frag.getRootView().getBrushColor(), frag.getRootView().getCurrentColors());
 
             TransitionHelper.makeFabDialogTransitions(ActivityHome.this, view, fabFrame, picker);
 

@@ -1,23 +1,15 @@
 package milespeele.canvas.view;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BlurMaskFilter;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Point;
-import android.graphics.Rect;
-import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewConfiguration;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -33,16 +25,18 @@ public class ViewColorPicker extends FrameLayout {
 
     @Bind(R.id.fragment_color_picker_pos_button) ViewTypefaceButton posButton;
     @Bind(R.id.fragment_color_picker_neg_button) ViewTypefaceButton negButton;
+    @Bind(R.id.fragment_color_picker_switch) ViewTypefaceButton switcher;
 
-    private final static float START_X_MULT = .1f;
-    private final static float END_X_MULT = .9f;
+    private final static float START_X_MULT = .1f, END_X_MULT = .9f;
     private final static float LINE_THICKNESS = 15f;
-    private float circleRadius;
+    private float thumbRadius, circleRadius;
     private float slope, end, start;
     private float[] barY;
+    private boolean showHexPicker = true;
     private float redPos, bluePos, greenPos;
     private int curColor, curRed, curBlue, curGreen;
 
+    private ArrayList<Integer> colors;
     private Paint paint;
 
     public ViewColorPicker(Context context) {
@@ -76,14 +70,13 @@ public class ViewColorPicker extends FrameLayout {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int height = getDefaultSize(getMinimumHeight(), heightMeasureSpec);
         int width = getDefaultSize(getMinimumWidth(), widthMeasureSpec);
 
         for (int i = 0; i < getChildCount(); i++) {
             measureChildWithMargins(getChildAt(i), widthMeasureSpec, 0, heightMeasureSpec, 0);
         }
 
-        setMeasuredDimension(width, Math.round(ViewUtils.getScreenHeight(getContext()) * .7f));
+        setMeasuredDimension(width, Math.round(ViewUtils.getScreenHeight(getContext()) * .8f));
     }
 
     @Override
@@ -91,40 +84,57 @@ public class ViewColorPicker extends FrameLayout {
         super.onSizeChanged(w, h, oldw, oldh);
         TextUtils.adjustTextScale(paint, "0xFFFFFF", w / 2, getPaddingLeft(), getPaddingRight());
         TextUtils.adjustTextSize(paint, "0xFFFFFF", h / 2);
-        circleRadius = (h * .9f) / 50;
+
+        thumbRadius = (h * .9f) / 50;
+        circleRadius = w * .075f;
+
+        end = getWidth() * END_X_MULT;
+        start = getWidth() * START_X_MULT;
+        slope = (end - start) / 255f;
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        paint.setColor(curColor);
-        canvas.drawRect(0, 0, canvas.getWidth(), canvas.getHeight() / 2, paint);
+        if (showHexPicker) {
+            float x = circleRadius * 1.25f;
+            for (int color: colors) {
+                paint.setColor(color);
+                canvas.drawCircle(x, circleRadius * 1.25f, circleRadius, paint);
+                x += circleRadius * 2.5f;
+            }
 
-        paint.setColor(ViewUtils.getComplimentColor(curColor));
-        String colorText = ViewUtils.colorToHexString(curColor);
-        canvas.drawText(colorText, (canvas.getWidth() - paint.measureText(colorText)) / 2,
-                canvas.getHeight() * (5f / 16f), paint);
+            paint.setColor(curColor);
+            canvas.drawRect(0, circleRadius * 2.5f, canvas.getWidth(), canvas.getHeight() / 2, paint);
 
-        if (barY == null) {
-            final float heightForBars = posButton.getTop() - canvas.getHeight() / 2;
+            paint.setColor(ViewUtils.getComplimentColor(curColor));
+            String colorText = ViewUtils.colorToHexString(curColor);
+            canvas.drawText(colorText, (canvas.getWidth() - paint.measureText(colorText)) / 2,
+                    canvas.getHeight() * .375f, paint);
 
-            barY = new float[3];
-            barY[0] = canvas.getHeight() / 2 + heightForBars * .25f;
-            barY[1] = canvas.getHeight() / 2 + heightForBars * .5f;
-            barY[2] = canvas.getHeight() / 2 + heightForBars * .75f;
+            if (barY == null) {
+                final float heightForBars = posButton.getTop() - canvas.getHeight() / 2;
+
+                barY = new float[3];
+                barY[0] = canvas.getHeight() / 2 + heightForBars * .25f;
+                barY[1] = canvas.getHeight() / 2 + heightForBars * .5f;
+                barY[2] = canvas.getHeight() / 2 + heightForBars * .75f;
+            }
+
+            paint.setColor(Color.RED);
+            canvas.drawLine(canvas.getWidth() * START_X_MULT, barY[0], canvas.getWidth() * END_X_MULT, barY[0], paint);
+            canvas.drawCircle(redPos, barY[0], thumbRadius, paint);
+
+            paint.setColor(Color.GREEN);
+            canvas.drawLine(canvas.getWidth() * START_X_MULT, barY[1], canvas.getWidth() * END_X_MULT, barY[1], paint);
+            canvas.drawCircle(greenPos, barY[1], thumbRadius, paint);
+
+            paint.setColor(Color.BLUE);
+            canvas.drawLine(canvas.getWidth() * START_X_MULT, barY[2], canvas.getWidth() * END_X_MULT, barY[2], paint);
+            canvas.drawCircle(bluePos, barY[2], thumbRadius, paint);
+        } else {
+            // draw other
         }
-
-        paint.setColor(Color.RED);
-        canvas.drawLine(canvas.getWidth() * START_X_MULT, barY[0], canvas.getWidth() * END_X_MULT, barY[0], paint);
-        canvas.drawCircle(redPos, barY[0], circleRadius, paint);
-
-        paint.setColor(Color.GREEN);
-        canvas.drawLine(canvas.getWidth() * START_X_MULT, barY[1], canvas.getWidth() * END_X_MULT, barY[1], paint);
-        canvas.drawCircle(greenPos, barY[1], circleRadius, paint);
-
-        paint.setColor(Color.BLUE);
-        canvas.drawLine(canvas.getWidth() * START_X_MULT, barY[2], canvas.getWidth() * END_X_MULT, barY[2], paint);
-        canvas.drawCircle(bluePos, barY[2], circleRadius, paint);
     }
 
     @Override
@@ -156,9 +166,12 @@ public class ViewColorPicker extends FrameLayout {
     protected void onFinishInflate() {
         super.onFinishInflate();
         ButterKnife.bind(this);
+        switcher.setOnClickListener(switchClickListener);
     }
 
-    public void setTitleColor(int color) {
+    public void initialize(int color, ArrayList<Integer> oldColors) {
+        colors = oldColors;
+
         curColor = color;
         curRed = Color.red(curColor);
         curBlue = Color.blue(curColor);
@@ -235,7 +248,10 @@ public class ViewColorPicker extends FrameLayout {
                 }
 
                 curColor = Color.rgb(curRed, curGreen, curBlue);
-                invalidate();
+                invalidate((int) start,
+                        (int) (linePos - LINE_THICKNESS * 4),
+                        (int) end,
+                        (int) (linePos + LINE_THICKNESS * 4));
                 break;
             }
         }
@@ -244,4 +260,9 @@ public class ViewColorPicker extends FrameLayout {
     public int getSelectedColor() {
         return curColor;
     }
+
+    private OnClickListener switchClickListener = v -> {
+//        showHexPicker = (!showHexPicker);
+//        invalidate();
+    };
 }

@@ -14,11 +14,9 @@
 
     <string name="fragment_colors_title">Choose Color On Canvas</string>
 
-    <string name="fragment_color_picker_title">Choose Color</string>
     <string name="fragment_color_picker_choose">Choose</string>
     <string name="fragment_color_picker_nah">Cancel</string>
-    <string name="fragment_color_picker_for_canvas">For Canvas</string>
-    <string name="fragment_color_picker_for_stroke">For Stroke</string>
+    <string name="fragment_color_picker_switch">Switch</string>
 
     <string name="snackbar_activity_home_image_saved_title">Saved Your Masterpiece!</string>
     <string name="snackbar_activity_home_imaged_saved_body">View</string>

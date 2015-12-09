@@ -2,11 +2,12 @@ package milespeele.canvas.fragment;
 
 import android.app.Activity;
 import android.app.Fragment;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import java.util.ArrayList;
 
 import javax.inject.Inject;
 
@@ -17,12 +18,8 @@ import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
 import milespeele.canvas.event.EventColorChosen;
-import milespeele.canvas.util.AbstractAnimatorListener;
-import milespeele.canvas.util.Logg;
 import milespeele.canvas.view.ViewColorPicker;
 import milespeele.canvas.view.ViewTypefaceButton;
-import milespeele.canvas.view.ViewTypefaceTextView;
-
 
 
 public class FragmentColorPicker extends Fragment implements View.OnClickListener {
@@ -35,10 +32,11 @@ public class FragmentColorPicker extends Fragment implements View.OnClickListene
 
     public FragmentColorPicker() {}
 
-    public static FragmentColorPicker newInstance(int previousColor) {
+    public static FragmentColorPicker newInstance(int previousColor, ArrayList<Integer> prevColors) {
         FragmentColorPicker fragment = new FragmentColorPicker();
         Bundle args = new Bundle();
         args.putInt("prev", previousColor);
+        args.putIntegerArrayList("prevColors", prevColors);
         fragment.setArguments(args);
         return fragment;
     }
@@ -54,7 +52,8 @@ public class FragmentColorPicker extends Fragment implements View.OnClickListene
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_color_picker, container, false);
         ButterKnife.bind(this, v);
-        picker.setTitleColor(getArguments().getInt("prev"));
+        picker.initialize(getArguments().getInt("prev"),
+                getArguments().getIntegerArrayList("prevColors"));
         return v;
     }
 
