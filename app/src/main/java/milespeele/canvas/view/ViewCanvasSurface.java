@@ -152,7 +152,10 @@ public class ViewCanvasSurface extends SurfaceView
             while (mRun) {
                 Canvas c = null;
                 try {
-                    c = mSurfaceHolder.lockCanvas();
+                    if (mSurfaceHolder.getSurface().isValid()) {
+                        c = mSurfaceHolder.lockCanvas();
+                    }
+
                     synchronized (mSurfaceHolder) {
                         synchronized (mRunLock) {
                             if (mRun)  {

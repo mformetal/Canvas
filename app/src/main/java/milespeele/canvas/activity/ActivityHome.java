@@ -78,8 +78,6 @@ public class ActivityHome extends ActivityBase {
     }
 
     public void onEvent(EventParseError eventParseError) {
-        ((ViewFab) findViewById(R.id.menu_save)).stopPulse();
-
         ErrorDialog.createDialogFromCode(this, eventParseError.getErrorCode()).show();
     }
 

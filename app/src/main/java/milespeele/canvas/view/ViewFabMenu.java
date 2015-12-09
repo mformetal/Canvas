@@ -30,6 +30,7 @@ import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
 import milespeele.canvas.event.EventBrushChosen;
 import milespeele.canvas.event.EventColorChosen;
+import milespeele.canvas.event.EventParseError;
 import milespeele.canvas.util.AbstractAnimatorListener;
 import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.ViewUtils;
@@ -369,6 +370,10 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
         if (eventBrushChosen.paint != null) {
             eraser.scaleDown();
         }
+    }
+
+    public void onEvent(EventParseError eventParseError) {
+        saver.stopPulse();
     }
 
     public boolean isVisible() {
