@@ -12,6 +12,7 @@ import android.view.View;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by mbpeele on 11/4/15.
@@ -24,7 +25,10 @@ public class ViewUtils {
     public final static String TRANSLATION_X = "translationX";
     public final static String TRANSLATION_Y = "translationY";
     public final static String SCALE_Y = "scaleY";
+
+    private final static Random random = new Random();
     private static int[] rainbow;
+    private static int[] fullRainbow;
 
     public static abstract class FloatProperty<T> extends Property<T, Float> {
         public FloatProperty(String name) {
@@ -54,6 +58,29 @@ public class ViewUtils {
 
     }
 
+    public static int randomColor() {
+        return Color.argb(255, random.nextInt(256), random.nextInt(256), random.nextInt(256));
+    }
+
+    public static String colorToHexString(int color) {
+        return String.format("#%06X", (0xFFFFFF & color));
+    }
+
+    public static int getComplimentColor(int color) {
+        // get existing colors
+        int alpha = Color.alpha(color);
+        int red = Color.red(color);
+        int blue = Color.blue(color);
+        int green = Color.green(color);
+
+        // find compliments
+        red = (~red) & 0xff;
+        blue = (~blue) & 0xff;
+        green = (~green) & 0xff;
+
+        return Color.argb(alpha, red, green, blue);
+    }
+
     public static int darken(int color, double fraction) {
         int red = Color.red(color);
         int green = Color.green(color);
@@ -62,27 +89,6 @@ public class ViewUtils {
                 (int)Math.max(red - (red * fraction), 0),
                 (int)Math.max(green - (green * fraction), 0),
                 (int)Math.max(blue - (blue * fraction), 0));
-    }
-
-    public static int getComplementaryColor(int color) {
-        float[] hsv = new float[3];
-        Color.RGBToHSV(Color.red(color), Color.green(color), Color.blue(color),
-                hsv);
-        if (hsv[2] < 0.5) {
-            hsv[2] = 0.7f;
-        } else {
-            hsv[2] = 0.3f;
-        }
-        hsv[1] = hsv[1] * 0.2f;
-        return Color.HSVToColor(hsv);
-    }
-
-    public static int oppositeColor(int oldColor) {
-        return Color.argb(
-                Color.alpha(oldColor),
-                Color.red(255 - Color.red(oldColor)),
-                Color.red(255 - Color.green(oldColor)),
-                Color.blue(255 - Color.blue(oldColor)));
     }
 
     public static int centerX(View view) {
@@ -111,6 +117,29 @@ public class ViewUtils {
             });
         } else {
             return rainbow;
+        }
+    }
+
+    public static int[] fullRainbow() {
+        if (fullRainbow == null) {
+            return (fullRainbow = new int[] {
+                    Color.WHITE,
+                    Color.RED,
+                    Color.parseColor("#FF7F00"), // ORANGE
+                    Color.YELLOW,
+                    Color.parseColor("#7FFF00"), // CHARTREUSE GREEN
+                    Color.GREEN,
+                    Color.parseColor("#00FF7F"), // SPRING GREEN
+                    Color.CYAN,
+                    Color.parseColor("#007FFF"), // AZURE
+                    Color.BLUE,
+                    Color.parseColor("#7F00FF"), // VIOLET
+                    Color.MAGENTA,
+                    Color.parseColor("#FF007F"), // ROSE
+                    Color.BLACK
+            });
+        } else {
+            return fullRainbow;
         }
     }
 

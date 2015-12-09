@@ -59,7 +59,6 @@ public class ViewCanvasSurface extends SurfaceView
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
 
-        // Only instantiate once
         if (oldh == 0 || oldw == 0) {
             drawingCurve = new DrawingCurve(getContext(), w, h);
             drawingCurve.setListener(this);

@@ -18,6 +18,7 @@ import android.util.AttributeSet;
 import android.util.Property;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.widget.FrameLayout;
 
 import java.lang.ref.WeakReference;
@@ -48,21 +49,6 @@ public class ViewCanvasLayout extends CoordinatorLayout implements View.OnClickL
     private boolean mIsMoving = false;
     private static final int MOVING_DELAY = 750;
     private final MyHandler handler = new MyHandler(this);
-
-    private final static class MyHandler extends Handler {
-        private final WeakReference<ViewCanvasLayout> ref;
-
-        public MyHandler(ViewCanvasLayout view) {
-            ref = new WeakReference<>(view);
-        }
-
-        @Override
-        public void handleMessage(Message msg) {
-            if (ref.get() != null) {
-                ref.get().ifStillMoving();
-            }
-        }
-    }
 
     public ViewCanvasLayout(Context context) {
         super(context);
@@ -123,16 +109,6 @@ public class ViewCanvasLayout extends CoordinatorLayout implements View.OnClickL
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         final float x = ev.getX(), y = ev.getY();
         final int action = MotionEventCompat.getActionMasked(ev);
-
-        if (fabFrame.getVisibility() == View.VISIBLE) {
-            fabFrame.getHitRect(hitRect);
-            if (!hitRect.contains((int) x, (int) y)) {
-                if (getContext() instanceof Activity) {
-                    ((Activity) getContext()).onBackPressed();
-                    return true;
-                }
-            }
-        }
 
         if (menu.isVisible()) {
             if (y >= getHeight() - menu.getHeight()) {
@@ -294,4 +270,19 @@ public class ViewCanvasLayout extends CoordinatorLayout implements View.OnClickL
             object.setCircle(value);
         }
     };
+
+    private final static class MyHandler extends Handler {
+        private final WeakReference<ViewCanvasLayout> ref;
+
+        public MyHandler(ViewCanvasLayout view) {
+            ref = new WeakReference<>(view);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            if (ref.get() != null) {
+                ref.get().ifStillMoving();
+            }
+        }
+    }
 }

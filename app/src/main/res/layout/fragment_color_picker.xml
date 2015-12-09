@@ -1,82 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<milespeele.canvas.view.ViewColorPicker
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
-
-    <milespeele.canvas.view.ViewTypefaceTextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="@dimen/activity_vertical_margin"
-        android:text="@string/fragment_color_picker_title"
-        android:textColor="@android:color/white"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:id="@+id/fragment_color_picker_title" />
-
-    <com.larswerkman.holocolorpicker.ColorPicker
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/fragment_color_picker_title"
-        android:layout_centerHorizontal="true"
-        android:id="@+id/fragment_color_picker_view"
-        app:color_wheel_radius="100dp" />
-
-    <com.larswerkman.holocolorpicker.SVBar
-        android:id="@+id/fragment_color_picker_sv"
-        android:layout_below="@id/fragment_color_picker_view"
-        android:layout_marginBottom="@dimen/fragment_color_picker_view_vertical_margin"
-        android:layout_centerHorizontal="true"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:gravity="center_horizontal"
-        android:id="@+id/fragment_color_picker_toggle_layout"
-        android:layout_below="@id/fragment_color_picker_sv" >
-
-        <milespeele.canvas.view.ViewTypefaceButton
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:id="@+id/fragment_color_picker_canvas"
-            android:text="@string/fragment_color_picker_for_canvas"
-            android:textAllCaps="true" />
-
-        <milespeele.canvas.view.ViewTypefaceButton
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:id="@+id/fragment_color_picker_stroke"
-            android:text="@string/fragment_color_picker_for_stroke"
-            android:textAllCaps="true" />
-
-    </LinearLayout>
+    android:layout_height="match_parent"
+    android:id="@+id/fragment_color_picker_view" >
 
     <milespeele.canvas.view.ViewTypefaceButton
+        android:id="@+id/fragment_color_picker_pos_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
         android:text="@string/fragment_color_picker_choose"
         android:textColor="@android:color/white"
-        android:id="@+id/fragment_color_picker_select"
-        android:layout_below="@+id/fragment_color_picker_toggle_layout"
-        android:layout_alignParentEnd="true"
-        style="?android:attr/borderlessButtonStyle"
-        android:background="?android:attr/selectableItemBackground" />
+        android:paddingBottom="@dimen/activity_horizontal_margin"
+        style="?android:attr/borderlessButtonStyle" />
 
     <milespeele.canvas.view.ViewTypefaceButton
+        android:id="@+id/fragment_color_picker_neg_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
         android:text="@string/fragment_color_picker_nah"
         android:textColor="@android:color/white"
-        android:id="@+id/fragment_color_picker_cancel"
-        android:layout_below="@+id/fragment_color_picker_toggle_layout"
-        android:layout_toStartOf="@id/fragment_color_picker_select"
-        style="?android:attr/borderlessButtonStyle"
-        android:background="?android:attr/selectableItemBackground"/>
+        android:layout_marginEnd="90dp"
+        android:paddingBottom="@dimen/activity_horizontal_margin"
+        style="?android:attr/borderlessButtonStyle" />
 
-</RelativeLayout>
+</milespeele.canvas.view.ViewColorPicker>

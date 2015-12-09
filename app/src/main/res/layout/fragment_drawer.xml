@@ -15,8 +15,7 @@
         app:layout_anchor="@id/fragment_drawer_coordinator"
         android:visibility="gone" />
 
-    <include
-        layout="@layout/fragment_drawer_canvas"
+    <milespeele.canvas.view.ViewCanvasSurface
         android:id="@+id/fragment_drawer_canvas"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

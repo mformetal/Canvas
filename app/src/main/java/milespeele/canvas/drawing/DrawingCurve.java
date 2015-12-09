@@ -13,6 +13,7 @@ import android.text.Layout;
 import android.text.TextPaint;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
+import android.view.View;
 
 import java.util.Random;
 
@@ -76,11 +77,9 @@ public class DrawingCurve {
 
         fileUtils = new FileUtils(context);
 
-        Random random = new Random();
-
-        currentStrokeColor = Color.argb(255, random.nextInt(256), random.nextInt(256), random.nextInt(256));
+        currentStrokeColor = ViewUtils.randomColor();
         currentBackgroundColor = store.getLastBackgroundColor();
-        oppositeBackgroundColor = ViewUtils.getComplementaryColor(currentBackgroundColor);
+        oppositeBackgroundColor = ViewUtils.getComplimentColor(currentBackgroundColor);
         inkedColor = currentStrokeColor;
 
         cachedBitmap = fileUtils.getCachedBitmap();
@@ -217,7 +216,7 @@ public class DrawingCurve {
         colorAnimation.start();
 
         currentBackgroundColor = color;
-        oppositeBackgroundColor = ViewUtils.getComplementaryColor(currentBackgroundColor);
+        oppositeBackgroundColor = ViewUtils.getComplimentColor(currentBackgroundColor);
 
         isSafeToDraw = true;
     }
@@ -458,17 +457,9 @@ public class DrawingCurve {
     }
 
     public void onEvent(EventColorChosen eventColorChosen) {
-        if (eventColorChosen.color != 0) {
-            if (!eventColorChosen.which) {
-                changeState(State.DRAW);
+        changeState(State.DRAW);
 
-                reset(eventColorChosen.color);
-            } else {
-                changeState(State.DRAW);
-
-                setPaintColor(eventColorChosen.color);
-            }
-        }
+        setPaintColor(eventColorChosen.color);
     }
 
     public void onEvent(EventBrushChosen eventBrushChosen) {

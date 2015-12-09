@@ -17,7 +17,7 @@ import milespeele.canvas.util.SerializablePaint;
 public class DrawingPoints extends ArrayList<DrawingPoint> {
 
     public float lastWidth = 1, lastVelocity = 1;
-    public float[] redrawPts;
+    public float[] redrawPts = new float[0];
 
     public SerializablePaint redrawPaint;
 
