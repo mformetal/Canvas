@@ -9,16 +9,6 @@
     android:id="@+id/fragment_color_picker_view" >
 
     <milespeele.canvas.view.ViewTypefaceButton
-        android:id="@+id/fragment_color_picker_switch"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|start"
-        android:text="@string/fragment_color_picker_switch"
-        android:textColor="@android:color/white"
-        android:paddingBottom="@dimen/activity_horizontal_margin"
-        style="?android:attr/borderlessButtonStyle" />
-
-    <milespeele.canvas.view.ViewTypefaceButton
         android:id="@+id/fragment_color_picker_pos_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

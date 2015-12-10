@@ -5,11 +5,16 @@ import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.content.Context;
+import android.gesture.Gesture;
 import android.graphics.Bitmap;
+import android.graphics.BlurMaskFilter;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.util.AttributeSet;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ViewTreeObserver;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -33,7 +38,6 @@ public class ViewColorPicker extends FrameLayout {
 
     @Bind(R.id.fragment_color_picker_pos_button) ViewTypefaceButton posButton;
     @Bind(R.id.fragment_color_picker_neg_button) ViewTypefaceButton negButton;
-    @Bind(R.id.fragment_color_picker_switch) ViewTypefaceButton switcher;
 
     private final static int THUMB_SLIDE_DURATION = 350;
     private final static float START_X_MULT = .1f, END_X_MULT = .9f;
@@ -41,10 +45,12 @@ public class ViewColorPicker extends FrameLayout {
     private float thumbRadius, circleRadius;
     private float slope, end, start;
     private float[] barY;
+    private int backgroundColor;
     private float redPos, bluePos, greenPos;
     private int curColor, curRed, curBlue, curGreen;
 
     private final static Interpolator INTERPOLATOR = new AccelerateDecelerateInterpolator();
+    private BlurMaskFilter thumbFilter;
     private ArrayList<Integer> colors;
     private Paint paint;
     private Bitmap slider;
@@ -75,7 +81,10 @@ public class ViewColorPicker extends FrameLayout {
         paint.setStrokeCap(Paint.Cap.ROUND);
         paint.setTypeface(TextUtils.getStaticTypeFace(getContext(), "Roboto.ttf"));
 
+        backgroundColor = getResources().getColor(R.color.primary_dark);
+
         setWillNotDraw(false);
+        setLayerType(LAYER_TYPE_SOFTWARE, null);
     }
 
     @Override
@@ -92,18 +101,22 @@ public class ViewColorPicker extends FrameLayout {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        // OLD COLORS
         canvas.drawBitmap(slider, 0, 0, null);
 
+        // CUR COLOR RECT
         paint.setColor(curColor);
         canvas.drawRect(0,
                 (colors.isEmpty()) ? 0 : circleRadius * 2.5f,
                 canvas.getWidth(), canvas.getHeight() / 2, paint);
 
+        // CUR COLOR TEXT STRING
         paint.setColor(ViewUtils.getComplimentColor(curColor));
         String colorText = ViewUtils.colorToHexString(curColor);
         canvas.drawText(colorText, (canvas.getWidth() - paint.measureText(colorText)) / 2,
                 (colors.isEmpty()) ? canvas.getHeight() * (5f / 16f) : canvas.getHeight() * (3f / 8f), paint);
 
+        // SEEKBARS
         if (barY == null) {
             final float heightForBars = posButton.getTop() - canvas.getHeight() / 2;
 
@@ -113,17 +126,24 @@ public class ViewColorPicker extends FrameLayout {
             barY[2] = canvas.getHeight() / 2 + heightForBars * .75f;
         }
 
+        // LINES
         paint.setColor(Color.RED);
         canvas.drawLine(canvas.getWidth() * START_X_MULT, barY[0], canvas.getWidth() * END_X_MULT, barY[0], paint);
+        paint.setMaskFilter(thumbFilter);
         canvas.drawCircle(redPos, barY[0], thumbRadius, paint);
+        paint.setMaskFilter(null);
 
         paint.setColor(Color.GREEN);
         canvas.drawLine(canvas.getWidth() * START_X_MULT, barY[1], canvas.getWidth() * END_X_MULT, barY[1], paint);
+        paint.setMaskFilter(thumbFilter);
         canvas.drawCircle(greenPos, barY[1], thumbRadius, paint);
+        paint.setMaskFilter(null);
 
         paint.setColor(Color.BLUE);
         canvas.drawLine(canvas.getWidth() * START_X_MULT, barY[2], canvas.getWidth() * END_X_MULT, barY[2], paint);
+        paint.setMaskFilter(thumbFilter);
         canvas.drawCircle(bluePos, barY[2], thumbRadius, paint);
+        paint.setMaskFilter(null);
     }
 
     @Override
@@ -155,11 +175,11 @@ public class ViewColorPicker extends FrameLayout {
     protected void onFinishInflate() {
         super.onFinishInflate();
         ButterKnife.bind(this);
-        switcher.setOnClickListener(switchClickListener);
     }
 
     public void initialize(int color, ArrayList<Integer> oldColors) {
         colors = oldColors;
+        colors.clear();
 
         curColor = color;
         curRed = Color.red(curColor);
@@ -177,21 +197,18 @@ public class ViewColorPicker extends FrameLayout {
                         getViewTreeObserver().removeOnGlobalLayoutListener(this);
                     }
 
-                    int w = getWidth(), h = getHeight();
+                    final int w = getWidth(), h = getHeight();
 
                     TextUtils.adjustTextScale(paint, "0xFFFFFF", w / 2, getPaddingLeft(), getPaddingRight());
                     TextUtils.adjustTextSize(paint, "0xFFFFFF", h / 2);
 
-                    thumbRadius = (h * .9f) / 50;
+                    end = w * END_X_MULT;
+                    start = w * START_X_MULT;
+                    slope = (end - start) / 255f;
+
+                    thumbRadius = w * (5f / 160f);
                     circleRadius = w * .075f;
-
-                    end = w * END_X_MULT;
-                    start = w * START_X_MULT;
-                    slope = (end - start) / 255f;
-
-                    end = w * END_X_MULT;
-                    start = w * START_X_MULT;
-                    slope = (end - start) / 255f;
+                    thumbFilter = new BlurMaskFilter(thumbRadius / 2, BlurMaskFilter.Blur.SOLID);
 
                     redPos = slope * (curRed) + start;
                     bluePos = slope * (curBlue) + start;
@@ -224,6 +241,7 @@ public class ViewColorPicker extends FrameLayout {
     private void onTouchMove(MotionEvent event) {
         float x = event.getX(), y = event.getY();
         if (y <= slider.getHeight()) {
+            // slide bitmap or something
         } else {
             slideSeekbar(x, y);
         }
@@ -280,7 +298,7 @@ public class ViewColorPicker extends FrameLayout {
     private void getBitmapPixel(float x, float y) {
         int newX = Math.round(x), newY = Math.round(y);
         int pixel = slider.getPixel(newX, newY);
-        if (pixel != 0) {
+        if (pixel != 0 && pixel != backgroundColor && pixel != curColor) {
             animateRectColor(pixel);
 
             curRed = Color.red(pixel);
@@ -357,7 +375,7 @@ public class ViewColorPicker extends FrameLayout {
                 green.start();
                 break;
             case "BLUE":
-                ValueAnimator blue = ObjectAnimator.ofFloat(greenPos, newValue);
+                ValueAnimator blue = ObjectAnimator.ofFloat(bluePos, newValue);
                 blue.setDuration(THUMB_SLIDE_DURATION);
                 blue.setInterpolator(INTERPOLATOR);
                 blue.addUpdateListener(animation -> {
@@ -385,4 +403,17 @@ public class ViewColorPicker extends FrameLayout {
 
     private OnClickListener switchClickListener = v -> {
     };
+
+//    private class ScrollListener extends GestureDetector.SimpleOnGestureListener {
+//
+//        @Override
+//        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+//            return super.onScroll(e1, e2, distanceX, distanceY);
+//        }
+//
+//        @Override
+//        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+//            return super.onFling(e1, e2, velocityX, velocityY);
+//        }
+//    }
 }
