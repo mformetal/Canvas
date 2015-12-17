@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.Rect;
 import android.util.DisplayMetrics;
 import android.util.Property;
 import android.view.Display;
@@ -13,6 +14,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+
+import milespeele.canvas.R;
 
 /**
  * Created by mbpeele on 11/4/15.
@@ -27,6 +30,7 @@ public class ViewUtils {
     public final static String SCALE_Y = "scaleY";
 
     private final static Random random = new Random();
+    private final static Rect rect = new Rect();
     private static int[] rainbow;
     private static int[] fullRainbow;
 
@@ -124,6 +128,8 @@ public class ViewUtils {
         if (fullRainbow == null) {
             return (fullRainbow = new int[] {
                     Color.WHITE,
+                    Color.GRAY,
+                    Color.BLACK,
                     Color.RED,
                     Color.parseColor("#FF7F00"), // ORANGE
                     Color.YELLOW,
@@ -136,7 +142,6 @@ public class ViewUtils {
                     Color.parseColor("#7F00FF"), // VIOLET
                     Color.MAGENTA,
                     Color.parseColor("#FF007F"), // ROSE
-                    Color.BLACK
             });
         } else {
             return fullRainbow;
@@ -157,6 +162,10 @@ public class ViewUtils {
         return size.y;
     }
 
+    public static float activityVerticalMargin(Context context) {
+        return context.getResources().getDimension(R.dimen.activity_vertical_margin);
+    }
+
     public static float dpToPx(float dp, Context context) {
         DisplayMetrics metric = context.getResources().getDisplayMetrics();
         return dp * (metric.densityDpi / 160f);
@@ -165,5 +174,13 @@ public class ViewUtils {
     public static float pxToDp(float px, Context context) {
         DisplayMetrics metrics = context.getResources().getDisplayMetrics();
         return px / (metrics.densityDpi / 160f);
+    }
+
+    public static Rect boundingRect(float centerX, float centerY, float radius) {
+        rect.left = Math.round(centerX - radius);
+        rect.right = Math.round(centerX + radius);
+        rect.top = Math.round(centerY - radius);
+        rect.bottom = Math.round(centerY + radius);
+        return rect;
     }
 }

@@ -42,14 +42,14 @@ public class ViewCanvasLayout extends CoordinatorLayout implements View.OnClickL
     @Bind(R.id.fragment_drawer_button) ViewTypefaceButton button;
 
     private final Rect hitRect = new Rect();
+    private final MyHandler handler = new MyHandler(this);
     private Paint shadowPaint;
 
     private float circle = 0;
     private int[] loc = new int[2];
-
     private boolean mIsMoving = false;
     private static final int MOVING_DELAY = 750;
-    private final MyHandler handler = new MyHandler(this);
+    private static final int BUTTON_BAR_DURATION = 350;
 
     public ViewCanvasLayout(Context context) {
         super(context);
@@ -111,6 +111,16 @@ public class ViewCanvasLayout extends CoordinatorLayout implements View.OnClickL
         final float x = ev.getX(), y = ev.getY();
         final int action = MotionEventCompat.getActionMasked(ev);
 
+        if (fabFrame.getVisibility() == View.VISIBLE) {
+            fabFrame.getHitRect(hitRect);
+            if (!hitRect.contains((int) x, (int) y)) {
+                if (getContext() instanceof Activity) {
+                    ((Activity) getContext()).onBackPressed();
+                    return true;
+                }
+            }
+        }
+
         if (menu.isVisible()) {
             if (y >= getHeight() - menu.getHeight()) {
                 float centerX = ViewUtils.centerX(menu);
@@ -159,7 +169,7 @@ public class ViewCanvasLayout extends CoordinatorLayout implements View.OnClickL
 
     public void setButtonGone() {
         ObjectAnimator gone = ObjectAnimator.ofFloat(button, ViewUtils.ALPHA, 1f, 0f);
-        gone.setDuration(350);
+        gone.setDuration(BUTTON_BAR_DURATION);
         gone.addListener(new AbstractAnimatorListener() {
 
             @Override
@@ -174,7 +184,7 @@ public class ViewCanvasLayout extends CoordinatorLayout implements View.OnClickL
         button.setText(text);
 
         ObjectAnimator visibility = ObjectAnimator.ofFloat(button, ViewUtils.ALPHA, 0f, 1f);
-        visibility.setDuration(350);
+        visibility.setDuration(BUTTON_BAR_DURATION);
         visibility.addListener(new AbstractAnimatorListener() {
 
             @Override

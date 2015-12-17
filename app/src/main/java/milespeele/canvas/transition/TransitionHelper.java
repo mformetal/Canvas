@@ -28,5 +28,6 @@ public class TransitionHelper {
 
         fragment.setEnterTransition(transitionFabToDialog);
         fragment.setReturnTransition(transitionDialogToFab);
+        fragment.setExitTransition(transitionDialogToFab);
     }
 }

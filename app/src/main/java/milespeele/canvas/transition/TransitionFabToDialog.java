@@ -94,7 +94,7 @@ public class TransitionFabToDialog extends ChangeBounds {
         return animatorSet;
     }
 
-    public static void disableView(View v) {
+    public void disableView(View v) {
         v.setEnabled(false);
 
         if (v instanceof ViewCanvasSurface) {

@@ -1,6 +1,8 @@
 package milespeele.canvas.activity;
 
+import android.app.Fragment;
 import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.view.WindowManager;
@@ -47,8 +49,9 @@ public class ActivityHome extends ActivityBase {
     @Inject Picasso picasso;
 
     private FrameLayout fabFrame;
-
     private FragmentManager manager;
+
+    private int count;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -69,11 +72,15 @@ public class ActivityHome extends ActivityBase {
 
     @Override
     public void onBackPressed() {
-        int count = manager.getBackStackEntryCount();
         if (count == 0) {
             super.onBackPressed();
         } else {
-            manager.popBackStack();
+            // UGLY
+            count--;
+
+            FragmentTransaction ft = getFragmentManager().beginTransaction();
+            ft.replace(R.id.fragment_drawer_animator, new Fragment());
+            ft.commit();
         }
     }
 
@@ -83,8 +90,6 @@ public class ActivityHome extends ActivityBase {
 
     public void onEvent(EventFilenameChosen eventFilenameChosen) {
         if (NetworkUtils.hasInternet(this)) {
-            ((ViewFab) findViewById(R.id.menu_save)).startPulse();
-
             FragmentDrawer frag = (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
             if (frag != null) {
                 parseUtils.saveImageToServer(eventFilenameChosen.filename,
@@ -96,7 +101,7 @@ public class ActivityHome extends ActivityBase {
     }
 
     public void showSavedImageSnackbar(Masterpiece object) {
-        ((ViewFab) findViewById(R.id.menu_save)).stopPulse();
+        ((ViewFab) findViewById(R.id.menu_save)).stopPulse(); // Ugly but whatever
         FragmentDrawer fragmentDrawer = (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
         if (fragmentDrawer != null && fragmentDrawer.getRootView() != null) {
             Snackbar.make(fragmentDrawer.getRootView(), R.string.snackbar_activity_home_image_saved_title, Snackbar.LENGTH_LONG)
@@ -113,23 +118,26 @@ public class ActivityHome extends ActivityBase {
 
             manager.beginTransaction()
                     .replace(R.id.fragment_drawer_animator, picker)
-                    .addToBackStack(TAG_FRAGMENT_BRUSH)
+//                    .addToBackStack(TAG_FRAGMENT_BRUSH)
                     .commit();
+
+            count++;
         }
     }
 
     public void showStrokeColorChooser(ViewFab view) {
         FragmentDrawer frag = (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
         if (frag != null) {
-            FragmentColorPicker picker = FragmentColorPicker.
-                    newInstance(frag.getRootView().getBrushColor(), frag.getRootView().getCurrentColors());
+            FragmentColorPicker picker = FragmentColorPicker.newInstance(frag.getRootView().getBrushColor());
 
             TransitionHelper.makeFabDialogTransitions(ActivityHome.this, view, fabFrame, picker);
 
             manager.beginTransaction()
                     .replace(R.id.fragment_drawer_animator, picker)
-                    .addToBackStack(TAG_FRAGMENT_COLOR_PICKER)
+//                    .addToBackStack(TAG_FRAGMENT_COLOR_PICKER)
                     .commit();
+
+            count++;
         }
     }
 
@@ -140,8 +148,10 @@ public class ActivityHome extends ActivityBase {
 
         manager.beginTransaction()
                 .replace(R.id.fragment_drawer_animator, text, TAG_FRAGMENT_TEXT)
-                .addToBackStack(TAG_FRAGMENT_TEXT)
+//                .addToBackStack(TAG_FRAGMENT_TEXT)
                 .commit();
+
+        count++;
     }
 
     public void showFilenameFragment(ViewFab view) {
@@ -151,8 +161,10 @@ public class ActivityHome extends ActivityBase {
 
         manager.beginTransaction()
                 .replace(R.id.fragment_drawer_animator, filename, TAG_FRAGMENT_FILENAME)
-                .addToBackStack(TAG_FRAGMENT_FILENAME)
+//                .addToBackStack(TAG_FRAGMENT_FILENAME)
                 .commit();
+
+        count++;
     }
 
     public void onFabMenuButtonClicked(ViewFab view) {
