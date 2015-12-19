@@ -101,30 +101,6 @@ public class FileUtils {
         return bitmap;
     }
 
-    public void cacheColors(ArrayList<Integer> colors) {
-        try {
-            Output output = new Output(context.openFileOutput(COLORS_FILENAME, Context.MODE_PRIVATE));
-            output.writeInt(colors.size());
-            output.writeInts(Ints.toArray(colors));
-            output.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public ArrayList<Integer> getColors() {
-        ArrayList<Integer> colors = new ArrayList<>();
-        try {
-            Input input = new Input(context.openFileInput(COLORS_FILENAME));
-            int length = input.readInt();
-            int[] ints = input.readInts(length);
-            for (int primitive: ints) { colors.add(primitive); }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        return colors;
-    }
-
     public void deleteBitmapFile() {
         context.deleteFile(BITMAP_FILENAME);
     }

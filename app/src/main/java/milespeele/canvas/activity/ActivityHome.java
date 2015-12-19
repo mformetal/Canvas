@@ -1,8 +1,10 @@
 package milespeele.canvas.activity;
 
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.view.WindowManager;
@@ -75,7 +77,7 @@ public class ActivityHome extends ActivityBase {
         if (count == 0) {
             super.onBackPressed();
         } else {
-            // UGLY
+            // UGLY, but popBackStack() results in a weird exception
             count--;
 
             FragmentTransaction ft = getFragmentManager().beginTransaction();
@@ -112,7 +114,7 @@ public class ActivityHome extends ActivityBase {
     public void showBrushChooser(ViewFab view) {
         FragmentDrawer frag = (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
         if (frag != null) {
-            FragmentBrushPicker picker = FragmentBrushPicker.newInstance(frag.getRootView().getCurrentPaint());
+            FragmentBrushPicker picker = FragmentBrushPicker.newInstance();
 
             TransitionHelper.makeFabDialogTransitions(ActivityHome.this, view, fabFrame, picker);
 
@@ -125,10 +127,11 @@ public class ActivityHome extends ActivityBase {
         }
     }
 
-    public void showStrokeColorChooser(ViewFab view) {
+    public void showStrokeColorChooser(ViewFab view, boolean toFill) {
         FragmentDrawer frag = (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
         if (frag != null) {
-            FragmentColorPicker picker = FragmentColorPicker.newInstance(frag.getRootView().getBrushColor());
+            FragmentColorPicker picker = FragmentColorPicker
+                    .newInstance(frag.getRootView().getBrushColor(), toFill);
 
             TransitionHelper.makeFabDialogTransitions(ActivityHome.this, view, fabFrame, picker);
 
@@ -175,13 +178,25 @@ public class ActivityHome extends ActivityBase {
                 showBrushChooser(view);
                 break;
             case R.id.menu_color:
-                showStrokeColorChooser(view);
+                showStrokeColorChooser(view, false);
                 break;
             case R.id.menu_text:
                 showTextFragment(view);
                 break;
             case R.id.menu_save:
                 showFilenameFragment(view);
+                break;
+            case R.id.menu_canvas_color:
+                AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                        .setTitle(R.string.alert_dialog_new_canvas_title)
+                        .setMessage(R.string.alert_dialog_new_canvas_body)
+                        .setPositiveButton(R.string.alert_dialog_new_canvas_pos_button, (dialog, which) -> {
+                            showStrokeColorChooser(view, true);
+                        })
+                        .setNegativeButton(R.string.alert_dialog_new_canvas_neg_button, (dialog, which) -> {
+                            dialog.dismiss();
+                        });
+                builder.create().show();
                 break;
         }
     }

@@ -177,10 +177,17 @@ public class ViewUtils {
     }
 
     public static Rect boundingRect(float centerX, float centerY, float radius) {
+        rect.set(0, 0, 0, 0);
         rect.left = Math.round(centerX - radius);
         rect.right = Math.round(centerX + radius);
         rect.top = Math.round(centerY - radius);
         rect.bottom = Math.round(centerY + radius);
         return rect;
+    }
+
+    // ASSUMES VIEW IS A CIRCLE SO WIDTH = HEIGHT
+    public static float radius(View view) {
+//        return view.getRight() - centerX(view);
+        return view.getMeasuredWidth() / 2;
     }
 }

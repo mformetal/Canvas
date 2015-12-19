@@ -12,8 +12,6 @@
     <string name="fragment_text_title">Enter Text</string>
     <string name="fragment_text_input_hint">Will Be Drawn On Canvas</string>
 
-    <string name="fragment_colors_title">Choose Color On Canvas</string>
-
     <string name="fragment_color_picker_choose">Choose</string>
     <string name="fragment_color_picker_nah">Cancel</string>
     <string name="fragment_color_picker_title">Choose Color</string>
@@ -44,9 +42,6 @@
         <item>outerShadow</item>
         <item>solidShadow</item>
     </string-array>
-    
-    <string name="TAG_FRAGMENT_FILL">New Canvas Color</string>
-    <string name="TAG_FRAGMENT_STROKE">Brush Color</string>
 
     <string name="error_dialog_pos_button_text">Got it</string>
     <string name="error_dialog_neg_button_text">Retry</string>
@@ -61,9 +56,10 @@
     <string name="error_object_not_found_body">Looks like the thing you want doesn\'t
         exist. Fuck if I know what happened to it. </string>
 
-    <string name="alert_dialog_new_canvas_title">Start Over?</string>
+    <string name="alert_dialog_new_canvas_title">Fill Canvas?</string>
     <string name="alert_dialog_new_canvas_body">Selecting a new Canvas color will erase
         any drawing you currently have.</string>
     <string name="alert_dialog_new_canvas_pos_button">Got it</string>
+    <string name="alert_dialog_new_canvas_neg_button">GTFO</string>
 
 </resources>

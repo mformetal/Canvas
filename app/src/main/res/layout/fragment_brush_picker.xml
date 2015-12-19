@@ -4,7 +4,7 @@
     android:id="@+id/fragment_brush_picker_reveal_layout"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent" >
 
     <milespeele.canvas.view.ViewTypefaceTextView
         android:layout_width="match_parent"
@@ -13,12 +13,9 @@
         android:text="@string/fragment_brush_picker_title"
         style="@style/DialogTitleText" />
 
-    <include
-        layout="@layout/fragment_brush_picker_view"
-        android:layout_below="@id/fragment_brush_picker_title"
+    <milespeele.canvas.view.ViewBrushPickerPager
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/fragment_brush_picker_view" />
+        android:layout_height="wrap_content" />
 
     <milespeele.canvas.view.ViewTypefaceButton
         android:textColor="@android:color/white"
@@ -27,7 +24,7 @@
         android:id="@+id/fragment_brush_picker_pos"
         android:text="@string/fragment_brush_picker_pos_button_text"
         android:layout_gravity="end"
-        android:layout_below="@id/fragment_brush_picker_view"
+        android:layout_below="@id/fragment_brush_picker_title"
         android:layout_alignParentEnd="true"
         style="?android:attr/borderlessButtonStyle"
         android:background="?android:attr/selectableItemBackground" />
@@ -38,7 +35,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/fragment_brush_picker_cancel"
         android:text="@string/fragment_color_picker_nah"
-        android:layout_below="@id/fragment_brush_picker_view"
+        android:layout_below="@id/fragment_brush_picker_title"
         android:layout_toStartOf="@+id/fragment_brush_picker_pos"
         style="?android:attr/borderlessButtonStyle"
         android:background="?android:attr/selectableItemBackground" />

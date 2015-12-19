@@ -104,7 +104,9 @@ public class ViewCanvasSurface extends SurfaceView
 
     public void onButtonClicked() { drawingCurve.onButtonClicked(); }
 
-    public void ink() { drawingCurve.ink(); }
+    public boolean ink() {
+        return drawingCurve.ink();
+    }
 
     public boolean redo() {
         return drawingCurve.redo();
@@ -127,8 +129,6 @@ public class ViewCanvasSurface extends SurfaceView
     }
 
     public Paint getCurrentPaint() { return drawingCurve.getPaint(); }
-    
-    public ArrayList<Integer> getCurrentColors() { return drawingCurve.getCurrentColors(); }
 
     private class DrawingThread extends Thread {
 

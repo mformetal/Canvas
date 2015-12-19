@@ -1,6 +1,7 @@
 package milespeele.canvas.drawing;
 
 import android.animation.ArgbEvaluator;
+import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -56,7 +57,6 @@ public class DrawingCurve {
     private State mState = State.DRAW;
     private FileUtils fileUtils;
 
-    private ArrayList<Integer> colors;
     private static final float TOLERANCE = 5f;
     private int activePointer = 0;
     private float lastX, lastY;
@@ -93,8 +93,6 @@ public class DrawingCurve {
         mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
         mCanvas = new Canvas(mBitmap);
         mCanvas.drawBitmap(cachedBitmap, 0, 0, null);
-
-        colors = fileUtils.getColors();
 
         mPaint = new DrawingPaint(PaintStyles.normal(currentStrokeColor, 10f));
 
@@ -168,6 +166,7 @@ public class DrawingCurve {
                     // ink circle
                     mPaint.setColor(inkedColor);
                     canvas.drawCircle(middleX, middleY, xSpace + lineSize - mPaint.getStrokeWidth(), mPaint);
+
                     canvas.restore();
 
                     mPaint.setColor(prevColor);
@@ -212,8 +211,7 @@ public class DrawingCurve {
         mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         mCanvas = new Canvas(mBitmap);
 
-        ValueAnimator colorAnimation = ValueAnimator.ofObject(
-                new ArgbEvaluator(), currentBackgroundColor, color);
+        ValueAnimator colorAnimation = ObjectAnimator.ofArgb(currentBackgroundColor, color);
         colorAnimation.addUpdateListener(animator ->
                 mCanvas.drawColor((Integer) animator.getAnimatedValue()));
         colorAnimation.setDuration(1000);
@@ -336,9 +334,11 @@ public class DrawingCurve {
             case TEXT:
                 break;
             case INK:
-                currentStrokeColor = inkedColor;
-                mPaint.setColor(currentStrokeColor);
-                changeState(State.DRAW);
+                if (currentBackgroundColor != inkedColor) {
+                    currentStrokeColor = inkedColor;
+                    mPaint.setColor(currentStrokeColor);
+                    changeState(State.DRAW);
+                }
                 break;
         }
 
@@ -426,13 +426,20 @@ public class DrawingCurve {
         return false;
     }
 
-    public void ink() {
-        translateY = 0;
-        translateX = 0;
+    public boolean ink() {
+        if (mState == State.INK) {
+            changeState(State.DRAW);
+            return false;
+        } else {
+            changeState(State.DRAW);
+            translateY = 0;
+            translateX = 0;
 
-        changeState(State.INK);
+            changeState(State.INK);
 
-        inkedColor = mBitmap.getPixel(mBitmap.getWidth() / 2, mBitmap.getHeight() / 2);
+            inkedColor = mBitmap.getPixel(mBitmap.getWidth() / 2, mBitmap.getHeight() / 2);
+            return false;
+        }
     }
 
     public void erase() {
@@ -462,11 +469,15 @@ public class DrawingCurve {
 
     public void onEvent(EventColorChosen eventColorChosen) {
         int color = eventColorChosen.color;
-        colors.add(color);
+        if (eventColorChosen.bool) {
+            reset(color);
 
-        changeState(State.DRAW);
+            changeState(State.DRAW);
+        } else {
+            changeState(State.DRAW);
 
-        setPaintColor(color);
+            setPaintColor(color);
+        }
     }
 
     public void onEvent(EventBrushChosen eventBrushChosen) {
@@ -487,14 +498,10 @@ public class DrawingCurve {
 
     public Paint getPaint() { return mPaint; }
 
-    public ArrayList<Integer> getCurrentColors() { return colors; }
-
     private void setPaintColor(int color) {
-        currentStrokeColor = color;
-        textSerializablePaint.setColor(currentStrokeColor);
-        mPaint.setColor(currentStrokeColor);
-
-        currentPoints.redrawPaint.setColor(currentStrokeColor);
+        textSerializablePaint.setColor(color);
+        mPaint.setColor(color);
+        currentPoints.redrawPaint.setColor(color);
     }
 
     private void setPaintThickness(float floater) {
@@ -510,7 +517,6 @@ public class DrawingCurve {
 
     public void onSave() {
         store.setLastBackgroundColor(currentBackgroundColor);
-        fileUtils.cacheColors(colors);
         fileUtils.cacheBitmap(mBitmap);
     }
 

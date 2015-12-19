@@ -29,6 +29,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import milespeele.canvas.R;
 import milespeele.canvas.util.AbstractAnimatorListener;
+import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.ViewUtils;
 
 /**
@@ -109,7 +110,6 @@ public class ViewCanvasLayout extends CoordinatorLayout implements View.OnClickL
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         final float x = ev.getX(), y = ev.getY();
-        final int action = MotionEventCompat.getActionMasked(ev);
 
         if (fabFrame.getVisibility() == View.VISIBLE) {
             fabFrame.getHitRect(hitRect);
@@ -136,7 +136,7 @@ public class ViewCanvasLayout extends CoordinatorLayout implements View.OnClickL
 
         drawer.setOnTouchListener(drawer);
 
-        switch (action) {
+        switch (ev.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 break;
 
@@ -158,7 +158,7 @@ public class ViewCanvasLayout extends CoordinatorLayout implements View.OnClickL
                 mIsMoving = false;
                 break;
         }
-        return false;
+        return super.onInterceptTouchEvent(ev);
     }
 
     @Override
@@ -208,10 +208,6 @@ public class ViewCanvasLayout extends CoordinatorLayout implements View.OnClickL
         menu.setListener(other);
     }
 
-    public ArrayList<Integer> getCurrentColors() { return drawer.getCurrentColors(); }
-
-    public Paint getCurrentPaint() { return drawer.getCurrentPaint(); }
-
     public int getBrushColor() {
         return drawer.getBrushColor();
     }
@@ -233,7 +229,11 @@ public class ViewCanvasLayout extends CoordinatorLayout implements View.OnClickL
     }
 
     public void ink() {
-        drawer.ink();
+        if (drawer.ink()) {
+            menu.fadeOut();
+        } else {
+            menu.fadeIn();
+        }
     }
 
     public void erase() {

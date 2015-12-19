@@ -1,15 +1,8 @@
 package milespeele.canvas.drawing;
 
 import android.graphics.Paint;
-import android.os.SystemClock;
-
-import com.esotericsoftware.kryo.serializers.FieldSerializer;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-
-import milespeele.canvas.util.Logg;
-import milespeele.canvas.util.SerializablePaint;
 
 /**
  * Created by mbpeele on 11/23/15.
@@ -19,15 +12,15 @@ public class DrawingPoints extends ArrayList<DrawingPoint> {
     public float lastWidth = 1, lastVelocity = 1;
     public float[] redrawPts = new float[0];
 
-    public SerializablePaint redrawPaint;
+    public Paint redrawPaint;
 
     public DrawingPoints() {
-        redrawPaint = new SerializablePaint();
+        redrawPaint = new Paint();
     }
 
     public DrawingPoints(Paint paint) {
         super();
-        redrawPaint = new SerializablePaint(paint);
+        redrawPaint = new Paint(paint);
     }
 
     public DrawingPoints(DrawingPoints other) {
@@ -37,7 +30,7 @@ public class DrawingPoints extends ArrayList<DrawingPoint> {
 
         lastWidth = other.lastWidth;
         lastVelocity = other.lastVelocity;
-        redrawPaint = new SerializablePaint(other.redrawPaint);
+        redrawPaint = new Paint(other.redrawPaint);
     }
 
     public DrawingPoint peek() {
