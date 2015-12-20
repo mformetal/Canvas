@@ -58,6 +58,7 @@ public class DrawingCurve {
     private FileUtils fileUtils;
 
     private static final float TOLERANCE = 5f;
+    private static float STROKE_WIDTH = 5f;
     private int activePointer = 0;
     private float lastX, lastY;
     private float translateX, translateY;
@@ -186,6 +187,7 @@ public class DrawingCurve {
                 break;
             case DRAW:
                 setPaintColor(currentStrokeColor);
+                setPaintThickness(STROKE_WIDTH);
                 break;
             case RAINBOW:
 
@@ -505,6 +507,7 @@ public class DrawingCurve {
     }
 
     private void setPaintThickness(float floater) {
+        STROKE_WIDTH = mPaint.getStrokeWidth();
         textSerializablePaint.setStrokeWidth(floater);
         mPaint.setStrokeWidth(floater);
         currentPoints.redrawPaint.setStrokeWidth(floater);

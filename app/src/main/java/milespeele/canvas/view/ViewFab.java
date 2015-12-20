@@ -57,6 +57,7 @@ public class ViewFab extends FloatingActionButton {
                 isScaledUp = false;
             }
         });
+
     }
 
     public void toggleScaled() {

@@ -171,7 +171,9 @@ public class ActivityHome extends ActivityBase {
     }
 
     public void onFabMenuButtonClicked(ViewFab view) {
-        fabFrame = (FrameLayout) findViewById(R.id.fragment_drawer_animator);
+        if (fabFrame == null) {
+            fabFrame = (FrameLayout) findViewById(R.id.fragment_drawer_animator);
+        }
 
         switch (view.getId()) {
             case R.id.menu_brush:

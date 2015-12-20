@@ -29,6 +29,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import milespeele.canvas.R;
 import milespeele.canvas.util.AbstractAnimatorListener;
+import milespeele.canvas.util.Circle;
 import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.ViewUtils;
 
@@ -122,35 +123,23 @@ public class ViewCanvasLayout extends CoordinatorLayout implements View.OnClickL
         }
 
         if (menu.isVisible()) {
-            if (y >= getHeight() - menu.getHeight()) {
-                float centerX = ViewUtils.centerX(menu);
-                float centerY = getHeight();
-                double rad = Math.pow(menu.getCircleRadius(), 2);
-                double pyth = Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2);
-                if (pyth <= rad) {
-                    drawer.setOnTouchListener(null);
-                    return false;
-                }
+            float centerX = menu.getCenterX();
+            float centerY = menu.getCenterY() + (getHeight() - menu.getHeight());
+
+            if (Circle.contains(centerX - x, centerY - y, menu.getCircleRadius())) {
+                ev.offsetLocation(0, -(getHeight() - menu.getHeight()));
+                menu.onTouchEvent(ev);
+                return false;
             }
         }
-
-        drawer.setOnTouchListener(drawer);
 
         switch (ev.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 break;
 
             case MotionEvent.ACTION_MOVE:
-                if (fabFrame.getVisibility() == View.VISIBLE) {
-                    fabFrame.getHitRect(hitRect);
-                    if (!hitRect.contains((int) x, (int) y)) {
-                        mIsMoving = true;
-                        ifStillMoving();
-                    }
-                } else {
-                    mIsMoving = true;
-                    ifStillMoving();
-                }
+                mIsMoving = true;
+                ifStillMoving();
                 break;
 
             case MotionEvent.ACTION_UP:
@@ -158,7 +147,8 @@ public class ViewCanvasLayout extends CoordinatorLayout implements View.OnClickL
                 mIsMoving = false;
                 break;
         }
-        return super.onInterceptTouchEvent(ev);
+
+        return false;
     }
 
     @Override

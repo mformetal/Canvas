@@ -33,6 +33,18 @@ public class Circle {
         return (float) Math.toDegrees(Math.atan2(centerY - y, centerX - x));
     }
 
+    public float shortestAngle(float angle1, float angle2) {
+        float angle = angle1 - angle2;
+        if (angle > 180f) {
+            angle -= 360f;
+        } else {
+            angle += 360f;
+        }
+        return angle;
+    }
+
+    public float getRadius() { return radius; }
+
     public float getCenterX() { return centerX; }
 
     public float getCenterY() { return centerY; }

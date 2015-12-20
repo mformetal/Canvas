@@ -14,12 +14,14 @@ import android.graphics.PorterDuffXfermode;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
+import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnticipateInterpolator;
 import android.view.animation.Interpolator;
 import android.view.animation.OvershootInterpolator;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -42,15 +44,15 @@ import milespeele.canvas.util.ViewUtils;
 /**
  * Created by milespeele on 8/7/15.
  */
-public class ViewFabMenu extends ViewGroup {
+public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
 
     @Bind(R.id.menu_toggle) ViewFab toggle;
     @Bind(R.id.menu_erase) ViewFab eraser;
     @Bind(R.id.menu_save) ViewFab saver;
     @Bind(R.id.menu_ink) ViewFab inker;
 
-    @Bind({R.id.menu_save, R.id.menu_canvas_color, R.id.menu_text,  R.id.menu_color, R.id.menu_brush,
-            R.id.menu_ink, R.id.menu_undo, R.id.menu_redo, R.id.menu_erase})
+    @Bind({R.id.menu_save, R.id.menu_text,  R.id.menu_color, R.id.menu_canvas_color, R.id.menu_ink,
+            R.id.menu_brush, R.id.menu_undo, R.id.menu_redo, R.id.menu_erase})
     List<ViewFab> buttonsList;
 
     @Inject EventBus bus;
@@ -59,7 +61,7 @@ public class ViewFabMenu extends ViewGroup {
     private Paint backgroundPaint;
     private Matrix rotateMatrix;
     private Circle circle;
-    private ItemPosition[] itemPositions;
+    private ArrayList<ItemPosition> itemPositions;
     private static final Interpolator OVERSHOOT_INTERPOLATOR = new OvershootInterpolator();
     private static final Interpolator ANTICIPATE_INTERPOLATOR = new AnticipateInterpolator();
 
@@ -68,10 +70,10 @@ public class ViewFabMenu extends ViewGroup {
     private boolean isFadedOut = false;
     private boolean isRotating = false;
     private float radius;
-    private float centerX, centerY;
-    private float lastX, lastY;
-    private float startAngle;
+    private float lastAngle, lastDragAngle;
     private float maxRadius;
+    private float itemRadius;
+    private float[] v = new float[9];
     private final static int VISIBILITY_DURATION = 350;
     private final static int INITIAL_DELAY = 0;
     private final static int DURATION = 400;
@@ -179,36 +181,34 @@ public class ViewFabMenu extends ViewGroup {
                 r / 2 + toggle.getMeasuredWidth() / 2,
                 getMeasuredHeight() - lps.bottomMargin);
 
-        centerX = ViewUtils.centerX(toggle);
-        centerY = ViewUtils.centerY(toggle);
-
         maxRadius = toggle.getMeasuredHeight() * 4;
         radius = maxRadius;
 
-        circle = new Circle(centerX, centerY, radius);
+        circle = new Circle(ViewUtils.centerX(toggle), ViewUtils.centerY(toggle), radius);
 
-        final int itemRad = toggle.getMeasuredHeight() * 3;
-        final int children = getChildCount() - 2;
-        final double slice = Math.PI / children;
+        itemRadius = toggle.getMeasuredHeight() * 3;
+        final int count = getChildCount();
+        final double slice = Math.toRadians(360 / count - 1);
 
-        itemPositions = new ItemPosition[children + 1];
+        itemPositions = new ArrayList<>();
 
-        for (int i = children; i >= 0; i--) {
+        for (int i = count - 2; i >= 0; i--) {
             final View child = getChildAt(i);
 
-            double angle = slice * i;
-            double x = centerX + itemRad * Math.cos(angle);
-            double y = centerY - itemRad * Math.sin(angle);
+            double angle = i * slice;
+            double x = circle.getCenterX() + itemRadius * Math.cos(angle);
+            double y = circle.getCenterY() - itemRadius * Math.sin(angle);
 
             child.layout((int) x - child.getMeasuredWidth() / 2,
                     (int) y - child.getMeasuredHeight() / 2,
                     (int) x + child.getMeasuredWidth() / 2,
                     (int) y + child.getMeasuredHeight() / 2);
-            itemPositions[i] = new ItemPosition(child, (float) x, (float) y, (float) child.getMeasuredWidth() / 2);
+            itemPositions.add(new ItemPosition(child, (float) x, (float) y, (float) child.getMeasuredWidth() / 2));
         }
     }
 
-    public void onItemClicked(View v) {
+    @Override
+    public void onClick(View v) {
         if (listener != null) {
             listener.onFabMenuButtonClicked((ViewFab) v);
         }
@@ -239,50 +239,47 @@ public class ViewFabMenu extends ViewGroup {
     }
 
     @Override
-    public boolean onInterceptTouchEvent(MotionEvent event) {
-        final float x = event.getX(), y = event.getY();
-
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
         if (isAnimating) {
-            return false;
+            return true;
         }
 
         if (isFadedOut || !isMenuShowing) {
-            if (Circle.contains(centerX - x, centerY - y, ViewUtils.radius(toggle))) {
-                onItemClicked(toggle);
+            if (Circle.contains(circle.getCenterX() - ev.getX(),
+                    circle.getCenterY() - ev.getY(),
+                    ViewUtils.radius(toggle))) {
+                onClick(toggle);
             }
-            return false;
+            return true;
         }
 
-        return circle.contains(x, y);
+        return !circle.contains(ev.getX(), ev.getY());
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         final float x = event.getX(), y = event.getY();
 
-        if (isFadedOut || !isMenuShowing) {
-            return false;
-        }
-
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
                 getClickedItem(x, y);
-                startAngle = circle.angle(x, y);
+                lastDragAngle = 0f;
+                lastAngle = circle.angle(x, y);
                 break;
             case MotionEvent.ACTION_MOVE:
                 isRotating = true;
 
-                lastX = x;
-                lastY = y;
+                float curAngle = circle.angle(x, y);
+                float dragAngle = circle.shortestAngle(curAngle, lastAngle);
 
-                float rotation = circle.angle(x, y);
-                float angle = -(startAngle - rotation);
-                rotateMatrix.postRotate(angle, centerX, centerY);
+                rotateMatrix.postRotate(dragAngle, circle.getCenterX(), circle.getCenterY());
+                updateItemPositions(dragAngle);
 
-                startAngle = rotation;
-                updateItemPositions(angle);
+                lastAngle = curAngle;
+                lastDragAngle += dragAngle;
                 break;
             case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
                 isRotating = false;
                 break;
         }
@@ -294,25 +291,33 @@ public class ViewFabMenu extends ViewGroup {
 
     @Override
     protected void dispatchDraw(Canvas canvas) {
-        canvas.drawCircle(centerX, centerY, radius, backgroundPaint);
+        canvas.drawCircle(circle.getCenterX(), circle.getCenterY(), radius, backgroundPaint);
         canvas.concat(rotateMatrix);
         super.dispatchDraw(canvas);
     }
 
+    public double getMatrixAngle() {
+        rotateMatrix.getValues(v);
+        return Math.atan2(v[Matrix.MSKEW_X], v[Matrix.MSCALE_X]) * (180f / Math.PI);
+    }
+
     private void getClickedItem(float x, float y) {
-        if (Circle.contains(centerX - x, centerY - y, ViewUtils.radius(toggle))) {
-            onItemClicked(toggle);
+        if (Circle.contains(circle.getCenterX() - x, circle.getCenterY() - y, ViewUtils.radius(toggle))) {
+            onClick(toggle);
             return;
         }
 
+//        Logg.log("CALLING GET CLICKED WITH: " + x + ", " + y);
         for (ItemPosition position: itemPositions) {
+//            Logg.log(position.itemCircle);
             if (position.contains(x, y)) {
-                onItemClicked(position.view);
+                onClick(position.view);
+                return;
             }
         }
     }
 
-    private void updateItemPositions(float angle) {
+    private void updateItemPositions(double angle) {
         for (ItemPosition itemPosition: itemPositions) {
             itemPosition.update(angle);
         }
@@ -348,7 +353,8 @@ public class ViewFabMenu extends ViewGroup {
 
             int delay = INITIAL_DELAY;
             for (ViewFab view: buttonsList) {
-                float diffX = view.getX() - centerX, diffY = view.getY() - centerY;
+                float diffX = view.getX() - circle.getCenterX();
+                float diffY = view.getY() - circle.getCenterY();
 
                 AnimatorSet out = new AnimatorSet();
                 out.playTogether(ObjectAnimator.ofFloat(view, ViewUtils.TRANSLATION_X, diffX),
@@ -391,7 +397,8 @@ public class ViewFabMenu extends ViewGroup {
 
             int delay = INITIAL_DELAY;
             for (ViewFab view: buttonsList) {
-                float diffX = view.getX() - centerX, diffY = view.getY() - centerY;
+                float diffX = view.getX() - circle.getCenterX();
+                float diffY = view.getY() - circle.getCenterY();
 
                 AnimatorSet out = new AnimatorSet();
                 out.playTogether(ObjectAnimator.ofFloat(view, ViewUtils.TRANSLATION_Y, -diffY),
@@ -487,8 +494,12 @@ public class ViewFabMenu extends ViewGroup {
 
     public void setRadius(float radius) {
         this.radius = radius;
-        invalidate(ViewUtils.boundingRect(centerX, centerY, radius));
+        invalidate(ViewUtils.boundingRect(circle.getCenterX(), circle.getCenterY(), radius));
     }
+
+    public float getCenterX() { return circle.getCenterX(); }
+
+    public float getCenterY() { return circle.getCenterY(); }
 
     private static final ButterKnife.Action<View> GONE = new ButterKnife.Action<View>() {
 
@@ -533,12 +544,20 @@ public class ViewFabMenu extends ViewGroup {
             view = child;
         }
 
-        public void update(double newAngle) {
-            double cos = Math.cos(newAngle);
-            double sin = Math.sin(newAngle);
+        public void update(double angle) {
+            float dx = itemCircle.getCenterX() - circle.getCenterX();
+            float dy = itemCircle.getCenterY() - circle.getCenterY();
 
-//            itemCircle.setCenterX((float) x);
-//            itemCircle.setCenterY((float) y);
+            double radius = Math.sqrt(dx * dx + dy * dy);
+            double curTheta = Math.atan2(dx, dy);
+            double deltaTheta = angle / radius;
+            double newTheta = curTheta + deltaTheta;
+            double newDx = radius * Math.cos(newTheta);
+            double newDy = radius * Math.sin(newTheta);
+            double tarX = circle.getCenterX() + newDx;
+            double tarY = circle.getCenterY() + newDy;
+            itemCircle.setCenterX((float) tarX);
+            itemCircle.setCenterY((float) tarY);
         }
 
         public boolean contains(float x, float y) {

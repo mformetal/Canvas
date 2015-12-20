@@ -49,6 +49,23 @@ public class Logg {
         mainLog(builder.toString());
     }
 
+    public static void log(float[] floats) {
+        for (float val: floats) {
+            builder.append(val);
+            builder.append(", ");
+        }
+        mainLog(builder.toString());
+    }
+
+    public static void log(Circle circle) {
+        builder.append(circle.getCenterX());
+        builder.append(", ");
+        builder.append(circle.getCenterY());
+        builder.append(", ");
+        builder.append(circle.getRadius());
+        mainLog(builder.toString());
+    }
+
     public static void log(Double value) {
         mainLog(value.toString());
     }
