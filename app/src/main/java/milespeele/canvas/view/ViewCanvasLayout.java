@@ -122,24 +122,24 @@ public class ViewCanvasLayout extends CoordinatorLayout implements View.OnClickL
             }
         }
 
-        if (menu.isVisible()) {
-            float centerX = menu.getCenterX();
-            float centerY = menu.getCenterY() + (getHeight() - menu.getHeight());
-
-            if (Circle.contains(centerX - x, centerY - y, menu.getCircleRadius())) {
-                ev.offsetLocation(0, -(getHeight() - menu.getHeight()));
-                menu.onTouchEvent(ev);
-                return false;
-            }
+        if (menu.isVisible() && menuContainsTouch(ev)) {
+            ev.offsetLocation(0, -(getHeight() - menu.getHeight()));
+            drawer.setOnTouchListener(null);
+            menu.onTouchEvent(ev);
+            return true;
         }
+
+        drawer.setOnTouchListener(drawer);
 
         switch (ev.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 break;
 
             case MotionEvent.ACTION_MOVE:
-                mIsMoving = true;
-                ifStillMoving();
+                if (!menuContainsTouch(ev) && menu.isVisible()) {
+                    mIsMoving = true;
+                    ifStillMoving();
+                }
                 break;
 
             case MotionEvent.ACTION_UP:
@@ -152,9 +152,26 @@ public class ViewCanvasLayout extends CoordinatorLayout implements View.OnClickL
     }
 
     @Override
+    public boolean onTouchEvent(MotionEvent ev) {
+        if (menu.isVisible() && menuContainsTouch(ev)) {
+            ev.offsetLocation(0, -(getHeight() - menu.getHeight()));
+            drawer.setOnTouchListener(null);
+            menu.onTouchEvent(ev);
+        }
+
+        return true;
+    }
+
+    @Override
     @OnClick(R.id.fragment_drawer_button)
     public void onClick(View v) {
         drawer.onButtonClicked();
+    }
+
+    private boolean menuContainsTouch(MotionEvent event) {
+        return Circle.contains(menu.getCenterX() - event.getX(),
+                (menu.getCenterY() + (getHeight() - menu.getHeight())) - event.getY(),
+                menu.getRadius());
     }
 
     public void setButtonGone() {

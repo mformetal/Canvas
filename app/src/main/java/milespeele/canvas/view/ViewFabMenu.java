@@ -203,7 +203,8 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
                     (int) y - child.getMeasuredHeight() / 2,
                     (int) x + child.getMeasuredWidth() / 2,
                     (int) y + child.getMeasuredHeight() / 2);
-            itemPositions.add(new ItemPosition(child, (float) x, (float) y, (float) child.getMeasuredWidth() / 2));
+
+            itemPositions.add(new ItemPosition(child, x, y, child.getMeasuredWidth() / 2));
         }
     }
 
@@ -240,25 +241,27 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
-        if (isAnimating) {
-            return true;
-        }
-
-        if (isFadedOut || !isMenuShowing) {
-            if (Circle.contains(circle.getCenterX() - ev.getX(),
-                    circle.getCenterY() - ev.getY(),
-                    ViewUtils.radius(toggle))) {
-                onClick(toggle);
-            }
-            return true;
-        }
-
-        return !circle.contains(ev.getX(), ev.getY());
+        return true;
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         final float x = event.getX(), y = event.getY();
+
+        if (isAnimating) {
+            return false;
+        }
+
+        if (isFadedOut || !isMenuShowing) {
+            if (Circle.contains(circle.getCenterX() - x, circle.getCenterY() - y, ViewUtils.radius(toggle))) {
+                onClick(toggle);
+            }
+            return false;
+        }
+
+        if (!circle.contains(x, y)) {
+            return false;
+        }
 
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
@@ -296,7 +299,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
         super.dispatchDraw(canvas);
     }
 
-    public double getMatrixAngle() {
+    private double getMatrixAngle() {
         rotateMatrix.getValues(v);
         return Math.atan2(v[Matrix.MSKEW_X], v[Matrix.MSCALE_X]) * (180f / Math.PI);
     }
@@ -484,10 +487,6 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
         return !isFadedOut && isMenuShowing;
     }
 
-    public float getCircleRadius() {
-        return maxRadius;
-    }
-
     public float getRadius() {
         return radius;
     }
@@ -539,25 +538,25 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
         private Circle itemCircle;
         private View view;
 
-        public ItemPosition(View child, float itemX, float itemY, float radius) {
-            itemCircle = new Circle(itemX, itemY, radius);
+        public ItemPosition(View child, double itemX, double itemY, int radius) {
+            itemCircle = new Circle((float) itemX, (float) itemY, radius);
             view = child;
         }
 
         public void update(double angle) {
-            float dx = itemCircle.getCenterX() - circle.getCenterX();
-            float dy = itemCircle.getCenterY() - circle.getCenterY();
-
-            double radius = Math.sqrt(dx * dx + dy * dy);
-            double curTheta = Math.atan2(dx, dy);
-            double deltaTheta = angle / radius;
-            double newTheta = curTheta + deltaTheta;
-            double newDx = radius * Math.cos(newTheta);
-            double newDy = radius * Math.sin(newTheta);
-            double tarX = circle.getCenterX() + newDx;
-            double tarY = circle.getCenterY() + newDy;
-            itemCircle.setCenterX((float) tarX);
-            itemCircle.setCenterY((float) tarY);
+//            float dx = itemCircle.getCenterX() - circle.getCenterX();
+//            float dy = itemCircle.getCenterY() - circle.getCenterY();
+//
+//            double radius = Math.sqrt(dx * dx + dy * dy);
+//            double curTheta = Math.atan2(dx, dy);
+//            double deltaTheta = angle / radius;
+//            double newTheta = curTheta + deltaTheta;
+//            double newDx = radius * Math.cos(newTheta);
+//            double newDy = radius * Math.sin(newTheta);
+//            double tarX = circle.getCenterX() + newDx;
+//            double tarY = circle.getCenterY() + newDy;
+//            itemCircle.setCenterX((float) tarX);
+//            itemCircle.setCenterY((float) tarY);
         }
 
         public boolean contains(float x, float y) {
