@@ -3,6 +3,7 @@ package milespeele.canvas.view;
 import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.animation.PropertyValuesHolder;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -16,8 +17,8 @@ import milespeele.canvas.util.Logg;
 
 public class ViewFab extends FloatingActionButton {
 
-    private AnimatorSet scaleUp;
-    private AnimatorSet scaleDown;
+    private ObjectAnimator scaleUp;
+    private ObjectAnimator scaleDown;
     private AnimatorSet pulse;
     private String buttonText;
 
@@ -39,22 +40,33 @@ public class ViewFab extends FloatingActionButton {
     }
 
     private void init(AttributeSet attrs) {
-        scaleUp = new AnimatorSet();
-        scaleUp.playTogether(ObjectAnimator.ofFloat(this, "scaleX", 1f, 1.1f),
-                ObjectAnimator.ofFloat(this, "scaleY", 1f, 1.1f));
-        scaleUp.addListener(new AbstractAnimatorListener() {
+//        scaleUp = new AnimatorSet();
+//        scaleUp.playTogether(ObjectAnimator.ofFloat(this, View.SCALE_X, 1f, 1.1f),
+//                ObjectAnimator.ofFloat(this, View.SCALE_Y, 1f, 1.1f));
+//        scaleUp.addListener(new AbstractAnimatorListener() {
+//
+//            @Override
+//            public void onAnimationEnd(Animator animation) {
+//                isScaledUp = true;
+//            }
+//        });
 
+        scaleUp = ObjectAnimator.ofPropertyValuesHolder(this,
+                PropertyValuesHolder.ofFloat(View.SCALE_X, 1f, 1.1f),
+                PropertyValuesHolder.ofFloat(View.SCALE_Y, 1f, 1.1f))
+                .setDuration(350);
+        scaleUp.addListener(new AbstractAnimatorListener() {
             @Override
             public void onAnimationEnd(Animator animation) {
                 isScaledUp = true;
             }
         });
 
-        scaleDown = new AnimatorSet();
-        scaleDown.playTogether(ObjectAnimator.ofFloat(this, "scaleX", 1),
-                ObjectAnimator.ofFloat(this, "scaleY", 1));
+        scaleDown = ObjectAnimator.ofPropertyValuesHolder(this,
+                PropertyValuesHolder.ofFloat(View.SCALE_X, 1f),
+                PropertyValuesHolder.ofFloat(View.SCALE_Y, 1f))
+                .setDuration(350);
         scaleDown.addListener(new AbstractAnimatorListener() {
-
             @Override
             public void onAnimationEnd(Animator animation) {
                 isScaledUp = false;

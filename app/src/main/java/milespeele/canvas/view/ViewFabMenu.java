@@ -13,6 +13,7 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -61,6 +62,7 @@ public class ViewFabMenu extends ViewGroup {
     private Matrix mRotateMatrix;
     private Circle mCircle;
     private ArrayList<ItemPosition> mItemPositions;
+    private GestureDetector mFlingListener;
     private static final Interpolator OVERSHOOT_INTERPOLATOR = new OvershootInterpolator();
     private static final Interpolator ANTICIPATE_INTERPOLATOR = new AnticipateInterpolator();
 
@@ -116,6 +118,8 @@ public class ViewFabMenu extends ViewGroup {
         mPaint.setStyle(Paint.Style.FILL_AND_STROKE);
         mPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_OVER));
         mPaint.setColor(getResources().getColor(R.color.primary_dark));
+
+        mFlingListener = new GestureDetector(getContext(), new FlingListener());
 
         mRotateMatrix = new Matrix();
 
@@ -264,6 +268,8 @@ public class ViewFabMenu extends ViewGroup {
             return false;
         }
 
+//        mFlingListener.onTouchEvent(event);
+
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
                 getClickedItem(x, y);
@@ -273,9 +279,7 @@ public class ViewFabMenu extends ViewGroup {
                 isRotating = true;
 
                 double degrees = mCircle.angleInDegrees(x, y);
-                float rotater = (float) (degrees - mLastAngle);
-
-                mRotateMatrix.postRotate(rotater, getCenterX(), getCenterY());
+                double rotater = degrees - mLastAngle;
 
                 for (ItemPosition itemPosition: mItemPositions) {
                     itemPosition.update(rotater);
@@ -295,10 +299,8 @@ public class ViewFabMenu extends ViewGroup {
     }
 
     @Override
-    protected void dispatchDraw(Canvas canvas) {
-        canvas.drawCircle(mCircle.getCenterX(), mCircle.getCenterY(), radius, mPaint);
-//        canvas.concat(mRotateMatrix);
-        super.dispatchDraw(canvas);
+    protected void onDraw(Canvas canvas) {
+        canvas.drawCircle(getCenterX(), getCenterY(), radius, mPaint);
     }
 
     private double getMatrixAngle() {
@@ -351,13 +353,16 @@ public class ViewFabMenu extends ViewGroup {
             background.setInterpolator(OVERSHOOT_INTERPOLATOR);
 
             int delay = INITIAL_DELAY;
-            for (ViewFab view: buttonsList) {
-                float diffX = view.getX() - mCircle.getCenterX();
-                float diffY = view.getY() - mCircle.getCenterY();
+            for (ItemPosition position: mItemPositions) {
+                float diffX = position.mItemCircle.getCenterX() - getCenterX();
+                float diffY = position.mItemCircle.getCenterY() - getCenterY();
+
+                View view = position.mView;
 
                 AnimatorSet out = new AnimatorSet();
-                out.playTogether(ObjectAnimator.ofFloat(view, View.TRANSLATION_X, diffX),
-                        ObjectAnimator.ofFloat(view, View.TRANSLATION_Y, diffY),
+                out.playTogether(
+                        ObjectAnimator.ofFloat(view, View.X, view.getX() + diffX),
+                        ObjectAnimator.ofFloat(view, View.Y, view.getY() + diffY),
                         ObjectAnimator.ofFloat(view, View.ALPHA, 0.0f, 1.0f));
                 out.setStartDelay(delay);
                 out.setDuration(DURATION);
@@ -394,13 +399,16 @@ public class ViewFabMenu extends ViewGroup {
             background.setInterpolator(ANTICIPATE_INTERPOLATOR);
 
             int delay = INITIAL_DELAY;
-            for (ViewFab view: buttonsList) {
-                float diffX = view.getX() - mCircle.getCenterX();
-                float diffY = view.getY() - mCircle.getCenterY();
+            for (ItemPosition position: mItemPositions) {
+                float diffX = position.mItemCircle.getCenterX() - getCenterX();
+                float diffY = position.mItemCircle.getCenterY() - getCenterY();
+
+                View view = position.mView;
 
                 AnimatorSet out = new AnimatorSet();
-                out.playTogether(ObjectAnimator.ofFloat(view, View.TRANSLATION_Y, -diffY),
-                        ObjectAnimator.ofFloat(view, View.TRANSLATION_X, -diffX),
+                out.playTogether(
+                        ObjectAnimator.ofFloat(view, View.X, view.getX() - diffX),
+                        ObjectAnimator.ofFloat(view, View.Y, view.getY() - diffY),
                         ObjectAnimator.ofFloat(view, View.ALPHA, 1.0f, 0.0f));
                 out.setStartDelay(delay);
                 out.setDuration(DURATION);
@@ -562,6 +570,15 @@ public class ViewFabMenu extends ViewGroup {
 
         public boolean contains(float x, float y) {
             return mItemCircle.contains(x, y);
+        }
+    }
+
+    private final class FlingListener extends GestureDetector.SimpleOnGestureListener {
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            Logg.log("VELOCITY: ", velocityX, velocityY);
+            return super.onFling(e1, e2, velocityX, velocityY);
         }
     }
 }
