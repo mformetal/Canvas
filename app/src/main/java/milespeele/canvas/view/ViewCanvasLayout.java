@@ -113,6 +113,7 @@ public class ViewCanvasLayout extends CoordinatorLayout implements View.OnClickL
         final float x = ev.getX(), y = ev.getY();
 
         if (fabFrame.getVisibility() == View.VISIBLE) {
+            drawer.setOnTouchListener(null);
             fabFrame.getHitRect(hitRect);
             if (!hitRect.contains((int) x, (int) y)) {
                 if (getContext() instanceof Activity) {
@@ -123,11 +124,22 @@ public class ViewCanvasLayout extends CoordinatorLayout implements View.OnClickL
             return false;
         }
 
-        if (menu.isVisible() && menuContainsTouch(ev)) {
-            ev.offsetLocation(0, -(getHeight() - menu.getHeight()));
-            drawer.setOnTouchListener(null);
-            menu.onTouchEvent(ev);
-            return true;
+        if (menu.isVisible()) {
+            if (menuContainsTouch(ev)) {
+                ev.offsetLocation(0, -(getHeight() - menu.getHeight()));
+                menu.onTouchEvent(ev);
+                drawer.setOnTouchListener(null);
+                return true;
+            }
+        } else {
+            if (Circle.contains(menu.getCenterX() - x,
+                    menu.getCenterY() + (getHeight() - menu.getHeight()) - y,
+                    ViewUtils.radius(menu.toggle))) {
+                ev.offsetLocation(0, -(getHeight() - menu.getHeight()));
+                menu.onTouchEvent(ev);
+                drawer.setOnTouchListener(null);
+                return true;
+            }
         }
 
         drawer.setOnTouchListener(drawer);

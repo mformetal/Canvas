@@ -556,10 +556,6 @@ public class ViewFabMenu extends ViewGroup {
 
             float radius = mItemCircle.getRadius();
 
-            if (mView.getId() == R.id.menu_save) {
-                Logg.log(ViewUtils.centerX(mView), (mView.getLeft() + radius));
-            }
-
             mView.setX(rx - radius);
             mView.setY(ry - radius);
         }

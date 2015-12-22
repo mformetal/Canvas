@@ -57,6 +57,8 @@ public class ActivityHome extends ActivityBase {
 
         ((MainApp) getApplication()).getApplicationComponent().inject(this);
 
+        getWindow().setBackgroundDrawable(null);
+
         bus.register(this);
 
         manager = getFragmentManager();
