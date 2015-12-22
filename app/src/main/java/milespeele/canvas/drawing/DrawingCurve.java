@@ -339,8 +339,8 @@ public class DrawingCurve {
                 if (currentBackgroundColor != inkedColor) {
                     currentStrokeColor = inkedColor;
                     mPaint.setColor(currentStrokeColor);
-                    changeState(State.DRAW);
                 }
+                changeState(State.DRAW);
                 break;
         }
 

@@ -203,7 +203,7 @@ public class ViewCanvasLayout extends CoordinatorLayout implements View.OnClickL
     public void setButtonVisible(String text) {
         button.setText(text);
 
-        ObjectAnimator visibility = ObjectAnimator.ofFloat(button, ViewUtils.ALPHA, 0f, 1f);
+        ObjectAnimator visibility = ObjectAnimator.ofFloat(button, View.ALPHA, 0f, 1f);
         visibility.setDuration(BUTTON_BAR_DURATION);
         visibility.addListener(new AbstractAnimatorListener() {
 

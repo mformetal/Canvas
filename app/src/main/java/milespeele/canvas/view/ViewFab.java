@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.support.design.widget.FloatingActionButton;
 import android.util.AttributeSet;
+import android.view.SoundEffectConstants;
 import android.view.View;
 
 import milespeele.canvas.R;
@@ -40,17 +41,6 @@ public class ViewFab extends FloatingActionButton {
     }
 
     private void init(AttributeSet attrs) {
-//        scaleUp = new AnimatorSet();
-//        scaleUp.playTogether(ObjectAnimator.ofFloat(this, View.SCALE_X, 1f, 1.1f),
-//                ObjectAnimator.ofFloat(this, View.SCALE_Y, 1f, 1.1f));
-//        scaleUp.addListener(new AbstractAnimatorListener() {
-//
-//            @Override
-//            public void onAnimationEnd(Animator animation) {
-//                isScaledUp = true;
-//            }
-//        });
-
         scaleUp = ObjectAnimator.ofPropertyValuesHolder(this,
                 PropertyValuesHolder.ofFloat(View.SCALE_X, 1f, 1.1f),
                 PropertyValuesHolder.ofFloat(View.SCALE_Y, 1f, 1.1f))
@@ -78,6 +68,12 @@ public class ViewFab extends FloatingActionButton {
             buttonText = typedArray.getString(R.styleable.ViewFab_text);
             typedArray.recycle();
         }
+    }
+
+    @Override
+    public boolean performClick() {
+        playSoundEffect(SoundEffectConstants.CLICK);
+        return super.performClick();
     }
 
     public void toggleScaled() {

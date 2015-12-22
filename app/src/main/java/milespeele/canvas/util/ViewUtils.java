@@ -24,9 +24,9 @@ public class ViewUtils {
 
     public final static String BACKGROUND = "backgroundColor";
     public final static String ALPHA = "alpha";
-
     private final static Random random = new Random();
     private final static Rect rect = new Rect();
+
     private static int[] rainbow;
     private static int[] fullRainbow;
 
@@ -91,12 +91,20 @@ public class ViewUtils {
                 (int)Math.max(blue - (blue * fraction), 0));
     }
 
-    public static float centerX(View view) {
+    public static float relativeCenterX(View view) {
         return (view.getLeft() + view.getRight()) / 2f;
     }
 
-    public static int centerY(View view) {
-        return (view.getTop() + view.getBottom()) / 2;
+    public static float relativeCenterY(View view) {
+        return (view.getTop() + view.getBottom()) / 2f;
+    }
+
+    public static float absoluteCenterX(View view) {
+        return view.getWidth() / 2f;
+    }
+
+    public static float absoluteCenterY(View view) {
+        return view.getHeight() / 2f;
     }
 
     public static int[] rainbow() {
@@ -156,10 +164,6 @@ public class ViewUtils {
         Point size = new Point();
         display.getSize(size);
         return size.y;
-    }
-
-    public static float activityVerticalMargin(Context context) {
-        return context.getResources().getDimension(R.dimen.activity_vertical_margin);
     }
 
     public static float dpToPx(float dp, Context context) {

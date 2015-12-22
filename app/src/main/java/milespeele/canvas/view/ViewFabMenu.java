@@ -4,21 +4,27 @@ import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Matrix;
+import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
 import android.os.Build;
+import android.os.SystemClock;
+import android.text.TextPaint;
 import android.util.AttributeSet;
-import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AnticipateInterpolator;
 import android.view.animation.Interpolator;
+import android.view.animation.LinearInterpolator;
 import android.view.animation.OvershootInterpolator;
 
 import java.util.ArrayList;
@@ -31,6 +37,7 @@ import butterknife.ButterKnife;
 import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
+import milespeele.canvas.drawing.DrawingPoint;
 import milespeele.canvas.event.EventBrushChosen;
 import milespeele.canvas.event.EventColorChosen;
 import milespeele.canvas.event.EventFilenameChosen;
@@ -59,28 +66,27 @@ public class ViewFabMenu extends ViewGroup {
     @Inject EventBus bus;
 
     private Paint mPaint;
-    private Matrix mRotateMatrix;
     private Circle mCircle;
     private ArrayList<ItemPosition> mItemPositions;
-    private GestureDetector mFlingListener;
+//    private DrawingPoint mStart, mCur, mPrevious;
     private static final Interpolator OVERSHOOT_INTERPOLATOR = new OvershootInterpolator();
     private static final Interpolator ANTICIPATE_INTERPOLATOR = new AnticipateInterpolator();
+    private static final String RADIUS_ANIMATOR = "radius";
 
     private boolean isMenuShowing = true;
     private boolean isAnimating = false;
     private boolean isFadedOut = false;
-    private boolean isRotating = false;
+    private boolean isDragging = false;
     private float radius;
     private double mLastAngle;
+    private float mLastVelocity;
     private float mMaxRadius;
-    private float mItemRadius;
-    private float[] matrixAngle = new float[9];
     private final static int VISIBILITY_DURATION = 350;
     private final static int INITIAL_DELAY = 0;
     private final static int DURATION = 400;
     private final static int DELAY_INCREMENT = 15;
     private final static int HIDE_DIFF = 50;
-    private static final String RADIUS_ANIMATOR = "radius";
+    private final static float VELOCITY_FILTER_WEIGHT = .2f;
 
     private ViewFabMenuListener listener;
 
@@ -118,10 +124,6 @@ public class ViewFabMenu extends ViewGroup {
         mPaint.setStyle(Paint.Style.FILL_AND_STROKE);
         mPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_OVER));
         mPaint.setColor(getResources().getColor(R.color.primary_dark));
-
-        mFlingListener = new GestureDetector(getContext(), new FlingListener());
-
-        mRotateMatrix = new Matrix();
 
         setWillNotDraw(false);
         setDescendantFocusability(FOCUS_AFTER_DESCENDANTS);
@@ -180,9 +182,9 @@ public class ViewFabMenu extends ViewGroup {
         mMaxRadius = toggle.getMeasuredHeight() * 4;
         radius = mMaxRadius;
 
-        mCircle = new Circle(ViewUtils.centerX(toggle), ViewUtils.centerY(toggle), radius);
+        mCircle = new Circle(ViewUtils.relativeCenterX(toggle), ViewUtils.relativeCenterY(toggle), radius);
 
-        mItemRadius = toggle.getMeasuredHeight() * 3;
+        float mItemRadius = toggle.getMeasuredHeight() * 3;
         final int count = getChildCount();
         final double slice = Math.toRadians(360 / count);
 
@@ -204,9 +206,9 @@ public class ViewFabMenu extends ViewGroup {
         }
     }
 
-    public void onItemClicked(View v) {
+    public void onItemClicked(ViewFab v) {
         if (listener != null) {
-            listener.onFabMenuButtonClicked((ViewFab) v);
+            listener.onFabMenuButtonClicked(v);
         }
 
         v.performClick();
@@ -268,32 +270,70 @@ public class ViewFabMenu extends ViewGroup {
             return false;
         }
 
-//        mFlingListener.onTouchEvent(event);
-
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
+//                mCur = new DrawingPoint(x, y, SystemClock.currentThreadTimeMillis());
+//                mPrevious = mCur;
+//                mStart = mPrevious;
+
                 getClickedItem(x, y);
+
                 mLastAngle = mCircle.angleInDegrees(x, y);
                 break;
             case MotionEvent.ACTION_MOVE:
-                isRotating = true;
+//                mStart = mPrevious;
+//                mPrevious = mCur;
+//                mCur = new DrawingPoint(event.getX(), event.getY(), System.currentTimeMillis());
+
+//                float velocity = VELOCITY_FILTER_WEIGHT * mCur.computeVelocity(mPrevious) +
+//                        (1 - VELOCITY_FILTER_WEIGHT) * mLastVelocity;
 
                 double degrees = mCircle.angleInDegrees(x, y);
                 double rotater = degrees - mLastAngle;
+//                long dur = mCur.time - mPrevious.time;
 
-                for (ItemPosition itemPosition: mItemPositions) {
-                    itemPosition.update(rotater);
+//                Logg.log("VELOCITY: ", velocity);
+//                Logg.log("ANGLE: ", rotater, (rotater + velocity * rotater) / dur);
+
+//                double av = rotater / dur;
+
+//                Logg.log("ANGULAR VELOCITY: " + av);
+//                Logg.log("ANGLES: ", rotater, rotater * av);
+
+//                Logg.log("START: ", rotater, rotater * av + rotater);
+
+//                ValueAnimator animator = ValueAnimator.ofFloat((float) rotater,
+//                        (float) (rotater * av + rotater));
+//                animator.setDuration(350);
+////                animator.setInterpolator(new AccelerateDecelerateInterpolator());
+//                animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+//                    @Override
+//                    public void onAnimationUpdate(ValueAnimator animation) {
+//                        float angle = (float) animation.getAnimatedValue();
+//                        Logg.log(angle - rotater);
+//                    }
+//                });
+//                animator.start();
+
+                Logg.log("MENU ROTATING");
+                if (isDragging) {
+                    for (ItemPosition itemPosition: mItemPositions) {
+                        itemPosition.update(rotater);
+                    }
                 }
 
+//                mLastVelocity = velocity;
                 mLastAngle = degrees;
+                isDragging = true;
                 break;
             case MotionEvent.ACTION_UP:
-            case MotionEvent.ACTION_CANCEL:
-                isRotating = false;
+//                mStart = mPrevious;
+//                mPrevious = mCur;
+//                mCur = new DrawingPoint(event.getX(), event.getY(), System.currentTimeMillis());
+
+                isDragging = false;
                 break;
         }
-
-        invalidate();
 
         return true;
     }
@@ -303,14 +343,15 @@ public class ViewFabMenu extends ViewGroup {
         canvas.drawCircle(getCenterX(), getCenterY(), radius, mPaint);
     }
 
-    private double getMatrixAngle() {
-        mRotateMatrix.getValues(matrixAngle);
-        double angle = Math.atan2(matrixAngle[Matrix.MSKEW_X], matrixAngle[Matrix.MSCALE_X]) * (180f / Math.PI);
-        if (angle < 0) {
-            angle = 360 - Math.abs(angle);
-        }
-        return angle;
-    }
+//    private double getMatrixAngle() {
+//        float[] matrixAngle = new float[9];
+//        mRotateMatrix.getValues(matrixAngle);
+//        double angle = Math.atan2(matrixAngle[Matrix.MSKEW_X], matrixAngle[Matrix.MSCALE_X]) * (180f / Math.PI);
+//        if (angle < 0) {
+//            angle = 360 - Math.abs(angle);
+//        }
+//        return angle;
+//    }
 
     private void getClickedItem(float x, float y) {
         if (Circle.contains(getCenterX() - x, getCenterY() - y, ViewUtils.radius(toggle))) {
@@ -440,8 +481,8 @@ public class ViewFabMenu extends ViewGroup {
         if (!isFadedOut && isMenuShowing) {
             isFadedOut = true;
 
-            ObjectAnimator fade = ObjectAnimator.ofObject(mPaint, ViewUtils.ALPHA, new ArgbEvaluator(),
-                    mPaint.getAlpha(), 0)
+            ObjectAnimator fade = ObjectAnimator.ofObject(mPaint, ViewUtils.ALPHA,
+                    new ArgbEvaluator(), mPaint.getAlpha(), 0)
                     .setDuration(VISIBILITY_DURATION);
             fade.addUpdateListener(animation -> invalidate());
             fade.start();
@@ -505,7 +546,7 @@ public class ViewFabMenu extends ViewGroup {
 
         @Override
         public void apply(View view, int index) {
-            ObjectAnimator gone = ObjectAnimator.ofFloat(view, ViewUtils.ALPHA, 1f, 0f);
+            ObjectAnimator gone = ObjectAnimator.ofFloat(view, View.ALPHA, 1f, 0f);
             gone.setDuration(VISIBILITY_DURATION);
             gone.addListener(new AbstractAnimatorListener() {
 
@@ -521,7 +562,7 @@ public class ViewFabMenu extends ViewGroup {
     private static final ButterKnife.Action<View> VISIBLE = new ButterKnife.Action<View>() {
         @Override
         public void apply(View view, int index) {
-            ObjectAnimator gone = ObjectAnimator.ofFloat(view, ViewUtils.ALPHA, 0f, 1f);
+            ObjectAnimator gone = ObjectAnimator.ofFloat(view, View.ALPHA, 0f, 1f);
             gone.setDuration(VISIBILITY_DURATION);
             gone.addListener(new AbstractAnimatorListener() {
 
@@ -570,15 +611,6 @@ public class ViewFabMenu extends ViewGroup {
 
         public boolean contains(float x, float y) {
             return mItemCircle.contains(x, y);
-        }
-    }
-
-    private final class FlingListener extends GestureDetector.SimpleOnGestureListener {
-
-        @Override
-        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            Logg.log("VELOCITY: ", velocityX, velocityY);
-            return super.onFling(e1, e2, velocityX, velocityY);
         }
     }
 }

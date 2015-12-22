@@ -74,5 +74,6 @@
     <string name="view_fab_profile">Profile!</string>
     <string name="view_fab_settings">Settings!</string>
     <string name="view_fab_layer">Get Layers!</string>
+    <string name="view_fab_toggle">Open/ Close!</string>
 
 </resources>
