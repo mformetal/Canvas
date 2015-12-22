@@ -187,7 +187,6 @@ public class ViewUtils {
 
     // ASSUMES VIEW IS A CIRCLE SO WIDTH = HEIGHT
     public static float radius(View view) {
-//        return view.getRight() - centerX(view);
         return view.getMeasuredWidth() / 2;
     }
 }

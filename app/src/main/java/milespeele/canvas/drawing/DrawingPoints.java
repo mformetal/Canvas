@@ -70,7 +70,7 @@ public class DrawingPoints extends ArrayList<DrawingPoint> {
                 break;
             }
 
-            int newNdx = ndx + (counter * 1);
+            int newNdx = ndx + (counter);
             counter += 3;
 
             redrawPts[newNdx] = x;

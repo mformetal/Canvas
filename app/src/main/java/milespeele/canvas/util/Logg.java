@@ -49,6 +49,14 @@ public class Logg {
         mainLog(builder.toString());
     }
 
+    public static void log(double[] doubles) {
+        for (double doubleVal: doubles) {
+            builder.append(doubleVal);
+            builder.append(", ");
+        }
+        mainLog(builder.toString());
+    }
+
     public static void log(float[] floats) {
         for (float val: floats) {
             builder.append(val);
@@ -138,5 +146,23 @@ public class Logg {
 
     public static void log(Throwable throwable) {
         mainLog(throwable.toString());
+    }
+
+    public static void log(String string, Circle circle) {
+        builder.append(string);
+        builder.append(", ");
+        log(circle);
+    }
+
+    public static void log(String string, float... floats) {
+        builder.append(string);
+        builder.append(", ");
+        log(floats);
+    }
+
+    public static void log(String string, double... doubles) {
+        builder.append(string);
+        builder.append(", ");
+        log(doubles);
     }
 }

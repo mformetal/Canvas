@@ -29,18 +29,8 @@ public class Circle {
         return x * x + y * y <= radius * radius;
     }
 
-    public float angle(float x, float y) {
-        return (float) Math.toDegrees(Math.atan2(centerY - y, centerX - x));
-    }
-
-    public float shortestAngle(float angle1, float angle2) {
-        float angle = angle1 - angle2;
-        if (angle > 180f) {
-            angle -= 360f;
-        } else {
-            angle += 360f;
-        }
-        return angle;
+    public double angleInDegrees(float x, float y) {
+        return Math.toDegrees(Math.atan2(centerY - y, centerX - x));
     }
 
     public float getRadius() { return radius; }
@@ -49,7 +39,11 @@ public class Circle {
 
     public float getCenterY() { return centerY; }
 
-    public float setCenterX(float newX) { return centerX = newX; }
+    public void setCenterX(float x) {
+        centerX = x;
+    }
 
-    public float setCenterY(float newY) { return centerY = newY; }
+    public void setCenterY(float y) {
+        centerY = y;
+    }
 }

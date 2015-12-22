@@ -14,7 +14,6 @@ import android.graphics.PorterDuffXfermode;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
-import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnticipateInterpolator;
@@ -44,24 +43,24 @@ import milespeele.canvas.util.ViewUtils;
 /**
  * Created by milespeele on 8/7/15.
  */
-public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
+public class ViewFabMenu extends ViewGroup {
 
     @Bind(R.id.menu_toggle) ViewFab toggle;
     @Bind(R.id.menu_erase) ViewFab eraser;
     @Bind(R.id.menu_save) ViewFab saver;
     @Bind(R.id.menu_ink) ViewFab inker;
 
-    @Bind({R.id.menu_save, R.id.menu_text,  R.id.menu_color, R.id.menu_canvas_color, R.id.menu_ink,
-            R.id.menu_brush, R.id.menu_undo, R.id.menu_redo, R.id.menu_erase})
+    @Bind({R.id.menu_save, R.id.menu_text, R.id.menu_stroke_color, R.id.menu_canvas_color,
+            R.id.menu_ink, R.id.menu_brush, R.id.menu_undo, R.id.menu_redo, R.id.menu_erase,
+            R.id.menu_profile, R.id.menu_settings, R.id.menu_layers})
     List<ViewFab> buttonsList;
 
     @Inject EventBus bus;
 
-    private ObjectAnimator toggleClose, toggleOpen;
-    private Paint backgroundPaint;
-    private Matrix rotateMatrix;
-    private Circle circle;
-    private ArrayList<ItemPosition> itemPositions;
+    private Paint mPaint;
+    private Matrix mRotateMatrix;
+    private Circle mCircle;
+    private ArrayList<ItemPosition> mItemPositions;
     private static final Interpolator OVERSHOOT_INTERPOLATOR = new OvershootInterpolator();
     private static final Interpolator ANTICIPATE_INTERPOLATOR = new AnticipateInterpolator();
 
@@ -70,16 +69,15 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
     private boolean isFadedOut = false;
     private boolean isRotating = false;
     private float radius;
-    private float lastAngle, lastDragAngle;
-    private float maxRadius;
-    private float itemRadius;
-    private float[] v = new float[9];
+    private double mLastAngle;
+    private float mMaxRadius;
+    private float mItemRadius;
+    private float[] matrixAngle = new float[9];
     private final static int VISIBILITY_DURATION = 350;
     private final static int INITIAL_DELAY = 0;
     private final static int DURATION = 400;
     private final static int DELAY_INCREMENT = 15;
     private final static int HIDE_DIFF = 50;
-    private static final float TOLERANCE = 5f;
     private static final String RADIUS_ANIMATOR = "radius";
 
     private ViewFabMenuListener listener;
@@ -113,13 +111,13 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
         ((MainApp) getContext().getApplicationContext()).getApplicationComponent().inject(this);
         bus.register(this);
 
-        backgroundPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        backgroundPaint.setAlpha(255);
-        backgroundPaint.setStyle(Paint.Style.FILL_AND_STROKE);
-        backgroundPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_OVER));
-        backgroundPaint.setColor(getResources().getColor(R.color.primary_dark));
+        mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mPaint.setAlpha(255);
+        mPaint.setStyle(Paint.Style.FILL_AND_STROKE);
+        mPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_OVER));
+        mPaint.setColor(getResources().getColor(R.color.primary_dark));
 
-        rotateMatrix = new Matrix();
+        mRotateMatrix = new Matrix();
 
         setWillNotDraw(false);
         setDescendantFocusability(FOCUS_AFTER_DESCENDANTS);
@@ -130,12 +128,6 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
     protected void onFinishInflate() {
         super.onFinishInflate();
         ButterKnife.bind(this);
-
-        toggleClose = ObjectAnimator.ofFloat(toggle, "rotation", -135f, -270f);
-        toggleClose.setDuration(Math.round(DURATION * 1.5));
-
-        toggleOpen = ObjectAnimator.ofFloat(toggle, "rotation", 0f, -135f);
-        toggleOpen.start();
     }
 
     @Override
@@ -181,35 +173,34 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
                 r / 2 + toggle.getMeasuredWidth() / 2,
                 getMeasuredHeight() - lps.bottomMargin);
 
-        maxRadius = toggle.getMeasuredHeight() * 4;
-        radius = maxRadius;
+        mMaxRadius = toggle.getMeasuredHeight() * 4;
+        radius = mMaxRadius;
 
-        circle = new Circle(ViewUtils.centerX(toggle), ViewUtils.centerY(toggle), radius);
+        mCircle = new Circle(ViewUtils.centerX(toggle), ViewUtils.centerY(toggle), radius);
 
-        itemRadius = toggle.getMeasuredHeight() * 3;
+        mItemRadius = toggle.getMeasuredHeight() * 3;
         final int count = getChildCount();
-        final double slice = Math.toRadians(360 / count - 1);
+        final double slice = Math.toRadians(360 / count);
 
-        itemPositions = new ArrayList<>();
+        mItemPositions = new ArrayList<>();
 
         for (int i = count - 2; i >= 0; i--) {
-            final View child = getChildAt(i);
+            final ViewFab child = (ViewFab) getChildAt(i);
 
             double angle = i * slice;
-            double x = circle.getCenterX() + itemRadius * Math.cos(angle);
-            double y = circle.getCenterY() - itemRadius * Math.sin(angle);
+            double x = mCircle.getCenterX() + mItemRadius * Math.cos(angle);
+            double y = mCircle.getCenterY() - mItemRadius * Math.sin(angle);
 
             child.layout((int) x - child.getMeasuredWidth() / 2,
                     (int) y - child.getMeasuredHeight() / 2,
                     (int) x + child.getMeasuredWidth() / 2,
                     (int) y + child.getMeasuredHeight() / 2);
 
-            itemPositions.add(new ItemPosition(child, x, y, child.getMeasuredWidth() / 2));
+            mItemPositions.add(new ItemPosition(child, x, y, child.getMeasuredWidth() / 2));
         }
     }
 
-    @Override
-    public void onClick(View v) {
+    public void onItemClicked(View v) {
         if (listener != null) {
             listener.onFabMenuButtonClicked((ViewFab) v);
         }
@@ -220,8 +211,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
             case R.id.menu_toggle:
                 toggleMenu();
                 break;
-            case R.id.menu_color:
-                eraser.scaleDown();
+            case R.id.menu_stroke_color:
                 break;
             case R.id.menu_undo:
                 parent.undo();
@@ -235,7 +225,18 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
                 break;
             case R.id.menu_ink:
                 parent.ink();
+                inker.toggleScaled();
                 break;
+        }
+
+        if (v.getId() != R.id.menu_erase && eraser.isScaledUp()) {
+            eraser.scaleDown();
+            parent.erase();
+        }
+
+        if (v.getId() != R.id.menu_ink && inker.isScaledUp()) {
+            inker.scaleDown();
+            parent.ink();
         }
     }
 
@@ -253,33 +254,34 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
         }
 
         if (isFadedOut || !isMenuShowing) {
-            if (Circle.contains(circle.getCenterX() - x, circle.getCenterY() - y, ViewUtils.radius(toggle))) {
-                onClick(toggle);
+            if (Circle.contains(mCircle.getCenterX() - x, mCircle.getCenterY() - y, ViewUtils.radius(toggle))) {
+                onItemClicked(toggle);
             }
             return false;
         }
 
-        if (!circle.contains(x, y)) {
+        if (!mCircle.contains(x, y)) {
             return false;
         }
 
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
                 getClickedItem(x, y);
-                lastDragAngle = 0f;
-                lastAngle = circle.angle(x, y);
+                mLastAngle = mCircle.angleInDegrees(x, y);
                 break;
             case MotionEvent.ACTION_MOVE:
                 isRotating = true;
 
-                float curAngle = circle.angle(x, y);
-                float dragAngle = circle.shortestAngle(curAngle, lastAngle);
+                double degrees = mCircle.angleInDegrees(x, y);
+                float rotater = (float) (degrees - mLastAngle);
 
-                rotateMatrix.postRotate(dragAngle, circle.getCenterX(), circle.getCenterY());
-                updateItemPositions(dragAngle);
+                mRotateMatrix.postRotate(rotater, getCenterX(), getCenterY());
 
-                lastAngle = curAngle;
-                lastDragAngle += dragAngle;
+                for (ItemPosition itemPosition: mItemPositions) {
+                    itemPosition.update(rotater);
+                }
+
+                mLastAngle = degrees;
                 break;
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
@@ -294,35 +296,30 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
 
     @Override
     protected void dispatchDraw(Canvas canvas) {
-        canvas.drawCircle(circle.getCenterX(), circle.getCenterY(), radius, backgroundPaint);
-        canvas.concat(rotateMatrix);
+        canvas.drawCircle(mCircle.getCenterX(), mCircle.getCenterY(), radius, mPaint);
+        canvas.concat(mRotateMatrix);
         super.dispatchDraw(canvas);
     }
 
     private double getMatrixAngle() {
-        rotateMatrix.getValues(v);
-        return Math.atan2(v[Matrix.MSKEW_X], v[Matrix.MSCALE_X]) * (180f / Math.PI);
+        mRotateMatrix.getValues(matrixAngle);
+        double angle = Math.atan2(matrixAngle[Matrix.MSKEW_X], matrixAngle[Matrix.MSCALE_X]) * (180f / Math.PI);
+        if (angle < 0) {
+            angle = 360 - Math.abs(angle);
+        }
+        return angle;
     }
 
     private void getClickedItem(float x, float y) {
-        if (Circle.contains(circle.getCenterX() - x, circle.getCenterY() - y, ViewUtils.radius(toggle))) {
-            onClick(toggle);
+        if (Circle.contains(getCenterX() - x, getCenterY() - y, ViewUtils.radius(toggle))) {
+            onItemClicked(toggle);
             return;
         }
 
-//        Logg.log("CALLING GET CLICKED WITH: " + x + ", " + y);
-        for (ItemPosition position: itemPositions) {
-//            Logg.log(position.itemCircle);
+        for (ItemPosition position: mItemPositions) {
             if (position.contains(x, y)) {
-                onClick(position.view);
-                return;
+                onItemClicked(position.mView);
             }
-        }
-    }
-
-    private void updateItemPositions(double angle) {
-        for (ItemPosition itemPosition: itemPositions) {
-            itemPosition.update(angle);
         }
     }
 
@@ -348,16 +345,15 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
         if (!isMenuShowing && !isAnimating) {
             isAnimating = true;
             isMenuShowing = true;
-            toggleOpen.start();
 
-            ObjectAnimator background = ObjectAnimator.ofFloat(this, RADIUS_ANIMATOR, maxRadius);
+            ObjectAnimator background = ObjectAnimator.ofFloat(this, RADIUS_ANIMATOR, mMaxRadius);
             background.setDuration(DURATION + DELAY_INCREMENT * buttonsList.size());
             background.setInterpolator(OVERSHOOT_INTERPOLATOR);
 
             int delay = INITIAL_DELAY;
             for (ViewFab view: buttonsList) {
-                float diffX = view.getX() - circle.getCenterX();
-                float diffY = view.getY() - circle.getCenterY();
+                float diffX = view.getX() - mCircle.getCenterX();
+                float diffY = view.getY() - mCircle.getCenterY();
 
                 AnimatorSet out = new AnimatorSet();
                 out.playTogether(ObjectAnimator.ofFloat(view, ViewUtils.TRANSLATION_X, diffX),
@@ -392,7 +388,6 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
         if (isMenuShowing && !isAnimating) {
             isAnimating = true;
             isMenuShowing = false;
-            toggleClose.start();
 
             ObjectAnimator background = ObjectAnimator.ofFloat(this, RADIUS_ANIMATOR, 0);
             background.setDuration(HIDE_DIFF + DURATION + DELAY_INCREMENT * buttonsList.size());
@@ -400,8 +395,8 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
 
             int delay = INITIAL_DELAY;
             for (ViewFab view: buttonsList) {
-                float diffX = view.getX() - circle.getCenterX();
-                float diffY = view.getY() - circle.getCenterY();
+                float diffX = view.getX() - mCircle.getCenterX();
+                float diffY = view.getY() - mCircle.getCenterY();
 
                 AnimatorSet out = new AnimatorSet();
                 out.playTogether(ObjectAnimator.ofFloat(view, ViewUtils.TRANSLATION_Y, -diffY),
@@ -436,10 +431,9 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
     public void fadeOut() {
         if (!isFadedOut && isMenuShowing) {
             isFadedOut = true;
-            toggleClose.start();
 
-            ObjectAnimator fade = ObjectAnimator.ofObject(backgroundPaint, ViewUtils.ALPHA, new ArgbEvaluator(),
-                    backgroundPaint.getAlpha(), 0)
+            ObjectAnimator fade = ObjectAnimator.ofObject(mPaint, ViewUtils.ALPHA, new ArgbEvaluator(),
+                    mPaint.getAlpha(), 0)
                     .setDuration(VISIBILITY_DURATION);
             fade.addUpdateListener(animation -> invalidate());
             fade.start();
@@ -451,10 +445,9 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
     public void fadeIn() {
         if (isFadedOut) {
             isFadedOut = false;
-            toggleOpen.start();
 
-            ObjectAnimator fade = ObjectAnimator.ofObject(backgroundPaint, ViewUtils.ALPHA, new ArgbEvaluator(),
-                    backgroundPaint.getAlpha(), 255)
+            ObjectAnimator fade = ObjectAnimator.ofObject(mPaint, ViewUtils.ALPHA, new ArgbEvaluator(),
+                    mPaint.getAlpha(), 255)
                     .setDuration(VISIBILITY_DURATION);
             fade.addUpdateListener(animation -> invalidate());
             fade.start();
@@ -493,12 +486,12 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
 
     public void setRadius(float radius) {
         this.radius = radius;
-        invalidate(ViewUtils.boundingRect(circle.getCenterX(), circle.getCenterY(), radius));
+        invalidate(ViewUtils.boundingRect(mCircle.getCenterX(), mCircle.getCenterY(), radius));
     }
 
-    public float getCenterX() { return circle.getCenterX(); }
+    public float getCenterX() { return mCircle.getCenterX(); }
 
-    public float getCenterY() { return circle.getCenterY(); }
+    public float getCenterY() { return mCircle.getCenterY(); }
 
     private static final ButterKnife.Action<View> GONE = new ButterKnife.Action<View>() {
 
@@ -535,32 +528,44 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
 
     private class ItemPosition {
 
-        private Circle itemCircle;
-        private View view;
+        private Circle mItemCircle;
+        private ViewFab mView;
 
-        public ItemPosition(View child, double itemX, double itemY, int radius) {
-            itemCircle = new Circle((float) itemX, (float) itemY, radius);
-            view = child;
+        public ItemPosition(ViewFab child, double itemX, double itemY, int radius) {
+            mView = child;
+            mItemCircle = new Circle((float) itemX, (float) itemY, radius);
         }
 
-        public void update(double angle) {
-//            float dx = itemCircle.getCenterX() - circle.getCenterX();
-//            float dy = itemCircle.getCenterY() - circle.getCenterY();
-//
-//            double radius = Math.sqrt(dx * dx + dy * dy);
-//            double curTheta = Math.atan2(dx, dy);
-//            double deltaTheta = angle / radius;
-//            double newTheta = curTheta + deltaTheta;
-//            double newDx = radius * Math.cos(newTheta);
-//            double newDy = radius * Math.sin(newTheta);
-//            double tarX = circle.getCenterX() + newDx;
-//            double tarY = circle.getCenterY() + newDy;
-//            itemCircle.setCenterX((float) tarX);
-//            itemCircle.setCenterY((float) tarY);
+        public void update(double matrixAngle) {
+            double angleInRads = Math.toRadians(matrixAngle);
+
+            double cosAngle = Math.cos(angleInRads);
+            double sinAngle = Math.sin(angleInRads);
+
+            float dx = mItemCircle.getCenterX() - getCenterX();
+            float dy = mItemCircle.getCenterY() - getCenterY();
+
+            float rx = (float) (dx * cosAngle - dy * sinAngle);
+            float ry = (float) (dx * sinAngle + dy * cosAngle);
+
+            rx += getCenterX();
+            ry += getCenterY();
+
+            mItemCircle.setCenterX(rx);
+            mItemCircle.setCenterY(ry);
+
+            float radius = mItemCircle.getRadius();
+            float cx = mItemCircle.getCenterX();
+            float cy = mItemCircle.getCenterY();
+
+//            mView.setLeft(Math.round(cx - radius));
+//            mView.setRight(Math.round(cx + radius));
+//            mView.setTop(Math.round(cy - radius));
+//            mView.setBottom(Math.round(cy + radius));
         }
 
         public boolean contains(float x, float y) {
-            return itemCircle.contains(x, y);
+            return mItemCircle.contains(x, y);
         }
     }
 }

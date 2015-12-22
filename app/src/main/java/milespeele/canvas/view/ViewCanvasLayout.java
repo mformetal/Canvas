@@ -120,6 +120,7 @@ public class ViewCanvasLayout extends CoordinatorLayout implements View.OnClickL
                     return true;
                 }
             }
+            return false;
         }
 
         if (menu.isVisible() && menuContainsTouch(ev)) {

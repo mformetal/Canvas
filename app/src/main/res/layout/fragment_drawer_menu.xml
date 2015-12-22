@@ -13,7 +13,8 @@
         app:borderWidth="0dp"
         app:elevation="@dimen/fab_elevation"
         app:rippleColor="@color/primary_dark"
-        app:fabSize="mini" />
+        app:fabSize="mini"
+        app:text="@string/view_fab_save" />
 
     <milespeele.canvas.view.ViewFab
         android:id="@+id/menu_text"
@@ -23,17 +24,19 @@
         app:borderWidth="0dp"
         app:elevation="@dimen/fab_elevation"
         app:rippleColor="@color/primary_dark"
-        app:fabSize="mini" />
+        app:fabSize="mini"
+        app:text="@string/view_fab_text" />
 
     <milespeele.canvas.view.ViewFab
-        android:id="@+id/menu_color"
+        android:id="@+id/menu_stroke_color"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_format_paint_black_24dp"
         app:borderWidth="0dp"
         app:elevation="@dimen/fab_elevation"
         app:rippleColor="@color/primary_dark"
-        app:fabSize="mini" />
+        app:fabSize="mini"
+        app:text="@string/view_fab_stroke_color" />
 
     <milespeele.canvas.view.ViewFab
         android:id="@+id/menu_canvas_color"
@@ -43,7 +46,8 @@
         app:borderWidth="0dp"
         app:elevation="@dimen/fab_elevation"
         app:rippleColor="@color/primary_dark"
-        app:fabSize="mini" />
+        app:fabSize="mini"
+        app:text="@string/view_fab_canvas_color" />
 
     <milespeele.canvas.view.ViewFab
         android:id="@+id/menu_ink"
@@ -53,7 +57,8 @@
         app:borderWidth="0dp"
         app:elevation="@dimen/fab_elevation"
         app:rippleColor="@color/primary_dark"
-        app:fabSize="mini" />
+        app:fabSize="mini"
+        app:text="@string/view_fab_ink" />
 
     <milespeele.canvas.view.ViewFab
         android:id="@+id/menu_brush"
@@ -63,7 +68,8 @@
         app:borderWidth="0dp"
         app:elevation="@dimen/fab_elevation"
         app:rippleColor="@color/primary_dark"
-        app:fabSize="mini" />
+        app:fabSize="mini"
+        app:text="@string/view_fab_brush" />
 
     <milespeele.canvas.view.ViewFab
         android:id="@+id/menu_undo"
@@ -73,7 +79,8 @@
         app:borderWidth="0dp"
         app:elevation="@dimen/fab_elevation"
         app:rippleColor="@color/primary_dark"
-        app:fabSize="mini" />
+        app:fabSize="mini"
+        app:text="@string/view_fab_undo" />
 
     <milespeele.canvas.view.ViewFab
         android:id="@+id/menu_redo"
@@ -83,7 +90,8 @@
         app:borderWidth="0dp"
         app:elevation="@dimen/fab_elevation"
         app:rippleColor="@color/primary_dark"
-        app:fabSize="mini" />
+        app:fabSize="mini"
+        app:text="@string/view_fab_redo" />
 
     <milespeele.canvas.view.ViewFab
         android:id="@+id/menu_erase"
@@ -93,7 +101,41 @@
         app:borderWidth="0dp"
         app:elevation="@dimen/fab_elevation"
         app:rippleColor="@color/primary_dark"
-        app:fabSize="mini" />
+        app:fabSize="mini"
+        app:text="@string/view_fab_erase" />
+
+    <milespeele.canvas.view.ViewFab
+        android:id="@+id/menu_profile"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_insert_emoticon_black_24dp"
+        app:borderWidth="0dp"
+        app:elevation="@dimen/fab_elevation"
+        app:rippleColor="@color/primary_dark"
+        app:fabSize="mini"
+        app:text="@string/view_fab_profile" />
+
+    <milespeele.canvas.view.ViewFab
+        android:id="@+id/menu_settings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/dashboard_settings"
+        app:borderWidth="0dp"
+        app:elevation="@dimen/fab_elevation"
+        app:rippleColor="@color/primary_dark"
+        app:fabSize="mini"
+        app:text="@string/view_fab_settings" />
+
+    <milespeele.canvas.view.ViewFab
+        android:id="@+id/menu_layers"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_view_carousel_black_24dp"
+        app:borderWidth="0dp"
+        app:elevation="@dimen/fab_elevation"
+        app:rippleColor="@color/primary_dark"
+        app:fabSize="mini"
+        app:text="@string/view_fab_layer" />
 
     <milespeele.canvas.view.ViewFab
         android:id="@+id/menu_toggle"

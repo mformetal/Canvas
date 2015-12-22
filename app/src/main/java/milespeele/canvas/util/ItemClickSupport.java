@@ -12,7 +12,7 @@
 //    private OnItemLongClickListener mOnItemLongClickListener;
 //    private View.OnClickListener mOnClickListener = new View.OnClickListener() {
 //        @Override
-//        public void onClick(View v) {
+//        public void onItemClicked(View v) {
 //            if (mOnItemClickListener != null) {
 //                RecyclerView.ViewHolder holder = mRecyclerView.getChildViewHolder(v);
 //                mOnItemClickListener.onItemClicked(mRecyclerView, holder.getAdapterPosition(), v);

@@ -32,6 +32,7 @@ public class DrawingHistory extends Stack<Object> {
         throw(new UnsupportedOperationException());
     }
 
+    @SuppressWarnings("ResourceType")
     public void redraw(Canvas canvas) {
         for (Object object: this) {
             if (object instanceof DrawingPoints) {

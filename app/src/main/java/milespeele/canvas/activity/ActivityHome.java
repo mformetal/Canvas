@@ -4,10 +4,8 @@ import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
-import android.view.WindowManager;
 import android.widget.FrameLayout;
 
 import com.squareup.picasso.Picasso;
@@ -22,7 +20,6 @@ import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
 import milespeele.canvas.event.EventFilenameChosen;
 import milespeele.canvas.event.EventParseError;
-import milespeele.canvas.event.EventTextChosen;
 import milespeele.canvas.fragment.FragmentBrushPicker;
 import milespeele.canvas.fragment.FragmentColorPicker;
 import milespeele.canvas.fragment.FragmentDrawer;
@@ -32,10 +29,7 @@ import milespeele.canvas.parse.Masterpiece;
 import milespeele.canvas.parse.ParseUtils;
 import milespeele.canvas.transition.TransitionHelper;
 import milespeele.canvas.util.ErrorDialog;
-import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.NetworkUtils;
-import milespeele.canvas.util.TextUtils;
-import milespeele.canvas.view.ViewCanvasSurface;
 import milespeele.canvas.view.ViewFab;
 
 public class ActivityHome extends ActivityBase {
@@ -179,7 +173,7 @@ public class ActivityHome extends ActivityBase {
             case R.id.menu_brush:
                 showBrushChooser(view);
                 break;
-            case R.id.menu_color:
+            case R.id.menu_stroke_color:
                 showStrokeColorChooser(view, false);
                 break;
             case R.id.menu_text:
