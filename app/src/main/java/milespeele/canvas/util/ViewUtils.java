@@ -24,10 +24,6 @@ public class ViewUtils {
 
     public final static String BACKGROUND = "backgroundColor";
     public final static String ALPHA = "alpha";
-    public final static String ROTATION = "rotation";
-    public final static String TRANSLATION_X = "translationX";
-    public final static String TRANSLATION_Y = "translationY";
-    public final static String SCALE_Y = "scaleY";
 
     private final static Random random = new Random();
     private final static Rect rect = new Rect();
@@ -95,8 +91,8 @@ public class ViewUtils {
                 (int)Math.max(blue - (blue * fraction), 0));
     }
 
-    public static int centerX(View view) {
-        return (view.getLeft() + view.getRight()) / 2;
+    public static float centerX(View view) {
+        return (view.getLeft() + view.getRight()) / 2f;
     }
 
     public static int centerY(View view) {
@@ -187,6 +183,6 @@ public class ViewUtils {
 
     // ASSUMES VIEW IS A CIRCLE SO WIDTH = HEIGHT
     public static float radius(View view) {
-        return view.getMeasuredWidth() / 2;
+        return view.getMeasuredWidth() / 2f;
     }
 }

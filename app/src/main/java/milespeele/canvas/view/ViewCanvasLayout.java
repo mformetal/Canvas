@@ -176,7 +176,7 @@ public class ViewCanvasLayout extends CoordinatorLayout implements View.OnClickL
     }
 
     public void setButtonGone() {
-        ObjectAnimator gone = ObjectAnimator.ofFloat(button, ViewUtils.ALPHA, 1f, 0f);
+        ObjectAnimator gone = ObjectAnimator.ofFloat(button, View.ALPHA, 1f, 0f);
         gone.setDuration(BUTTON_BAR_DURATION);
         gone.addListener(new AbstractAnimatorListener() {
 

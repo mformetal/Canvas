@@ -47,8 +47,9 @@ public class TransitionDialogToFab extends ChangeBounds {
         FrameLayout fabFrame = (FrameLayout) views.get(1);
         ViewCanvasLayout layout = (ViewCanvasLayout) views.get(2);
 
-        float fabCenterX = (fab.getLeft() + fab.getRight()) / 2;
-        float fabCenterY = (fab.getTop() + fab.getBottom()) / 2;
+        float fabRadius = ViewUtils.radius(fab);
+        float fabCenterX = fab.getX() + fabRadius;
+        float fabCenterY = fab.getY() + fabRadius;
         float translationX = fabCenterX - fabFrame.getWidth() / 2 - fab.getWidth() * .75f;
         float translationY = fabCenterY + fab.getHeight() * 2;
 
@@ -65,9 +66,9 @@ public class TransitionDialogToFab extends ChangeBounds {
                 .TRANSLATION_Y, motionPath)
                 .setDuration(350);
 
-        PropertyValuesHolder scalerX = PropertyValuesHolder.ofFloat("scaleX",
+        PropertyValuesHolder scalerX = PropertyValuesHolder.ofFloat(View.SCALE_X,
                 fabFrame.getScaleX(), (float) fab.getWidth() / (float) fabFrame.getWidth());
-        PropertyValuesHolder scalerY = PropertyValuesHolder.ofFloat("scaleY",
+        PropertyValuesHolder scalerY = PropertyValuesHolder.ofFloat(View.SCALE_Y,
                 fabFrame.getScaleX(), (float) fab.getHeight() / (float) fabFrame.getHeight());
         ObjectAnimator scale = ObjectAnimator.ofPropertyValuesHolder(fabFrame, scalerX, scalerY)
                 .setDuration(350);

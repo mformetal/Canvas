@@ -196,7 +196,7 @@ public class ViewFabMenu extends ViewGroup {
                     (int) x + child.getMeasuredWidth() / 2,
                     (int) y + child.getMeasuredHeight() / 2);
 
-            mItemPositions.add(new ItemPosition(child, x, y, child.getMeasuredWidth() / 2));
+            mItemPositions.add(new ItemPosition(child, x, y, ViewUtils.radius(child)));
         }
     }
 
@@ -297,7 +297,7 @@ public class ViewFabMenu extends ViewGroup {
     @Override
     protected void dispatchDraw(Canvas canvas) {
         canvas.drawCircle(mCircle.getCenterX(), mCircle.getCenterY(), radius, mPaint);
-        canvas.concat(mRotateMatrix);
+//        canvas.concat(mRotateMatrix);
         super.dispatchDraw(canvas);
     }
 
@@ -356,9 +356,9 @@ public class ViewFabMenu extends ViewGroup {
                 float diffY = view.getY() - mCircle.getCenterY();
 
                 AnimatorSet out = new AnimatorSet();
-                out.playTogether(ObjectAnimator.ofFloat(view, ViewUtils.TRANSLATION_X, diffX),
-                        ObjectAnimator.ofFloat(view, ViewUtils.TRANSLATION_Y, diffY),
-                        ObjectAnimator.ofFloat(view, ViewUtils.ALPHA, 0.0f, 1.0f));
+                out.playTogether(ObjectAnimator.ofFloat(view, View.TRANSLATION_X, diffX),
+                        ObjectAnimator.ofFloat(view, View.TRANSLATION_Y, diffY),
+                        ObjectAnimator.ofFloat(view, View.ALPHA, 0.0f, 1.0f));
                 out.setStartDelay(delay);
                 out.setDuration(DURATION);
                 out.setInterpolator(OVERSHOOT_INTERPOLATOR);
@@ -399,9 +399,9 @@ public class ViewFabMenu extends ViewGroup {
                 float diffY = view.getY() - mCircle.getCenterY();
 
                 AnimatorSet out = new AnimatorSet();
-                out.playTogether(ObjectAnimator.ofFloat(view, ViewUtils.TRANSLATION_Y, -diffY),
-                        ObjectAnimator.ofFloat(view, ViewUtils.TRANSLATION_X, -diffX),
-                        ObjectAnimator.ofFloat(view, ViewUtils.ALPHA, 1.0f, 0.0f));
+                out.playTogether(ObjectAnimator.ofFloat(view, View.TRANSLATION_Y, -diffY),
+                        ObjectAnimator.ofFloat(view, View.TRANSLATION_X, -diffX),
+                        ObjectAnimator.ofFloat(view, View.ALPHA, 1.0f, 0.0f));
                 out.setStartDelay(delay);
                 out.setDuration(DURATION);
                 out.setInterpolator(ANTICIPATE_INTERPOLATOR);
@@ -531,7 +531,7 @@ public class ViewFabMenu extends ViewGroup {
         private Circle mItemCircle;
         private ViewFab mView;
 
-        public ItemPosition(ViewFab child, double itemX, double itemY, int radius) {
+        public ItemPosition(ViewFab child, double itemX, double itemY, float radius) {
             mView = child;
             mItemCircle = new Circle((float) itemX, (float) itemY, radius);
         }
@@ -555,13 +555,13 @@ public class ViewFabMenu extends ViewGroup {
             mItemCircle.setCenterY(ry);
 
             float radius = mItemCircle.getRadius();
-            float cx = mItemCircle.getCenterX();
-            float cy = mItemCircle.getCenterY();
 
-//            mView.setLeft(Math.round(cx - radius));
-//            mView.setRight(Math.round(cx + radius));
-//            mView.setTop(Math.round(cy - radius));
-//            mView.setBottom(Math.round(cy + radius));
+            if (mView.getId() == R.id.menu_save) {
+                Logg.log(ViewUtils.centerX(mView), (mView.getLeft() + radius));
+            }
+
+            mView.setX(rx - radius);
+            mView.setY(ry - radius);
         }
 
         public boolean contains(float x, float y) {
