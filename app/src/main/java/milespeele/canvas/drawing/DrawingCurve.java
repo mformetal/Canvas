@@ -440,7 +440,7 @@ public class DrawingCurve {
             changeState(State.INK);
 
             inkedColor = mBitmap.getPixel(mBitmap.getWidth() / 2, mBitmap.getHeight() / 2);
-            return false;
+            return true;
         }
     }
 

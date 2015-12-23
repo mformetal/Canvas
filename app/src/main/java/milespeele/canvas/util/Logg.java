@@ -165,4 +165,10 @@ public class Logg {
         builder.append(", ");
         log(doubles);
     }
+
+    public static void log(String string, boolean... bools) {
+        builder.append(string);
+        builder.append(", ");
+        log(bools);
+    }
 }

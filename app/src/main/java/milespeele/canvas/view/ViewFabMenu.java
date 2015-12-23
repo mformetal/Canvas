@@ -7,18 +7,25 @@ import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.graphics.BlurMaskFilter;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.EmbossMaskFilter;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
+import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Message;
 import android.os.SystemClock;
 import android.text.TextPaint;
 import android.util.AttributeSet;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
+import android.view.SoundEffectConstants;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -34,6 +41,7 @@ import javax.inject.Inject;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
@@ -51,7 +59,7 @@ import milespeele.canvas.util.ViewUtils;
 /**
  * Created by milespeele on 8/7/15.
  */
-public class ViewFabMenu extends ViewGroup {
+public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
 
     @Bind(R.id.menu_toggle) ViewFab toggle;
     @Bind(R.id.menu_erase) ViewFab eraser;
@@ -68,7 +76,7 @@ public class ViewFabMenu extends ViewGroup {
     private Paint mPaint;
     private Circle mCircle;
     private ArrayList<ItemPosition> mItemPositions;
-//    private DrawingPoint mStart, mCur, mPrevious;
+    private GestureDetector mGestureDetector;
     private static final Interpolator OVERSHOOT_INTERPOLATOR = new OvershootInterpolator();
     private static final Interpolator ANTICIPATE_INTERPOLATOR = new AnticipateInterpolator();
     private static final String RADIUS_ANIMATOR = "radius";
@@ -77,8 +85,10 @@ public class ViewFabMenu extends ViewGroup {
     private boolean isAnimating = false;
     private boolean isFadedOut = false;
     private boolean isDragging = false;
+    private boolean isFlinging = false;
     private float radius;
     private double mLastAngle;
+    private long mLastTime;
     private float mLastVelocity;
     private float mMaxRadius;
     private final static int VISIBILITY_DURATION = 350;
@@ -121,9 +131,12 @@ public class ViewFabMenu extends ViewGroup {
 
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mPaint.setAlpha(255);
+        mPaint.getStyle();
         mPaint.setStyle(Paint.Style.FILL_AND_STROKE);
         mPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_OVER));
         mPaint.setColor(getResources().getColor(R.color.primary_dark));
+
+        mGestureDetector = new GestureDetector(getContext(), new GestureListener());
 
         setWillNotDraw(false);
         setDescendantFocusability(FOCUS_AFTER_DESCENDANTS);
@@ -206,9 +219,11 @@ public class ViewFabMenu extends ViewGroup {
         }
     }
 
-    public void onItemClicked(ViewFab v) {
+    @Override
+    public void onClick(View v) {
+        ViewFab fab = (ViewFab) v;
         if (listener != null) {
-            listener.onFabMenuButtonClicked(v);
+            listener.onFabMenuButtonClicked(fab);
         }
 
         v.performClick();
@@ -216,8 +231,6 @@ public class ViewFabMenu extends ViewGroup {
         switch (v.getId()) {
             case R.id.menu_toggle:
                 toggleMenu();
-                break;
-            case R.id.menu_stroke_color:
                 break;
             case R.id.menu_undo:
                 parent.undo();
@@ -261,7 +274,7 @@ public class ViewFabMenu extends ViewGroup {
 
         if (isFadedOut || !isMenuShowing) {
             if (Circle.contains(mCircle.getCenterX() - x, mCircle.getCenterY() - y, ViewUtils.radius(toggle))) {
-                onItemClicked(toggle);
+                onClick(toggle);
             }
             return false;
         }
@@ -270,67 +283,33 @@ public class ViewFabMenu extends ViewGroup {
             return false;
         }
 
+        mGestureDetector.onTouchEvent(event);
+
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
-//                mCur = new DrawingPoint(x, y, SystemClock.currentThreadTimeMillis());
-//                mPrevious = mCur;
-//                mStart = mPrevious;
+                if (isFlinging) {
+                    isFlinging = false;
+                }
 
                 getClickedItem(x, y);
 
                 mLastAngle = mCircle.angleInDegrees(x, y);
                 break;
             case MotionEvent.ACTION_MOVE:
-//                mStart = mPrevious;
-//                mPrevious = mCur;
-//                mCur = new DrawingPoint(event.getX(), event.getY(), System.currentTimeMillis());
-
-//                float velocity = VELOCITY_FILTER_WEIGHT * mCur.computeVelocity(mPrevious) +
-//                        (1 - VELOCITY_FILTER_WEIGHT) * mLastVelocity;
-
                 double degrees = mCircle.angleInDegrees(x, y);
                 double rotater = degrees - mLastAngle;
-//                long dur = mCur.time - mPrevious.time;
 
-//                Logg.log("VELOCITY: ", velocity);
-//                Logg.log("ANGLE: ", rotater, (rotater + velocity * rotater) / dur);
-
-//                double av = rotater / dur;
-
-//                Logg.log("ANGULAR VELOCITY: " + av);
-//                Logg.log("ANGLES: ", rotater, rotater * av);
-
-//                Logg.log("START: ", rotater, rotater * av + rotater);
-
-//                ValueAnimator animator = ValueAnimator.ofFloat((float) rotater,
-//                        (float) (rotater * av + rotater));
-//                animator.setDuration(350);
-////                animator.setInterpolator(new AccelerateDecelerateInterpolator());
-//                animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-//                    @Override
-//                    public void onAnimationUpdate(ValueAnimator animation) {
-//                        float angle = (float) animation.getAnimatedValue();
-//                        Logg.log(angle - rotater);
-//                    }
-//                });
-//                animator.start();
-
-                Logg.log("MENU ROTATING");
                 if (isDragging) {
-                    for (ItemPosition itemPosition: mItemPositions) {
-                        itemPosition.update(rotater);
-                    }
+                    updateItemPositions(rotater);
+                    mLastTime = System.currentTimeMillis();
                 }
 
-//                mLastVelocity = velocity;
+//                Logg.log("ANGLE: ", mLastAngle, rotater, degrees);
+
                 mLastAngle = degrees;
                 isDragging = true;
                 break;
             case MotionEvent.ACTION_UP:
-//                mStart = mPrevious;
-//                mPrevious = mCur;
-//                mCur = new DrawingPoint(event.getX(), event.getY(), System.currentTimeMillis());
-
                 isDragging = false;
                 break;
         }
@@ -341,6 +320,12 @@ public class ViewFabMenu extends ViewGroup {
     @Override
     protected void onDraw(Canvas canvas) {
         canvas.drawCircle(getCenterX(), getCenterY(), radius, mPaint);
+    }
+
+    private void updateItemPositions(double rotater) {
+        for (ItemPosition itemPosition: mItemPositions) {
+            itemPosition.update(rotater);
+        }
     }
 
 //    private double getMatrixAngle() {
@@ -355,13 +340,13 @@ public class ViewFabMenu extends ViewGroup {
 
     private void getClickedItem(float x, float y) {
         if (Circle.contains(getCenterX() - x, getCenterY() - y, ViewUtils.radius(toggle))) {
-            onItemClicked(toggle);
+            onClick(toggle);
             return;
         }
 
         for (ItemPosition position: mItemPositions) {
             if (position.contains(x, y)) {
-                onItemClicked(position.mView);
+                onClick(position.mView);
             }
         }
     }
@@ -575,7 +560,7 @@ public class ViewFabMenu extends ViewGroup {
         }
     };
 
-    private class ItemPosition {
+    private final class ItemPosition {
 
         private Circle mItemCircle;
         private ViewFab mView;
@@ -611,6 +596,53 @@ public class ViewFabMenu extends ViewGroup {
 
         public boolean contains(float x, float y) {
             return mItemCircle.contains(x, y);
+        }
+    }
+
+    private final class GestureListener extends GestureDetector.SimpleOnGestureListener {
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            isDragging = false;
+
+            isFlinging = true;
+
+            float dx = e2.getX() - e1.getX();
+            float dy = e2.getY() - e1.getY();
+            double angle = mCircle.angleInDegrees(dx, dy);
+            Logg.log("FLING:", angle, Math.toDegrees(Math.atan2(dy, dx)));
+
+            float velocity = velocityX / 10 + velocityY / 10;
+            post(new FlingRunnable(velocity, angle <= 26d));
+
+            return true;
+        }
+    }
+
+    private class FlingRunnable implements Runnable {
+
+        private float velocity;
+        private boolean isLeftFling;
+
+        public FlingRunnable(float velocity, boolean isLeftFling) {
+            this.velocity = velocity;
+            this.isLeftFling = isLeftFling;
+        }
+
+        @Override
+        public void run() {
+            if (Math.abs(velocity) > 5 && isFlinging) {
+                if (isLeftFling) {
+                    updateItemPositions(-velocity / 75);
+                } else {
+                    updateItemPositions(velocity / 75);
+                }
+
+                velocity /= 1.0666F;
+
+                post(this);
+            } else {
+                isFlinging = false;
+            }
         }
     }
 }

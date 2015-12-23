@@ -72,8 +72,11 @@ public class ViewFab extends FloatingActionButton {
 
     @Override
     public boolean performClick() {
-        playSoundEffect(SoundEffectConstants.CLICK);
-        return super.performClick();
+        boolean hasListener = super.performClick();
+        if (!hasListener) {
+            playSoundEffect(SoundEffectConstants.CLICK);
+        }
+        return hasListener;
     }
 
     public void toggleScaled() {
