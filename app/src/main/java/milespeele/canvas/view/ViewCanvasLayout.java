@@ -118,10 +118,10 @@ public class ViewCanvasLayout extends CoordinatorLayout implements View.OnClickL
             if (!hitRect.contains((int) x, (int) y)) {
                 if (getContext() instanceof Activity) {
                     ((Activity) getContext()).onBackPressed();
-                    return true;
                 }
             }
-            return false;
+            menu.setEnabled(false);
+            return true;
         }
 
         if (menu.isVisible()) {
