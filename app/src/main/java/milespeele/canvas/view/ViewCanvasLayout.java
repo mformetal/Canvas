@@ -121,7 +121,7 @@ public class ViewCanvasLayout extends CoordinatorLayout implements View.OnClickL
                 }
             }
             menu.setEnabled(false);
-            return true;
+            return false;
         }
 
         if (menu.isVisible()) {
