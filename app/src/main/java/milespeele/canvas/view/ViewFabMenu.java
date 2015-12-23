@@ -266,6 +266,10 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
     public boolean onTouchEvent(MotionEvent event) {
         final float x = event.getX(), y = event.getY();
 
+        if (!isEnabled()) {
+            return false;
+        }
+
         if (isAnimating) {
             return false;
         }
