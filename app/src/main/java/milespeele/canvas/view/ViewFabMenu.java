@@ -518,6 +518,8 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
 
     public float getCenterY() { return mCircle.getCenterY(); }
 
+    public float getCircleRadius() { return mCircle.getRadius(); }
+
     private static final ButterKnife.Action<View> GONE = new ButterKnife.Action<View>() {
 
         @Override

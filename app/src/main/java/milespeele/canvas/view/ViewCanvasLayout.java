@@ -126,15 +126,12 @@ public class ViewCanvasLayout extends CoordinatorLayout implements View.OnClickL
 
         if (menu.isVisible()) {
             if (menuContainsTouch(ev)) {
-                ev.offsetLocation(0, -(getHeight() - menu.getHeight()));
-                menu.onTouchEvent(ev);
-                drawer.setOnTouchListener(null);
                 return true;
             }
         } else {
-            if (menuContainsTouch(ev)) {
-                ev.offsetLocation(0, -(getHeight() - menu.getHeight()));
-                menu.onTouchEvent(ev);
+            if (Circle.contains(menu.getCenterX() - ev.getX(),
+                    menu.getCenterY() - (ev.getY() - (getHeight() - menu.getHeight())),
+                    ViewUtils.radius(menu.toggle))) {
                 drawer.setOnTouchListener(null);
                 return true;
             }
@@ -164,7 +161,7 @@ public class ViewCanvasLayout extends CoordinatorLayout implements View.OnClickL
 
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
-        if (menu.isVisible() && menuContainsTouch(ev)) {
+        if (menuContainsTouch(ev)) {
             ev.offsetLocation(0, -(getHeight() - menu.getHeight()));
             menu.onTouchEvent(ev);
             drawer.setOnTouchListener(null);
@@ -182,7 +179,7 @@ public class ViewCanvasLayout extends CoordinatorLayout implements View.OnClickL
     private boolean menuContainsTouch(MotionEvent event) {
         return Circle.contains(menu.getCenterX() - event.getX(),
                 (menu.getCenterY() + (getHeight() - menu.getHeight())) - event.getY(),
-                menu.getRadius());
+                menu.getCircleRadius());
     }
 
     public void setButtonGone() {

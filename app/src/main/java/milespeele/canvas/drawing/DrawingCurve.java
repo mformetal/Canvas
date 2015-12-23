@@ -507,7 +507,6 @@ public class DrawingCurve {
     }
 
     private void setPaintThickness(float floater) {
-        STROKE_WIDTH = mPaint.getStrokeWidth();
         textSerializablePaint.setStrokeWidth(floater);
         mPaint.setStrokeWidth(floater);
         currentPoints.redrawPaint.setStrokeWidth(floater);
