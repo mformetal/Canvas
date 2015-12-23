@@ -270,8 +270,6 @@ public class DrawingCurve {
                 addPoint(x, y);
                 break;
             case TEXT:
-                translateX = x - mBitmap.getWidth() / 2f;
-                translateY = y - mBitmap.getHeight() / 2f;
                 break;
             case INK:
                 translateX = x - mBitmap.getWidth() / 2f;
