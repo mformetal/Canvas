@@ -144,7 +144,6 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
     protected void onFinishInflate() {
         super.onFinishInflate();
         ButterKnife.bind(this);
-        ObjectAnimator.ofFloat(toggle, "rotation", 0f, -135f).start();
     }
 
     @Override
@@ -321,6 +320,18 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
         canvas.drawCircle(getCenterX(), getCenterY(), radius, mPaint);
     }
 
+    public void rotateToggleOpen() {
+        ObjectAnimator.ofFloat(toggle, View.ROTATION,
+                toggle.getRotation(), toggle.getRotation() - 135f).start();
+    }
+
+    public void rotateToggleClosed() {
+        ObjectAnimator.ofFloat(toggle, View.ROTATION,
+                toggle.getRotation(), toggle.getRotation() - 135f)
+                .setDuration(HIDE_DIFF + DURATION + DELAY_INCREMENT * buttonsList.size())
+                .start();
+    }
+
     private void updateItemPositions(double rotater) {
         for (ItemPosition itemPosition: mItemPositions) {
             itemPosition.update(rotater);
@@ -362,8 +373,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
         if (!isMenuShowing && !isAnimating) {
             isAnimating = true;
             isMenuShowing = true;
-            ObjectAnimator.ofFloat(toggle, View.ROTATION,
-                    toggle.getRotation(), toggle.getRotation() - 135f).start();
+            rotateToggleOpen();
 
             ObjectAnimator background = ObjectAnimator.ofFloat(this, RADIUS_ANIMATOR, mMaxRadius);
             background.setDuration(DURATION + DELAY_INCREMENT * buttonsList.size());
@@ -410,10 +420,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
         if (isMenuShowing && !isAnimating) {
             isAnimating = true;
             isMenuShowing = false;
-            ObjectAnimator.ofFloat(toggle, View.ROTATION,
-                    toggle.getRotation(), toggle.getRotation() - 135f)
-                    .setDuration(HIDE_DIFF + DURATION + DELAY_INCREMENT * buttonsList.size())
-                    .start();
+            rotateToggleClosed();
 
             ObjectAnimator background = ObjectAnimator.ofFloat(this, RADIUS_ANIMATOR, 0);
             background.setDuration(HIDE_DIFF + DURATION + DELAY_INCREMENT * buttonsList.size());
@@ -460,6 +467,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
     public void fadeOut() {
         if (!isFadedOut && isMenuShowing) {
             isFadedOut = true;
+            rotateToggleClosed();
 
             ObjectAnimator fade = ObjectAnimator.ofObject(mPaint, ViewUtils.ALPHA,
                     new ArgbEvaluator(), mPaint.getAlpha(), 0)
@@ -474,6 +482,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
     public void fadeIn() {
         if (isFadedOut) {
             isFadedOut = false;
+            rotateToggleOpen();
 
             ObjectAnimator fade = ObjectAnimator.ofObject(mPaint, ViewUtils.ALPHA, new ArgbEvaluator(),
                     mPaint.getAlpha(), 255)

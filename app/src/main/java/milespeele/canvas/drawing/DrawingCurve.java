@@ -111,6 +111,7 @@ public class DrawingCurve {
 
                 mCanvas.save();
                 mCanvas.translate(mTranslateX, mTranslateY);
+                mCanvas.scale(mScaleFactor, mScaleFactor);
                 mTextLayout.draw(mCanvas);
                 mCanvas.restore();
 
@@ -542,7 +543,6 @@ public class DrawingCurve {
         public boolean onScale(ScaleGestureDetector detector) {
             mScaleFactor *= detector.getScaleFactor();
             mScaleFactor = Math.max(MIN_SCALE, Math.min(mScaleFactor, MAX_SCALE));
-            mScaleFactor = ((float)((int)(mScaleFactor * 100))) / 100;
             return true;
         }
     }
