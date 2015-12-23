@@ -164,7 +164,6 @@ public class ViewCanvasLayout extends CoordinatorLayout implements View.OnClickL
         if (menuContainsTouch(ev)) {
             ev.offsetLocation(0, -(getHeight() - menu.getHeight()));
             menu.onTouchEvent(ev);
-            drawer.setOnTouchListener(null);
         }
 
         return true;

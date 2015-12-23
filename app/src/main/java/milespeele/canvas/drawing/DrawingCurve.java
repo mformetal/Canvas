@@ -6,6 +6,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.os.SystemClock;
 import android.text.DynamicLayout;
 import android.text.Layout;
@@ -53,7 +54,7 @@ public class DrawingCurve {
 
     private static final float TOLERANCE = 5f;
     private static float STROKE_WIDTH = 5f;
-    private float mScaleFactor = 1;
+    private float mScaleFactor = 1f;
     private int mActivePointer = 0;
     private float mLastX, mLastY;
     private float mTranslateX, mTranslateY;
@@ -137,9 +138,7 @@ public class DrawingCurve {
                 case TEXT:
                     canvas.save();
                     canvas.translate(mTranslateX, mTranslateY);
-                    canvas.scale(mScaleFactor, mScaleFactor,
-                            mGestureDetector.getFocusX(),
-                            mGestureDetector.getFocusY());
+                    canvas.scale(mScaleFactor, mScaleFactor);
                     mTextLayout.draw(canvas);
                     canvas.restore();
                     break;
@@ -224,11 +223,9 @@ public class DrawingCurve {
     }
 
     public boolean onTouchEvent(MotionEvent event) {
-        int action = event.getAction();
-
         onTouchStart(event);
 
-        switch (action & MotionEvent.ACTION_MASK) {
+        switch (event.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
                 onTouchDown(event);
                 break;
@@ -237,13 +234,16 @@ public class DrawingCurve {
                 onTouchMove(event);
                 break;
 
-            case MotionEvent.ACTION_CANCEL:
             case MotionEvent.ACTION_UP:
                 onTouchUp(event);
                 break;
 
             case MotionEvent.ACTION_POINTER_UP:
                 onPointerUp(event);
+                break;
+
+            case MotionEvent.ACTION_CANCEL:
+                onCancel(event);
                 break;
         }
 
@@ -286,7 +286,7 @@ public class DrawingCurve {
     }
 
     private void onTouchMove(MotionEvent event) {
-        int pointerIndex = event.findPointerIndex(mActivePointer);
+        final int pointerIndex = event.findPointerIndex(mActivePointer);
         float x = event.getX(pointerIndex), y = event.getY(pointerIndex);
 
         switch (mState) {
@@ -300,8 +300,10 @@ public class DrawingCurve {
                 addPoint(x, y);
                 break;
             case TEXT:
-                mTranslateX += x - mLastX;
-                mTranslateY += y - mLastY;
+                if (!mGestureDetector.isInProgress()) {
+                    mTranslateX += x - mLastX;
+                    mTranslateY += y - mLastY;
+                }
                 break;
             case INK:
                 mTranslateX += x - mLastX;
@@ -342,6 +344,10 @@ public class DrawingCurve {
 
         mLastX = event.getX();
         mLastY = event.getY();
+    }
+
+    private void onCancel(MotionEvent event) {
+        mActivePointer = -1;
     }
 
     private void onPointerUp(MotionEvent event) {
@@ -452,6 +458,8 @@ public class DrawingCurve {
         int width = mBitmap.getWidth(), height = mBitmap.getHeight();
 
         String textToBeDrawn = eventTextChosen.text;
+        Rect bounds = new Rect();
+        mTextPaint.getTextBounds(textToBeDrawn, 0, textToBeDrawn.length(), bounds);
         mTextPaint.setColor(mStrokeColor);
 
         TextUtils.adjustTextSize(mTextPaint, textToBeDrawn, height);
@@ -461,6 +469,9 @@ public class DrawingCurve {
                 Layout.Alignment.ALIGN_CENTER, 0, 0, false);
 
         changeState(State.TEXT);
+
+//        mTranslateX = 0;
+//        mTranslateY = height - bounds.height();
 
         listener.showButton("DROP");
     }
@@ -479,15 +490,15 @@ public class DrawingCurve {
     }
 
     public void onEvent(EventBrushChosen eventBrushChosen) {
-        Paint newSerializablePaint = eventBrushChosen.paint;
+        Paint paint = eventBrushChosen.paint;
 
         changeState(State.DRAW);
 
-        mPaint.set(newSerializablePaint);
+        mPaint.set(paint);
         mPaint.setColor(mStrokeColor);
         mCurrentPoints.redrawPaint.set(mPaint);
 
-        setPaintThickness(newSerializablePaint.getStrokeWidth());
+        setPaintThickness(paint.getStrokeWidth());
     }
 
     public int getStrokeColor() { return mStrokeColor; }
@@ -524,19 +535,15 @@ public class DrawingCurve {
 
         @Override
         public boolean onScaleBegin(ScaleGestureDetector detector) {
-            mScaleFactor *= detector.getScaleFactor();
-            mScaleFactor = Math.max(MIN_SCALE, Math.min(mScaleFactor, MAX_SCALE));
             return true;
         }
 
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
+            mScaleFactor *= detector.getScaleFactor();
+            mScaleFactor = Math.max(MIN_SCALE, Math.min(mScaleFactor, MAX_SCALE));
+            mScaleFactor = ((float)((int)(mScaleFactor * 100))) / 100;
             return true;
-        }
-
-        @Override
-        public void onScaleEnd(ScaleGestureDetector detector) {
-            super.onScaleEnd(detector);
         }
     }
 }
