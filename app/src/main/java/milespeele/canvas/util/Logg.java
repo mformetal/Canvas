@@ -13,7 +13,7 @@ public class Logg {
     private static final String LOG_TAG = "Miles";
     private static final StringBuilder builder = new StringBuilder();
 
-    public static void mainLog(String string) {
+    private static void mainLog(String string) {
         if (string != null) {
             if (!string.isEmpty()) {
                 Log.d(LOG_TAG, string);

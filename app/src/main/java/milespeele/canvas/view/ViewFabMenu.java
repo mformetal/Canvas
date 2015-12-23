@@ -88,15 +88,12 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
     private boolean isFlinging = false;
     private float radius;
     private double mLastAngle;
-    private long mLastTime;
-    private float mLastVelocity;
     private float mMaxRadius;
     private final static int VISIBILITY_DURATION = 350;
     private final static int INITIAL_DELAY = 0;
     private final static int DURATION = 400;
     private final static int DELAY_INCREMENT = 15;
     private final static int HIDE_DIFF = 50;
-    private final static float VELOCITY_FILTER_WEIGHT = .2f;
 
     private ViewFabMenuListener listener;
 
@@ -147,6 +144,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
     protected void onFinishInflate() {
         super.onFinishInflate();
         ButterKnife.bind(this);
+        ObjectAnimator.ofFloat(toggle, "rotation", 0f, -135f).start();
     }
 
     @Override
@@ -301,10 +299,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
 
                 if (isDragging) {
                     updateItemPositions(rotater);
-                    mLastTime = System.currentTimeMillis();
                 }
-
-//                Logg.log("ANGLE: ", mLastAngle, rotater, degrees);
 
                 mLastAngle = degrees;
                 isDragging = true;
@@ -327,16 +322,6 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
             itemPosition.update(rotater);
         }
     }
-
-//    private double getMatrixAngle() {
-//        float[] matrixAngle = new float[9];
-//        mRotateMatrix.getValues(matrixAngle);
-//        double angle = Math.atan2(matrixAngle[Matrix.MSKEW_X], matrixAngle[Matrix.MSCALE_X]) * (180f / Math.PI);
-//        if (angle < 0) {
-//            angle = 360 - Math.abs(angle);
-//        }
-//        return angle;
-//    }
 
     private void getClickedItem(float x, float y) {
         if (Circle.contains(getCenterX() - x, getCenterY() - y, ViewUtils.radius(toggle))) {
@@ -373,6 +358,8 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
         if (!isMenuShowing && !isAnimating) {
             isAnimating = true;
             isMenuShowing = true;
+            ObjectAnimator.ofFloat(toggle, View.ROTATION,
+                    toggle.getRotation(), toggle.getRotation() - 135f).start();
 
             ObjectAnimator background = ObjectAnimator.ofFloat(this, RADIUS_ANIMATOR, mMaxRadius);
             background.setDuration(DURATION + DELAY_INCREMENT * buttonsList.size());
@@ -419,6 +406,10 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
         if (isMenuShowing && !isAnimating) {
             isAnimating = true;
             isMenuShowing = false;
+            ObjectAnimator.ofFloat(toggle, View.ROTATION,
+                    toggle.getRotation(), toggle.getRotation() - 135f)
+                    .setDuration(HIDE_DIFF + DURATION + DELAY_INCREMENT * buttonsList.size())
+                    .start();
 
             ObjectAnimator background = ObjectAnimator.ofFloat(this, RADIUS_ANIMATOR, 0);
             background.setDuration(HIDE_DIFF + DURATION + DELAY_INCREMENT * buttonsList.size());
@@ -606,32 +597,28 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
 
             isFlinging = true;
 
-            float dx = e2.getX() - e1.getX();
-            float dy = e2.getY() - e1.getY();
-            double angle = mCircle.angleInDegrees(dx, dy);
-            Logg.log("FLING:", angle, Math.toDegrees(Math.atan2(dy, dx)));
-
+            double angle = mCircle.angleInDegrees(e2.getX() - e1.getX(), e2.getY() - e1.getY());
             float velocity = velocityX / 10 + velocityY / 10;
-            post(new FlingRunnable(velocity, angle <= 26d));
+            post(new FlingRunnable(velocity, angle <= 45d));
 
             return true;
         }
     }
 
-    private class FlingRunnable implements Runnable {
+    private final class FlingRunnable implements Runnable {
 
         private float velocity;
-        private boolean isLeftFling;
+        private boolean isRtL;
 
-        public FlingRunnable(float velocity, boolean isLeftFling) {
+        public FlingRunnable(float velocity, boolean isRtL) {
             this.velocity = velocity;
-            this.isLeftFling = isLeftFling;
+            this.isRtL = isRtL;
         }
 
         @Override
         public void run() {
             if (Math.abs(velocity) > 5 && isFlinging) {
-                if (isLeftFling) {
+                if (isRtL && velocity > 0) {
                     updateItemPositions(-velocity / 75);
                 } else {
                     updateItemPositions(velocity / 75);
