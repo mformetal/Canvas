@@ -27,7 +27,6 @@ public class ViewFab extends FloatingActionButton {
 
     private String buttonText;
     private Paint mPaint;
-    private Path mPath;
     private RectF mClipBounds;
 
     private boolean isScaledUp = false;
@@ -51,8 +50,10 @@ public class ViewFab extends FloatingActionButton {
     }
 
     private void init(AttributeSet attrs) {
-        mPaint = new Paint();
+        mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mPaint.setStyle(Paint.Style.STROKE);
+        mPaint.setStrokeCap(Paint.Cap.BUTT);
+        mPaint.setStrokeJoin(Paint.Join.ROUND);
         mPaint.setColor(Color.WHITE);
 
         mClipBounds = new RectF();
@@ -85,7 +86,8 @@ public class ViewFab extends FloatingActionButton {
             mClipBounds.right = bounds.right;
             mClipBounds.bottom = bounds.bottom;
         }
-        canvas.drawPath(mPath, mPaint);
+//        canvas.drawPath(mPath, mPaint);
+        canvas.drawArc(mClipBounds, START_ANGLE, mAngle, false, mPaint);
     }
 
     public void toggleScaled() {
@@ -145,12 +147,6 @@ public class ViewFab extends FloatingActionButton {
     }
 
     public void startSaveAnimation() {
-        if (mPath == null) {
-            mPath = new Path();
-        } else {
-            mPath.rewind();
-        }
-
         playPositiveAngleAnimation();
     }
 
@@ -160,19 +156,11 @@ public class ViewFab extends FloatingActionButton {
     private void playPositiveAngleAnimation() {
         ObjectAnimator angle = ObjectAnimator.ofFloat(this, ANGLE, mAngle, 360f);
         angle.setInterpolator(new AccelerateDecelerateInterpolator());
-        angle.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                float angle = (float) animation.getAnimatedValue();
-                mPath.addArc(mClipBounds, START_ANGLE, angle);
-            }
-        });
         angle.setDuration(1000);
         angle.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
                 super.onAnimationEnd(animation);
-                mPath.rewind();
                 playNegativeAngleAnimation();
             }
         });
@@ -180,21 +168,14 @@ public class ViewFab extends FloatingActionButton {
     }
 
     private void playNegativeAngleAnimation() {
+        mAngle = -360f;
         ObjectAnimator angle = ObjectAnimator.ofFloat(this, ANGLE, mAngle, 0);
         angle.setInterpolator(new AccelerateDecelerateInterpolator());
-        angle.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                mPath.rewind();
-                mPath.addArc(mClipBounds, START_ANGLE, mAngle * -1);
-            }
-        });
         angle.setDuration(1000);
         angle.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
                 super.onAnimationEnd(animation);
-                mPath.rewind();
                 playPositiveAngleAnimation();
             }
         });
