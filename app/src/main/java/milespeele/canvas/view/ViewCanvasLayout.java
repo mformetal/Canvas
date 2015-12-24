@@ -44,13 +44,10 @@ public class ViewCanvasLayout extends CoordinatorLayout implements View.OnClickL
     @Bind(R.id.fragment_drawer_button) ViewTypefaceButton button;
 
     private final Rect hitRect = new Rect();
-    private final MyHandler handler = new MyHandler(this);
     private Paint shadowPaint;
 
     private float circle = 0;
     private int[] loc = new int[2];
-    private boolean mIsMoving = false;
-    private static final int MOVING_DELAY = 750;
     private static final int BUTTON_BAR_DURATION = 350;
 
     public ViewCanvasLayout(Context context) {
@@ -139,23 +136,6 @@ public class ViewCanvasLayout extends CoordinatorLayout implements View.OnClickL
 
         drawer.setOnTouchListener(drawer);
 
-        switch (ev.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-                break;
-
-            case MotionEvent.ACTION_MOVE:
-                if (!menuContainsTouch(ev) && menu.isVisible()) {
-                    mIsMoving = true;
-                    ifStillMoving();
-                }
-                break;
-
-            case MotionEvent.ACTION_UP:
-            case MotionEvent.ACTION_CANCEL:
-                mIsMoving = false;
-                break;
-        }
-
         return false;
     }
 
@@ -209,15 +189,6 @@ public class ViewCanvasLayout extends CoordinatorLayout implements View.OnClickL
         visibility.start();
     }
 
-    private void ifStillMoving() {
-        handler.postDelayed(() -> {
-            if (mIsMoving) {
-                menu.fadeOut();
-                handler.removeCallbacksAndMessages(null);
-            }
-        }, MOVING_DELAY);
-    }
-
     public void setMenuListener(ViewFabMenu.ViewFabMenuListener other) {
         menu.setListener(other);
     }
@@ -243,11 +214,8 @@ public class ViewCanvasLayout extends CoordinatorLayout implements View.OnClickL
     }
 
     public void ink() {
-        if (drawer.ink()) {
-            menu.fadeOut();
-        } else {
-            menu.fadeIn();
-        }
+        menu.fadeOut();
+        drawer.ink();
     }
 
     public void erase() {
@@ -297,19 +265,4 @@ public class ViewCanvasLayout extends CoordinatorLayout implements View.OnClickL
             object.setCircle(value);
         }
     };
-
-    private final static class MyHandler extends Handler {
-        private final WeakReference<ViewCanvasLayout> ref;
-
-        public MyHandler(ViewCanvasLayout view) {
-            ref = new WeakReference<>(view);
-        }
-
-        @Override
-        public void handleMessage(Message msg) {
-            if (ref.get() != null) {
-                ref.get().ifStillMoving();
-            }
-        }
-    }
 }

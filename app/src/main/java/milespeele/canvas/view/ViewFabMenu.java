@@ -64,7 +64,6 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
     @Bind(R.id.menu_toggle) ViewFab toggle;
     @Bind(R.id.menu_erase) ViewFab eraser;
     @Bind(R.id.menu_save) ViewFab saver;
-    @Bind(R.id.menu_ink) ViewFab inker;
 
     @Bind({R.id.menu_save, R.id.menu_text, R.id.menu_stroke_color, R.id.menu_canvas_color,
             R.id.menu_ink, R.id.menu_brush, R.id.menu_undo, R.id.menu_redo, R.id.menu_erase,
@@ -241,18 +240,13 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
                 break;
             case R.id.menu_ink:
                 parent.ink();
-                inker.toggleScaled();
                 break;
         }
 
-        if (v.getId() != R.id.menu_erase && eraser.isScaledUp()) {
-            eraser.scaleDown();
-            parent.erase();
-        }
-
-        if (v.getId() != R.id.menu_ink && inker.isScaledUp()) {
-            inker.scaleDown();
-            parent.ink();
+        if (v.getId() != R.id.menu_toggle) {
+            if (v.getId() != R.id.menu_erase && eraser.isScaledUp()) {
+                eraser.scaleDown();
+            }
         }
     }
 
