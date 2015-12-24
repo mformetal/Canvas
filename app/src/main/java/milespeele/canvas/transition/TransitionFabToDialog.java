@@ -12,6 +12,7 @@ import android.transition.TransitionValues;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
 
 import java.util.List;
@@ -62,7 +63,8 @@ public class TransitionFabToDialog extends ChangeBounds {
                 ViewRoundedFrameLayout.CORNERS, fabFrame.getWidth(), 0)
                 .setDuration(350);
 
-        Animator alpha = ObjectAnimator.ofArgb(layout, ViewCanvasLayout.ALPHA, 128);
+        Animator alpha = ObjectAnimator.ofInt(layout, ViewCanvasLayout.ALPHA, 128);
+        alpha.setInterpolator(new LinearInterpolator());
 
         Animator background = ObjectAnimator.ofArgb(fabFrame,
                 ViewUtils.BACKGROUND, startColor, endColor)

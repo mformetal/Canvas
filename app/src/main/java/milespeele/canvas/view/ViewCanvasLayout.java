@@ -17,6 +17,7 @@ import android.support.v4.view.MotionEventCompat;
 import android.util.AttributeSet;
 import android.util.Property;
 import android.view.MotionEvent;
+import android.view.SoundEffectConstants;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.widget.FrameLayout;
@@ -46,7 +47,6 @@ public class ViewCanvasLayout extends CoordinatorLayout implements View.OnClickL
     private final Rect hitRect = new Rect();
     private Paint shadowPaint;
 
-    private int[] loc = new int[2];
     private static final int BUTTON_BAR_DURATION = 350;
 
     public ViewCanvasLayout(Context context) {
@@ -82,26 +82,20 @@ public class ViewCanvasLayout extends CoordinatorLayout implements View.OnClickL
     }
 
     @Override
-    protected void dispatchDraw(Canvas canvas) {
-        super.dispatchDraw(canvas);
+    protected boolean drawChild(Canvas canvas, View child, long drawingTime) {
         if (shadowPaint.getAlpha() != 0) {
-            fabFrame.getLocationOnScreen(loc);
+            canvas.save();
+            canvas.drawPaint(shadowPaint);
+            canvas.restore();
 
-            CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) fabFrame.getLayoutParams();
-
-            float scaleWidth = fabFrame.getScaleX() * fabFrame.getWidth();
-            float scaleHeight = fabFrame.getScaleY() * fabFrame.getHeight();
-
-            float left = loc[0];
-            float top = loc[1] - params.topMargin * .8f;
-            float right = left + scaleWidth;
-            float bottom = top + scaleHeight;
-
-            canvas.drawRect(left, 0, right, top, shadowPaint);
-            canvas.drawRect(0, 0, left, canvas.getHeight(), shadowPaint);
-            canvas.drawRect(right, 0, canvas.getWidth(), canvas.getHeight(), shadowPaint);
-            canvas.drawRect(left, bottom, right, canvas.getHeight(), shadowPaint);
+            int alpha = shadowPaint.getAlpha();
+            if (child == menu) {
+                for (int x = 0; x < menu.getChildCount(); x++) {
+                    menu.getChildAt(x).setAlpha((ViewUtils.MAX_ALPHA - alpha) / ViewUtils.MAX_ALPHA);
+                }
+            }
         }
+        return super.drawChild(canvas, child, drawingTime);
     }
 
     @Override
@@ -113,6 +107,7 @@ public class ViewCanvasLayout extends CoordinatorLayout implements View.OnClickL
             fabFrame.getHitRect(hitRect);
             if (!hitRect.contains((int) x, (int) y)) {
                 if (getContext() instanceof Activity) {
+                    playSoundEffect(SoundEffectConstants.CLICK);
                     ((Activity) getContext()).onBackPressed();
                 }
             }

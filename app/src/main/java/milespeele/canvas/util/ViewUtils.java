@@ -24,6 +24,8 @@ public class ViewUtils {
 
     public final static String BACKGROUND = "backgroundColor";
     public final static String ALPHA = "alpha";
+    public final static float MAX_ALPHA = 255f;
+
     private final static Random random = new Random();
     private final static Rect rect = new Rect();
 
