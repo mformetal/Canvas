@@ -12,6 +12,7 @@ import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.os.Build;
+import android.os.Handler;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -127,6 +128,14 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
     protected void onFinishInflate() {
         super.onFinishInflate();
         ButterKnife.bind(this);
+        saver.startSaveAnimation();
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                saver.stopSaveAnimation();
+            }
+        }, 2000);
     }
 
     @Override
