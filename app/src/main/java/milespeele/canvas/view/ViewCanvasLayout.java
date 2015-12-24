@@ -23,6 +23,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import milespeele.canvas.R;
 import milespeele.canvas.util.Circle;
+import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.ViewUtils;
 
 /**
@@ -108,18 +109,19 @@ public class ViewCanvasLayout extends CoordinatorLayout implements View.OnClickL
 
         if (menu.isVisible()) {
             if (menuContainsTouch(ev)) {
-                return true;
+                drawer.setEnabled(false);
+                return false;
             }
         } else {
             if (Circle.contains(menu.getCenterX() - ev.getX(),
                     menu.getCenterY() - (ev.getY() - (getHeight() - menu.getHeight())),
                     ViewUtils.radius(menu.toggle))) {
-                drawer.setOnTouchListener(null);
-                return true;
+                drawer.setEnabled(false);
+                return false;
             }
         }
 
-        drawer.setOnTouchListener(drawer);
+        drawer.setEnabled(true);
 
         return false;
     }
@@ -131,7 +133,7 @@ public class ViewCanvasLayout extends CoordinatorLayout implements View.OnClickL
             menu.onTouchEvent(ev);
         }
 
-        return true;
+        return false;
     }
 
     @Override
