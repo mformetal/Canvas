@@ -128,7 +128,6 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
     protected void onFinishInflate() {
         super.onFinishInflate();
         ButterKnife.bind(this);
-        saver.startSaveAnimation();
     }
 
     @Override

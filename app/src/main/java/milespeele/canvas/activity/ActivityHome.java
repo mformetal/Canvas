@@ -87,14 +87,10 @@ public class ActivityHome extends ActivityBase {
     }
 
     public void onEvent(EventFilenameChosen eventFilenameChosen) {
-        if (NetworkUtils.hasInternet(this)) {
-            FragmentDrawer frag = (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
-            if (frag != null) {
-                parseUtils.saveImageToServer(eventFilenameChosen.filename,
-                        new WeakReference<>(this), frag.getDrawingBitmap());
-            }
-        } else {
-            ErrorDialog.createDialogFromCode(this, ErrorDialog.NO_INTERNET).show();
+        FragmentDrawer frag = (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
+        if (frag != null) {
+            parseUtils.saveImageToServer(eventFilenameChosen.filename,
+                    new WeakReference<>(this), frag.getDrawingBitmap());
         }
     }
 
