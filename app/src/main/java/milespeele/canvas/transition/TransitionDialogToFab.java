@@ -88,7 +88,7 @@ public class TransitionDialogToFab extends ChangeBounds {
 
                 for (int x = 0; x < layout.getChildCount(); x++) {
                     View v = layout.getChildAt(x);
-                    if (!(v instanceof FrameLayout)) {
+                    if (!(v instanceof ViewRoundedFrameLayout)) {
                         enableView(v);
                     }
                 }
