@@ -18,7 +18,6 @@ import android.util.AttributeSet;
 import android.view.SoundEffectConstants;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.AnticipateOvershootInterpolator;
 
 import milespeele.canvas.R;
 import milespeele.canvas.util.Logg;
@@ -34,7 +33,7 @@ public class ViewFab extends FloatingActionButton {
     private boolean isScaledUp = false;
     private boolean isScaling = false;
     private float mAngle;
-    private final static float START_ANGLE = -90f, END_ANGLE = 450f;
+    private final static float START_ANGLE = -90f;
 
     public ViewFab(Context context) {
         super(context);
@@ -152,33 +151,54 @@ public class ViewFab extends FloatingActionButton {
             mPath.rewind();
         }
 
-        mAngle = -1 * START_ANGLE;
-        if (getId() == R.id.menu_save) {
-            ObjectAnimator angle = ObjectAnimator.ofFloat(this, ANGLE, mAngle, END_ANGLE);
-            angle.setInterpolator(new AccelerateDecelerateInterpolator());
-            angle.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                @Override
-                public void onAnimationUpdate(ValueAnimator animation) {
-                    float angle = (float) animation.getAnimatedValue();
-                    mPath.addArc(mClipBounds, START_ANGLE, START_ANGLE + angle);
-                }
-            });
-            angle.setDuration(1000);
-            angle.addListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationRepeat(Animator animation) {
-                    super.onAnimationRepeat(animation);
-                    mPath.rewind();
-                    mAngle = -1 * START_ANGLE;
-                }
-            });
-            angle.setRepeatMode(ValueAnimator.RESTART);
-            angle.setRepeatCount(ValueAnimator.INFINITE);
-            angle.start();
-        }
+        playPositiveAngleAnimation();
     }
 
     public void stopSaveAnimation() {
+    }
+
+    private void playPositiveAngleAnimation() {
+        ObjectAnimator angle = ObjectAnimator.ofFloat(this, ANGLE, mAngle, 360f);
+        angle.setInterpolator(new AccelerateDecelerateInterpolator());
+        angle.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                float angle = (float) animation.getAnimatedValue();
+                mPath.addArc(mClipBounds, START_ANGLE, angle);
+            }
+        });
+        angle.setDuration(1000);
+        angle.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationEnd(animation);
+                mPath.rewind();
+                playNegativeAngleAnimation();
+            }
+        });
+        angle.start();
+    }
+
+    private void playNegativeAngleAnimation() {
+        ObjectAnimator angle = ObjectAnimator.ofFloat(this, ANGLE, mAngle, 0);
+        angle.setInterpolator(new AccelerateDecelerateInterpolator());
+        angle.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                mPath.rewind();
+                mPath.addArc(mClipBounds, START_ANGLE, mAngle * -1);
+            }
+        });
+        angle.setDuration(1000);
+        angle.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationEnd(animation);
+                mPath.rewind();
+                playPositiveAngleAnimation();
+            }
+        });
+        angle.start();
     }
 
     public String getButtonText() {
