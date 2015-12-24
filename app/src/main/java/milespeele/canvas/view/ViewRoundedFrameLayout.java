@@ -7,6 +7,7 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
 import android.graphics.Region;
+import android.support.design.widget.CoordinatorLayout;
 import android.util.AttributeSet;
 import android.util.Property;
 import android.view.View;
@@ -22,7 +23,6 @@ import milespeele.canvas.util.ViewUtils;
 public class ViewRoundedFrameLayout extends FrameLayout {
 
     private Path mPath;
-    private Paint mPaint;
     private RectF mRect;
 
     private float mCorner;
@@ -50,45 +50,26 @@ public class ViewRoundedFrameLayout extends FrameLayout {
     private void init() {
         mPath = new Path();
 
-        mPaint = new Paint();
-//        mPaint.setColor(getResources().getColor(R.color.primary_dark));
-        mPaint.setColor(Color.YELLOW);
-
         mRect = new RectF();
+
+        setWillNotDraw(false);
     }
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-//        mRect.set(0, 0, w, h);
-//        float halfWidth = w / 2f;
-//        float halfHeight = h / 2f;
-//        mPath.reset();
-//        mPath.addCircle(halfWidth, halfHeight, Math.min(halfWidth, halfHeight), Path.Direction.CW);
-//        mPath.close();
+        mRect.set(0, 0, w, h);
+        mPath.addRoundRect(mRect, mCorner, mCorner, Path.Direction.CW);
     }
 
     @Override
-    protected void dispatchDraw(Canvas canvas) {
-        Path path = new Path();
-        path.addCircle(canvas.getWidth() / 2f, canvas.getHeight() / 2f,
-                Math.min(canvas.getWidth() / 2f, canvas.getHeight() / 2f), Path.Direction.CW);
-        int count = canvas.save();
-////        Logg.log(mCorner);
-////        mPath.addRoundRect(mRect, mCorner, mCorner, Path.Direction.CW);
-        canvas.clipPath(path);
-        super.dispatchDraw(canvas);
+    public void draw(Canvas canvas) {
+        final int count = canvas.save();
+        mPath.reset();
+        mPath.addRoundRect(mRect, mCorner, mCorner, Path.Direction.CW);
+        canvas.clipPath(mPath, Region.Op.INTERSECT);
+        super.draw(canvas);
         canvas.restoreToCount(count);
-    }
-
-    @Override
-    protected boolean drawChild(Canvas canvas, View child, long drawingTime) {
-        Path path = new Path();
-        path.addCircle(canvas.getWidth() / 2f, canvas.getHeight() / 2f,
-                Math.min(canvas.getWidth() / 2f, canvas.getHeight() / 2f), Path.Direction.CW);
-        int count = canvas.save();
-        canvas.clipPath(path);
-        return super.drawChild(canvas, child, drawingTime);
     }
 
     public float getCorner() {
@@ -99,22 +80,6 @@ public class ViewRoundedFrameLayout extends FrameLayout {
         mCorner = corner;
         invalidate();
     }
-
-//    @Override
-//    public void setScaleX(float scaleX) {
-//        super.setScaleX(scaleX);
-//        if (mRect != null) {
-//
-//        }
-//    }
-//
-//    @Override
-//    public void setScaleY(float scaleY) {
-//        super.setScaleY(scaleY);
-//        if (mRect != null) {
-//
-//        }
-//    }
 
     public static final ViewUtils.FloatProperty<ViewRoundedFrameLayout> CORNERS
             = new ViewUtils.FloatProperty<ViewRoundedFrameLayout>("corners") {

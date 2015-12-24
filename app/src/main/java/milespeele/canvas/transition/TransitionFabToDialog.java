@@ -58,8 +58,6 @@ public class TransitionFabToDialog extends ChangeBounds {
         fabFrame.setTranslationY(translationY);
         fabFrame.setVisibility(View.VISIBLE);
 
-        fabFrame.setCorner(fabFrame.getWidth());
-
         Animator corner = ObjectAnimator.ofFloat(fabFrame,
                 ViewRoundedFrameLayout.CORNERS, fabFrame.getWidth(), 0)
                 .setDuration(350);
@@ -83,7 +81,7 @@ public class TransitionFabToDialog extends ChangeBounds {
                 .setDuration(350);
 
         AnimatorSet animatorSet = new AnimatorSet();
-        animatorSet.playTogether(alpha, background, position);
+        animatorSet.playTogether(alpha, background, position, scale, corner);
         animatorSet.addListener(new AbstractAnimatorListener() {
             @Override
             public void onAnimationStart(Animator animation) {
@@ -91,7 +89,7 @@ public class TransitionFabToDialog extends ChangeBounds {
 
                 for (int x = 0; x < layout.getChildCount(); x++) {
                     View v = layout.getChildAt(x);
-                    if (!(v instanceof FrameLayout)) {
+                    if (!(v instanceof ViewRoundedFrameLayout)) {
                         disableView(v);
                     }
                 }

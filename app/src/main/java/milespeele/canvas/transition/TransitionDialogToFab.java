@@ -56,6 +56,10 @@ public class TransitionDialogToFab extends ChangeBounds {
 
         Animator alpha = ObjectAnimator.ofArgb(layout, ViewCanvasLayout.ALPHA, 0);
 
+        Animator corner = ObjectAnimator.ofFloat(fabFrame,
+                ViewRoundedFrameLayout.CORNERS, 0, fabFrame.getWidth())
+                .setDuration(350);
+
         Animator background = ObjectAnimator.ofArgb(fabFrame,
                 ViewUtils.BACKGROUND, startColor, endColor)
                 .setDuration(450);
@@ -75,7 +79,7 @@ public class TransitionDialogToFab extends ChangeBounds {
                 .setDuration(350);
 
         AnimatorSet animatorSet = new AnimatorSet();
-        animatorSet.playTogether(alpha, background, scale, position);
+        animatorSet.playTogether(alpha, background, scale, position, corner);
         animatorSet.addListener(new AbstractAnimatorListener() {
             @Override
             public void onAnimationEnd(Animator animation) {
