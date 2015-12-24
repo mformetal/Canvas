@@ -473,6 +473,17 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
                     new ArgbEvaluator(), mPaint.getAlpha(), 0)
                     .setDuration(VISIBILITY_DURATION);
             fade.addUpdateListener(animation -> invalidate());
+            fade.addListener(new AbstractAnimatorListener() {
+                @Override
+                public void onAnimationStart(Animator animation) {
+                    isAnimating = true;
+                }
+
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    isAnimating = false;
+                }
+            });
             fade.start();
 
             ButterKnife.apply(buttonsList, GONE);
@@ -488,6 +499,17 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
                     mPaint.getAlpha(), 255)
                     .setDuration(VISIBILITY_DURATION);
             fade.addUpdateListener(animation -> invalidate());
+            fade.addListener(new AbstractAnimatorListener() {
+                @Override
+                public void onAnimationStart(Animator animation) {
+                    isAnimating = true;
+                }
+
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    isAnimating = false;
+                }
+            });
             fade.start();
 
             ButterKnife.apply(buttonsList, VISIBLE);
@@ -534,13 +556,11 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
     public float getCircleRadius() { return mCircle.getRadius(); }
 
     private static final ButterKnife.Action<View> GONE = new ButterKnife.Action<View>() {
-
         @Override
         public void apply(View view, int index) {
             ObjectAnimator gone = ObjectAnimator.ofFloat(view, View.ALPHA, 1f, 0f);
             gone.setDuration(VISIBILITY_DURATION);
             gone.addListener(new AbstractAnimatorListener() {
-
                 @Override
                 public void onAnimationEnd(Animator animation) {
                     view.setVisibility(View.GONE);
@@ -556,7 +576,6 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
             ObjectAnimator gone = ObjectAnimator.ofFloat(view, View.ALPHA, 0f, 1f);
             gone.setDuration(VISIBILITY_DURATION);
             gone.addListener(new AbstractAnimatorListener() {
-
                 @Override
                 public void onAnimationStart(Animator animation) {
                     view.setVisibility(View.VISIBLE);

@@ -5,6 +5,7 @@ import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.os.SystemClock;
@@ -42,6 +43,7 @@ public class DrawingCurve {
     }
 
     private DynamicLayout mTextLayout;
+    private Matrix mMatrix;
     private ScaleGestureDetector mGestureDetector;
     private Bitmap mBitmap, mCachedBitmap;
     private Canvas mCanvas;
@@ -54,10 +56,11 @@ public class DrawingCurve {
 
     private static final float TOLERANCE = 5f;
     private static float STROKE_WIDTH = 5f;
-    private float mScaleFactor = 1f;
-    private int mActivePointer = 0;
-    private float mLastX, mLastY;
+    private static final int INVALID_POINTER = -1;
     private float mTranslateX, mTranslateY;
+    private float mScaleFactor = 1f;
+    private int mActivePointer = INVALID_POINTER;
+    private float mLastX, mLastY;
     private int mStrokeColor, mBackgroundColor, mOppositeBackgroundColor, mInkedColor;
     private boolean isSafeToDraw = true;
 
@@ -91,6 +94,8 @@ public class DrawingCurve {
         mCanvas = new Canvas(mBitmap);
         mCanvas.drawBitmap(mCachedBitmap, 0, 0, null);
 
+        mMatrix = new Matrix();
+
         mPaint = new DrawingPaint(PaintStyles.normal(mStrokeColor, 10f));
 
         mTextPaint = new TextPaint(TextPaint.ANTI_ALIAS_FLAG);
@@ -110,17 +115,15 @@ public class DrawingCurve {
                 listener.hideButton();
 
                 mCanvas.save();
-                mCanvas.translate(mTranslateX, mTranslateY);
-                mCanvas.scale(mScaleFactor, mScaleFactor);
+                mCanvas.concat(mMatrix);
+//                mCanvas.translate(mTranslateX, mTranslateY);
+//                mCanvas.scale(mScaleFactor, mScaleFactor);
                 mTextLayout.draw(mCanvas);
                 mCanvas.restore();
 
 //                mAllHistory.push(new DrawingText(mTextLayout.getText(), mLastX, mLastY, scaleFactor, mTextPaint));
 
                 changeState(State.DRAW);
-
-                mTranslateX = 0;
-                mTranslateY = 0;
 
                 mTextLayout = null;
                 break;
@@ -138,8 +141,10 @@ public class DrawingCurve {
             switch (mState) {
                 case TEXT:
                     canvas.save();
-                    canvas.translate(mTranslateX, mTranslateY);
-                    canvas.scale(mScaleFactor, mScaleFactor);
+//                    canvas.translate(mTranslateX, mTranslateY);
+//                    canvas.scale(mScaleFactor, mScaleFactor);
+//                    canvas.rotate(mRotateAngle, mBitmap.getWidth() / 2f, mBitmap.getHeight() / 2f);
+                    canvas.concat(mMatrix);
                     mTextLayout.draw(canvas);
                     canvas.restore();
                     break;
@@ -149,7 +154,7 @@ public class DrawingCurve {
                     mPaint.setStrokeWidth(20f);
 
                     canvas.save();
-                    canvas.translate(mTranslateX, mTranslateY);
+                    canvas.concat(mMatrix);
 
                     float lineSize = canvas.getWidth() * .1f, xSpace = canvas.getWidth() * .05f;
                     float middleX = canvas.getWidth() / 2f, middleY = canvas.getHeight() / 2f;
@@ -231,6 +236,10 @@ public class DrawingCurve {
                 onTouchDown(event);
                 break;
 
+            case MotionEvent.ACTION_POINTER_DOWN:
+                onPointerDown(event);
+                break;
+
             case MotionEvent.ACTION_MOVE:
                 onTouchMove(event);
                 break;
@@ -271,8 +280,9 @@ public class DrawingCurve {
             case TEXT:
                 break;
             case INK:
-                mTranslateX = x - mBitmap.getWidth() / 2f;
-                mTranslateY = y - mBitmap.getHeight() / 2f - mBitmap.getWidth() * .15f;
+                float transX = x - mBitmap.getWidth() / 2f;
+                float transY = y - mBitmap.getHeight() / 2f - mBitmap.getWidth() * .15f;
+                mMatrix.setTranslate(transX, transY);
 
                 int inkX = Math.round(x), inkY = Math.round(y);
                 if (eventCoordsInRange(inkX, inkY)) {
@@ -284,6 +294,21 @@ public class DrawingCurve {
         mActivePointer = event.getPointerId(0);
         mLastX = event.getX();
         mLastY = event.getY();
+    }
+
+    public void onPointerDown(MotionEvent event) {
+        switch (mState) {
+            case ERASE:
+                break;
+            case DRAW:
+                break;
+            case RAINBOW:
+                break;
+            case TEXT:
+                break;
+            case INK:
+                break;
+        }
     }
 
     private void onTouchMove(MotionEvent event) {
@@ -304,11 +329,13 @@ public class DrawingCurve {
                 if (!mGestureDetector.isInProgress()) {
                     mTranslateX += x - mLastX;
                     mTranslateY += y - mLastY;
+                    mMatrix.setTranslate(mTranslateX, mTranslateY);
                 }
                 break;
             case INK:
                 mTranslateX += x - mLastX;
                 mTranslateY += y - mLastY;
+                mMatrix.setTranslate(mTranslateX, mTranslateY);
 
                 int inkX = Math.round(x), inkY = Math.round(y - mBitmap.getWidth() * .15f);
                 if (eventCoordsInRange(inkX, inkY)) {
@@ -471,8 +498,8 @@ public class DrawingCurve {
 
         changeState(State.TEXT);
 
-//        mTranslateX = 0;
-//        mTranslateY = height - bounds.height();
+        mTranslateX = 0;
+        mTranslateY = height / 2f - mTextLayout.getHeight() / 2;
 
         listener.showButton("DROP");
     }
@@ -544,6 +571,11 @@ public class DrawingCurve {
             mScaleFactor *= detector.getScaleFactor();
             mScaleFactor = Math.max(MIN_SCALE, Math.min(mScaleFactor, MAX_SCALE));
             return true;
+        }
+
+        @Override
+        public void onScaleEnd(ScaleGestureDetector detector) {
+            super.onScaleEnd(detector);
         }
     }
 }
