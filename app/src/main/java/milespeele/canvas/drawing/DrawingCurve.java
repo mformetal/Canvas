@@ -37,7 +37,6 @@ public class DrawingCurve {
     public enum State {
         DRAW,
         ERASE,
-        RAINBOW,
         TEXT,
         INK
     }
@@ -190,8 +189,6 @@ public class DrawingCurve {
                 setPaintColor(mStrokeColor);
                 setPaintThickness(STROKE_WIDTH);
                 break;
-            case RAINBOW:
-                break;
         }
     }
 
@@ -271,8 +268,6 @@ public class DrawingCurve {
         switch (mState) {
             case ERASE:
             case DRAW:
-            case RAINBOW:
-                addPoint(x, y);
                 break;
             case TEXT:
                 break;
@@ -298,8 +293,6 @@ public class DrawingCurve {
                 break;
             case DRAW:
                 break;
-            case RAINBOW:
-                break;
             case TEXT:
                 break;
             case INK:
@@ -314,7 +307,6 @@ public class DrawingCurve {
         switch (mState) {
             case ERASE:
             case DRAW:
-            case RAINBOW:
                 for (int i = 0; i < event.getHistorySize(); i++) {
                     addPoint(event.getHistoricalX(pointerIndex, i),
                             event.getHistoricalY(pointerIndex, i));
@@ -348,7 +340,6 @@ public class DrawingCurve {
         switch (mState) {
             case ERASE:
             case DRAW:
-            case RAINBOW:
                 mCurrentPoints.storePoints();
                 mAllHistory.push(mCurrentPoints);
                 mCurrentPoints.clear();

@@ -102,11 +102,6 @@ public class ViewCanvasSurface extends SurfaceView
         ((ViewCanvasLayout) getParent()).setButtonGone();
     }
 
-    @Override
-    public void onInkFinished() {
-        ((ViewCanvasLayout) getParent()).ink();
-    }
-
     public void onButtonClicked() { drawingCurve.onButtonClicked(); }
 
     public void ink() {
