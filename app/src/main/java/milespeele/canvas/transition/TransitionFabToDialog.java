@@ -1,6 +1,7 @@
 package milespeele.canvas.transition;
 
 import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
@@ -13,13 +14,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.LinearInterpolator;
-import android.widget.FrameLayout;
 
 import java.util.List;
 
 import milespeele.canvas.R;
-import milespeele.canvas.util.AbstractAnimatorListener;
-import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.ViewUtils;
 import milespeele.canvas.view.ViewCanvasLayout;
 import milespeele.canvas.view.ViewCanvasSurface;
@@ -84,7 +82,7 @@ public class TransitionFabToDialog extends ChangeBounds {
 
         AnimatorSet animatorSet = new AnimatorSet();
         animatorSet.playTogether(alpha, background, position, scale, corner);
-        animatorSet.addListener(new AbstractAnimatorListener() {
+        animatorSet.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationStart(Animator animation) {
                 fab.setVisibility(View.GONE);

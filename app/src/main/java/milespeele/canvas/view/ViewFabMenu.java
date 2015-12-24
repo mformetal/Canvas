@@ -1,6 +1,7 @@
 package milespeele.canvas.view;
 
 import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
@@ -34,7 +35,6 @@ import milespeele.canvas.event.EventBrushChosen;
 import milespeele.canvas.event.EventColorChosen;
 import milespeele.canvas.event.EventFilenameChosen;
 import milespeele.canvas.event.EventParseError;
-import milespeele.canvas.util.AbstractAnimatorListener;
 import milespeele.canvas.util.Circle;
 import milespeele.canvas.util.ViewUtils;
 
@@ -375,7 +375,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
                 out.setStartDelay(delay);
                 out.setDuration(DURATION);
                 out.setInterpolator(OVERSHOOT_INTERPOLATOR);
-                out.addListener(new AbstractAnimatorListener() {
+                out.addListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationStart(Animator animation) {
                         view.setVisibility(View.VISIBLE);
@@ -422,7 +422,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
                 out.setStartDelay(delay);
                 out.setDuration(DURATION);
                 out.setInterpolator(ANTICIPATE_INTERPOLATOR);
-                out.addListener(new AbstractAnimatorListener() {
+                out.addListener(new AnimatorListenerAdapter() {
 
                     @Override
                     public void onAnimationStart(Animator animation) {
@@ -454,7 +454,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
                     new ArgbEvaluator(), mPaint.getAlpha(), 0)
                     .setDuration(VISIBILITY_DURATION);
             fade.addUpdateListener(animation -> invalidate());
-            fade.addListener(new AbstractAnimatorListener() {
+            fade.addListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationStart(Animator animation) {
                     isAnimating = true;
@@ -480,7 +480,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
                     mPaint.getAlpha(), 255)
                     .setDuration(VISIBILITY_DURATION);
             fade.addUpdateListener(animation -> invalidate());
-            fade.addListener(new AbstractAnimatorListener() {
+            fade.addListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationStart(Animator animation) {
                     isAnimating = true;
@@ -541,7 +541,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
         public void apply(View view, int index) {
             ObjectAnimator gone = ObjectAnimator.ofFloat(view, View.ALPHA, 1f, 0f);
             gone.setDuration(VISIBILITY_DURATION);
-            gone.addListener(new AbstractAnimatorListener() {
+            gone.addListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
                     view.setVisibility(View.GONE);
@@ -556,7 +556,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
         public void apply(View view, int index) {
             ObjectAnimator gone = ObjectAnimator.ofFloat(view, View.ALPHA, 0f, 1f);
             gone.setDuration(VISIBILITY_DURATION);
-            gone.addListener(new AbstractAnimatorListener() {
+            gone.addListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationStart(Animator animation) {
                     view.setVisibility(View.VISIBLE);

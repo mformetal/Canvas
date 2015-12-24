@@ -1,6 +1,7 @@
 package milespeele.canvas.view;
 
 import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.Context;
@@ -9,29 +10,19 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.os.Handler;
-import android.os.Message;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
-import android.support.v4.view.MotionEventCompat;
 import android.util.AttributeSet;
 import android.util.Property;
 import android.view.MotionEvent;
 import android.view.SoundEffectConstants;
 import android.view.View;
-import android.view.ViewConfiguration;
-import android.widget.FrameLayout;
-
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import milespeele.canvas.R;
-import milespeele.canvas.util.AbstractAnimatorListener;
 import milespeele.canvas.util.Circle;
-import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.ViewUtils;
 
 /**
@@ -158,7 +149,7 @@ public class ViewCanvasLayout extends CoordinatorLayout implements View.OnClickL
     public void setButtonGone() {
         ObjectAnimator gone = ObjectAnimator.ofFloat(button, View.ALPHA, 1f, 0f);
         gone.setDuration(BUTTON_BAR_DURATION);
-        gone.addListener(new AbstractAnimatorListener() {
+        gone.addListener(new AnimatorListenerAdapter() {
 
             @Override
             public void onAnimationEnd(Animator animation) {
@@ -173,7 +164,7 @@ public class ViewCanvasLayout extends CoordinatorLayout implements View.OnClickL
 
         ObjectAnimator visibility = ObjectAnimator.ofFloat(button, View.ALPHA, 0f, 1f);
         visibility.setDuration(BUTTON_BAR_DURATION);
-        visibility.addListener(new AbstractAnimatorListener() {
+        visibility.addListener(new AnimatorListenerAdapter() {
 
             @Override
             public void onAnimationStart(Animator animation) {

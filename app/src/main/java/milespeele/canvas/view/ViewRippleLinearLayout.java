@@ -1,6 +1,7 @@
 package milespeele.canvas.view;
 
 import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
@@ -16,7 +17,6 @@ import android.widget.LinearLayout;
 import java.util.Calendar;
 
 import milespeele.canvas.util.PaintStyles;
-import milespeele.canvas.util.AbstractAnimatorListener;
 import milespeele.canvas.util.ViewUtils;
 
 /**
@@ -105,7 +105,7 @@ public class ViewRippleLinearLayout extends LinearLayout {
                     .setDuration(1000);
 
             animatorSet.playTogether(rad, alpha);
-            animatorSet.addListener(new AbstractAnimatorListener() {
+            animatorSet.addListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
                     ripplePaint.setAlpha(255);
