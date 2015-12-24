@@ -47,7 +47,7 @@ public class DrawingCurve {
     private Canvas mCanvas;
     private DrawingPoints mCurrentPoints;
     private DrawingHistory mRedoneHistory, mAllHistory;
-    private DrawingPaint mPaint;
+    private Paint mPaint, mInkPaint;
     private TextPaint mTextPaint;
     private State mState = State.DRAW;
     private FileUtils mFileUtils;
@@ -93,7 +93,8 @@ public class DrawingCurve {
         mCanvas = new Canvas(mBitmap);
         mCanvas.drawBitmap(mCachedBitmap, 0, 0, null);
 
-        mPaint = new DrawingPaint(PaintStyles.normal(mStrokeColor, 10f));
+        mPaint = PaintStyles.normal(mStrokeColor, 10f);
+        mInkPaint = PaintStyles.normal(mStrokeColor, 10f);
 
         mTextPaint = new TextPaint(TextPaint.ANTI_ALIAS_FLAG);
         mTextPaint.setColor(mStrokeColor);
@@ -147,9 +148,7 @@ public class DrawingCurve {
                     canvas.restore();
                     break;
                 case INK:
-                    int prevColor = mPaint.getColor();
-                    float prevWidth = mPaint.getStrokeWidth();
-                    mPaint.setStrokeWidth(20f);
+                    mInkPaint.setStrokeWidth(20f);
 
                     canvas.save();
                     canvas.translate(mTranslateX, mTranslateY);
@@ -158,21 +157,18 @@ public class DrawingCurve {
                     float middleX = canvas.getWidth() / 2f, middleY = canvas.getHeight() / 2f;
 
                     // base "pointer"
-                    mPaint.setColor(mOppositeBackgroundColor);
-                    canvas.drawLine(middleX + xSpace, middleY, middleX + xSpace + lineSize, middleY, mPaint);
-                    canvas.drawLine(middleX - xSpace, middleY, middleX - xSpace - lineSize, middleY, mPaint);
-                    canvas.drawLine(middleX, middleY + xSpace, middleX, middleY + xSpace + lineSize, mPaint);
-                    canvas.drawLine(middleX, middleY - xSpace, middleX, middleY - xSpace - lineSize, mPaint);
-                    canvas.drawCircle(middleX, middleY, xSpace + lineSize, mPaint);
+                    mInkPaint.setColor(mOppositeBackgroundColor);
+                    canvas.drawLine(middleX + xSpace / 2, middleY, middleX + xSpace + lineSize, middleY, mInkPaint);
+                    canvas.drawLine(middleX - xSpace / 2, middleY, middleX - xSpace - lineSize, middleY, mInkPaint);
+                    canvas.drawLine(middleX, middleY + xSpace / 2, middleX, middleY + xSpace + lineSize, mInkPaint);
+                    canvas.drawLine(middleX, middleY - xSpace / 2, middleX, middleY - xSpace - lineSize, mInkPaint);
+                    canvas.drawCircle(middleX, middleY, xSpace + lineSize, mInkPaint);
 
                     // ink circle
-                    mPaint.setColor(mInkedColor);
-                    canvas.drawCircle(middleX, middleY, xSpace + lineSize - mPaint.getStrokeWidth(), mPaint);
+                    mInkPaint.setColor(mInkedColor);
+                    canvas.drawCircle(middleX, middleY, xSpace + lineSize - mPaint.getStrokeWidth(), mInkPaint);
 
                     canvas.restore();
-
-                    mPaint.setColor(prevColor);
-                    mPaint.setStrokeWidth(prevWidth);
                     break;
             }
         }
@@ -335,6 +331,8 @@ public class DrawingCurve {
                 int inkX = Math.round(x), inkY = Math.round(y - mBitmap.getWidth() * .15f);
                 if (eventCoordsInRange(inkX, inkY)) {
                     mInkedColor = mBitmap.getPixel(inkX, inkY);
+                    mStrokeColor = mInkedColor;
+                    setPaintColor(mStrokeColor);
                 }
                 break;
         }
@@ -356,10 +354,8 @@ public class DrawingCurve {
             case TEXT:
                 break;
             case INK:
-                if (mBackgroundColor != mInkedColor) {
-                    mStrokeColor = mInkedColor;
-                    mPaint.setColor(mStrokeColor);
-                }
+                mStrokeColor = mInkedColor;
+                setPaintColor(mStrokeColor);
                 changeState(State.DRAW);
                 break;
         }
