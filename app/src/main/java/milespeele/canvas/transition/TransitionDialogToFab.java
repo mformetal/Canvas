@@ -23,6 +23,7 @@ import milespeele.canvas.util.ViewUtils;
 import milespeele.canvas.view.ViewCanvasLayout;
 import milespeele.canvas.view.ViewCanvasSurface;
 import milespeele.canvas.view.ViewFab;
+import milespeele.canvas.view.ViewRoundedFrameLayout;
 
 /**
  * Created by mbpeele on 11/5/15.
@@ -44,7 +45,7 @@ public class TransitionDialogToFab extends ChangeBounds {
 
         List<View> views = getTargets();
         ViewFab fab = (ViewFab) views.get(0);
-        FrameLayout fabFrame = (FrameLayout) views.get(1);
+        ViewRoundedFrameLayout fabFrame = (ViewRoundedFrameLayout) views.get(1);
         ViewCanvasLayout layout = (ViewCanvasLayout) views.get(2);
 
         float fabRadius = ViewUtils.radius(fab);

@@ -18,10 +18,12 @@ import java.util.List;
 
 import milespeele.canvas.R;
 import milespeele.canvas.util.AbstractAnimatorListener;
+import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.ViewUtils;
 import milespeele.canvas.view.ViewCanvasLayout;
 import milespeele.canvas.view.ViewCanvasSurface;
 import milespeele.canvas.view.ViewFab;
+import milespeele.canvas.view.ViewRoundedFrameLayout;
 
 /**
  * Created by mbpeele on 11/4/15.
@@ -41,7 +43,7 @@ public class TransitionFabToDialog extends ChangeBounds {
 
         List<View> views = getTargets();
         ViewFab fab = (ViewFab) views.get(0);
-        FrameLayout fabFrame = (FrameLayout) views.get(1);
+        ViewRoundedFrameLayout fabFrame = (ViewRoundedFrameLayout) views.get(1);
         ViewCanvasLayout layout = (ViewCanvasLayout) views.get(2);
 
         float fabRadius = ViewUtils.radius(fab);
@@ -55,6 +57,12 @@ public class TransitionFabToDialog extends ChangeBounds {
         fabFrame.setTranslationX(translationX);
         fabFrame.setTranslationY(translationY);
         fabFrame.setVisibility(View.VISIBLE);
+
+        fabFrame.setCorner(fabFrame.getWidth());
+
+        Animator corner = ObjectAnimator.ofFloat(fabFrame,
+                ViewRoundedFrameLayout.CORNERS, fabFrame.getWidth(), 0)
+                .setDuration(350);
 
         Animator alpha = ObjectAnimator.ofArgb(layout, ViewCanvasLayout.ALPHA, 128);
 
@@ -75,7 +83,7 @@ public class TransitionFabToDialog extends ChangeBounds {
                 .setDuration(350);
 
         AnimatorSet animatorSet = new AnimatorSet();
-        animatorSet.playTogether(alpha, background, position, scale);
+        animatorSet.playTogether(alpha, background, position);
         animatorSet.addListener(new AbstractAnimatorListener() {
             @Override
             public void onAnimationStart(Animator animation) {

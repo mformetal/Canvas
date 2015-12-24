@@ -20,7 +20,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <android.support.v7.widget.CardView
+    <milespeele.canvas.view.ViewRoundedFrameLayout
         android:id="@+id/fragment_drawer_animator"
         android:elevation="24dp"
         app:layout_anchorGravity="center"

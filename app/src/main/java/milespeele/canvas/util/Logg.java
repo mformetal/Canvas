@@ -171,4 +171,15 @@ public class Logg {
         builder.append(", ");
         log(bools);
     }
+
+    public static void log(RectF rectF) {
+        builder.append(rectF.left);
+        builder.append(", ");
+        builder.append(rectF.top);
+        builder.append(", ");
+        builder.append(rectF.right);
+        builder.append(", ");
+        builder.append(rectF.bottom);
+        mainLog(builder.toString());
+    }
 }

@@ -31,6 +31,7 @@ import milespeele.canvas.transition.TransitionHelper;
 import milespeele.canvas.util.ErrorDialog;
 import milespeele.canvas.util.NetworkUtils;
 import milespeele.canvas.view.ViewFab;
+import milespeele.canvas.view.ViewRoundedFrameLayout;
 
 public class ActivityHome extends ActivityBase {
 
@@ -44,7 +45,7 @@ public class ActivityHome extends ActivityBase {
     @Inject EventBus bus;
     @Inject Picasso picasso;
 
-    private FrameLayout fabFrame;
+    private ViewRoundedFrameLayout fabFrame;
     private FragmentManager manager;
 
     private int count;
@@ -168,7 +169,7 @@ public class ActivityHome extends ActivityBase {
 
     public void onFabMenuButtonClicked(ViewFab view) {
         if (fabFrame == null) {
-            fabFrame = (FrameLayout) findViewById(R.id.fragment_drawer_animator);
+            fabFrame = (ViewRoundedFrameLayout) findViewById(R.id.fragment_drawer_animator);
         }
 
         switch (view.getId()) {

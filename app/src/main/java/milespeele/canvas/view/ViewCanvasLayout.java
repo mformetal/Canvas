@@ -40,13 +40,12 @@ public class ViewCanvasLayout extends CoordinatorLayout implements View.OnClickL
 
     @Bind(R.id.fragment_drawer_canvas) ViewCanvasSurface drawer;
     @Bind(R.id.fragment_drawer_menu) ViewFabMenu menu;
-    @Bind(R.id.fragment_drawer_animator) FrameLayout fabFrame;
+    @Bind(R.id.fragment_drawer_animator) ViewRoundedFrameLayout fabFrame;
     @Bind(R.id.fragment_drawer_button) ViewTypefaceButton button;
 
     private final Rect hitRect = new Rect();
     private Paint shadowPaint;
 
-    private float circle = 0;
     private int[] loc = new int[2];
     private static final int BUTTON_BAR_DURATION = 350;
 
@@ -216,19 +215,14 @@ public class ViewCanvasLayout extends CoordinatorLayout implements View.OnClickL
     public void ink() {
         menu.fadeOut();
         drawer.ink();
+
+        if (button.getVisibility() == View.VISIBLE) {
+            setButtonGone();
+        }
     }
 
     public void erase() {
         drawer.erase();
-    }
-
-    public float getCircle() {
-        return circle;
-    }
-
-    public void setCircle(float circle) {
-        this.circle = circle;
-        invalidate();
     }
 
     public void setPaintAlpha(int alpha) {
@@ -250,19 +244,6 @@ public class ViewCanvasLayout extends CoordinatorLayout implements View.OnClickL
         @Override
         public Integer get(ViewCanvasLayout layout) {
             return layout.getPaintAlpha();
-        }
-    };
-
-    public static final Property<ViewCanvasLayout, Float> CIRCLE = new ViewUtils.FloatProperty<ViewCanvasLayout>("circle") {
-
-        @Override
-        public Float get(ViewCanvasLayout object) {
-            return object.getCircle();
-        }
-
-        @Override
-        public void setValue(ViewCanvasLayout object, float value) {
-            object.setCircle(value);
         }
     };
 }
