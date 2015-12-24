@@ -76,6 +76,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
     private Circle mCircle;
     private ArrayList<ItemPosition> mItemPositions;
     private GestureDetector mGestureDetector;
+    private ViewFab clickedFab;
     private static final Interpolator OVERSHOOT_INTERPOLATOR = new OvershootInterpolator();
     private static final Interpolator ANTICIPATE_INTERPOLATOR = new AnticipateInterpolator();
     private static final String RADIUS_ANIMATOR = "radius";
@@ -303,6 +304,10 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
                 break;
             case MotionEvent.ACTION_UP:
                 isDragging = false;
+                if (clickedFab != null) {
+                    onClick(clickedFab);
+                    clickedFab = null;
+                }
                 break;
         }
 
@@ -334,13 +339,12 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
 
     private void getClickedItem(float x, float y) {
         if (Circle.contains(getCenterX() - x, getCenterY() - y, ViewUtils.radius(toggle))) {
-            onClick(toggle);
-            return;
+            clickedFab = toggle;
         }
 
         for (ItemPosition position: mItemPositions) {
             if (position.contains(x, y)) {
-                onClick(position.mView);
+                clickedFab = position.mView;
             }
         }
     }

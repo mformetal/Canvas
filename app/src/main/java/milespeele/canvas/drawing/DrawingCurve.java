@@ -59,6 +59,7 @@ public class DrawingCurve {
     private int mActivePointer = INVALID_POINTER;
     private float mLastX, mLastY;
     private float mTranslateX, mTranslateY;
+    private float cx, cy;
     private int mStrokeColor, mBackgroundColor, mOppositeBackgroundColor, mInkedColor;
     private boolean isSafeToDraw = true;
 
@@ -140,7 +141,7 @@ public class DrawingCurve {
                 case TEXT:
                     canvas.save();
                     canvas.translate(mTranslateX, mTranslateY);
-                    canvas.scale(mScaleFactor, mScaleFactor);
+                    canvas.scale(mScaleFactor, mScaleFactor, cx, cy);
 //                    canvas.rotate(mRotateAngle, mBitmap.getWidth() / 2f, mBitmap.getHeight() / 2f);
                     mTextLayout.draw(canvas);
                     canvas.restore();
@@ -314,9 +315,17 @@ public class DrawingCurve {
                 addPoint(x, y);
                 break;
             case TEXT:
-                if (!mGestureDetector.isInProgress()) {
-                    mTranslateX += x - mLastX;
-                    mTranslateY += y - mLastY;
+                mTranslateX += x - mLastX;
+                mTranslateY += y - mLastY;
+
+                if (event.getPointerCount() > 1) {
+                    int pointer = mActivePointer == 0 ? 1 : 0;
+                    int index = event.findPointerIndex(pointer);
+                    float nx = event.getX(index);
+                    float ny = event.getY(index);
+
+                    cx = (x + nx) / 2f;
+                    cy = (y + ny) / 2f;
                 }
                 break;
             case INK:
