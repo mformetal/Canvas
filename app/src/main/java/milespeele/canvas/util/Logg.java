@@ -1,5 +1,6 @@
 package milespeele.canvas.util;
 
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.util.Log;
 
@@ -173,6 +174,17 @@ public class Logg {
     }
 
     public static void log(RectF rectF) {
+        builder.append(rectF.left);
+        builder.append(", ");
+        builder.append(rectF.top);
+        builder.append(", ");
+        builder.append(rectF.right);
+        builder.append(", ");
+        builder.append(rectF.bottom);
+        mainLog(builder.toString());
+    }
+
+    public static void log (Rect rectF) {
         builder.append(rectF.left);
         builder.append(", ");
         builder.append(rectF.top);

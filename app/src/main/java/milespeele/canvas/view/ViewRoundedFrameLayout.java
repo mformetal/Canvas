@@ -3,14 +3,17 @@ package milespeele.canvas.view;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Outline;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Region;
 import android.support.design.widget.CoordinatorLayout;
 import android.util.AttributeSet;
 import android.util.Property;
 import android.view.View;
+import android.view.ViewOutlineProvider;
 import android.widget.FrameLayout;
 
 import milespeele.canvas.R;
@@ -23,7 +26,6 @@ import milespeele.canvas.util.ViewUtils;
 public class ViewRoundedFrameLayout extends FrameLayout {
 
     private Path mPath;
-    private RectF mRect;
 
     private float mCorner;
 
@@ -49,24 +51,15 @@ public class ViewRoundedFrameLayout extends FrameLayout {
 
     private void init() {
         mPath = new Path();
-
-        mRect = new RectF();
-
-        setWillNotDraw(false);
-    }
-
-    @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        super.onSizeChanged(w, h, oldw, oldh);
-        mRect.set(0, 0, w, h);
-        mPath.addRoundRect(mRect, mCorner, mCorner, Path.Direction.CW);
     }
 
     @Override
     public void draw(Canvas canvas) {
+        Rect rect = canvas.getClipBounds();
         final int count = canvas.save();
         mPath.reset();
-        mPath.addRoundRect(mRect, mCorner, mCorner, Path.Direction.CW);
+        mPath.addRoundRect(rect.left, rect.top, rect.right, rect.bottom,
+                mCorner, mCorner, Path.Direction.CW);
         canvas.clipPath(mPath, Region.Op.INTERSECT);
         super.draw(canvas);
         canvas.restoreToCount(count);

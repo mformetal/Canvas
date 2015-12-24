@@ -6,7 +6,6 @@ import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
-import android.widget.FrameLayout;
 
 import com.squareup.picasso.Picasso;
 
@@ -100,7 +99,7 @@ public class ActivityHome extends ActivityBase {
     }
 
     public void showSavedImageSnackbar(Masterpiece object) {
-        ((ViewFab) findViewById(R.id.menu_save)).stopPulse(); // Ugly but whatever
+        ((ViewFab) findViewById(R.id.menu_save)).stopSaveAnimation(); // Ugly but whatever
         FragmentDrawer fragmentDrawer = (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
         if (fragmentDrawer != null && fragmentDrawer.getRootView() != null) {
             Snackbar.make(fragmentDrawer.getRootView(), R.string.snackbar_activity_home_image_saved_title, Snackbar.LENGTH_LONG)

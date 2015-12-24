@@ -18,12 +18,10 @@ import milespeele.canvas.util.Logg;
 
 public class ViewFab extends FloatingActionButton {
 
-    private ObjectAnimator scaleUp;
-    private ObjectAnimator scaleDown;
-    private AnimatorSet pulse;
     private String buttonText;
 
     private boolean isScaledUp = false;
+    private boolean isScaling = false;
 
     public ViewFab(Context context) {
         super(context);
@@ -41,28 +39,6 @@ public class ViewFab extends FloatingActionButton {
     }
 
     private void init(AttributeSet attrs) {
-        scaleUp = ObjectAnimator.ofPropertyValuesHolder(this,
-                PropertyValuesHolder.ofFloat(View.SCALE_X, 1f, 1.1f),
-                PropertyValuesHolder.ofFloat(View.SCALE_Y, 1f, 1.1f))
-                .setDuration(350);
-        scaleUp.addListener(new AbstractAnimatorListener() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                isScaledUp = true;
-            }
-        });
-
-        scaleDown = ObjectAnimator.ofPropertyValuesHolder(this,
-                PropertyValuesHolder.ofFloat(View.SCALE_X, 1f),
-                PropertyValuesHolder.ofFloat(View.SCALE_Y, 1f))
-                .setDuration(350);
-        scaleDown.addListener(new AbstractAnimatorListener() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                isScaledUp = false;
-            }
-        });
-
         if (attrs != null) {
             TypedArray typedArray = getResources().obtainAttributes(attrs, R.styleable.ViewFab);
             buttonText = typedArray.getString(R.styleable.ViewFab_text);
@@ -80,7 +56,7 @@ public class ViewFab extends FloatingActionButton {
     }
 
     public void toggleScaled() {
-        if (!scaleUp.isRunning() || !scaleDown.isRunning()) {
+        if (!isScaling) {
             if (isScaledUp) {
                 scaleDown();
             } else {
@@ -94,45 +70,49 @@ public class ViewFab extends FloatingActionButton {
     public void scaleUp() {
         if (!isScaledUp) {
             setBackgroundTintList(getResources().getColorStateList(R.color.primary_light));
-            scaleUp.start();
+            ObjectAnimator scaleDown = ObjectAnimator.ofPropertyValuesHolder(this,
+                    PropertyValuesHolder.ofFloat(View.SCALE_X, 1f),
+                    PropertyValuesHolder.ofFloat(View.SCALE_Y, 1f))
+                    .setDuration(350);
+            scaleDown.addListener(new AbstractAnimatorListener() {
+                @Override
+                public void onAnimationStart(Animator animation) {
+                    isScaling = true;
+                }
+
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    isScaledUp = false;
+                }
+            });
         }
     }
 
     public void scaleDown() {
         if (isScaledUp) {
-            setBackgroundTintList(getResources().getColorStateList(R.color.accent));
-            scaleDown.start();
+            setBackgroundTintList(getResources( ).getColorStateList(R.color.accent));
+            ObjectAnimator scaleUp = ObjectAnimator.ofPropertyValuesHolder(this,
+                    PropertyValuesHolder.ofFloat(View.SCALE_X, 1f, 1.1f),
+                    PropertyValuesHolder.ofFloat(View.SCALE_Y, 1f, 1.1f))
+                    .setDuration(350);
+            scaleUp.addListener(new AbstractAnimatorListener() {
+                @Override
+                public void onAnimationStart(Animator animation) {
+                    isScaling = true;
+                }
+
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    isScaledUp = true;
+                }
+            });
         }
     }
 
-    public void startPulse() {
-        if (pulse == null) {
-            pulse = new AnimatorSet();
-            ObjectAnimator scaleX = ObjectAnimator.ofFloat(this, "scaleX", 1f, .5f);
-            scaleX.setRepeatCount(ValueAnimator.INFINITE);
-            scaleX.setRepeatMode(ValueAnimator.REVERSE);
-            ObjectAnimator scaleY = ObjectAnimator.ofFloat(this, "scaleY", 1f, .5f);
-            scaleY.setRepeatCount(ValueAnimator.INFINITE);
-            scaleY.setRepeatMode(ValueAnimator.REVERSE);
-            pulse.playTogether(scaleX, scaleY);
-            pulse.setDuration(300);
-            pulse.start();
-        } else {
-            if (!pulse.isRunning()) {
-                 pulse.start();
-            }
-        }
+    public void startSaveAnimation() {
     }
 
-    public void stopPulse() {
-        if (pulse != null) {
-            AnimatorSet normalize = new AnimatorSet();
-            ObjectAnimator scaleX = ObjectAnimator.ofFloat(this, "scaleX", 1f);
-            ObjectAnimator scaleY = ObjectAnimator.ofFloat(this, "scaleY", 1f);
-            normalize.playTogether(scaleX, scaleY);
-            normalize.start();
-            pulse.end();
-        }
+    public void stopSaveAnimation() {
     }
 
     public String getButtonText() {
