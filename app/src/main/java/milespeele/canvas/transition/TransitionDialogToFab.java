@@ -92,12 +92,6 @@ public class TransitionDialogToFab extends ChangeBounds {
                         enableView(v);
                     }
                 }
-
-                ViewAnimationUtils.createCircularReveal(
-                        fab,
-                        fab.getWidth() / 2, fab.getHeight() / 2,
-                        0, fab.getWidth() / 2)
-                        .setDuration(150).start();
             }
         });
         animatorSet.setDuration(350);
