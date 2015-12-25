@@ -106,7 +106,7 @@ public class ActivityHome extends ActivityBase {
     public void showBrushChooser(ViewFab view) {
         FragmentDrawer frag = (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
         if (frag != null) {
-            FragmentBrushPicker picker = FragmentBrushPicker.newInstance();
+            FragmentBrushPicker picker = FragmentBrushPicker.newInstance(frag.getRootView().getPaint());
 
             TransitionHelper.makeFabDialogTransitions(ActivityHome.this, view, fabFrame, picker);
 

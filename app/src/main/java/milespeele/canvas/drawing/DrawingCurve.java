@@ -372,6 +372,7 @@ public class DrawingCurve {
         int pointerIndex = (event.getAction() & MotionEvent.ACTION_POINTER_INDEX_MASK)
                 >> MotionEvent.ACTION_POINTER_INDEX_SHIFT;
         int pointerId = event.getPointerId(pointerIndex);
+
         if (pointerId == mActivePointer) {
             final int newPointerIndex = pointerIndex == 0 ? 1 : 0;
             mLastX = event.getX(newPointerIndex);
@@ -413,7 +414,6 @@ public class DrawingCurve {
     public boolean redo() {
         if (!mRedoneHistory.isEmpty()) {
             isSafeToDraw = false;
-            long start = SystemClock.currentThreadTimeMillis();
 
             mAllHistory.push(mRedoneHistory.pop());
 
@@ -421,7 +421,6 @@ public class DrawingCurve {
 
             mAllHistory.redraw(mCanvas);
 
-            Logg.log("ELAPSED: " + (SystemClock.currentThreadTimeMillis() - start) / 1000.0);
             isSafeToDraw = true;
             return isSafeToDraw;
         }
@@ -432,15 +431,11 @@ public class DrawingCurve {
         if (!mAllHistory.isEmpty()) {
             isSafeToDraw = false;
 
-            long start = SystemClock.currentThreadTimeMillis();
-
             mRedoneHistory.push(mAllHistory.pop());
 
             mCanvas.drawBitmap(mCachedBitmap, 0, 0, null);
 
             mAllHistory.redraw(mCanvas);
-
-            Logg.log("ELAPSED: " + (SystemClock.currentThreadTimeMillis() - start) / 1000.0);
 
             isSafeToDraw = true;
             return isSafeToDraw;
@@ -506,10 +501,11 @@ public class DrawingCurve {
         changeState(State.DRAW);
 
         mPaint.set(paint);
-        mPaint.setColor(mStrokeColor);
         mCurrentPoints.redrawPaint.set(mPaint);
 
-        setPaintThickness(paint.getStrokeWidth());
+        STROKE_WIDTH = paint.getStrokeWidth();
+
+        setPaintThickness(STROKE_WIDTH);
     }
 
     public int getStrokeColor() { return mStrokeColor; }
@@ -525,7 +521,6 @@ public class DrawingCurve {
     }
 
     private void setPaintThickness(float floater) {
-        mTextPaint.setStrokeWidth(floater);
         mPaint.setStrokeWidth(floater);
         mCurrentPoints.redrawPaint.setStrokeWidth(floater);
     }

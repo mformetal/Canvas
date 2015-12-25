@@ -17,7 +17,7 @@
         app:borderColor="@color/gray"
         app:shouldDrawBorder="true" />
 
-    <milespeele.canvas.view.ViewBrushPickerPaintExample
+    <milespeele.canvas.view.ViewBrushExample
         android:layout_weight="4"
         android:id="@+id/paint_example_layout_paint"
         android:layout_width="0dp"

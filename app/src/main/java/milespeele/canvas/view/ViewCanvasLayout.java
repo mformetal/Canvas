@@ -188,6 +188,8 @@ public class ViewCanvasLayout extends CoordinatorLayout implements View.OnClickL
         return drawer.getDrawingBitmap();
     }
 
+    public Paint getPaint() { return drawer.getCurrentPaint(); }
+
     public void redo() {
         if (!drawer.redo()) {
             Snackbar.make(this, R.string.snackbar_no_more_redo, Snackbar.LENGTH_SHORT).show();

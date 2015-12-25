@@ -5,19 +5,10 @@ package milespeele.canvas.drawing;
  */
 public class DrawingPoint {
 
-    private final static int CONTROLS = 4;
     public float x, y;
     public long time;
     public float width;
     public int color;
-
-    public DrawingPoint() {}
-
-    public DrawingPoint(float x, float y, long time) {
-        this.x = x;
-        this.y = y;
-        this.time = time;
-    }
 
     public DrawingPoint(float x, float y, long time, float width, int color) {
         this.x = x;
