@@ -37,6 +37,7 @@ import milespeele.canvas.event.EventFilenameChosen;
 import milespeele.canvas.event.EventParseError;
 import milespeele.canvas.util.Circle;
 import milespeele.canvas.util.Logg;
+import milespeele.canvas.util.NetworkUtils;
 import milespeele.canvas.util.ViewUtils;
 
 
@@ -519,7 +520,9 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
     }
 
     public void onEvent(EventFilenameChosen eventFilenameChosen) {
-        saver.startSaveAnimation();
+        if (NetworkUtils.hasInternet(getContext())) {
+            saver.startSaveAnimation();
+        }
     }
 
     public boolean isVisible() {

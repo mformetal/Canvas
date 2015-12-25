@@ -18,6 +18,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
+import java.text.ParseException;
 
 import javax.inject.Inject;
 
@@ -116,10 +117,14 @@ public class ActivityHome extends ActivityBase {
     }
 
     public void onEvent(EventFilenameChosen eventFilenameChosen) {
-        FragmentDrawer frag = (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
-        if (frag != null) {
-            parseUtils.saveImageToServer(eventFilenameChosen.filename,
-                    new WeakReference<>(this), frag.getDrawingBitmap());
+        if (NetworkUtils.hasInternet(this)) {
+            FragmentDrawer frag = (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
+            if (frag != null) {
+                parseUtils.saveImageToServer(eventFilenameChosen.filename,
+                        new WeakReference<>(this), frag.getDrawingBitmap());
+            }
+        } else {
+            ErrorDialog.createDialogFromCode(this, ErrorDialog.NO_INTERNET).show();
         }
     }
 
