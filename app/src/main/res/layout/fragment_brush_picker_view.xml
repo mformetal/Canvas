@@ -6,7 +6,7 @@
 
     <milespeele.canvas.view.ViewBrushExample
         android:layout_width="match_parent"
-        android:layout_height="100dp"
+        android:layout_height="wrap_content"
         android:padding="@dimen/activity_horizontal_margin"
         android:id="@+id/fragment_brush_picker_view_example" />
 

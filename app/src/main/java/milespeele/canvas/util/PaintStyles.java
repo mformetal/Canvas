@@ -17,10 +17,6 @@ import java.lang.reflect.Method;
  */
 public class PaintStyles {
 
-    private final static ComposePathEffect composePathEffect = new ComposePathEffect(
-            new DashPathEffect(new float[] {1, 51}, 0),
-            new CornerPathEffect(1f));
-
     public static Paint getStyleFromName(String name, int color) {
         for (Method method: PaintStyles.class.getDeclaredMethods()) {
             try {
@@ -31,7 +27,7 @@ public class PaintStyles {
                 e.printStackTrace();
             }
         }
-        return normal(color, 5f);
+        return null;
     }
 
     public static Paint normal(int currentColor, float width) {
@@ -81,7 +77,9 @@ public class PaintStyles {
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeJoin(Paint.Join.ROUND);
         paint.setStrokeCap(Paint.Cap.ROUND);
-        paint.setPathEffect(composePathEffect);
+        paint.setPathEffect(new ComposePathEffect(
+                new DashPathEffect(new float[]{1, 51}, 0),
+                new CornerPathEffect(1f)));
         return paint;
     }
 

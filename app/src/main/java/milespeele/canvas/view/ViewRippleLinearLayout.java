@@ -9,6 +9,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.os.SystemClock;
 import android.support.v4.view.MotionEventCompat;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -68,12 +69,12 @@ public class ViewRippleLinearLayout extends LinearLayout {
 
         switch (event.getAction() & actionMasked) {
             case MotionEvent.ACTION_DOWN: {
-                startClickTime = Calendar.getInstance().getTimeInMillis();
+                startClickTime = SystemClock.currentThreadTimeMillis();
                 break;
             }
 
             case MotionEvent.ACTION_UP: {
-                long clickDuration = Calendar.getInstance().getTimeInMillis() - startClickTime;
+                long clickDuration = SystemClock.currentThreadTimeMillis() - startClickTime;
                 if (clickDuration < MAX_CLICK_DURATION) {
                     if (!animatorSet.isRunning()) {
                         cx = event.getX();
