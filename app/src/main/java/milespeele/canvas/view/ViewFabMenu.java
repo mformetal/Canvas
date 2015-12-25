@@ -36,6 +36,7 @@ import milespeele.canvas.event.EventColorChosen;
 import milespeele.canvas.event.EventFilenameChosen;
 import milespeele.canvas.event.EventParseError;
 import milespeele.canvas.util.Circle;
+import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.ViewUtils;
 
 
@@ -184,12 +185,13 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
 
         mItemPositions = new ArrayList<>();
 
-        for (int i = count; i >= 0; i--) {
+        for (int i = 0; i < count; i++) {
             final ViewFab child = (ViewFab) getChildAt(i);
 
             double angle = i * slice;
             double x = getCenterX() + mItemRadius * Math.cos(angle);
             double y = getCenterY() - mItemRadius * Math.sin(angle);
+            Logg.log(angle, x, y);
 
             child.layout((int) x - child.getMeasuredWidth() / 2,
                     (int) y - child.getMeasuredHeight() / 2,
