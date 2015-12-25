@@ -155,16 +155,14 @@ public class ViewUtils {
     }
 
     public static int getScreenWidth(Context context) {
-        Display display = ((Activity) context).getWindowManager().getDefaultDisplay();
         Point size = new Point();
-        display.getSize(size);
+        ((Activity) context).getWindowManager().getDefaultDisplay().getRealSize(size);
         return size.x;
     }
 
     public static int getScreenHeight(Context context) {
-        Display display = ((Activity) context).getWindowManager().getDefaultDisplay();
         Point size = new Point();
-        display.getSize(size);
+        ((Activity) context).getWindowManager().getDefaultDisplay().getRealSize(size);
         return size.y;
     }
 
