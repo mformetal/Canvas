@@ -29,6 +29,7 @@ import javax.inject.Inject;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
@@ -51,7 +52,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
 
     @Bind({R.id.menu_save, R.id.menu_text, R.id.menu_stroke_color, R.id.menu_canvas_color,
             R.id.menu_ink, R.id.menu_brush, R.id.menu_undo, R.id.menu_redo, R.id.menu_erase,
-            R.id.menu_profile, R.id.menu_settings, R.id.menu_layers})
+            R.id.menu_import, R.id.menu_layers})
     List<ViewFab> buttonsList;
 
     @Inject EventBus bus;
