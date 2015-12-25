@@ -85,19 +85,6 @@ public class PaintStyles {
         return paint;
     }
 
-    public static Paint rainbow(int currentColor, float width) {
-        Paint paint = new Paint();
-        paint.setAntiAlias(true);
-        paint.setDither(true);
-        paint.setStrokeWidth(width);
-        paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeJoin(Paint.Join.ROUND);
-        paint.setStrokeCap(Paint.Cap.ROUND);
-        LinearGradient linearGradient = new LinearGradient(0, 0, 0, 50, ViewUtils.rainbow(), null, Shader.TileMode.MIRROR);
-        paint.setShader(linearGradient);
-        return paint;
-    }
-
     public static Paint normalShadow(int color, float width) {
         Paint paint = new Paint();
         paint.setAntiAlias(true);
