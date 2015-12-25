@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 
 import milespeele.canvas.R;
+import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.ViewUtils;
 
 public class ViewFab extends FloatingActionButton {
@@ -90,8 +91,10 @@ public class ViewFab extends FloatingActionButton {
     public void toggleScaled() {
         if (!isScaling) {
             if (isScaledUp) {
+                Logg.log("DOWN");
                 scaleDown();
             } else {
+                Logg.log("UP");
                 scaleUp();
             }
         }
@@ -99,48 +102,46 @@ public class ViewFab extends FloatingActionButton {
 
     public boolean isScaledUp() { return isScaledUp; }
 
-    public void scaleUp() {
-        if (!isScaledUp) {
-            ObjectAnimator scaleDown = ObjectAnimator.ofPropertyValuesHolder(this,
-                    PropertyValuesHolder.ofFloat(View.SCALE_X, 1f),
-                    PropertyValuesHolder.ofFloat(View.SCALE_Y, 1f))
-                    .setDuration(350);
-            scaleDown.addListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationStart(Animator animation) {
-                    setBackgroundTintList(getResources().getColorStateList(R.color.primary_light));
-                    isScaling = true;
-                }
+    public void scaleDown() {
+        ObjectAnimator scaleDown = ObjectAnimator.ofPropertyValuesHolder(this,
+                PropertyValuesHolder.ofFloat(View.SCALE_X, 1f),
+                PropertyValuesHolder.ofFloat(View.SCALE_Y, 1f))
+                .setDuration(350);
+        scaleDown.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                setBackgroundTintList(getResources().getColorStateList(R.color.accent));
+                isScaling = true;
+            }
 
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    isScaledUp = false;
-                }
-            });
-            scaleDown.start();
-        }
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                isScaling = false;
+                isScaledUp = false;
+            }
+        });
+        scaleDown.start();
     }
 
-    public void scaleDown() {
-        if (isScaledUp) {
-            ObjectAnimator scaleUp = ObjectAnimator.ofPropertyValuesHolder(this,
-                    PropertyValuesHolder.ofFloat(View.SCALE_X, 1f, 1.1f),
-                    PropertyValuesHolder.ofFloat(View.SCALE_Y, 1f, 1.1f))
-                    .setDuration(350);
-            scaleUp.addListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationStart(Animator animation) {
-                    setBackgroundTintList(getResources( ).getColorStateList(R.color.accent));
-                    isScaling = true;
-                }
+    public void scaleUp() {
+        ObjectAnimator scaleUp = ObjectAnimator.ofPropertyValuesHolder(this,
+                PropertyValuesHolder.ofFloat(View.SCALE_X, 1f, 1.1f),
+                PropertyValuesHolder.ofFloat(View.SCALE_Y, 1f, 1.1f))
+                .setDuration(350);
+        scaleUp.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                setBackgroundTintList(getResources( ).getColorStateList(R.color.primary_light));
+                isScaling = true;
+            }
 
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    isScaledUp = true;
-                }
-            });
-            scaleUp.start();
-        }
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                isScaling = false;
+                isScaledUp = true;
+            }
+        });
+        scaleUp.start();
     }
 
     public void startSaveAnimation() {

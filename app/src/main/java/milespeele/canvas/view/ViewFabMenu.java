@@ -12,7 +12,6 @@ import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.os.Build;
-import android.os.Handler;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -29,7 +28,6 @@ import javax.inject.Inject;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
@@ -38,7 +36,6 @@ import milespeele.canvas.event.EventColorChosen;
 import milespeele.canvas.event.EventFilenameChosen;
 import milespeele.canvas.event.EventParseError;
 import milespeele.canvas.util.Circle;
-import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.ViewUtils;
 
 
@@ -232,7 +229,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
 
         if (v.getId() != R.id.menu_toggle) {
             if (v.getId() != R.id.menu_erase && eraser.isScaledUp()) {
-                eraser.scaleDown();
+//                eraser.scaleUp();
             }
         }
     }
