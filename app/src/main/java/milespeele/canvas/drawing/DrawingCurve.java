@@ -3,7 +3,9 @@ package milespeele.canvas.drawing;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
@@ -15,10 +17,15 @@ import android.text.TextPaint;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+
 import javax.inject.Inject;
 
 import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
+import milespeele.canvas.event.EventBitmapChosen;
 import milespeele.canvas.event.EventBrushChosen;
 import milespeele.canvas.event.EventColorChosen;
 import milespeele.canvas.event.EventTextChosen;
@@ -38,12 +45,13 @@ public class DrawingCurve {
         DRAW,
         ERASE,
         TEXT,
-        INK
+        INK,
+        BITMAP
     }
 
     private DynamicLayout mTextLayout;
     private ScaleGestureDetector mGestureDetector;
-    private Bitmap mBitmap, mCachedBitmap;
+    private Bitmap mBitmap, mCachedBitmap, mPhotoBitmap;
     private Canvas mCanvas;
     private DrawingPoints mCurrentPoints;
     private DrawingHistory mRedoneHistory, mAllHistory;
@@ -51,6 +59,7 @@ public class DrawingCurve {
     private TextPaint mTextPaint;
     private State mState = State.DRAW;
     private FileUtils mFileUtils;
+    private Context mContext;
 
     private static final float TOLERANCE = 5f;
     private static float STROKE_WIDTH = 5f;
@@ -76,7 +85,9 @@ public class DrawingCurve {
         ((MainApp) context.getApplicationContext()).getApplicationComponent().inject(this);
         bus.register(this);
 
-        mFileUtils = new FileUtils(context);
+        mContext = context;
+
+        mFileUtils = new FileUtils(mContext);
 
         mStrokeColor = ViewUtils.randomColor();
         mBackgroundColor = store.getLastBackgroundColor();
@@ -127,6 +138,22 @@ public class DrawingCurve {
 
                 mTextLayout = null;
                 break;
+            case BITMAP:
+                listener.hideButton();
+
+                mCanvas.save();
+                mCanvas.translate(mTranslateX, mTranslateY);
+                mCanvas.scale(mScaleFactor, mScaleFactor);
+                mCanvas.drawBitmap(mPhotoBitmap, 0, 0, null);
+                mCanvas.restore();
+
+                changeState(State.DRAW);
+
+                mTranslateX = 0;
+                mTranslateY = 0;
+
+                mPhotoBitmap = null;
+                break;
         }
     }
 
@@ -143,7 +170,6 @@ public class DrawingCurve {
                     canvas.save();
                     canvas.translate(mTranslateX, mTranslateY);
                     canvas.scale(mScaleFactor, mScaleFactor, cx, cy);
-//                    canvas.rotate(mRotateAngle, mBitmap.getWidth() / 2f, mBitmap.getHeight() / 2f);
                     mTextLayout.draw(canvas);
                     canvas.restore();
                     break;
@@ -169,6 +195,13 @@ public class DrawingCurve {
                     canvas.drawCircle(middleX, middleY, xSpace + lineSize - mPaint.getStrokeWidth(), mInkPaint);
 
                     canvas.restore();
+                    break;
+                case BITMAP:
+                    canvas.save();
+                    canvas.translate(mTranslateX, mTranslateY);
+                    canvas.scale(mScaleFactor, mScaleFactor, cx, cy);
+                    canvas.drawBitmap(mPhotoBitmap, 0, 0, null);
+                    canvas.save();
                     break;
             }
         }
@@ -256,6 +289,9 @@ public class DrawingCurve {
             case TEXT:
                 mGestureDetector.onTouchEvent(event);
                 break;
+            case BITMAP:
+                mGestureDetector.onTouchEvent(event);
+                break;
         }
     }
 
@@ -276,6 +312,8 @@ public class DrawingCurve {
                 if (eventCoordsInRange(inkX, inkY)) {
                     mInkedColor = mBitmap.getPixel(inkX, inkY);
                 }
+                break;
+            case BITMAP:
                 break;
         }
 
@@ -335,6 +373,10 @@ public class DrawingCurve {
                     setPaintColor(mStrokeColor);
                 }
                 break;
+            case BITMAP:
+                mTranslateX += x - mLastX;
+                mTranslateY += y - mLastY;
+                break;
         }
 
         mLastX = x;
@@ -357,6 +399,8 @@ public class DrawingCurve {
                 mStrokeColor = mInkedColor;
                 setPaintColor(mStrokeColor);
                 changeState(State.DRAW);
+                break;
+            case BITMAP:
                 break;
         }
 
@@ -506,6 +550,29 @@ public class DrawingCurve {
         STROKE_WIDTH = paint.getStrokeWidth();
 
         setPaintThickness(STROKE_WIDTH);
+    }
+
+    public void onEvent(EventBitmapChosen eventBitmapChosen) {
+        Intent data = eventBitmapChosen.data;
+        InputStream inputStream = null;
+        try {
+            inputStream = mContext.getContentResolver().openInputStream(data.getData());
+            mPhotoBitmap = BitmapFactory.decodeStream(inputStream, null, mFileUtils.getBitmapOptions());
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } finally {
+            if (inputStream != null) {
+                try {
+                    listener.showButton("DROP");
+
+                    changeState(State.BITMAP);
+
+                    inputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     public int getStrokeColor() { return mStrokeColor; }

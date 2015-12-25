@@ -59,7 +59,7 @@ public class FileUtils {
                 });
     }
 
-    public Observable<byte[]> compressBitmapAsObservable(Bitmap bitmap) {
+    public static Observable<byte[]> compressBitmapAsObservable(Bitmap bitmap) {
         return Observable.just(compressBitmapAsByteArray(bitmap));
     }
 
@@ -69,15 +69,13 @@ public class FileUtils {
         return Observable.just(stream.toByteArray());
     }
 
-    public byte[] compressBitmapAsByteArray(Bitmap bitmap) {
+    public static byte[] compressBitmapAsByteArray(Bitmap bitmap) {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
         return stream.toByteArray();
     }
 
-    public Bitmap getCachedBitmap() {
-        Bitmap bitmap = null;
-
+    public BitmapFactory.Options getBitmapOptions() {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inPreferredConfig = Bitmap.Config.ARGB_8888;
         options.inMutable = true;
@@ -89,10 +87,15 @@ public class FileUtils {
         WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         windowManager.getDefaultDisplay().getMetrics(metrics);
         options.inDensity = metrics.densityDpi;
+        return options;
+    }
+
+    public Bitmap getCachedBitmap() {
+        Bitmap bitmap = null;
 
         try {
             Input test = new Input(context.openFileInput(BITMAP_FILENAME));
-            bitmap = BitmapFactory.decodeStream(test, null, options);
+            bitmap = BitmapFactory.decodeStream(test, null, getBitmapOptions());
             test.close();
         } catch (IOException e) {
             e.printStackTrace();

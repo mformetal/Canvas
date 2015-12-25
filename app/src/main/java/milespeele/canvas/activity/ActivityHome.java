@@ -4,11 +4,18 @@ import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 
 import com.squareup.picasso.Picasso;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.ref.WeakReference;
 
 import javax.inject.Inject;
@@ -17,6 +24,7 @@ import butterknife.ButterKnife;
 import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
+import milespeele.canvas.event.EventBitmapChosen;
 import milespeele.canvas.event.EventFilenameChosen;
 import milespeele.canvas.event.EventParseError;
 import milespeele.canvas.fragment.FragmentBrushPicker;
@@ -28,6 +36,8 @@ import milespeele.canvas.parse.Masterpiece;
 import milespeele.canvas.parse.ParseUtils;
 import milespeele.canvas.transition.TransitionHelper;
 import milespeele.canvas.util.ErrorDialog;
+import milespeele.canvas.util.FileUtils;
+import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.NetworkUtils;
 import milespeele.canvas.view.ViewFab;
 import milespeele.canvas.view.ViewRoundedFrameLayout;
@@ -39,6 +49,7 @@ public class ActivityHome extends ActivityBase {
     private final static String TAG_FRAGMENT_FILENAME = "name";
     private final static String TAG_FRAGMENT_BRUSH = "brush";
     private final static String TAG_FRAGMENT_TEXT = "text";
+    private final static int REQUEST_IMPORT_CODE = 1;
 
     @Inject ParseUtils parseUtils;
     @Inject EventBus bus;
@@ -79,6 +90,23 @@ public class ActivityHome extends ActivityBase {
             FragmentTransaction ft = getFragmentManager().beginTransaction();
             ft.replace(R.id.fragment_drawer_animator, new Fragment());
             ft.commit();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            if (requestCode == 1) {
+                if (data != null) {
+                    FragmentDrawer frag = (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
+                    if (frag != null) {
+                        Snackbar.make(frag.getRootView(), R.string.snackbar_drag_photo, Snackbar.LENGTH_LONG)
+                                .show();
+                    }
+                    bus.post(new EventBitmapChosen(data));
+                }
+            }
         }
     }
 
@@ -191,6 +219,12 @@ public class ActivityHome extends ActivityBase {
                             dialog.dismiss();
                         });
                 builder.create().show();
+                break;
+            case R.id.menu_import:
+                Intent intent = new Intent();
+                intent.setType("image/*");
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                startActivityForResult(intent, REQUEST_IMPORT_CODE);
                 break;
         }
     }

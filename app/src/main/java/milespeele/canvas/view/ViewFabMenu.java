@@ -229,7 +229,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
 
         if (v.getId() != R.id.menu_toggle) {
             if (v.getId() != R.id.menu_erase && eraser.isScaledUp()) {
-//                eraser.scaleUp();
+                eraser.scaleDown();
             }
         }
     }
