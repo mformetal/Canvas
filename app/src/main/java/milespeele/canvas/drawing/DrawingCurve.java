@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.os.SystemClock;
@@ -31,7 +30,6 @@ import milespeele.canvas.event.EventColorChosen;
 import milespeele.canvas.event.EventTextChosen;
 import milespeele.canvas.util.FileUtils;
 import milespeele.canvas.util.Datastore;
-import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.PaintStyles;
 import milespeele.canvas.util.TextUtils;
 import milespeele.canvas.util.ViewUtils;
@@ -46,7 +44,7 @@ public class DrawingCurve {
         ERASE,
         TEXT,
         INK,
-        BITMAP
+        IMPORT
     }
 
     private DynamicLayout mTextLayout;
@@ -81,11 +79,14 @@ public class DrawingCurve {
         void hideButton();
     }
 
-    public DrawingCurve(Context context, int w, int h) {
+    public DrawingCurve(Context context) {
         ((MainApp) context.getApplicationContext()).getApplicationComponent().inject(this);
         bus.register(this);
 
         mContext = context;
+
+        int w = ViewUtils.getScreenWidth(mContext);
+        int h = ViewUtils.getScreenHeight(mContext);
 
         mFileUtils = new FileUtils(mContext);
 
@@ -138,7 +139,7 @@ public class DrawingCurve {
 
                 mTextLayout = null;
                 break;
-            case BITMAP:
+            case IMPORT:
                 listener.hideButton();
 
                 mCanvas.save();
@@ -196,7 +197,7 @@ public class DrawingCurve {
 
                     canvas.restore();
                     break;
-                case BITMAP:
+                case IMPORT:
                     canvas.save();
                     canvas.translate(mTranslateX, mTranslateY);
                     canvas.scale(mScaleFactor, mScaleFactor, cx, cy);
@@ -289,7 +290,7 @@ public class DrawingCurve {
             case TEXT:
                 mGestureDetector.onTouchEvent(event);
                 break;
-            case BITMAP:
+            case IMPORT:
                 mGestureDetector.onTouchEvent(event);
                 break;
         }
@@ -313,7 +314,7 @@ public class DrawingCurve {
                     mInkedColor = mBitmap.getPixel(inkX, inkY);
                 }
                 break;
-            case BITMAP:
+            case IMPORT:
                 break;
         }
 
@@ -373,7 +374,7 @@ public class DrawingCurve {
                     setPaintColor(mStrokeColor);
                 }
                 break;
-            case BITMAP:
+            case IMPORT:
                 mTranslateX += x - mLastX;
                 mTranslateY += y - mLastY;
                 break;
@@ -400,7 +401,7 @@ public class DrawingCurve {
                 setPaintColor(mStrokeColor);
                 changeState(State.DRAW);
                 break;
-            case BITMAP:
+            case IMPORT:
                 break;
         }
 
@@ -565,7 +566,7 @@ public class DrawingCurve {
                 try {
                     listener.showButton("DROP");
 
-                    changeState(State.BITMAP);
+                    changeState(State.IMPORT);
 
                     inputStream.close();
                 } catch (IOException e) {

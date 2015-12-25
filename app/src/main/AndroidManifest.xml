@@ -18,16 +18,16 @@
             android:windowSoftInputMode="stateHidden|adjustResize"
             android:label="@string/app_name"
             android:screenOrientation="nosensor" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
         </activity>
 
         <activity
             android:name=".activity.ActivityLoginDispatch"
             android:label="@string/app_name"
             android:screenOrientation="nosensor" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
         </activity>
 
         <activity
