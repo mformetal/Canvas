@@ -72,6 +72,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
     private float radius;
     private double mLastAngle;
     private float mMaxRadius;
+    private float mLastX, mLastY;
     private final static int VISIBILITY_DURATION = 350;
     private final static int INITIAL_DELAY = 0;
     private final static int DURATION = 400;
@@ -269,10 +270,12 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
                 if (isFlinging) {
                     isFlinging = false;
                 }
-
                 getClickedItem(x, y);
 
                 mLastAngle = mCircle.angleInDegrees(x, y);
+
+                mLastX = x;
+                mLastY = y;
                 break;
             case MotionEvent.ACTION_MOVE:
                 double degrees = mCircle.angleInDegrees(x, y);

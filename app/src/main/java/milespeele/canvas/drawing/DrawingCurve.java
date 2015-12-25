@@ -79,14 +79,14 @@ public class DrawingCurve {
         void hideButton();
     }
 
-    public DrawingCurve(Context context) {
+    public DrawingCurve(Context context, int w, int h) {
         ((MainApp) context.getApplicationContext()).getApplicationComponent().inject(this);
         bus.register(this);
 
         mContext = context;
 
-        int w = ViewUtils.getScreenWidth(mContext);
-        int h = ViewUtils.getScreenHeight(mContext);
+//        int w = ViewUtils.getScreenWidth(mContext);
+//        int h = ViewUtils.getScreenHeight(mContext);
 
         mFileUtils = new FileUtils(mContext);
 

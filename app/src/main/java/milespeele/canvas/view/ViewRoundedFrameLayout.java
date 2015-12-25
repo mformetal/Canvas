@@ -28,6 +28,7 @@ public class ViewRoundedFrameLayout extends FrameLayout {
     private Path mPath;
 
     private float mCorner;
+    private boolean isAnimating = false;
 
     public ViewRoundedFrameLayout(Context context) {
         super(context);
@@ -72,6 +73,14 @@ public class ViewRoundedFrameLayout extends FrameLayout {
     public void setCorner(float corner) {
         mCorner = corner;
         invalidate();
+    }
+
+    public void setAnimating(boolean bool) {
+        isAnimating = bool;
+    }
+
+    public boolean isAnimating() {
+        return isAnimating;
     }
 
     public static final ViewUtils.FloatProperty<ViewRoundedFrameLayout> CORNERS

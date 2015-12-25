@@ -62,7 +62,7 @@ public class ViewCanvasSurface extends SurfaceView
         super.onSizeChanged(w, h, oldw, oldh);
 
         if (oldh == 0 || oldw == 0) {
-            drawingCurve = new DrawingCurve(getContext());
+            drawingCurve = new DrawingCurve(getContext(), w, h);
             drawingCurve.setListener(this);
         }
     }

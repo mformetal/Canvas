@@ -94,7 +94,8 @@ public class ViewCanvasLayout extends CoordinatorLayout implements View.OnClickL
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         final float x = ev.getX(), y = ev.getY();
 
-        if (fabFrame.getVisibility() == View.VISIBLE) {
+        if (fabFrame.getVisibility() == View.VISIBLE &&
+                !fabFrame.isAnimating()) {
             drawer.setOnTouchListener(null);
             fabFrame.getHitRect(hitRect);
             if (!hitRect.contains((int) x, (int) y)) {

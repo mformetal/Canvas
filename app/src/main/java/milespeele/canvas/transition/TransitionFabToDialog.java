@@ -60,6 +60,19 @@ public class TransitionFabToDialog extends ChangeBounds {
         Animator corner = ObjectAnimator.ofFloat(fabFrame,
                 ViewRoundedFrameLayout.CORNERS, fabFrame.getWidth(), 0)
                 .setDuration(350);
+        corner.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                super.onAnimationStart(animation);
+                fabFrame.setAnimating(true);
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationEnd(animation);
+                fabFrame.setAnimating(false);
+            }
+        });
 
         Animator alpha = ObjectAnimator.ofInt(layout, ViewCanvasLayout.ALPHA, 128);
         alpha.setInterpolator(new LinearInterpolator());
