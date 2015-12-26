@@ -48,6 +48,8 @@ public class ViewCanvasSurface extends SurfaceView
     }
 
     public void init() {
+        thread = new DrawingThread(getHolder());
+
         setLayerType(LAYER_TYPE_NONE, null);
 
         setWillNotDraw(false);
@@ -70,9 +72,6 @@ public class ViewCanvasSurface extends SurfaceView
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
         holder.setFixedSize(getWidth(), getHeight());
-        holder.setKeepScreenOn(true);
-
-        thread = new DrawingThread(holder);
         thread.setRunning(true);
         thread.start();
     }
@@ -100,6 +99,11 @@ public class ViewCanvasSurface extends SurfaceView
     @Override
     public void hideButton() {
         ((ViewCanvasLayout) getParent()).setButtonGone();
+    }
+
+    @Override
+    public void hideMenu() {
+        ((ViewCanvasLayout) getParent()).menu.fadeOut();
     }
 
     public void onButtonClicked() { drawingCurve.onButtonClicked(); }
@@ -130,9 +134,9 @@ public class ViewCanvasSurface extends SurfaceView
 
     public Paint getCurrentPaint() { return drawingCurve.getPaint(); }
 
-    private class DrawingThread extends Thread {
+    private final class DrawingThread extends Thread {
 
-        private boolean mRun = false;
+        private boolean mRun = true;
 
         private final SurfaceHolder mSurfaceHolder;
         private final Object mRunLock = new Object();
@@ -183,6 +187,5 @@ public class ViewCanvasSurface extends SurfaceView
                 }
             }
         }
-
     }
 }

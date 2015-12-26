@@ -192,7 +192,6 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
             double angle = i * slice;
             double x = getCenterX() + mItemRadius * Math.cos(angle);
             double y = getCenterY() - mItemRadius * Math.sin(angle);
-            Logg.log(angle, x, y);
 
             child.layout((int) x - child.getMeasuredWidth() / 2,
                     (int) y - child.getMeasuredHeight() / 2,

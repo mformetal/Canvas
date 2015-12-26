@@ -99,7 +99,7 @@ public class ActivityHome extends ActivityBase {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
-            if (requestCode == 1) {
+            if (requestCode == REQUEST_IMPORT_CODE) {
                 if (data != null) {
                     FragmentDrawer frag = (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
                     if (frag != null) {

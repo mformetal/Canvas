@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.os.SystemClock;
@@ -48,6 +49,7 @@ public class DrawingCurve {
     }
 
     private DynamicLayout mTextLayout;
+    private Matrix mMatrix;
     private ScaleGestureDetector mGestureDetector;
     private Bitmap mBitmap, mCachedBitmap, mPhotoBitmap;
     private Canvas mCanvas;
@@ -62,10 +64,10 @@ public class DrawingCurve {
     private static final float TOLERANCE = 5f;
     private static float STROKE_WIDTH = 5f;
     private static final int INVALID_POINTER = -1;
+    private float[] mMatrixValues = new float[9];
     private float mScaleFactor = 1f;
     private int mActivePointer = INVALID_POINTER;
     private float mLastX, mLastY;
-    private float mTranslateX, mTranslateY;
     private float cx, cy;
     private int mStrokeColor, mBackgroundColor, mOppositeBackgroundColor, mInkedColor;
     private boolean isSafeToDraw = true;
@@ -77,6 +79,7 @@ public class DrawingCurve {
     public interface DrawingCurveListener {
         void showButton(String buttonText);
         void hideButton();
+        void hideMenu();
     }
 
     public DrawingCurve(Context context, int w, int h) {
@@ -94,6 +97,8 @@ public class DrawingCurve {
         mBackgroundColor = store.getLastBackgroundColor();
         mOppositeBackgroundColor = ViewUtils.getComplimentColor(mBackgroundColor);
         mInkedColor = mStrokeColor;
+
+        mMatrix = new Matrix();
 
         mCachedBitmap = mFileUtils.getCachedBitmap();
         if (mCachedBitmap == null) {
@@ -125,7 +130,7 @@ public class DrawingCurve {
                 listener.hideButton();
 
                 mCanvas.save();
-                mCanvas.translate(mTranslateX, mTranslateY);
+                mCanvas.concat(mMatrix);
                 mCanvas.scale(mScaleFactor, mScaleFactor);
                 mTextLayout.draw(mCanvas);
                 mCanvas.restore();
@@ -134,8 +139,8 @@ public class DrawingCurve {
 
                 changeState(State.DRAW);
 
-                mTranslateX = 0;
-                mTranslateY = 0;
+                // set matrix to identity
+                mScaleFactor = 1f;
 
                 mTextLayout = null;
                 break;
@@ -143,15 +148,17 @@ public class DrawingCurve {
                 listener.hideButton();
 
                 mCanvas.save();
-                mCanvas.translate(mTranslateX, mTranslateY);
-                mCanvas.scale(mScaleFactor, mScaleFactor);
+                mCanvas.concat(mMatrix);
+//                mCanvas.scale(mScaleFactor, mScaleFactor,
+//                        cx + (mPhotoBitmap.getWidth() * mScaleFactor) / 2,
+//                        cy + (mPhotoBitmap.getHeight() * mScaleFactor) / 2);
                 mCanvas.drawBitmap(mPhotoBitmap, 0, 0, null);
                 mCanvas.restore();
 
                 changeState(State.DRAW);
 
-                mTranslateX = 0;
-                mTranslateY = 0;
+                // set matrix to identity
+                mScaleFactor = 1f;
 
                 mPhotoBitmap = null;
                 break;
@@ -169,8 +176,9 @@ public class DrawingCurve {
             switch (mState) {
                 case TEXT:
                     canvas.save();
-                    canvas.translate(mTranslateX, mTranslateY);
-                    canvas.scale(mScaleFactor, mScaleFactor, cx, cy);
+//                    canvas.translate(mTranslateX, mTranslateY);
+//                    canvas.scale(mScaleFactor, mScaleFactor, cx, cy);
+                    canvas.concat(mMatrix);
                     mTextLayout.draw(canvas);
                     canvas.restore();
                     break;
@@ -178,7 +186,7 @@ public class DrawingCurve {
                     mInkPaint.setStrokeWidth(20f);
 
                     canvas.save();
-                    canvas.translate(mTranslateX, mTranslateY);
+                    canvas.concat(mMatrix);
 
                     float lineSize = canvas.getWidth() * .1f, xSpace = canvas.getWidth() * .05f;
                     float middleX = canvas.getWidth() / 2f, middleY = canvas.getHeight() / 2f;
@@ -199,7 +207,7 @@ public class DrawingCurve {
                     break;
                 case IMPORT:
                     canvas.save();
-                    canvas.translate(mTranslateX, mTranslateY);
+                    canvas.concat(mMatrix);
                     canvas.scale(mScaleFactor, mScaleFactor, cx, cy);
                     canvas.drawBitmap(mPhotoBitmap, 0, 0, null);
                     canvas.save();
@@ -306,8 +314,8 @@ public class DrawingCurve {
             case TEXT:
                 break;
             case INK:
-                mTranslateX = x - mBitmap.getWidth() / 2f;
-                mTranslateY = y - mBitmap.getHeight() / 2f - mBitmap.getWidth() * .15f;
+                mMatrix.setTranslate(x - mBitmap.getWidth() / 2f,
+                        y - mBitmap.getHeight() / 2f - mBitmap.getWidth() * .15f);
 
                 int inkX = Math.round(x), inkY = Math.round(y);
                 if (eventCoordsInRange(inkX, inkY)) {
@@ -350,22 +358,12 @@ public class DrawingCurve {
                 addPoint(x, y);
                 break;
             case TEXT:
-                mTranslateX += x - mLastX;
-                mTranslateY += y - mLastY;
-
-                if (event.getPointerCount() > 1) {
-                    int pointer = mActivePointer == 0 ? 1 : 0;
-                    int index = event.findPointerIndex(pointer);
-                    float nx = event.getX(index);
-                    float ny = event.getY(index);
-
-                    cx = (x + nx) / 2f;
-                    cy = (y + ny) / 2f;
+                if (!mGestureDetector.isInProgress()) {
+                    mMatrix.postTranslate(x - mLastX, y - mLastY);
                 }
                 break;
             case INK:
-                mTranslateX += x - mLastX;
-                mTranslateY += y - mLastY;
+                mMatrix.postTranslate(x - mLastX, y - mLastY);
 
                 int inkX = Math.round(x), inkY = Math.round(y - mBitmap.getWidth() * .15f);
                 if (eventCoordsInRange(inkX, inkY)) {
@@ -375,8 +373,17 @@ public class DrawingCurve {
                 }
                 break;
             case IMPORT:
-                mTranslateX += x - mLastX;
-                mTranslateY += y - mLastY;
+                if (!mGestureDetector.isInProgress()) {
+                    mMatrix.postTranslate(x - mLastX, y - mLastY);
+                } else {
+                    int pointer = mActivePointer == 0 ? 1 : 0;
+                    int index = event.findPointerIndex(pointer);
+                    float nx = event.getX(index);
+                    float ny = event.getY(index);
+
+                    cx = (x + nx) / 2f;
+                    cy = (y + ny) / 2f;
+                }
                 break;
         }
 
@@ -489,8 +496,7 @@ public class DrawingCurve {
     }
 
     public void ink() {
-        mTranslateY = 0;
-        mTranslateX = 0;
+        // set matrix to identity
 
         changeState(State.INK);
 
@@ -521,8 +527,7 @@ public class DrawingCurve {
 
         changeState(State.TEXT);
 
-        mTranslateX = 0;
-        mTranslateY = height / 2f - mTextLayout.getHeight() / 2;
+        mMatrix.setTranslate(0, height / 2f - mTextLayout.getHeight() / 2);
 
         listener.showButton("DROP");
     }
@@ -614,6 +619,8 @@ public class DrawingCurve {
 
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
+            cx = detector.getFocusX();
+            cy = detector.getFocusY();
             mScaleFactor *= detector.getScaleFactor();
             mScaleFactor = Math.max(MIN_SCALE, Math.min(mScaleFactor, MAX_SCALE));
             return true;
