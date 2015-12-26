@@ -74,15 +74,13 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
     private float radius;
     private double mLastAngle;
     private float mMaxRadius;
-    private float mLastX, mLastY;
     private final static int VISIBILITY_DURATION = 350;
     private final static int INITIAL_DELAY = 0;
     private final static int DURATION = 400;
     private final static int DELAY_INCREMENT = 15;
     private final static int HIDE_DIFF = 50;
 
-    private ViewFabMenuListener listener;
-
+    private ArrayList<ViewFabMenuListener> mListeners;
     public interface ViewFabMenuListener {
         void onFabMenuButtonClicked(ViewFab v);
     }
@@ -111,6 +109,8 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
     private void init() {
         ((MainApp) getContext().getApplicationContext()).getApplicationComponent().inject(this);
         bus.register(this);
+
+        mListeners = new ArrayList<>();
 
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mPaint.setAlpha(255);
@@ -186,7 +186,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
 
         mItemPositions = new ArrayList<>();
 
-        for (int i = 0; i < count; i++) {
+        for (int i = 0; i <= count; i++) {
             final ViewFab child = (ViewFab) getChildAt(i);
 
             double angle = i * slice;
@@ -205,35 +205,8 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
     @Override
     public void onClick(View v) {
         ViewFab fab = (ViewFab) v;
-        if (listener != null) {
+        for (ViewFabMenuListener listener: mListeners) {
             listener.onFabMenuButtonClicked(fab);
-        }
-
-        v.performClick();
-        ViewCanvasLayout parent = ((ViewCanvasLayout) getParent());
-        switch (v.getId()) {
-            case R.id.menu_toggle:
-                toggleMenu();
-                break;
-            case R.id.menu_undo:
-                parent.undo();
-                break;
-            case R.id.menu_redo:
-                parent.redo();
-                break;
-            case R.id.menu_erase:
-                parent.erase();
-                eraser.toggleScaled();
-                break;
-            case R.id.menu_ink:
-                parent.ink();
-                break;
-        }
-
-        if (v.getId() != R.id.menu_toggle) {
-            if (v.getId() != R.id.menu_erase && eraser.isScaledUp()) {
-                eraser.scaleDown();
-            }
         }
     }
 
@@ -247,10 +220,12 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
         final float x = event.getX(), y = event.getY();
 
         if (!isEnabled()) {
+            Logg.log("NOT ENABLED");
             return false;
         }
 
         if (isAnimating) {
+            Logg.log("IS ANIMATING");
             return false;
         }
 
@@ -258,10 +233,12 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
             if (Circle.contains(mCircle.getCenterX() - x, mCircle.getCenterY() - y, ViewUtils.radius(toggle))) {
                 onClick(toggle);
             }
+            Logg.log("IS FADED OUT AND IS NOT SHOWING");
             return false;
         }
 
         if (!mCircle.contains(x, y)) {
+            Logg.log("DOES NOT CONTAIN");
             return false;
         }
 
@@ -275,9 +252,6 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
                 getClickedItem(x, y);
 
                 mLastAngle = mCircle.angleInDegrees(x, y);
-
-                mLastX = x;
-                mLastY = y;
                 break;
             case MotionEvent.ACTION_MOVE:
                 double degrees = mCircle.angleInDegrees(x, y);
@@ -305,6 +279,10 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
     @Override
     protected void onDraw(Canvas canvas) {
         canvas.drawCircle(getCenterX(), getCenterY(), radius, mPaint);
+    }
+
+    public void addListener(ViewFabMenuListener listener) {
+        mListeners.add(listener);
     }
 
     public void rotateToggleOpen() {
@@ -337,10 +315,6 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
         }
     }
 
-    public void setListener(ViewFabMenuListener otherListener) {
-        listener = otherListener;
-    }
-
     public void toggleMenu() {
         if (!isAnimating) {
             if (isFadedOut) {
@@ -357,7 +331,6 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
 
     public void show() {
         if (!isMenuShowing && !isAnimating) {
-            isAnimating = true;
             isMenuShowing = true;
             rotateToggleOpen();
 
@@ -385,6 +358,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
                     public void onAnimationStart(Animator animation) {
                         view.setVisibility(View.VISIBLE);
                         if (view == buttonsList.get(0)) {
+                            isAnimating = true;
                             background.start();
                         }
                     }
@@ -404,7 +378,6 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
 
     public void hide() {
         if (isMenuShowing && !isAnimating) {
-            isAnimating = true;
             isMenuShowing = false;
             rotateToggleClosed();
 
@@ -432,6 +405,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
                     @Override
                     public void onAnimationStart(Animator animation) {
                         if (view == buttonsList.get(0)) {
+                            isAnimating = true;
                             background.start();
                         }
                     }

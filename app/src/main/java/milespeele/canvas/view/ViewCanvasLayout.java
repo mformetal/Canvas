@@ -23,13 +23,13 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import milespeele.canvas.R;
 import milespeele.canvas.util.Circle;
-import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.ViewUtils;
 
 /**
  * Created by milespeele on 8/7/15.
  */
-public class ViewCanvasLayout extends CoordinatorLayout implements View.OnClickListener {
+public class ViewCanvasLayout extends CoordinatorLayout implements
+        View.OnClickListener, ViewFabMenu.ViewFabMenuListener {
 
     @Bind(R.id.fragment_drawer_canvas) ViewCanvasSurface drawer;
     @Bind(R.id.fragment_drawer_menu) ViewFabMenu menu;
@@ -71,6 +71,7 @@ public class ViewCanvasLayout extends CoordinatorLayout implements View.OnClickL
         super.onFinishInflate();
         ButterKnife.bind(this);
         drawer.requestFocus();
+        menu.addListener(this);
     }
 
     @Override
@@ -108,15 +109,10 @@ public class ViewCanvasLayout extends CoordinatorLayout implements View.OnClickL
             return false;
         }
 
+        menu.setEnabled(true);
+
         if (menu.isVisible()) {
             if (menuContainsTouch(ev)) {
-                drawer.setEnabled(false);
-                return false;
-            }
-        } else {
-            if (Circle.contains(menu.getCenterX() - ev.getX(),
-                    menu.getCenterY() - (ev.getY() - (getHeight() - menu.getHeight())),
-                    ViewUtils.radius(menu.toggle))) {
                 drawer.setEnabled(false);
                 return false;
             }
@@ -141,6 +137,36 @@ public class ViewCanvasLayout extends CoordinatorLayout implements View.OnClickL
     @OnClick(R.id.fragment_drawer_button)
     public void onClick(View v) {
         drawer.onButtonClicked();
+    }
+
+    @Override
+    public void onFabMenuButtonClicked(ViewFab v) {
+        v.performClick();
+
+        switch (v.getId()) {
+            case R.id.menu_toggle:
+                menu.toggleMenu();
+                break;
+            case R.id.menu_undo:
+                undo();
+                break;
+            case R.id.menu_redo:
+                redo();
+                break;
+            case R.id.menu_erase:
+                erase();
+                menu.eraser.toggleScaled();
+                break;
+            case R.id.menu_ink:
+                ink();
+                break;
+        }
+
+        if (v.getId() != R.id.menu_toggle) {
+            if (v.getId() != R.id.menu_erase && menu.eraser.isScaledUp()) {
+                menu.eraser.scaleDown();
+            }
+        }
     }
 
     private boolean menuContainsTouch(MotionEvent event) {
@@ -178,7 +204,7 @@ public class ViewCanvasLayout extends CoordinatorLayout implements View.OnClickL
     }
 
     public void setMenuListener(ViewFabMenu.ViewFabMenuListener other) {
-        menu.setListener(other);
+        menu.addListener(other);
     }
 
     public int getBrushColor() {
