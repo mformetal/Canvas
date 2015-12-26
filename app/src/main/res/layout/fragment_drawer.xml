@@ -11,6 +11,7 @@
         android:id="@+id/fragment_drawer_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:text="DROP"
         app:layout_anchorGravity="top|center_horizontal"
         app:layout_anchor="@id/fragment_drawer_coordinator"
         android:visibility="gone" />

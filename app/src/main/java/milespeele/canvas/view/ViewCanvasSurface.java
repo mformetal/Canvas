@@ -21,7 +21,7 @@ import milespeele.canvas.util.Logg;
  * Created by Miles Peele on 10/2/2015.
  */
 public class ViewCanvasSurface extends SurfaceView
-        implements SurfaceHolder.Callback, View.OnTouchListener, DrawingCurve.DrawingCurveListener {
+        implements SurfaceHolder.Callback, View.OnTouchListener {
 
     private DrawingCurve drawingCurve;
     private DrawingThread thread;
@@ -49,6 +49,7 @@ public class ViewCanvasSurface extends SurfaceView
 
     public void init() {
         thread = new DrawingThread(getHolder());
+        drawingCurve = new DrawingCurve(getContext());
 
         setLayerType(LAYER_TYPE_NONE, null);
 
@@ -57,16 +58,6 @@ public class ViewCanvasSurface extends SurfaceView
         setOnTouchListener(this);
 
         getHolder().addCallback(this);
-    }
-
-    @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        super.onSizeChanged(w, h, oldw, oldh);
-
-        if (oldh == 0 || oldw == 0) {
-            drawingCurve = new DrawingCurve(getContext(), w, h);
-            drawingCurve.setListener(this);
-        }
     }
 
     @Override
@@ -91,19 +82,8 @@ public class ViewCanvasSurface extends SurfaceView
         return drawingCurve.onTouchEvent(event);
     }
 
-    @Override
-    public void showButton(String text) {
-        ((ViewCanvasLayout) getParent()).setButtonVisible(text);
-    }
-
-    @Override
-    public void hideButton() {
-        ((ViewCanvasLayout) getParent()).setButtonGone();
-    }
-
-    @Override
-    public void hideMenu() {
-        ((ViewCanvasLayout) getParent()).menu.fadeOut();
+    public void setListener(DrawingCurve.DrawingCurveListener listener) {
+        drawingCurve.setListener(listener);
     }
 
     public void onButtonClicked() { drawingCurve.onButtonClicked(); }

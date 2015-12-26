@@ -22,14 +22,16 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import milespeele.canvas.R;
+import milespeele.canvas.drawing.DrawingCurve;
 import milespeele.canvas.util.Circle;
+import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.ViewUtils;
 
 /**
  * Created by milespeele on 8/7/15.
  */
 public class ViewCanvasLayout extends CoordinatorLayout implements
-        View.OnClickListener, ViewFabMenu.ViewFabMenuListener {
+        View.OnClickListener, ViewFabMenu.ViewFabMenuListener, DrawingCurve.DrawingCurveListener {
 
     @Bind(R.id.fragment_drawer_canvas) ViewCanvasSurface drawer;
     @Bind(R.id.fragment_drawer_menu) ViewFabMenu menu;
@@ -70,8 +72,9 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
     protected void onFinishInflate() {
         super.onFinishInflate();
         ButterKnife.bind(this);
-        drawer.requestFocus();
+
         menu.addListener(this);
+        drawer.setListener(this);
     }
 
     @Override
@@ -169,6 +172,24 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
         }
     }
 
+    @Override
+    public void toggleOptionsMenuVisibility(boolean setVisible) {
+        if (setVisible) {
+            setButtonVisible();
+        } else {
+            setButtonGone();
+        }
+    }
+
+    @Override
+    public void toggleMenuVisibility(boolean setVisible) {
+        if (setVisible) {
+            menu.fadeIn();
+        } else {
+            menu.fadeOut();
+        }
+    }
+
     private boolean menuContainsTouch(MotionEvent event) {
         return Circle.contains(menu.getCenterX() - event.getX(),
                 (menu.getCenterY() + (getHeight() - menu.getHeight())) - event.getY(),
@@ -188,9 +209,7 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
         gone.start();
     }
 
-    public void setButtonVisible(String text) {
-        button.setText(text);
-
+    public void setButtonVisible() {
         ObjectAnimator visibility = ObjectAnimator.ofFloat(button, View.ALPHA, 0f, 1f);
         visibility.setDuration(BUTTON_BAR_DURATION);
         visibility.addListener(new AnimatorListenerAdapter() {

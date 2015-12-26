@@ -155,18 +155,6 @@ public class ViewUtils {
         }
     }
 
-    public static int getScreenWidth(Context context) {
-        Point size = new Point();
-        ((Activity) context).getWindowManager().getDefaultDisplay().getRealSize(size);
-        return size.x;
-    }
-
-    public static int getScreenHeight(Context context) {
-        Point size = new Point();
-        ((Activity) context).getWindowManager().getDefaultDisplay().getRealSize(size);
-        return size.y;
-    }
-
     public static float dpToPx(float dp, Context context) {
         DisplayMetrics metric = context.getResources().getDisplayMetrics();
         return dp * (metric.densityDpi / 160f);

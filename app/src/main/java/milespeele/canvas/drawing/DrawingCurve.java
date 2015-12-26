@@ -2,6 +2,7 @@ package milespeele.canvas.drawing;
 
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -9,6 +10,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.graphics.Rect;
 import android.os.SystemClock;
 import android.text.DynamicLayout;
@@ -78,19 +80,20 @@ public class DrawingCurve {
 
     private DrawingCurveListener listener;
     public interface DrawingCurveListener {
-        void showButton(String buttonText);
-        void hideButton();
-        void hideMenu();
+        void toggleOptionsMenuVisibility(boolean visible);
+        void toggleMenuVisibility(boolean visible);
     }
 
-    public DrawingCurve(Context context, int w, int h) {
+    public DrawingCurve(Context context) {
         ((MainApp) context.getApplicationContext()).getApplicationComponent().inject(this);
         bus.register(this);
 
         mContext = context;
 
-//        int w = ViewUtils.getScreenWidth(mContext);
-//        int h = ViewUtils.getScreenHeight(mContext);
+        Point size = new Point();
+        ((Activity) context).getWindowManager().getDefaultDisplay().getSize(size);
+        int w = size.x;
+        int h = size.y;
 
         mFileUtils = new FileUtils(mContext);
 
@@ -128,7 +131,7 @@ public class DrawingCurve {
     public void onButtonClicked() {
         switch (mState) {
             case TEXT:
-                listener.hideButton();
+                listener.toggleOptionsMenuVisibility(false);
 
                 mCanvas.save();
                 mCanvas.concat(mMatrix);
@@ -146,7 +149,7 @@ public class DrawingCurve {
                 mTextLayout = null;
                 break;
             case IMPORT:
-                listener.hideButton();
+                listener.toggleOptionsMenuVisibility(false);
 
                 mCanvas.save();
                 mCanvas.concat(mMatrix);
@@ -527,7 +530,7 @@ public class DrawingCurve {
 
         mMatrix.setTranslate(0, height / 2f - mTextLayout.getHeight() / 2);
 
-        listener.showButton("DROP");
+        listener.toggleOptionsMenuVisibility(true);
     }
 
     public void onEvent(EventColorChosen eventColorChosen) {
@@ -567,7 +570,7 @@ public class DrawingCurve {
         } finally {
             if (inputStream != null) {
                 try {
-                    listener.showButton("DROP");
+                    listener.toggleOptionsMenuVisibility(true);
 
                     changeState(State.IMPORT);
 
