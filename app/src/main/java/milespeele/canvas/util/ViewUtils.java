@@ -3,6 +3,7 @@ package milespeele.canvas.util;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.util.DisplayMetrics;
@@ -188,5 +189,10 @@ public class ViewUtils {
     // ASSUMES VIEW IS A CIRCLE SO WIDTH = HEIGHT
     public static float radius(View view) {
         return view.getMeasuredWidth() / 2f;
+    }
+
+    public static void setIdentityMatrix(Matrix matrix) {
+        float[] values = new float[] {1, 0, 0, 0, 1, 0, 0, 0, 1};
+        matrix.setValues(values);
     }
 }

@@ -31,6 +31,7 @@ import milespeele.canvas.event.EventColorChosen;
 import milespeele.canvas.event.EventTextChosen;
 import milespeele.canvas.util.FileUtils;
 import milespeele.canvas.util.Datastore;
+import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.PaintStyles;
 import milespeele.canvas.util.TextUtils;
 import milespeele.canvas.util.ViewUtils;
@@ -139,7 +140,7 @@ public class DrawingCurve {
 
                 changeState(State.DRAW);
 
-                // set matrix to identity
+                ViewUtils.setIdentityMatrix(mMatrix);
                 mScaleFactor = 1f;
 
                 mTextLayout = null;
@@ -157,7 +158,7 @@ public class DrawingCurve {
 
                 changeState(State.DRAW);
 
-                // set matrix to identity
+                ViewUtils.setIdentityMatrix(mMatrix);
                 mScaleFactor = 1f;
 
                 mPhotoBitmap = null;
@@ -176,8 +177,7 @@ public class DrawingCurve {
             switch (mState) {
                 case TEXT:
                     canvas.save();
-//                    canvas.translate(mTranslateX, mTranslateY);
-//                    canvas.scale(mScaleFactor, mScaleFactor, cx, cy);
+                    canvas.scale(mScaleFactor, mScaleFactor, cx, cy);
                     canvas.concat(mMatrix);
                     mTextLayout.draw(canvas);
                     canvas.restore();
@@ -496,8 +496,6 @@ public class DrawingCurve {
     }
 
     public void ink() {
-        // set matrix to identity
-
         changeState(State.INK);
 
         mInkedColor = mBitmap.getPixel(mBitmap.getWidth() / 2, mBitmap.getHeight() / 2);
