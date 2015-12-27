@@ -4,21 +4,18 @@ import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
-import android.view.View;
 
+import com.esotericsoftware.kryo.io.Output;
 import com.squareup.picasso.Picasso;
 
 import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 import java.lang.ref.WeakReference;
-import java.text.ParseException;
 
 import javax.inject.Inject;
 
@@ -39,10 +36,12 @@ import milespeele.canvas.parse.ParseUtils;
 import milespeele.canvas.transition.TransitionHelper;
 import milespeele.canvas.util.ErrorDialog;
 import milespeele.canvas.util.FileUtils;
-import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.NetworkUtils;
 import milespeele.canvas.view.ViewFab;
 import milespeele.canvas.view.ViewRoundedFrameLayout;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action0;
+import rx.schedulers.Schedulers;
 
 public class ActivityHome extends ActivityBase {
 
@@ -84,7 +83,18 @@ public class ActivityHome extends ActivityBase {
     @Override
     public void onBackPressed() {
         if (count == 0) {
-            super.onBackPressed();
+            AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                    .setPositiveButton(R.string.alert_dialog_save_exit, (dialog, which) -> {
+                        saveAndExit();
+                    })
+                    .setNeutralButton(R.string.alert_dialog_cancel, (dialog, which) -> {
+                        dialog.dismiss();
+                    })
+                    .setNegativeButton(R.string.alert_dialog_exit, (dialog, which) -> {
+                        dialog.dismiss();
+                        super.onBackPressed();
+                    });
+            builder.create().show();
         } else {
             // UGLY, but popBackStack() results in a weird exception
             count--;
@@ -145,7 +155,7 @@ public class ActivityHome extends ActivityBase {
             TransitionHelper.makeFabDialogTransitions(ActivityHome.this, view, fabFrame, picker);
 
             manager.beginTransaction()
-                    .replace(R.id.fragment_drawer_animator, picker)
+                    .replace(R.id.fragment_drawer_animator, picker, TAG_FRAGMENT_BRUSH)
 //                    .addToBackStack(TAG_FRAGMENT_BRUSH)
                     .commit();
 
@@ -162,7 +172,7 @@ public class ActivityHome extends ActivityBase {
             TransitionHelper.makeFabDialogTransitions(ActivityHome.this, view, fabFrame, picker);
 
             manager.beginTransaction()
-                    .replace(R.id.fragment_drawer_animator, picker)
+                    .replace(R.id.fragment_drawer_animator, picker, TAG_FRAGMENT_COLOR_PICKER)
 //                    .addToBackStack(TAG_FRAGMENT_COLOR_PICKER)
                     .commit();
 
@@ -232,6 +242,29 @@ public class ActivityHome extends ActivityBase {
                 intent.setAction(Intent.ACTION_GET_CONTENT);
                 startActivityForResult(intent, REQUEST_IMPORT_CODE);
                 break;
+        }
+    }
+
+    public void saveAndExit() {
+        final Context context = this;
+
+        ProgressDialog dialog = new ProgressDialog(this);
+        dialog.setIndeterminate(true);
+        dialog.setMessage("Saving...");
+        dialog.show();
+
+        FragmentDrawer fragmentDrawer = (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
+        if (fragmentDrawer != null) {
+            final Bitmap bitmap = fragmentDrawer.getDrawingBitmap();
+            Schedulers.io().createWorker().schedule(new Action0() {
+                @Override
+                public void call() {
+                    if (!isFinishing()) {
+                        FileUtils.compressAndCache(bitmap, context);
+                        finish();
+                    }
+                }
+            });
         }
     }
 }

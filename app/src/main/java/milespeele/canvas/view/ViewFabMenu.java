@@ -220,12 +220,10 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
         final float x = event.getX(), y = event.getY();
 
         if (!isEnabled()) {
-            Logg.log("NOT ENABLED");
             return false;
         }
 
         if (isAnimating) {
-            Logg.log("IS ANIMATING");
             return false;
         }
 
@@ -233,12 +231,10 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
             if (Circle.contains(mCircle.getCenterX() - x, mCircle.getCenterY() - y, ViewUtils.radius(toggle))) {
                 onClick(toggle);
             }
-            Logg.log("IS FADED OUT AND IS NOT SHOWING");
             return false;
         }
 
         if (!mCircle.contains(x, y)) {
-            Logg.log("DOES NOT CONTAIN");
             return false;
         }
 

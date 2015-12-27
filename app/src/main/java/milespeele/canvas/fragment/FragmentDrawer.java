@@ -46,6 +46,16 @@ public class FragmentDrawer extends Fragment implements ViewFabMenu.ViewFabMenuL
     }
 
     @Override
+    public void onPause() {
+        super.onPause();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
+
+    @Override
     public void onFabMenuButtonClicked(ViewFab v) {
         ActivityHome activityHome = (ActivityHome) getActivity();
         if (activityHome != null) {

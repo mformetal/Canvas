@@ -33,7 +33,6 @@ import milespeele.canvas.event.EventColorChosen;
 import milespeele.canvas.event.EventTextChosen;
 import milespeele.canvas.util.FileUtils;
 import milespeele.canvas.util.Datastore;
-import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.PaintStyles;
 import milespeele.canvas.util.TextUtils;
 import milespeele.canvas.util.ViewUtils;
@@ -61,7 +60,6 @@ public class DrawingCurve {
     private Paint mPaint, mInkPaint;
     private TextPaint mTextPaint;
     private State mState = State.DRAW;
-    private FileUtils mFileUtils;
     private Context mContext;
 
     private static final float TOLERANCE = 5f;
@@ -95,8 +93,6 @@ public class DrawingCurve {
         int w = size.x;
         int h = size.y;
 
-        mFileUtils = new FileUtils(mContext);
-
         mStrokeColor = ViewUtils.randomColor();
         mBackgroundColor = store.getLastBackgroundColor();
         mOppositeBackgroundColor = ViewUtils.getComplimentColor(mBackgroundColor);
@@ -104,7 +100,7 @@ public class DrawingCurve {
 
         mMatrix = new Matrix();
 
-        mCachedBitmap = mFileUtils.getCachedBitmap();
+        mCachedBitmap = FileUtils.getCachedBitmap(mContext);
         if (mCachedBitmap == null) {
             mCachedBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
             mCachedBitmap.eraseColor(mBackgroundColor);
@@ -238,7 +234,7 @@ public class DrawingCurve {
         isSafeToDraw = false;
         int width = mBitmap.getWidth(), height = mBitmap.getHeight();
 
-        mFileUtils.deleteBitmapFile();
+        FileUtils.deleteBitmapFile(mContext);
 
         mCurrentPoints.clear();
         mAllHistory.clear();
@@ -536,6 +532,8 @@ public class DrawingCurve {
     public void onEvent(EventColorChosen eventColorChosen) {
         int color = eventColorChosen.color;
         if (eventColorChosen.bool) {
+            store.setLastBackgroundColor(color);
+
             reset(color);
 
             changeState(State.DRAW);
@@ -564,7 +562,7 @@ public class DrawingCurve {
         InputStream inputStream = null;
         try {
             inputStream = mContext.getContentResolver().openInputStream(data.getData());
-            mPhotoBitmap = BitmapFactory.decodeStream(inputStream, null, mFileUtils.getBitmapOptions());
+            mPhotoBitmap = BitmapFactory.decodeStream(inputStream, null, FileUtils.getBitmapOptions(mContext));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } finally {
@@ -602,11 +600,6 @@ public class DrawingCurve {
     private boolean eventCoordsInRange(int x, int y) {
         return (0 <= x && x <= mBitmap.getWidth() - 1) &&
                 (0 <= y && y <= mBitmap.getHeight() - 1);
-    }
-
-    public void onSave() {
-        store.setLastBackgroundColor(mBackgroundColor);
-        mFileUtils.cacheBitmap(mBitmap);
     }
 
     private final class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {

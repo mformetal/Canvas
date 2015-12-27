@@ -29,6 +29,7 @@ import milespeele.canvas.drawing.DrawingHistory;
 import milespeele.canvas.drawing.DrawingPoint;
 import milespeele.canvas.drawing.DrawingPoints;
 import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 /**
@@ -36,8 +37,7 @@ import rx.schedulers.Schedulers;
  */
 public class FileUtils {
 
-    private final static String BITMAP_FILENAME = "canvas:bitmap";
-    private final static String COLORS_FILENAME = "canvas:colors";
+    public final static String BITMAP_FILENAME = "canvas:bitmap";
 
     private Context context;
 
@@ -45,13 +45,15 @@ public class FileUtils {
         context = otherContext;
     }
 
-    public void cacheBitmap(Bitmap bitmap) {
+    public static void compressAndCache(Bitmap bitmap, Context context) {
         compressBitmapAsObservable(bitmap)
                 .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(bytes -> {
                     try {
                         Output output = new Output(context.openFileOutput(BITMAP_FILENAME, Context.MODE_PRIVATE));
                         output.write(bytes);
+                        output.flush();
                         output.close();
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
@@ -63,10 +65,10 @@ public class FileUtils {
         return Observable.just(compressBitmapAsByteArray(bitmap));
     }
 
-    public static Observable<byte[]> compress(Bitmap bitmap) {
+    public static byte[] compress(Bitmap bitmap) {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-        return Observable.just(stream.toByteArray());
+        return stream.toByteArray();
     }
 
     public static byte[] compressBitmapAsByteArray(Bitmap bitmap) {
@@ -75,7 +77,7 @@ public class FileUtils {
         return stream.toByteArray();
     }
 
-    public BitmapFactory.Options getBitmapOptions() {
+    public static BitmapFactory.Options getBitmapOptions(Context context) {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inPreferredConfig = Bitmap.Config.ARGB_8888;
         options.inMutable = true;
@@ -90,12 +92,12 @@ public class FileUtils {
         return options;
     }
 
-    public Bitmap getCachedBitmap() {
+    public static Bitmap getCachedBitmap(Context context) {
         Bitmap bitmap = null;
 
         try {
             Input test = new Input(context.openFileInput(BITMAP_FILENAME));
-            bitmap = BitmapFactory.decodeStream(test, null, getBitmapOptions());
+            bitmap = BitmapFactory.decodeStream(test, null, getBitmapOptions(context));
             test.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -104,7 +106,7 @@ public class FileUtils {
         return bitmap;
     }
 
-    public void deleteBitmapFile() {
+    public static void deleteBitmapFile(Context context) {
         context.deleteFile(BITMAP_FILENAME);
     }
 }

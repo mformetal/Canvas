@@ -61,6 +61,10 @@
         any drawing you currently have.</string>
     <string name="alert_dialog_new_canvas_pos_button">Got it</string>
     <string name="alert_dialog_new_canvas_neg_button">GTFO</string>
+
+    <string name="alert_dialog_exit">Exit</string>
+    <string name="alert_dialog_save_exit">Save And Exit</string>
+    <string name="alert_dialog_cancel">Cancel</string>
     
     <string name="view_fab_save">Save Drawing!</string>
     <string name="view_fab_text">Draw Text!</string>

@@ -24,7 +24,6 @@ import butterknife.OnClick;
 import milespeele.canvas.R;
 import milespeele.canvas.drawing.DrawingCurve;
 import milespeele.canvas.util.Circle;
-import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.ViewUtils;
 
 /**
@@ -175,9 +174,9 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
     @Override
     public void toggleOptionsMenuVisibility(boolean setVisible) {
         if (setVisible) {
-            setButtonVisible();
+            setMenuVisible();
         } else {
-            setButtonGone();
+            setMenuGone();
         }
     }
 
@@ -196,7 +195,7 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
                 menu.getCircleRadius());
     }
 
-    public void setButtonGone() {
+    public void setMenuGone() {
         ObjectAnimator gone = ObjectAnimator.ofFloat(button, View.ALPHA, 1f, 0f);
         gone.setDuration(BUTTON_BAR_DURATION);
         gone.addListener(new AnimatorListenerAdapter() {
@@ -209,7 +208,7 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
         gone.start();
     }
 
-    public void setButtonVisible() {
+    public void setMenuVisible() {
         ObjectAnimator visibility = ObjectAnimator.ofFloat(button, View.ALPHA, 0f, 1f);
         visibility.setDuration(BUTTON_BAR_DURATION);
         visibility.addListener(new AnimatorListenerAdapter() {
@@ -253,7 +252,7 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
         drawer.ink();
 
         if (button.getVisibility() == View.VISIBLE) {
-            setButtonGone();
+            setMenuGone();
         }
     }
 

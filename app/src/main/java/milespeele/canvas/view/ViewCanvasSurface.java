@@ -12,8 +12,6 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 
-import java.util.ArrayList;
-
 import milespeele.canvas.drawing.DrawingCurve;
 import milespeele.canvas.util.Logg;
 
@@ -23,8 +21,8 @@ import milespeele.canvas.util.Logg;
 public class ViewCanvasSurface extends SurfaceView
         implements SurfaceHolder.Callback, View.OnTouchListener {
 
-    private DrawingCurve drawingCurve;
-    private DrawingThread thread;
+    private DrawingCurve mDrawingCurve;
+    private DrawingThread mDrawingThread;
 
     public ViewCanvasSurface(Context context) {
         super(context);
@@ -48,8 +46,7 @@ public class ViewCanvasSurface extends SurfaceView
     }
 
     public void init() {
-        thread = new DrawingThread(getHolder());
-        drawingCurve = new DrawingCurve(getContext());
+        mDrawingCurve = new DrawingCurve(getContext());
 
         setLayerType(LAYER_TYPE_NONE, null);
 
@@ -63,8 +60,10 @@ public class ViewCanvasSurface extends SurfaceView
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
         holder.setFixedSize(getWidth(), getHeight());
-        thread.setRunning(true);
-        thread.start();
+
+        mDrawingThread = new DrawingThread(holder);
+        mDrawingThread.setRunning(true);
+        mDrawingThread.start();
     }
 
     @Override
@@ -73,50 +72,49 @@ public class ViewCanvasSurface extends SurfaceView
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
-        drawingCurve.onSave();
-        thread.onDestroy();
+        mDrawingThread.onDestroy();
     }
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-        return drawingCurve.onTouchEvent(event);
+        return mDrawingCurve.onTouchEvent(event);
     }
 
     public void setListener(DrawingCurve.DrawingCurveListener listener) {
-        drawingCurve.setListener(listener);
+        mDrawingCurve.setListener(listener);
     }
 
-    public void onButtonClicked() { drawingCurve.onButtonClicked(); }
+    public void onButtonClicked() { mDrawingCurve.onButtonClicked(); }
 
     public void ink() {
-        drawingCurve.ink();
+        mDrawingCurve.ink();
     }
 
     public boolean redo() {
-        return drawingCurve.redo();
+        return mDrawingCurve.redo();
     }
 
     public boolean undo() {
-        return drawingCurve.undo();
+        return mDrawingCurve.undo();
     }
 
     public void erase() {
-        drawingCurve.erase();
+        mDrawingCurve.erase();
     }
 
     public int getBrushColor() {
-        return drawingCurve.getStrokeColor();
+        return mDrawingCurve.getStrokeColor();
     }
 
     public Bitmap getDrawingBitmap() {
-        return drawingCurve.getBitmap();
+        return mDrawingCurve.getBitmap();
     }
 
-    public Paint getCurrentPaint() { return drawingCurve.getPaint(); }
+    public Paint getCurrentPaint() { return mDrawingCurve.getPaint(); }
 
-    private final class DrawingThread extends Thread {
+    private class DrawingThread extends Thread {
 
-        private boolean mRun = true;
+        private boolean mRun = false;
 
         private final SurfaceHolder mSurfaceHolder;
         private final Object mRunLock = new Object();
@@ -143,7 +141,7 @@ public class ViewCanvasSurface extends SurfaceView
                     synchronized (mSurfaceHolder) {
                         synchronized (mRunLock) {
                             if (mRun)  {
-                                drawingCurve.drawToSurfaceView(c);
+                                mDrawingCurve.drawToSurfaceView(c);
                             }
                         }
                     }
