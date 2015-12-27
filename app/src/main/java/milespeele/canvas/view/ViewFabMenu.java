@@ -181,24 +181,25 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
         mCircle = new Circle(ViewUtils.relativeCenterX(toggle), ViewUtils.relativeCenterY(toggle), radius);
 
         float mItemRadius = toggle.getMeasuredHeight() * 3;
-        final int count = getChildCount() - 2;
-        final double slice = Math.toRadians(360d / count);
+        final int count = getChildCount();
+        final double slice = Math.toRadians(360d / (count - 1));
 
         mItemPositions = new ArrayList<>();
 
-        for (int i = 0; i <= count; i++) {
+        for (int i = 0; i < count; i++) {
             final ViewFab child = (ViewFab) getChildAt(i);
+            if (child.getId() != R.id.menu_toggle) {
+                double angle = i * slice;
+                double x = getCenterX() + mItemRadius * Math.cos(angle);
+                double y = getCenterY() - mItemRadius * Math.sin(angle);
 
-            double angle = i * slice;
-            double x = getCenterX() + mItemRadius * Math.cos(angle);
-            double y = getCenterY() - mItemRadius * Math.sin(angle);
+                child.layout((int) x - child.getMeasuredWidth() / 2,
+                        (int) y - child.getMeasuredHeight() / 2,
+                        (int) x + child.getMeasuredWidth() / 2,
+                        (int) y + child.getMeasuredHeight() / 2);
 
-            child.layout((int) x - child.getMeasuredWidth() / 2,
-                    (int) y - child.getMeasuredHeight() / 2,
-                    (int) x + child.getMeasuredWidth() / 2,
-                    (int) y + child.getMeasuredHeight() / 2);
-
-            mItemPositions.add(new ItemPosition(child, x, y, ViewUtils.radius(child)));
+                mItemPositions.add(new ItemPosition(child, x, y, ViewUtils.radius(child)));
+            }
         }
     }
 

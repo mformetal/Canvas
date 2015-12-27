@@ -24,7 +24,7 @@
 
     <string name="toast_fragment_filename_invalid">Must contain only alphanumeric characters</string>
     <string name="fragment_filename_empty">Put in a name to save!</string>
-    <string name="fragment_filename_title">Save Your Masterpiece</string>
+    <string name="fragment_filename_title">Upload Masterpiece</string>
     <string name="fragment_filename_edittext_hint">Enter name</string>
     <string name="fragment_filename_pos_button_text">Save!</string>
     <string name="fragment_filename_neg_button_text">No thanks</string>
