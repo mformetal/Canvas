@@ -113,7 +113,7 @@
         app:elevation="@dimen/fab_elevation"
         app:rippleColor="@color/primary_dark"
         app:fabSize="mini"
-        app:text="@string/view_fab_profile" />
+        app:text="@string/view_fab_import" />
 
     <milespeele.canvas.view.ViewFab
         android:id="@+id/menu_layers"

@@ -22,6 +22,8 @@ import android.view.animation.Interpolator;
 import android.view.animation.OvershootInterpolator;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -580,6 +582,18 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
 
         public boolean contains(float x, float y) {
             return mItemCircle.contains(x, y);
+        }
+    }
+
+    private final class ItemPositionComparator implements Comparator<ItemPosition> {
+
+        @Override
+        public int compare(ItemPosition lhs, ItemPosition rhs) {
+            Circle left = lhs.mItemCircle;
+            Circle right = rhs.mItemCircle;
+            if (left.getCenterX() < right.getCenterX()) return -1;
+            if (left.getCenterX() > right.getCenterX()) return 1;
+            return 0;
         }
     }
 
