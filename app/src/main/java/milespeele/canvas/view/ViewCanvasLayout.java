@@ -181,7 +181,7 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
     }
 
     @Override
-    public void toggleMenuVisibility(boolean setVisible) {
+    public void toggleFabMenuVisibility(boolean setVisible) {
         if (setVisible) {
             menu.fadeIn();
         } else {

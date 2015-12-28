@@ -35,7 +35,6 @@ import milespeele.canvas.event.EventColorChosen;
 import milespeele.canvas.event.EventTextChosen;
 import milespeele.canvas.util.FileUtils;
 import milespeele.canvas.util.Datastore;
-import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.PaintStyles;
 import milespeele.canvas.util.TextUtils;
 import milespeele.canvas.util.ViewUtils;
@@ -68,16 +67,15 @@ public class DrawingCurve {
     private static final float TOLERANCE = 5f;
     private static float STROKE_WIDTH = 5f;
     private static final int INVALID_POINTER = -1;
-    private static final int NONE = 0, DRAG = 1, ZOOM = 2, ROTATE = 3;
-    private int mode = NONE;
+    private static final int NONE = 0, DRAG = 1, ZOOM = 2;
+    private int mMode = NONE;
     private int mActivePointer = INVALID_POINTER;
     private float mLastX, mLastY;
     private int mStrokeColor, mBackgroundColor, mOppositeBackgroundColor, mInkedColor;
     private boolean isSafeToDraw = true;
-    private double oldDist = 1f;
-    private float mLastRotation = 0f, mCurrentRotation = 0f;
+    private double mOldDist = 1f;
+    private float mLastRotation = 0f;
     private float[] mLastEvent = null;
-    private float[] mMatrixValues = new float[9];
 
     @Inject Datastore store;
     @Inject EventBus bus;
@@ -85,7 +83,7 @@ public class DrawingCurve {
     private DrawingCurveListener listener;
     public interface DrawingCurveListener {
         void toggleOptionsMenuVisibility(boolean visible);
-        void toggleMenuVisibility(boolean visible);
+        void toggleFabMenuVisibility(boolean visible);
         void snowSnackbar(int stringId, int length);
     }
 
@@ -292,7 +290,7 @@ public class DrawingCurve {
             case IMPORT:
                 mSavedMatrix.set(mMatrix);
                 mStartPoint.set(event.getX(), event.getY());
-                mode = DRAG;
+                mMode = DRAG;
                 mLastEvent = null;
                 break;
         }
@@ -307,11 +305,11 @@ public class DrawingCurve {
             case TEXT:
             case IMPORT:
                 if (event.getPointerCount() <= 2) {
-                    oldDist = distance(event);
-                    if (oldDist > 10f) {
+                    mOldDist = distance(event);
+                    if (mOldDist > 10f) {
                         mSavedMatrix.set(mMatrix);
                         midPoint(mMidPoint, event);
-                        mode = ZOOM;
+                        mMode = ZOOM;
                     }
                     mLastEvent = new float[4];
                     mLastEvent[0] = event.getX(0);
@@ -345,7 +343,7 @@ public class DrawingCurve {
                 break;
             case TEXT:
             case IMPORT:
-                if (mode == DRAG) {
+                if (mMode == DRAG) {
                     mMatrix.set(mSavedMatrix);
                     mMatrix.postTranslate(event.getX() - mStartPoint.x, event.getY() - mStartPoint.y);
                 } else {
@@ -353,11 +351,11 @@ public class DrawingCurve {
                         double newDist = distance(event);
                         if (newDist > 10f) {
                             mMatrix.set(mSavedMatrix);
-                            double scale = (newDist / oldDist);
+                            double scale = (newDist / mOldDist);
                             mMatrix.postScale((float) scale, (float) scale, mMidPoint.x, mMidPoint.y);
                         }
 
-                        mCurrentRotation = rotation(event);
+                        float mCurrentRotation = rotation(event);
                         if (Math.abs(mCurrentRotation - mLastRotation) >= 10f) {
                             mMatrix.postRotate(mCurrentRotation - mLastRotation,
                                     mMidPoint.x, mMidPoint.y);
@@ -386,7 +384,7 @@ public class DrawingCurve {
         switch (mState) {
             case TEXT:
             case IMPORT:
-                mode = NONE;
+                mMode = NONE;
                 mLastEvent = null;
                 break;
         }
@@ -501,7 +499,7 @@ public class DrawingCurve {
     public void ink() {
         changeState(State.INK);
 
-        listener.toggleMenuVisibility(false);
+        listener.toggleFabMenuVisibility(false);
 
         int middleX = mBitmap.getWidth() / 2;
         int middleY = mBitmap.getHeight() / 2;
@@ -538,7 +536,7 @@ public class DrawingCurve {
 
         listener.toggleOptionsMenuVisibility(true);
 
-        new Handler().postDelayed(() -> listener.toggleMenuVisibility(false), 500);
+        new Handler().postDelayed(() -> listener.toggleFabMenuVisibility(false), 500);
     }
 
     public void onEvent(EventColorChosen eventColorChosen) {
@@ -580,7 +578,8 @@ public class DrawingCurve {
         } finally {
             if (inputStream != null) {
                 try {
-                    listener.toggleOptionsMenuVisibility(false);
+                    listener.toggleOptionsMenuVisibility(true);
+                    listener.toggleFabMenuVisibility(false);
                     listener.snowSnackbar(R.string.snackbar_drag_photo, Snackbar.LENGTH_SHORT);
 
                     changeState(State.IMPORT);
