@@ -10,6 +10,8 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
+import android.transition.Slide;
+import android.view.Gravity;
 import android.view.View;
 
 import java.lang.ref.WeakReference;
@@ -33,6 +35,7 @@ import milespeele.canvas.parse.ParseUtils;
 import milespeele.canvas.transition.TransitionHelper;
 import milespeele.canvas.util.ErrorDialog;
 import milespeele.canvas.util.FileUtils;
+import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.NetworkUtils;
 import milespeele.canvas.view.ViewFab;
 import milespeele.canvas.view.ViewOptionsMenu;
@@ -147,7 +150,7 @@ public class ActivityHome extends ActivityBase {
         }
     }
 
-    public void showBrushChooser(ViewFab view) {
+    public void showBrushChooser(View view) {
         FragmentDrawer frag = (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
         if (frag != null) {
             FragmentBrushPicker picker = FragmentBrushPicker.newInstance(frag.getRootView().getPaint());
@@ -162,7 +165,7 @@ public class ActivityHome extends ActivityBase {
         }
     }
 
-    public void showStrokeColorChooser(ViewFab view, boolean toFill) {
+    public void showStrokeColorChooser(View view, boolean toFill) {
         FragmentDrawer frag = (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
         if (frag != null) {
             FragmentColorPicker picker = FragmentColorPicker
@@ -178,7 +181,7 @@ public class ActivityHome extends ActivityBase {
         }
     }
 
-    public void showTextFragment(ViewFab fab) {
+    public void showTextFragment(View fab) {
         FragmentText text = FragmentText.newInstance();
 
         TransitionHelper.makeFabDialogTransitions(this, fab, fabFrame, text);
@@ -190,7 +193,7 @@ public class ActivityHome extends ActivityBase {
         count++;
     }
 
-    public void showFilenameFragment(ViewFab view) {
+    public void showFilenameFragment(View view) {
         FragmentFilename filename = FragmentFilename.newInstance();
 
         TransitionHelper.makeFabDialogTransitions(ActivityHome.this, view, fabFrame, filename);
@@ -202,7 +205,11 @@ public class ActivityHome extends ActivityBase {
         count++;
     }
 
-    public void onFabMenuButtonClicked(ViewFab view) {
+    public void onOptionsMenuButtonClicked(View view) {
+        showStrokeColorChooser(null, false);
+    }
+
+    public void onFabMenuButtonClicked(View view) {
         if (fabFrame == null) {
             fabFrame = (ViewRoundedFrameLayout) findViewById(R.id.fragment_drawer_animator);
         }

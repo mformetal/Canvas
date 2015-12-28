@@ -1,25 +1,20 @@
 package milespeele.canvas.fragment;
 
-import android.animation.Animator;
 import android.app.Fragment;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.os.Handler;
-import android.support.design.widget.Snackbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
-import java.util.ArrayList;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import milespeele.canvas.R;
 import milespeele.canvas.activity.ActivityHome;
-import milespeele.canvas.util.Logg;
 import milespeele.canvas.view.ViewCanvasLayout;
 import milespeele.canvas.view.ViewFab;
 import milespeele.canvas.view.ViewFabMenu;
+import milespeele.canvas.view.ViewOptionsMenu;
 
 public class FragmentDrawer extends Fragment implements ViewFabMenu.ViewFabMenuListener {
 
@@ -41,7 +36,7 @@ public class FragmentDrawer extends Fragment implements ViewFabMenu.ViewFabMenuL
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_drawer, container, false);
         ButterKnife.bind(this, v);
-        coordinatorLayout.setMenuListener(this);
+        coordinatorLayout.setMenuListeners(this);
         return v;
     }
 

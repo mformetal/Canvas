@@ -5,6 +5,8 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.LinearLayout;
 
+import java.util.ArrayList;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -18,27 +20,35 @@ public class ViewOptionsMenu extends LinearLayout implements View.OnClickListene
     @Bind(R.id.view_options_menu_cancel) ViewTypefaceButton cancel;
     @Bind(R.id.view_options_menu_accept) ViewTypefaceButton accept;
 
-    private ViewOptionsMenuListener listener;
+    private ArrayList<ViewOptionsMenuListener> listeners;
     public interface ViewOptionsMenuListener {
         void onOptionsMenuCancel();
-        void onOptionsMenuButtonClicked();
+        void onOptionsMenuButtonClicked(View view);
         void onOptionsMenuAccept();
     }
 
     public ViewOptionsMenu(Context context) {
         super(context);
+        init();
     }
 
     public ViewOptionsMenu(Context context, AttributeSet attrs) {
         super(context, attrs);
+        init();
     }
 
     public ViewOptionsMenu(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        init();
     }
 
     public ViewOptionsMenu(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
+        init();
+    }
+
+    private void init() {
+        listeners = new ArrayList<>();
     }
 
     @Override
@@ -48,22 +58,29 @@ public class ViewOptionsMenu extends LinearLayout implements View.OnClickListene
     }
 
     @Override
-    @OnClick({R.id.view_options_menu_cancel, R.id.view_options_menu_accept})
+    @OnClick({R.id.view_options_menu_cancel, R.id.view_options_menu_accept,
+            R.id.view_options_menu_switch})
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.view_options_menu_cancel:
-                listener.onOptionsMenuCancel();
+                for (ViewOptionsMenuListener listener: listeners) {
+                    listener.onOptionsMenuCancel();
+                }
                 break;
             case R.id.view_options_menu_accept:
-                listener.onOptionsMenuAccept();
+                for (ViewOptionsMenuListener listener: listeners) {
+                    listener.onOptionsMenuAccept();
+                }
                 break;
-            default:
-                listener.onOptionsMenuButtonClicked();
+            case R.id.view_options_menu_switch:
+                for (ViewOptionsMenuListener listener: listeners) {
+                    listener.onOptionsMenuButtonClicked(v);
+                }
                 break;
         }
     }
 
-    public void setListener(ViewOptionsMenuListener optionsMenuListener) {
-        listener = optionsMenuListener;
+    public void addListener(ViewOptionsMenuListener optionsMenuListener) {
+        listeners.add(optionsMenuListener);
     }
 }

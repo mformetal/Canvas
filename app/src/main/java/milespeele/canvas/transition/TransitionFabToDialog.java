@@ -41,7 +41,7 @@ public class TransitionFabToDialog extends ChangeBounds {
         int endColor = context.getResources().getColor(R.color.primary_dark);
 
         List<View> views = getTargets();
-        ViewFab fab = (ViewFab) views.get(0);
+        View fab = views.get(0);
         ViewRoundedFrameLayout fabFrame = (ViewRoundedFrameLayout) views.get(1);
         ViewCanvasLayout layout = (ViewCanvasLayout) views.get(2);
 

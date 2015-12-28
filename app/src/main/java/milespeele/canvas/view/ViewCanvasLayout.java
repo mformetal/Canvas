@@ -1,7 +1,5 @@
 package milespeele.canvas.view;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.Context;
@@ -74,7 +72,7 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
 
         fabMenu.addListener(this);
         drawer.setListener(this);
-        optionsMenu.setListener(this);
+        optionsMenu.addListener(this);
     }
 
     @Override
@@ -205,8 +203,7 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
     }
 
     @Override
-    public void onOptionsMenuButtonClicked() {
-
+    public void onOptionsMenuButtonClicked(View view) {
     }
 
     @Override
@@ -220,8 +217,8 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
                 fabMenu.getCircleRadius());
     }
 
-    public void setMenuListener(ViewFabMenu.ViewFabMenuListener other) {
-        fabMenu.addListener(other);
+    public void setMenuListeners(ViewFabMenu.ViewFabMenuListener viewFabMenuListener) {
+        fabMenu.addListener(viewFabMenuListener);
     }
 
     public int getBrushColor() {
