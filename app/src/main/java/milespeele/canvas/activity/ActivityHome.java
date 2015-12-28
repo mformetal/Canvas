@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
+import android.view.View;
 
 import java.lang.ref.WeakReference;
 
@@ -34,6 +35,7 @@ import milespeele.canvas.util.ErrorDialog;
 import milespeele.canvas.util.FileUtils;
 import milespeele.canvas.util.NetworkUtils;
 import milespeele.canvas.view.ViewFab;
+import milespeele.canvas.view.ViewOptionsMenu;
 import milespeele.canvas.view.ViewRoundedFrameLayout;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
@@ -107,6 +109,7 @@ public class ActivityHome extends ActivityBase {
         if (resultCode == RESULT_OK) {
             if (requestCode == REQUEST_IMPORT_CODE) {
                 if (data != null) {
+                    findViewById(R.id.fragment_drawer_options_menu).setVisibility(View.GONE);
                     bus.post(new EventBitmapChosen(data));
                 }
             }

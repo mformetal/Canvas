@@ -20,22 +20,22 @@ import android.view.View;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 import milespeele.canvas.R;
 import milespeele.canvas.drawing.DrawingCurve;
 import milespeele.canvas.util.Circle;
+import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.ViewUtils;
 
 /**
  * Created by milespeele on 8/7/15.
  */
 public class ViewCanvasLayout extends CoordinatorLayout implements
-        View.OnClickListener, ViewFabMenu.ViewFabMenuListener, DrawingCurve.DrawingCurveListener {
+        ViewFabMenu.ViewFabMenuListener, DrawingCurve.DrawingCurveListener, ViewOptionsMenu.ViewOptionsMenuListener {
 
     @Bind(R.id.fragment_drawer_canvas) ViewCanvasSurface drawer;
-    @Bind(R.id.fragment_drawer_menu) ViewFabMenu menu;
+    @Bind(R.id.fragment_drawer_menu) ViewFabMenu fabMenu;
     @Bind(R.id.fragment_drawer_animator) ViewRoundedFrameLayout fabFrame;
-    @Bind(R.id.fragment_drawer_button) ViewTypefaceButton button;
+    @Bind(R.id.fragment_drawer_options_menu) ViewOptionsMenu optionsMenu;
 
     private final Rect hitRect = new Rect();
     private Paint shadowPaint;
@@ -72,8 +72,9 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
         super.onFinishInflate();
         ButterKnife.bind(this);
 
-        menu.addListener(this);
+        fabMenu.addListener(this);
         drawer.setListener(this);
+        optionsMenu.setListener(this);
     }
 
     @Override
@@ -84,9 +85,9 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
             canvas.restore();
 
             int alpha = shadowPaint.getAlpha();
-            if (child == menu) {
-                for (int x = 0; x < menu.getChildCount(); x++) {
-                    menu.getChildAt(x).setAlpha((ViewUtils.MAX_ALPHA - alpha) / ViewUtils.MAX_ALPHA);
+            if (child == fabMenu) {
+                for (int x = 0; x < fabMenu.getChildCount(); x++) {
+                    fabMenu.getChildAt(x).setAlpha((ViewUtils.MAX_ALPHA - alpha) / ViewUtils.MAX_ALPHA);
                 }
             }
         }
@@ -107,13 +108,13 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
                     ((Activity) getContext()).onBackPressed();
                 }
             }
-            menu.setEnabled(false);
+            fabMenu.setEnabled(false);
             return false;
         }
 
-        menu.setEnabled(true);
+        fabMenu.setEnabled(true);
 
-        if (menu.isVisible()) {
+        if (fabMenu.isVisible()) {
             if (menuContainsTouch(ev)) {
                 drawer.setEnabled(false);
                 return false;
@@ -128,17 +129,11 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
         if (menuContainsTouch(ev)) {
-            ev.offsetLocation(0, -(getHeight() - menu.getHeight()));
-            menu.onTouchEvent(ev);
+            ev.offsetLocation(0, -(getHeight() - fabMenu.getHeight()));
+            fabMenu.onTouchEvent(ev);
         }
 
         return false;
-    }
-
-    @Override
-    @OnClick(R.id.fragment_drawer_button)
-    public void onClick(View v) {
-        drawer.onButtonClicked();
     }
 
     @Override
@@ -147,7 +142,7 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
 
         switch (v.getId()) {
             case R.id.menu_toggle:
-                menu.toggleMenu();
+                fabMenu.toggleMenu();
                 break;
             case R.id.menu_undo:
                 undo();
@@ -157,7 +152,7 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
                 break;
             case R.id.menu_erase:
                 erase();
-                menu.eraser.toggleScaled();
+                fabMenu.eraser.toggleScaled();
                 break;
             case R.id.menu_ink:
                 ink();
@@ -165,69 +160,68 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
         }
 
         if (v.getId() != R.id.menu_toggle) {
-            if (v.getId() != R.id.menu_erase && menu.eraser.isScaledUp()) {
-                menu.eraser.scaleDown();
+            if (v.getId() != R.id.menu_erase && fabMenu.eraser.isScaledUp()) {
+                fabMenu.eraser.scaleDown();
             }
         }
     }
 
     @Override
-    public void toggleOptionsMenuVisibility(boolean setVisible) {
+    public void onDrawingCurveOptionsMenuVisibilityRequest(boolean setVisible) {
         if (setVisible) {
-            setMenuVisible();
+            if (optionsMenu.getVisibility() == View.GONE) {
+                ViewUtils.visible(optionsMenu, 350);
+            } else {
+                ObjectAnimator.ofFloat(optionsMenu, View.TRANSLATION_Y,
+                        optionsMenu.getTranslationY() - optionsMenu.getHeight())
+                        .setDuration(350)
+                        .start();
+            }
         } else {
-            setMenuGone();
+            ObjectAnimator.ofFloat(optionsMenu, View.TRANSLATION_Y,
+                    optionsMenu.getTranslationY() + optionsMenu.getHeight())
+                    .setDuration(350)
+                    .start();
         }
     }
 
     @Override
-    public void toggleFabMenuVisibility(boolean setVisible) {
+    public void onDrawingCurveFabMenuVisibilityRequest(boolean setVisible) {
         if (setVisible) {
-            menu.fadeIn();
+            ViewUtils.visible(fabMenu, 350);
         } else {
-            menu.fadeOut();
+            ViewUtils.gone(fabMenu, 350);
         }
     }
 
     @Override
-    public void snowSnackbar(int stringId, int length) {
+    public void onDrawingCurveSnbackRequest(int stringId, int length) {
         Snackbar.make(this, stringId, length).show();
     }
 
+    @Override
+    public void onOptionsMenuCancel() {
+        drawer.onOptionsMenuCancel();
+    }
+
+    @Override
+    public void onOptionsMenuButtonClicked() {
+
+    }
+
+    @Override
+    public void onOptionsMenuAccept() {
+        drawer.onOptionsMenuAccept();
+    }
+
     private boolean menuContainsTouch(MotionEvent event) {
-        return Circle.contains(menu.getCenterX() - event.getX(),
-                (menu.getCenterY() + (getHeight() - menu.getHeight())) - event.getY(),
-                menu.getCircleRadius());
-    }
-
-    public void setMenuGone() {
-        ObjectAnimator gone = ObjectAnimator.ofFloat(button, View.ALPHA, 1f, 0f);
-        gone.setDuration(BUTTON_BAR_DURATION);
-        gone.addListener(new AnimatorListenerAdapter() {
-
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                button.setVisibility(View.GONE);
-            }
-        });
-        gone.start();
-    }
-
-    public void setMenuVisible() {
-        ObjectAnimator visibility = ObjectAnimator.ofFloat(button, View.ALPHA, 0f, 1f);
-        visibility.setDuration(BUTTON_BAR_DURATION);
-        visibility.addListener(new AnimatorListenerAdapter() {
-
-            @Override
-            public void onAnimationStart(Animator animation) {
-                button.setVisibility(View.VISIBLE);
-            }
-        });
-        visibility.start();
+        return Circle.contains(fabMenu.getCenterX() - event.getX(),
+                (fabMenu.getCenterY() + (getHeight() - fabMenu.getHeight())) - event.getY(),
+                fabMenu.getCircleRadius());
     }
 
     public void setMenuListener(ViewFabMenu.ViewFabMenuListener other) {
-        menu.addListener(other);
+        fabMenu.addListener(other);
     }
 
     public int getBrushColor() {
@@ -254,10 +248,6 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
 
     public void ink() {
         drawer.ink();
-
-        if (button.getVisibility() == View.VISIBLE) {
-            setMenuGone();
-        }
     }
 
     public void erase() {

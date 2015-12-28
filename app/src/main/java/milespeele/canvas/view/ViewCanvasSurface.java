@@ -84,7 +84,9 @@ public class ViewCanvasSurface extends SurfaceView
         mDrawingCurve.setListener(listener);
     }
 
-    public void onButtonClicked() { mDrawingCurve.onButtonClicked(); }
+    public void onOptionsMenuAccept() { mDrawingCurve.onOptionsMenuAccept(); }
+
+    public void onOptionsMenuCancel() { mDrawingCurve.onOptionsMenuCancel(); }
 
     public void ink() {
         mDrawingCurve.ink();

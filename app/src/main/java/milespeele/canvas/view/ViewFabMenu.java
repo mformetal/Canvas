@@ -177,7 +177,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
                 r / 2 + toggle.getMeasuredWidth() / 2,
                 getMeasuredHeight() - lps.bottomMargin);
 
-        mMaxRadius = toggle.getMeasuredHeight() * 4;
+        mMaxRadius = toggle.getMeasuredHeight() * 3.75f;
         radius = mMaxRadius;
 
         mCircle = new Circle(ViewUtils.relativeCenterX(toggle), ViewUtils.relativeCenterY(toggle), radius);
@@ -498,7 +498,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
     }
 
     public boolean isVisible() {
-        return !isFadedOut && isMenuShowing;
+        return !isFadedOut && isMenuShowing && getVisibility() == View.VISIBLE;
     }
 
     public float getRadius() {

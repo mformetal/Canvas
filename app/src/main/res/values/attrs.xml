@@ -5,6 +5,10 @@
         <attr name="shouldDrawBorder" format="boolean" />
         <attr name="borderColor" format="color" />
     </declare-styleable>
+
+    <declare-styleable name="ViewTypefaceButton">
+        <attr name="backgroundColor" format="color" />
+    </declare-styleable>
     
     <declare-styleable name="ViewFab">
         <attr name="text" format="reference" />

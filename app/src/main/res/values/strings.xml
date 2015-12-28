@@ -80,4 +80,7 @@
     <string name="view_fab_layer">Get Layers!</string>
     <string name="view_fab_toggle">Open/ Close!</string>
 
+    <string name="view_options_menu_cancel">Cancel</string>
+    <string name="view_options_menu_accept">Drop</string>
+
 </resources>
