@@ -85,7 +85,9 @@ public class ViewFab extends FloatingActionButton {
             mClipBounds.right = bounds.right;
             mClipBounds.bottom = bounds.bottom;
         }
-        canvas.drawArc(mClipBounds, START_ANGLE, mAngle, false, mPaint);
+        if (mNegativeAngleAnim != null | mPositiveAngleAnim != null) {
+            canvas.drawArc(mClipBounds, START_ANGLE, mAngle, false, mPaint);
+        }
     }
 
     public void toggleScaled() {
@@ -159,7 +161,7 @@ public class ViewFab extends FloatingActionButton {
 
         mPositiveAngleAnim = null;
         mNegativeAngleAnim = null;
-        mAngle = 0;
+        mAngle = 0f;
     }
 
     private void playPositiveAngleAnimation() {

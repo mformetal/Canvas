@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Paint;
+import android.support.design.widget.Snackbar;
 import android.util.DisplayMetrics;
 import android.view.WindowManager;
 
@@ -44,13 +45,7 @@ public class FileUtils {
 
     public final static String BITMAP_FILENAME = "canvas:bitmap";
 
-    private Context context;
-
-    public FileUtils(Context otherContext) {
-        context = otherContext;
-    }
-
-    public static void cache(Bitmap bitmap, Context context) {
+    public static void cacheInBackground(Bitmap bitmap, Context context) {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
         byte[] bytes =  stream.toByteArray();
@@ -67,6 +62,21 @@ public class FileUtils {
                 output.close();
             }
         }
+    }
+
+    public static Observable<byte[]> cacheAsObservable(Bitmap bitmap, Context context) {
+        return Observable.create(new Observable.OnSubscribe<byte[]>() {
+            @Override
+            public void call(Subscriber<? super byte[]> subscriber) {
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                byte[] bytes =  stream.toByteArray();
+
+                subscriber.onNext(bytes);
+            }
+        })
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread());
     }
 
     public static BitmapFactory.Options getBitmapOptions(Context context) {

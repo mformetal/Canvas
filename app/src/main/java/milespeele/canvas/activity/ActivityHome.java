@@ -11,10 +11,6 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 
-import com.esotericsoftware.kryo.io.Output;
-import com.squareup.picasso.Picasso;
-
-import java.io.FileNotFoundException;
 import java.lang.ref.WeakReference;
 
 import javax.inject.Inject;
@@ -36,15 +32,11 @@ import milespeele.canvas.parse.ParseUtils;
 import milespeele.canvas.transition.TransitionHelper;
 import milespeele.canvas.util.ErrorDialog;
 import milespeele.canvas.util.FileUtils;
-import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.NetworkUtils;
 import milespeele.canvas.view.ViewFab;
 import milespeele.canvas.view.ViewRoundedFrameLayout;
-import rx.Observable;
-import rx.Subscriber;
-import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action0;
+import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
 public class ActivityHome extends ActivityBase {
@@ -58,11 +50,9 @@ public class ActivityHome extends ActivityBase {
 
     @Inject ParseUtils parseUtils;
     @Inject EventBus bus;
-    @Inject Picasso picasso;
 
     private ViewRoundedFrameLayout fabFrame;
     private FragmentManager manager;
-    private Subscription cacher;
 
     private int count;
 
@@ -127,24 +117,30 @@ public class ActivityHome extends ActivityBase {
         ErrorDialog.createDialogFromCode(this, eventParseError.getErrorCode()).show();
     }
 
+    @SuppressWarnings("unchecked")
     public void onEvent(EventFilenameChosen eventFilenameChosen) {
         if (NetworkUtils.hasInternet(this)) {
             FragmentDrawer frag = (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
             if (frag != null) {
-                parseUtils.saveImageToServer(eventFilenameChosen.filename,
-                        new WeakReference<>(this), frag.getDrawingBitmap());
+                parseUtils.saveImageToServer(this, eventFilenameChosen.filename, frag.getDrawingBitmap())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe((Action1) o -> {
+                            ((ViewFab) findViewById(R.id.menu_save)).stopSaveAnimation();
+
+                            FragmentDrawer fragmentDrawer =
+                                    (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
+
+                            if (fragmentDrawer != null && fragmentDrawer.getRootView() != null) {
+                                Snackbar.make(fragmentDrawer.getRootView(),
+                                        R.string.snackbar_activity_home_image_saved_title,
+                                        Snackbar.LENGTH_LONG)
+                                        .show();
+                            }
+                        });
             }
         } else {
             ErrorDialog.createDialogFromCode(this, ErrorDialog.NO_INTERNET).show();
-        }
-    }
-
-    public void showSavedImageSnackbar(Masterpiece object) {
-        ((ViewFab) findViewById(R.id.menu_save)).stopSaveAnimation(); // Ugly but whatever
-        FragmentDrawer fragmentDrawer = (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
-        if (fragmentDrawer != null && fragmentDrawer.getRootView() != null) {
-            Snackbar.make(fragmentDrawer.getRootView(), R.string.snackbar_activity_home_image_saved_title, Snackbar.LENGTH_LONG)
-                    .show();
         }
     }
 
@@ -253,7 +249,7 @@ public class ActivityHome extends ActivityBase {
             final Context context = this;
             final Bitmap bitmap = fragmentDrawer.getDrawingBitmap();
             Schedulers.io().createWorker().schedule(() -> {
-                FileUtils.cache(bitmap, context);
+                FileUtils.cacheInBackground(bitmap, context);
 
                 if (!isFinishing()) {
                     finish();
