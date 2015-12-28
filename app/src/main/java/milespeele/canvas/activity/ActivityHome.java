@@ -102,6 +102,7 @@ public class ActivityHome extends ActivityBase {
             builder.create().show();
         } else {
             // UGLY, but popBackStack() results in a weird exception
+            // https://code.google.com/p/android/issues/detail?id=82832
             count--;
 
             FragmentTransaction ft = getFragmentManager().beginTransaction();
@@ -156,7 +157,6 @@ public class ActivityHome extends ActivityBase {
 
             manager.beginTransaction()
                     .replace(R.id.fragment_drawer_animator, picker, TAG_FRAGMENT_BRUSH)
-//                    .addToBackStack(TAG_FRAGMENT_BRUSH)
                     .commit();
 
             count++;
@@ -173,7 +173,6 @@ public class ActivityHome extends ActivityBase {
 
             manager.beginTransaction()
                     .replace(R.id.fragment_drawer_animator, picker, TAG_FRAGMENT_COLOR_PICKER)
-//                    .addToBackStack(TAG_FRAGMENT_COLOR_PICKER)
                     .commit();
 
             count++;
@@ -187,7 +186,6 @@ public class ActivityHome extends ActivityBase {
 
         manager.beginTransaction()
                 .replace(R.id.fragment_drawer_animator, text, TAG_FRAGMENT_TEXT)
-//                .addToBackStack(TAG_FRAGMENT_TEXT)
                 .commit();
 
         count++;
@@ -200,7 +198,6 @@ public class ActivityHome extends ActivityBase {
 
         manager.beginTransaction()
                 .replace(R.id.fragment_drawer_animator, filename, TAG_FRAGMENT_FILENAME)
-//                .addToBackStack(TAG_FRAGMENT_FILENAME)
                 .commit();
 
         count++;
