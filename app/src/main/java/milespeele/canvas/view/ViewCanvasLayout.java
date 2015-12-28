@@ -248,7 +248,6 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
     }
 
     public void ink() {
-        menu.fadeOut();
         drawer.ink();
 
         if (button.getVisibility() == View.VISIBLE) {

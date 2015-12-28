@@ -13,11 +13,11 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.Rect;
+import android.os.Handler;
 import android.os.SystemClock;
 import android.text.DynamicLayout;
 import android.text.Layout;
 import android.text.TextPaint;
-import android.util.FloatMath;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 
@@ -53,8 +53,7 @@ public class DrawingCurve {
     }
 
     private DynamicLayout mTextLayout;
-    private Matrix mMatrix;
-    private ScaleGestureDetector mGestureDetector;
+    private Matrix mMatrix, mSavedMatrix;
     private Bitmap mBitmap, mCachedBitmap, mPhotoBitmap;
     private Canvas mCanvas;
     private DrawingPoints mCurrentPoints;
@@ -63,30 +62,19 @@ public class DrawingCurve {
     private TextPaint mTextPaint;
     private State mState = State.DRAW;
     private Context mContext;
+    private PointF mStartPoint, mMidPoint;
 
     private static final float TOLERANCE = 5f;
     private static float STROKE_WIDTH = 5f;
     private static final int INVALID_POINTER = -1;
-    private float[] mMatrixValues = new float[9];
+    private static final int NONE = 0, DRAG = 1, ZOOM = 2;
+    private int mode = NONE;
     private int mActivePointer = INVALID_POINTER;
     private float mLastX, mLastY;
     private int mStrokeColor, mBackgroundColor, mOppositeBackgroundColor, mInkedColor;
     private boolean isSafeToDraw = true;
-
-    // these matrices will be used to move and zoom image
-    private Matrix matrix = new Matrix();
-    private Matrix savedMatrix = new Matrix();
-    // we can be in one of these 3 states
-    private static final int NONE = 0;
-    private static final int DRAG = 1;
-    private static final int ZOOM = 2;
-    private int mode = NONE;
-    // remember some things for zooming
-    private PointF start = new PointF();
-    private PointF mid = new PointF();
-    private float oldDist = 1f;
-    private float d = 0f;
-    private float newRot = 0f;
+    private double oldDist = 1f;
+    private float d = 0f, newRot = 0f;
     private float[] lastEvent = null;
 
     @Inject Datastore store;
@@ -115,6 +103,9 @@ public class DrawingCurve {
         mInkedColor = mStrokeColor;
 
         mMatrix = new Matrix();
+        mSavedMatrix = new Matrix();
+        mStartPoint = new PointF();
+        mMidPoint = new PointF();
 
         mCachedBitmap = FileUtils.getCachedBitmap(mContext);
         if (mCachedBitmap == null) {
@@ -126,14 +117,12 @@ public class DrawingCurve {
         mCanvas = new Canvas(mBitmap);
         mCanvas.drawBitmap(mCachedBitmap, 0, 0, null);
 
-        mPaint = PaintStyles.normal(mStrokeColor, 10f);
+        mPaint = PaintStyles.normal(mStrokeColor, 20f);
         mInkPaint = PaintStyles.normal(mStrokeColor, 10f);
 
         mTextPaint = new TextPaint(TextPaint.ANTI_ALIAS_FLAG);
         mTextPaint.setColor(mStrokeColor);
         mTextPaint.setStyle(Paint.Style.FILL_AND_STROKE);
-
-        mGestureDetector = new ScaleGestureDetector(context, new ScaleListener());
 
         mAllHistory = new DrawingHistory();
         mRedoneHistory = new DrawingHistory();
@@ -146,7 +135,7 @@ public class DrawingCurve {
                 listener.toggleOptionsMenuVisibility(false);
 
                 mCanvas.save();
-                mCanvas.concat(matrix);
+                mCanvas.concat(mMatrix);
                 mTextLayout.draw(mCanvas);
                 mCanvas.restore();
 
@@ -186,31 +175,14 @@ public class DrawingCurve {
             switch (mState) {
                 case TEXT:
                     canvas.save();
-                    canvas.concat(matrix);
+                    canvas.concat(mMatrix);
                     mTextLayout.draw(canvas);
                     canvas.restore();
                     break;
                 case INK:
-                    mInkPaint.setStrokeWidth(20f);
-
                     canvas.save();
                     canvas.concat(mMatrix);
-
-                    float lineSize = canvas.getWidth() * .1f, xSpace = canvas.getWidth() * .05f;
-                    float middleX = canvas.getWidth() / 2f, middleY = canvas.getHeight() / 2f;
-
-                    // base "pointer"
-                    mInkPaint.setColor(mOppositeBackgroundColor);
-                    canvas.drawLine(middleX + xSpace / 2, middleY, middleX + xSpace + lineSize, middleY, mInkPaint);
-                    canvas.drawLine(middleX - xSpace / 2, middleY, middleX - xSpace - lineSize, middleY, mInkPaint);
-                    canvas.drawLine(middleX, middleY + xSpace / 2, middleX, middleY + xSpace + lineSize, mInkPaint);
-                    canvas.drawLine(middleX, middleY - xSpace / 2, middleX, middleY - xSpace - lineSize, mInkPaint);
-                    canvas.drawCircle(middleX, middleY, xSpace + lineSize, mInkPaint);
-
-                    // ink circle
-                    mInkPaint.setColor(mInkedColor);
-                    canvas.drawCircle(middleX, middleY, xSpace + lineSize - mPaint.getStrokeWidth(), mInkPaint);
-
+                    canvas.drawCircle(mLastX, mLastX, 200, mInkPaint);
                     canvas.restore();
                     break;
                 case IMPORT:
@@ -269,8 +241,6 @@ public class DrawingCurve {
     }
 
     public boolean onTouchEvent(MotionEvent event) {
-        onTouchStart(event);
-
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
                 onTouchDown(event);
@@ -300,59 +270,33 @@ public class DrawingCurve {
         return true;
     }
 
-    private void onTouchStart(MotionEvent event) {
-        switch (mState) {
-            case TEXT:
-                mGestureDetector.onTouchEvent(event);
-                break;
-            case IMPORT:
-                mGestureDetector.onTouchEvent(event);
-                break;
-        }
-    }
-
     private void onTouchDown(MotionEvent event) {
         float x = event.getX(), y = event.getY();
 
         switch (mState) {
-            case ERASE:
-            case DRAW:
-                break;
             case TEXT:
-                savedMatrix.set(matrix);
-                start.set(event.getX(), event.getY());
+            case INK:
+            case IMPORT:
+                mSavedMatrix.set(mMatrix);
+                mStartPoint.set(event.getX(), event.getY());
                 mode = DRAG;
                 lastEvent = null;
-                break;
-            case INK:
-                mMatrix.setTranslate(x - mBitmap.getWidth() / 2f,
-                        y - mBitmap.getHeight() / 2f - mBitmap.getWidth() * .15f);
-
-                int inkX = Math.round(x), inkY = Math.round(y);
-                if (eventCoordsInRange(inkX, inkY)) {
-                    mInkedColor = mBitmap.getPixel(inkX, inkY);
-                }
-                break;
-            case IMPORT:
                 break;
         }
 
         mActivePointer = event.getPointerId(0);
-        mLastX = event.getX();
-        mLastY = event.getY();
+        mLastX = x;
+        mLastY = y;
     }
 
     public void onPointerDown(MotionEvent event) {
         switch (mState) {
-            case ERASE:
-                break;
-            case DRAW:
-                break;
             case TEXT:
+            case IMPORT:
                 oldDist = spacing(event);
                 if (oldDist > 10f) {
-                    savedMatrix.set(matrix);
-                    midPoint(mid, event);
+                    mSavedMatrix.set(mMatrix);
+                    midPoint(mMidPoint, event);
                     mode = ZOOM;
                 }
                 lastEvent = new float[4];
@@ -361,8 +305,6 @@ public class DrawingCurve {
                 lastEvent[2] = event.getY(0);
                 lastEvent[3] = event.getY(1);
                 d = rotation(event);
-                break;
-            case INK:
                 break;
         }
     }
@@ -381,46 +323,34 @@ public class DrawingCurve {
                 addPoint(x, y);
                 break;
             case TEXT:
+            case IMPORT:
                 if (mode == DRAG) {
-                    matrix.set(savedMatrix);
-                    float dx = event.getX() - start.x;
-                    float dy = event.getY() - start.y;
-                    matrix.postTranslate(dx, dy);
+                    mMatrix.set(mSavedMatrix);
+                    mMatrix.postTranslate(x - mLastX, y - mLastY);
                 } else if (mode == ZOOM) {
-                    float newDist = spacing(event);
+                    double newDist = spacing(event);
                     if (newDist > 10f) {
-                        matrix.set(savedMatrix);
-                        float scale = (newDist / oldDist);
-                        matrix.postScale(scale, scale, mid.x, mid.y);
+                        mMatrix.set(mSavedMatrix);
+                        double scale = (newDist / oldDist);
+                        mMatrix.postScale((float) scale, (float) scale, mMidPoint.x, mMidPoint.y);
                     }
                     if (lastEvent != null && event.getPointerCount() == 3) {
                         newRot = rotation(event);
                         float r = newRot - d;
                         float[] values = new float[9];
-                        matrix.getValues(values);
-                        float tx = values[2];
-                        float ty = values[5];
-                        float sx = values[0];
+                        mMatrix.getValues(values);
+                        float tx = values[Matrix.MTRANS_X];
+                        float ty = values[Matrix.MTRANS_Y];
+                        float sx = values[Matrix.MSCALE_X];
                         float xc = (mBitmap.getWidth() / 2) * sx;
                         float yc = (mBitmap.getHeight() / 2) * sx;
-                        matrix.postRotate(r, tx + xc, ty + yc);
+                        mMatrix.postRotate(r, tx + xc, ty + yc);
                     }
                 }
                 break;
             case INK:
+                mMatrix.set(mSavedMatrix);
                 mMatrix.postTranslate(x - mLastX, y - mLastY);
-
-                int inkX = Math.round(x), inkY = Math.round(y - mBitmap.getWidth() * .15f);
-                if (eventCoordsInRange(inkX, inkY)) {
-                    mInkedColor = mBitmap.getPixel(inkX, inkY);
-                    mStrokeColor = mInkedColor;
-                    setPaintColor(mStrokeColor);
-                }
-                break;
-            case IMPORT:
-                if (!mGestureDetector.isInProgress()) {
-                    mMatrix.postTranslate(x - mLastX, y - mLastY);
-                }
                 break;
         }
 
@@ -438,14 +368,10 @@ public class DrawingCurve {
                 mAllHistory.push(mCurrentPoints);
                 mCurrentPoints.clear();
                 break;
-            case TEXT:
-                break;
             case INK:
                 mStrokeColor = mInkedColor;
                 setPaintColor(mStrokeColor);
                 changeState(State.DRAW);
-                break;
-            case IMPORT:
                 break;
         }
 
@@ -471,33 +397,26 @@ public class DrawingCurve {
 
         switch (mState) {
             case TEXT:
+            case INK:
+            case IMPORT:
                 mode = NONE;
                 lastEvent = null;
                 break;
         }
     }
 
-    private float spacing(MotionEvent event) {
+    private double spacing(MotionEvent event) {
         float x = event.getX(0) - event.getX(1);
         float y = event.getY(0) - event.getY(1);
-        return FloatMath.sqrt(x * x + y * y);
+        return Math.sqrt(x * x + y * y);
     }
 
-    /**
-     * Calculate the mid point of the first two fingers
-     */
     private void midPoint(PointF point, MotionEvent event) {
         float x = event.getX(0) + event.getX(1);
         float y = event.getY(0) + event.getY(1);
         point.set(x / 2, y / 2);
     }
 
-    /**
-     * Calculate the degree to be rotated by.
-     *
-     * @param event
-     * @return Degrees
-     */
     private float rotation(MotionEvent event) {
         double delta_x = (event.getX(0) - event.getX(1));
         double delta_y = (event.getY(0) - event.getY(1));
@@ -568,9 +487,15 @@ public class DrawingCurve {
     }
 
     public void ink() {
-        changeState(State.INK);
+        if (mState != State.INK) {
+            changeState(State.INK);
 
-        mInkedColor = mBitmap.getPixel(mBitmap.getWidth() / 2, mBitmap.getHeight() / 2);
+            listener.toggleMenuVisibility(false);
+
+            mInkedColor = mBitmap.getPixel(mBitmap.getWidth() / 2, mBitmap.getHeight() / 2);
+        } else {
+            changeState(State.DRAW);
+        }
     }
 
     public void erase() {
@@ -585,9 +510,6 @@ public class DrawingCurve {
         int width = mBitmap.getWidth(), height = mBitmap.getHeight();
 
         String textToBeDrawn = eventTextChosen.text;
-        Rect bounds = new Rect();
-        mTextPaint.getTextBounds(textToBeDrawn, 0, textToBeDrawn.length(), bounds);
-        mTextPaint.setColor(mStrokeColor);
 
         TextUtils.adjustTextSize(mTextPaint, textToBeDrawn, height);
         TextUtils.adjustTextScale(mTextPaint, textToBeDrawn, width, 0, 0);
@@ -600,6 +522,8 @@ public class DrawingCurve {
         mMatrix.setTranslate(0, height / 2f - mTextLayout.getHeight() / 2);
 
         listener.toggleOptionsMenuVisibility(true);
+
+        new Handler().postDelayed(() -> listener.toggleMenuVisibility(false), 500);
     }
 
     public void onEvent(EventColorChosen eventColorChosen) {
@@ -673,30 +597,5 @@ public class DrawingCurve {
     private boolean eventCoordsInRange(int x, int y) {
         return (0 <= x && x <= mBitmap.getWidth() - 1) &&
                 (0 <= y && y <= mBitmap.getHeight() - 1);
-    }
-
-    private final class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
-
-        private static final float MAX_SCALE = 5.0f, MIN_SCALE = .1f;
-        private float mScaleFactor = 1f;
-
-        @Override
-        public boolean onScaleBegin(ScaleGestureDetector detector) {
-            return true;
-        }
-
-        @Override
-        public boolean onScale(ScaleGestureDetector detector) {
-            mScaleFactor *= detector.getScaleFactor();
-            mScaleFactor = Math.max(MIN_SCALE, Math.min(mScaleFactor, MAX_SCALE));
-            mMatrix.setScale(mScaleFactor, mScaleFactor,
-                    detector.getFocusX(), detector.getFocusY());
-            return true;
-        }
-
-        @Override
-        public void onScaleEnd(ScaleGestureDetector detector) {
-            super.onScaleEnd(detector);
-        }
     }
 }
