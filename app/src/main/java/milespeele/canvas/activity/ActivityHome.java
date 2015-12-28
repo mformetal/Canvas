@@ -36,9 +36,13 @@ import milespeele.canvas.parse.ParseUtils;
 import milespeele.canvas.transition.TransitionHelper;
 import milespeele.canvas.util.ErrorDialog;
 import milespeele.canvas.util.FileUtils;
+import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.NetworkUtils;
 import milespeele.canvas.view.ViewFab;
 import milespeele.canvas.view.ViewRoundedFrameLayout;
+import rx.Observable;
+import rx.Subscriber;
+import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action0;
 import rx.schedulers.Schedulers;
@@ -58,6 +62,7 @@ public class ActivityHome extends ActivityBase {
 
     private ViewRoundedFrameLayout fabFrame;
     private FragmentManager manager;
+    private Subscription cacher;
 
     private int count;
 
@@ -111,11 +116,6 @@ public class ActivityHome extends ActivityBase {
         if (resultCode == RESULT_OK) {
             if (requestCode == REQUEST_IMPORT_CODE) {
                 if (data != null) {
-                    FragmentDrawer frag = (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
-                    if (frag != null) {
-                        Snackbar.make(frag.getRootView(), R.string.snackbar_drag_photo, Snackbar.LENGTH_LONG)
-                                .show();
-                    }
                     bus.post(new EventBitmapChosen(data));
                 }
             }
@@ -246,8 +246,6 @@ public class ActivityHome extends ActivityBase {
     }
 
     public void saveAndExit() {
-        final Context context = this;
-
         ProgressDialog dialog = new ProgressDialog(this);
         dialog.setIndeterminate(true);
         dialog.setMessage("Saving...");
@@ -255,14 +253,13 @@ public class ActivityHome extends ActivityBase {
 
         FragmentDrawer fragmentDrawer = (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
         if (fragmentDrawer != null) {
+            final Context context = this;
             final Bitmap bitmap = fragmentDrawer.getDrawingBitmap();
-            Schedulers.io().createWorker().schedule(new Action0() {
-                @Override
-                public void call() {
-                    if (!isFinishing()) {
-                        FileUtils.compressAndCache(bitmap, context);
-                        finish();
-                    }
+            Schedulers.io().createWorker().schedule(() -> {
+                FileUtils.cache(bitmap, context);
+
+                if (!isFinishing()) {
+                    finish();
                 }
             });
         }

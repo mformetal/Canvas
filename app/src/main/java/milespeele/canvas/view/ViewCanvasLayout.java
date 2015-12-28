@@ -189,6 +189,11 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
         }
     }
 
+    @Override
+    public void snowSnackbar(int stringId, int length) {
+        Snackbar.make(this, stringId, length).show();
+    }
+
     private boolean menuContainsTouch(MotionEvent event) {
         return Circle.contains(menu.getCenterX() - event.getX(),
                 (menu.getCenterY() + (getHeight() - menu.getHeight())) - event.getY(),

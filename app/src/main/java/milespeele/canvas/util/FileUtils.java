@@ -29,7 +29,12 @@ import milespeele.canvas.drawing.DrawingHistory;
 import milespeele.canvas.drawing.DrawingPoint;
 import milespeele.canvas.drawing.DrawingPoints;
 import rx.Observable;
+import rx.Single;
+import rx.SingleSubscriber;
+import rx.Subscriber;
+import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
 /**
@@ -45,36 +50,23 @@ public class FileUtils {
         context = otherContext;
     }
 
-    public static void compressAndCache(Bitmap bitmap, Context context) {
-        compressBitmapAsObservable(bitmap)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(bytes -> {
-                    try {
-                        Output output = new Output(context.openFileOutput(BITMAP_FILENAME, Context.MODE_PRIVATE));
-                        output.write(bytes);
-                        output.flush();
-                        output.close();
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    }
-                });
-    }
-
-    public static Observable<byte[]> compressBitmapAsObservable(Bitmap bitmap) {
-        return Observable.just(compressBitmapAsByteArray(bitmap));
-    }
-
-    public static byte[] compress(Bitmap bitmap) {
+    public static void cache(Bitmap bitmap, Context context) {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-        return stream.toByteArray();
-    }
+        byte[] bytes =  stream.toByteArray();
 
-    public static byte[] compressBitmapAsByteArray(Bitmap bitmap) {
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-        return stream.toByteArray();
+        Output output = null;
+        try {
+            output = new Output(context.openFileOutput(BITMAP_FILENAME, Context.MODE_PRIVATE));
+            output.write(bytes);
+        } catch (FileNotFoundException exception) {
+            Logg.log(exception);
+        } finally {
+            if (output != null) {
+                output.flush();
+                output.close();
+            }
+        }
     }
 
     public static BitmapFactory.Options getBitmapOptions(Context context) {

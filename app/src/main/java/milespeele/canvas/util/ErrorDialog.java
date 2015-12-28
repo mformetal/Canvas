@@ -18,6 +18,7 @@ import milespeele.canvas.R;
 public class ErrorDialog extends Dialog implements View.OnClickListener, DialogInterface.OnDismissListener {
 
     public final static int NO_INTERNET = 404;
+    public final static int GENERAL = -2;
 
     @Bind(R.id.error_dialog_title) TextView title;
     @Bind(R.id.error_dialog_body) TextView body;
@@ -69,6 +70,11 @@ public class ErrorDialog extends Dialog implements View.OnClickListener, DialogI
                 return new ErrorDialog(context,
                         context.getResources().getString(R.string.error_no_internet_title),
                         context.getResources().getString(R.string.error_no_internet_body),
+                        R.style.DialogTheme);
+            case GENERAL:
+                return new ErrorDialog(context,
+                        context.getResources().getString(R.string.error_dialog_general_title),
+                        context.getResources().getString(R.string.error_dialog_general_body),
                         R.style.DialogTheme);
             default:
                 return new ErrorDialog(context,

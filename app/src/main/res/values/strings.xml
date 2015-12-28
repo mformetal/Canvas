@@ -20,7 +20,7 @@
     <string name="snackbar_activity_home_imaged_saved_body">View</string>
     <string name="snackbar_no_more_redo">No more strokes to redo!</string>
     <string name="snackbar_no_more_undo">No more strokes to undo!</string>
-    <string name="snackbar_drag_photo">One finger to move, Two to scale, Three to rotate</string>
+    <string name="snackbar_drag_photo">One finger to move, Two to scale and rotate</string>
 
     <string name="toast_fragment_filename_invalid">Must contain only alphanumeric characters</string>
     <string name="fragment_filename_empty">Put in a name to save!</string>

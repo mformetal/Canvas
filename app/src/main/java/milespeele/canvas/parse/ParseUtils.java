@@ -32,39 +32,7 @@ public class ParseUtils {
     }
 
     public void saveImageToServer(String filename, final WeakReference<ActivityHome> weakCxt, Bitmap bitmap) {
-        FileUtils.compressBitmapAsObservable(bitmap)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(bytes -> {
-                    final ParseFile photoFile =
-                            new ParseFile(ParseUser.getCurrentUser().getUsername(), bytes);
-                    photoFile.saveInBackground((ParseException e) -> {
-                        if (e == null) {
-                            final Masterpiece art = new Masterpiece();
-                            art.setImage(photoFile);
-                            art.setTitle(filename);
-                            art.saveEventually(e1 -> {
-                                if (e1 == null) {
-                                    ParseUser.getCurrentUser().getRelation("Masterpieces").add(art);
-                                    ParseUser.getCurrentUser().saveEventually(e2 -> {
-                                        if (e2 == null) {
-                                            ActivityHome activityHome = weakCxt.get();
-                                            if (activityHome != null && !activityHome.isFinishing()) {
-                                                activityHome.showSavedImageSnackbar(art);
-                                            }
-                                        } else {
-                                            handleError(e2);
-                                        }
-                                    });
-                                } else {
-                                    handleError(e1);
-                                }
-                            });
-                        } else {
-                            handleError(e);
-                        }
-                    });
-                }, this::handleError);
+
     }
 
     public void handleError(Throwable throwable) {

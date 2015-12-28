@@ -43,6 +43,11 @@ public class Circle {
         return Math.toDegrees(Math.atan2(centerY - y, centerX - x));
     }
 
+    public static float angle(float x, float y) {
+        double radians = Math.atan2(y, x);
+        return (float) Math.toDegrees(radians);
+    }
+
     public RectF getBoundingRect() {
         return boundingRect;
     }
