@@ -23,7 +23,6 @@ import rx.Single;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.functions.Func1;
-import rx.parse.ParseObservable;
 import rx.schedulers.Schedulers;
 
 /**
