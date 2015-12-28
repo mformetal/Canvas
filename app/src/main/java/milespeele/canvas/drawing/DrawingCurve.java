@@ -35,6 +35,7 @@ import milespeele.canvas.event.EventColorChosen;
 import milespeele.canvas.event.EventTextChosen;
 import milespeele.canvas.util.FileUtils;
 import milespeele.canvas.util.Datastore;
+import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.PaintStyles;
 import milespeele.canvas.util.TextUtils;
 import milespeele.canvas.util.ViewUtils;
@@ -68,6 +69,7 @@ public class DrawingCurve {
     private static float STROKE_WIDTH = 5f;
     private static final int INVALID_POINTER = -1;
     private static final int NONE = 0, DRAG = 1, ZOOM = 2;
+    private float transX, transY;
     private int mode = NONE;
     private int mActivePointer = INVALID_POINTER;
     private float mLastX, mLastY;
@@ -117,8 +119,8 @@ public class DrawingCurve {
         mCanvas = new Canvas(mBitmap);
         mCanvas.drawBitmap(mCachedBitmap, 0, 0, null);
 
-        mPaint = PaintStyles.normal(mStrokeColor, 20f);
-        mInkPaint = PaintStyles.normal(mStrokeColor, 10f);
+        mPaint = PaintStyles.normal(mStrokeColor, 5f);
+        mInkPaint = PaintStyles.normal(mStrokeColor, 20f);
 
         mTextPaint = new TextPaint(TextPaint.ANTI_ALIAS_FLAG);
         mTextPaint.setColor(mStrokeColor);
@@ -181,8 +183,22 @@ public class DrawingCurve {
                     break;
                 case INK:
                     canvas.save();
-                    canvas.concat(mMatrix);
-                    canvas.drawCircle(mLastX, mLastX, 200, mInkPaint);
+                    canvas.translate(transX, transY);
+
+                    float lineSize = canvas.getWidth() * .1f, xSpace = canvas.getWidth() * .05f;
+                    float middleX = canvas.getWidth() / 2f, middleY = canvas.getHeight() / 2f;
+
+                    // base "pointer"
+                    mInkPaint.setColor(mOppositeBackgroundColor);
+                    canvas.drawLine(middleX + xSpace / 2, middleY, middleX + xSpace + lineSize, middleY, mInkPaint);
+                    canvas.drawLine(middleX - xSpace / 2, middleY, middleX - xSpace - lineSize, middleY, mInkPaint);
+                    canvas.drawLine(middleX, middleY + xSpace / 2, middleX, middleY + xSpace + lineSize, mInkPaint);
+                    canvas.drawLine(middleX, middleY - xSpace / 2, middleX, middleY - xSpace - lineSize, mInkPaint);
+                    canvas.drawCircle(middleX, middleY, xSpace + lineSize, mInkPaint);
+
+                    // ink circle
+                    mInkPaint.setColor(mInkedColor);
+                    canvas.drawCircle(middleX, middleY, xSpace + lineSize - mPaint.getStrokeWidth(), mInkPaint);
                     canvas.restore();
                     break;
                 case IMPORT:
@@ -276,6 +292,9 @@ public class DrawingCurve {
         switch (mState) {
             case TEXT:
             case INK:
+                transX = x - mBitmap.getWidth() / 2f;
+                transY = y - mBitmap.getHeight() / 2f - mBitmap.getWidth() * .15f;
+                break;
             case IMPORT:
                 mSavedMatrix.set(mMatrix);
                 mStartPoint.set(event.getX(), event.getY());
@@ -349,8 +368,15 @@ public class DrawingCurve {
                 }
                 break;
             case INK:
-                mMatrix.set(mSavedMatrix);
-                mMatrix.postTranslate(x - mLastX, y - mLastY);
+                transX += x - mLastX;
+                transY += y - mLastY;
+
+                int inkx = Math.round(x), inky = Math.round(y - mBitmap.getWidth() * .15f);
+                if (eventCoordsInRange(inkx, inky)) {
+                    mInkedColor = mBitmap.getPixel(inkx, inky);
+//                    if (color != mBackgroundColor) {
+//                    }
+                }
                 break;
         }
 
@@ -487,15 +513,15 @@ public class DrawingCurve {
     }
 
     public void ink() {
-        if (mState != State.INK) {
-            changeState(State.INK);
+        changeState(State.INK);
 
-            listener.toggleMenuVisibility(false);
+        listener.toggleMenuVisibility(false);
 
-            mInkedColor = mBitmap.getPixel(mBitmap.getWidth() / 2, mBitmap.getHeight() / 2);
-        } else {
-            changeState(State.DRAW);
-        }
+        transX = 0;
+        transY = 0;
+
+        mInkedColor = mBitmap.getPixel(mBitmap.getWidth() / 2, mBitmap.getHeight() / 2);
+        mInkPaint.setColor(mInkedColor);
     }
 
     public void erase() {
