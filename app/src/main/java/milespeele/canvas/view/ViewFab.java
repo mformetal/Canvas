@@ -25,7 +25,6 @@ import milespeele.canvas.util.ViewUtils;
 
 public class ViewFab extends FloatingActionButton {
 
-    private String mText;
     private AnimatorSet pulse;
 
     private boolean isScaledUp = false;
@@ -47,11 +46,6 @@ public class ViewFab extends FloatingActionButton {
     }
 
     private void init(AttributeSet attrs) {
-        if (attrs != null) {
-            TypedArray typedArray = getResources().obtainAttributes(attrs, R.styleable.ViewFab);
-            mText = typedArray.getString(R.styleable.ViewFab_text);
-            typedArray.recycle();
-        }
     }
 
     @Override
@@ -145,9 +139,5 @@ public class ViewFab extends FloatingActionButton {
             normalize.start();
             pulse.end();
         }
-    }
-
-    public String getText() {
-        return (mText != null) ? mText : "";
     }
 }
