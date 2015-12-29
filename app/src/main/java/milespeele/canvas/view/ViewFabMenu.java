@@ -113,6 +113,8 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
 
         mListeners = new ArrayList<>();
 
+        mItemPositions = new ArrayList<>();
+
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mPaint.setAlpha(255);
         mPaint.setStyle(Paint.Style.FILL_AND_STROKE);
@@ -164,14 +166,16 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
+        if (!mItemPositions.isEmpty()) {
+            return;
+        }
+
         MarginLayoutParams lps = (MarginLayoutParams) toggle.getLayoutParams();
 
         toggle.layout(r / 2 - toggle.getMeasuredWidth() / 2,
                 getMeasuredHeight() - toggle.getMeasuredHeight() - lps.bottomMargin,
                 r / 2 + toggle.getMeasuredWidth() / 2,
                 getMeasuredHeight() - lps.bottomMargin);
-
-        mItemPositions = new ArrayList<>();
 
         mMaxRadius = toggle.getMeasuredHeight() * 3.75f;
         radius = mMaxRadius;
