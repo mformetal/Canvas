@@ -1,5 +1,6 @@
 package milespeele.canvas.view;
 
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -17,16 +18,19 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import milespeele.canvas.R;
+import milespeele.canvas.drawing.DrawingCurve;
 import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.ViewUtils;
 
 /**
  * Created by mbpeele on 12/23/15.
  */
-public class ViewOptionsMenu extends ViewGroup implements View.OnClickListener {
+public class ViewOptionsMenu extends LinearLayout implements View.OnClickListener {
 
-    @Bind(R.id.view_options_menu_cancel) ViewFab cancel;
-    @Bind(R.id.view_options_menu_accept) ViewFab accept;
+    @Bind(R.id.view_options_menu_cancel) ViewTypefaceButton cancel;
+    @Bind(R.id.view_options_menu_1) ViewTypefaceButton option1;
+    @Bind(R.id.view_options_menu_2) ViewTypefaceButton option2;
+    @Bind(R.id.view_options_menu_accept) ViewTypefaceButton accept;
 
     private ArrayList<ViewOptionsMenuListener> listeners;
     public interface ViewOptionsMenuListener {
@@ -57,65 +61,6 @@ public class ViewOptionsMenu extends ViewGroup implements View.OnClickListener {
 
     private void init() {
         listeners = new ArrayList<>();
-    }
-
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        for (int i = 0; i < getChildCount(); i++) {
-            View child = getChildAt(i);
-            measureChildWithMargins(child, widthMeasureSpec, 0, heightMeasureSpec, 0);
-        }
-
-        int width = getDefaultSize(getSuggestedMinimumWidth(), widthMeasureSpec);
-
-        setMeasuredDimension(width, getSuggestedMinimumHeight());
-    }
-
-    @Override
-    protected LayoutParams generateDefaultLayoutParams() {
-        return new MarginLayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-    }
-
-    @Override
-    protected LayoutParams generateLayoutParams(LayoutParams p) {
-        return new MarginLayoutParams(p);
-    }
-
-    @Override
-    public LayoutParams generateLayoutParams(AttributeSet attrs) {
-        return new MarginLayoutParams(getContext(), attrs);
-    }
-
-    @Override
-    protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        if (!changed) {
-            return;
-        }
-
-        MarginLayoutParams lps = (MarginLayoutParams) cancel.getLayoutParams();
-
-        final int count = getChildCount();
-        int viewRadius = cancel.getMeasuredWidth() / 2;
-        float middleX = (l + r) / 2f;
-        float middleY = getMeasuredHeight() - lps.bottomMargin - cancel.getMeasuredHeight();
-        float itemRadius = cancel.getMeasuredHeight() * 3;
-
-        for (int i = 0; i < count; i++) {
-            View view = getChildAt(i);
-
-            double angle = Math.toRadians(180d * i / (count - 1));
-            if (i == 1) {
-                angle = Math.toRadians(70);
-            } else if (i == 2) {
-                angle = Math.toRadians(110d);
-            }
-
-            double x = middleX + itemRadius * Math.cos(angle);
-            double y = middleY;
-
-            view.layout((int) x - viewRadius, (int) y - viewRadius,
-                    (int) x + viewRadius, (int) y + viewRadius);
-        }
     }
 
     @Override
@@ -150,5 +95,46 @@ public class ViewOptionsMenu extends ViewGroup implements View.OnClickListener {
 
     public void addListener(ViewOptionsMenuListener optionsMenuListener) {
         listeners.add(optionsMenuListener);
+    }
+
+    public void setState(DrawingCurve.State state) {
+        switch (state) {
+            case TEXT:
+                if (option1.getParent() == null) {
+                    addView(option1, getChildCount() - 1);
+                }
+
+                setWeightSum(4);
+
+                option1.setText(R.string.view_options_menu_edit_text);
+                option1.setCompoundDrawablesWithIntrinsicBounds(null, null, null,
+                        getResources().getDrawable(R.drawable.ic_text_format_24dp));
+
+                option2.setText(R.string.view_options_menu_edit_color);
+                option2.setCompoundDrawablesWithIntrinsicBounds(null, null, null,
+                        getResources().getDrawable(R.drawable.ic_format_paint_24dp));
+                break;
+            case IMPORT:
+
+                removeView(option1);
+
+                setWeightSum(3);
+
+                option2.setText(R.string.view_options_menu_edit_import);
+                option2.setCompoundDrawablesWithIntrinsicBounds(null, null, null,
+                        getResources().getDrawable(R.drawable.ic_photo_24dp));
+
+                requestLayout();
+                break;
+        }
+
+        if (getVisibility() == View.GONE) {
+            ViewUtils.visible(this);
+        } else {
+            ObjectAnimator.ofFloat(this, View.TRANSLATION_Y,
+                    getTranslationY() - getHeight())
+                    .setDuration(350)
+                    .start();
+        }
     }
 }

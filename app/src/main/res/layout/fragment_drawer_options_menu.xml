@@ -3,49 +3,48 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="horizontal"
+    android:weightSum="4"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <milespeele.canvas.view.ViewFab
-        android:id="@+id/view_options_menu_accept"
-        android:src="@drawable/ic_check_24dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/fab_margin"
-        app:borderWidth="0dp"
-        app:elevation="@dimen/fab_elevation"
-        app:rippleColor="@color/primary_dark"
-        app:fabSize="mini" />
-
-    <milespeele.canvas.view.ViewFab
-        android:id="@+id/view_options_menu_1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/fab_margin"
-        app:borderWidth="0dp"
-        app:elevation="@dimen/fab_elevation"
-        app:rippleColor="@color/primary_dark"
-        app:fabSize="mini" />
-
-    <milespeele.canvas.view.ViewFab
-        android:id="@+id/view_options_menu_2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/fab_margin"
-        app:borderWidth="0dp"
-        app:elevation="@dimen/fab_elevation"
-        app:rippleColor="@color/primary_dark"
-        app:fabSize="mini" />
-
-    <milespeele.canvas.view.ViewFab
+    <milespeele.canvas.view.ViewTypefaceButton
         android:id="@+id/view_options_menu_cancel"
-        android:src="@drawable/ic_cancel_24dp"
-        android:layout_width="wrap_content"
+        android:text="@string/view_options_menu_cancel"
+        android:singleLine="true"
+        android:drawableBottom="@drawable/ic_cancel_24dp"
+        android:layout_weight="1"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/fab_margin"
-        app:borderWidth="0dp"
-        app:elevation="@dimen/fab_elevation"
-        app:rippleColor="@color/primary_dark"
-        app:fabSize="mini" />
+        app:backgroundColor="@color/accent" />
+
+    <milespeele.canvas.view.ViewTypefaceButton
+        android:id="@+id/view_options_menu_1"
+        android:singleLine="true"
+        android:layout_weight="1"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/fab_margin"
+        app:backgroundColor="@color/accent" />
+
+    <milespeele.canvas.view.ViewTypefaceButton
+        android:id="@+id/view_options_menu_2"
+        android:singleLine="true"
+        android:layout_weight="1"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/fab_margin"
+        app:backgroundColor="@color/accent" />
+
+    <milespeele.canvas.view.ViewTypefaceButton
+        android:id="@+id/view_options_menu_accept"
+        android:text="@string/view_options_menu_accept"
+        android:singleLine="true"
+        android:drawableBottom="@drawable/ic_check_24dp"
+        android:layout_weight="1"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/fab_margin"
+        app:backgroundColor="@color/accent" />
 
 </milespeele.canvas.view.ViewOptionsMenu>

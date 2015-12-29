@@ -55,7 +55,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
 
     @Bind({R.id.menu_save, R.id.menu_text, R.id.menu_stroke_color, R.id.menu_canvas_color,
             R.id.menu_ink, R.id.menu_brush, R.id.menu_undo, R.id.menu_redo, R.id.menu_erase,
-            R.id.menu_import, R.id.menu_layers})
+            R.id.menu_import, R.id.menu_layers, R.id.menu_camera})
     List<ViewFab> buttonsList;
 
     @Inject EventBus bus;
@@ -70,7 +70,6 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
 
     private boolean isMenuShowing = true;
     private boolean isAnimating = false;
-    private boolean isFadedOut = false;
     private boolean isDragging = false;
     private boolean isFlinging = false;
     private float radius;
@@ -123,7 +122,6 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
         mGestureDetector = new GestureDetector(getContext(), new GestureListener());
 
         setWillNotDraw(false);
-        setSaveEnabled(true);
         setDescendantFocusability(FOCUS_AFTER_DESCENDANTS);
         setBackground(null);
     }
@@ -173,16 +171,17 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
                 r / 2 + toggle.getMeasuredWidth() / 2,
                 getMeasuredHeight() - lps.bottomMargin);
 
+        mItemPositions = new ArrayList<>();
+
         mMaxRadius = toggle.getMeasuredHeight() * 3.75f;
         radius = mMaxRadius;
 
         mCircle = new Circle(ViewUtils.relativeCenterX(toggle), ViewUtils.relativeCenterY(toggle), radius);
+        mItemPositions.add(new ItemPosition(toggle, getCenterX(), getCenterY(), ViewUtils.radius(toggle)));
 
         float mItemRadius = toggle.getMeasuredHeight() * 3;
         final int count = getChildCount();
         final double slice = Math.toRadians(360d / (count - 1));
-
-        mItemPositions = new ArrayList<>();
 
         for (int i = 0; i < count; i++) {
             final ViewFab child = (ViewFab) getChildAt(i);
@@ -226,13 +225,6 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
             return false;
         }
 
-        if (isFadedOut || !isMenuShowing) {
-            if (Circle.contains(mCircle.getCenterX() - x, mCircle.getCenterY() - y, ViewUtils.radius(toggle))) {
-                onClick(toggle);
-            }
-            return false;
-        }
-
         if (!mCircle.contains(x, y)) {
             return false;
         }
@@ -244,7 +236,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
                 if (isFlinging) {
                     isFlinging = false;
                 }
-                getClickedItem(x, y);
+                clickedFab = getClickedItem(x, y);
 
                 mLastAngle = mCircle.angleInDegrees(x, y);
                 break;
@@ -276,10 +268,6 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
         canvas.drawCircle(getCenterX(), getCenterY(), radius, mPaint);
     }
 
-    public ViewFab getFab(int id) {
-        return (ViewFab) findViewById(id);
-    }
-
     public void addListener(ViewFabMenuListener listener) {
         mListeners.add(listener);
     }
@@ -302,16 +290,14 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
         }
     }
 
-    private void getClickedItem(float x, float y) {
-        if (Circle.contains(getCenterX() - x, getCenterY() - y, ViewUtils.radius(toggle))) {
-            clickedFab = toggle;
-        }
-
+    private ViewFab getClickedItem(float x, float y) {
         for (ItemPosition position: mItemPositions) {
             if (position.contains(x, y)) {
-                clickedFab = position.mView;
+                return position.mView;
             }
         }
+
+        return null;
     }
 
     public void toggleMenu() {
@@ -329,53 +315,40 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
             isMenuShowing = true;
             rotateToggleOpen();
 
+            ArrayList<Animator> anims = new ArrayList<>();
+
             ObjectAnimator background = ObjectAnimator.ofFloat(this, RADIUS, mMaxRadius);
             background.setDuration(DURATION + DELAY_INCREMENT * buttonsList.size());
             background.setInterpolator(OVERSHOOT_INTERPOLATOR);
-            background.addListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationStart(Animator animation) {
-                    super.onAnimationStart(animation);
-                    isAnimating = true;
-                }
 
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    super.onAnimationEnd(animation);
-                    isAnimating = false;
-                }
-
-                @Override
-                public void onAnimationCancel(Animator animation) {
-                    super.onAnimationCancel(animation);
-                    isAnimating = false;
-                }
-            });
-            background.start();
+            anims.add(background);
 
             int delay = INITIAL_DELAY;
             for (ItemPosition position: mItemPositions) {
+                View view = position.mView;
+
+                if (view.getId() == R.id.menu_toggle) {
+                    continue;
+                }
+
                 float diffX = position.mItemCircle.getCenterX() - getCenterX();
                 float diffY = position.mItemCircle.getCenterY() - getCenterY();
-
-                View view = position.mView;
 
                 ObjectAnimator out = ObjectAnimator.ofPropertyValuesHolder(view,
                         PropertyValuesHolder.ofFloat(View.X, view.getX() + diffX),
                         PropertyValuesHolder.ofFloat(View.Y, view.getY() + diffY),
-                        PropertyValuesHolder.ofFloat(View.ALPHA, 1.0f, 0.0f));
+                        PropertyValuesHolder.ofFloat(View.ALPHA, 0.0f, 1.0f));
                 out.setStartDelay(delay);
                 out.setDuration(DURATION);
                 out.setInterpolator(OVERSHOOT_INTERPOLATOR);
-                out.addListener(new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationStart(Animator animation) {
-                        view.setVisibility(View.VISIBLE);
-                    }
-                });
-                out.start();
                 delay += DELAY_INCREMENT;
+
+                anims.add(out);
             }
+
+            AnimatorSet set = new AnimatorSet();
+            set.playTogether(anims);
+            set.start();
         }
     }
 
@@ -384,36 +357,25 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
             isMenuShowing = false;
             rotateToggleClosed();
 
+            ArrayList<Animator> anims = new ArrayList<>();
+
             ObjectAnimator background = ObjectAnimator.ofFloat(this, RADIUS, radius, 0);
             background.setDuration(HIDE_DIFF + DURATION + DELAY_INCREMENT * buttonsList.size());
             background.setInterpolator(ANTICIPATE_INTERPOLATOR);
-            background.addListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationStart(Animator animation) {
-                    super.onAnimationStart(animation);
-                    isAnimating = true;
-                }
 
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    super.onAnimationEnd(animation);
-                    isAnimating = false;
-                }
-
-                @Override
-                public void onAnimationCancel(Animator animation) {
-                    super.onAnimationCancel(animation);
-                    isAnimating = false;
-                }
-            });
-            background.start();
+            anims.add(background);
 
             int delay = INITIAL_DELAY;
-            for (ItemPosition position : mItemPositions) {
+            for (int i = 0; i < mItemPositions.size(); i++) {
+                ItemPosition position = mItemPositions.get(i);
+                View view = position.mView;
+
+                if (view.getId() == R.id.menu_toggle) {
+                    continue;
+                }
+
                 float diffX = position.mItemCircle.getCenterX() - getCenterX();
                 float diffY = position.mItemCircle.getCenterY() - getCenterY();
-
-                View view = position.mView;
 
                 ObjectAnimator out = ObjectAnimator.ofPropertyValuesHolder(view,
                         PropertyValuesHolder.ofFloat(View.X, view.getX() - diffX),
@@ -422,15 +384,14 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
                 out.setStartDelay(delay);
                 out.setDuration(DURATION);
                 out.setInterpolator(ANTICIPATE_INTERPOLATOR);
-                out.addListener(new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        view.setVisibility(View.GONE);
-                    }
-                });
-                out.start();
                 delay += DELAY_INCREMENT;
+
+                anims.add(out);
             }
+
+            AnimatorSet set = new AnimatorSet();
+            set.playTogether(anims);
+            set.start();
         }
     }
 
@@ -457,7 +418,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
     }
 
     public boolean isVisible() {
-        return !isFadedOut && isMenuShowing && getVisibility() == View.VISIBLE;
+        return isMenuShowing && getVisibility() == View.VISIBLE;
     }
 
     public float getRadius() {

@@ -65,22 +65,11 @@
     <string name="alert_dialog_exit">Exit</string>
     <string name="alert_dialog_save_exit">Save And Exit</string>
     <string name="alert_dialog_cancel">Cancel</string>
-    
-    <string name="view_fab_save">Save Drawing!</string>
-    <string name="view_fab_text">Draw Text!</string>
-    <string name="view_fab_stroke_color">Stroke Color!</string>
-    <string name="view_fab_canvas_color">Canvas Color!</string>
-    <string name="view_fab_ink">Lift Color!</string>
-    <string name="view_fab_brush">Stroke Type!</string>
-    <string name="view_fab_undo">Undo Stroke!</string>
-    <string name="view_fab_redo">Redo Stroke!</string>
-    <string name="view_fab_erase">Erase!</string>
-    <string name="view_fab_import">Import Photo!</string>
-    <string name="view_fab_settings">Settings!</string>
-    <string name="view_fab_layer">Get Layers!</string>
-    <string name="view_fab_toggle">Open/ Close!</string>
 
     <string name="view_options_menu_cancel">Cancel</string>
     <string name="view_options_menu_accept">Done</string>
+    <string name="view_options_menu_edit_text">Text</string>
+    <string name="view_options_menu_edit_color">Color</string>
+    <string name="view_options_menu_edit_import">Import</string>
 
 </resources>

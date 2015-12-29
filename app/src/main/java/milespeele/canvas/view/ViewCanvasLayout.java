@@ -34,7 +34,7 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
     @Bind(R.id.fragment_drawer_canvas) ViewCanvasSurface drawer;
     @Bind(R.id.fragment_drawer_menu) ViewFabMenu fabMenu;
     @Bind(R.id.fragment_drawer_animator) ViewRoundedFrameLayout fabFrame;
-//    @Bind(R.id.fragment_drawer_options_menu) ViewOptionsMenu optionsMenu;
+    @Bind(R.id.fragment_drawer_options_menu) ViewOptionsMenu optionsMenu;
 
     private final Rect hitRect = new Rect();
     private Paint shadowPaint;
@@ -71,7 +71,7 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
 
         fabMenu.addListener(this);
         drawer.setListener(this);
-//        optionsMenu.addListener(this);
+        optionsMenu.addListener(this);
     }
 
     @Override
@@ -164,22 +164,15 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
     }
 
     @Override
-    public void onDrawingCurveOptionsMenuVisibilityRequest(boolean setVisible) {
-//        if (setVisible) {
-//            if (optionsMenu.getVisibility() == View.GONE) {
-//                ViewUtils.visible(optionsMenu);
-//            } else {
-//                ObjectAnimator.ofFloat(optionsMenu, View.TRANSLATION_Y,
-//                        optionsMenu.getTranslationY() - optionsMenu.getHeight())
-//                        .setDuration(350)
-//                        .start();
-//            }
-//        } else {
-//            ObjectAnimator.ofFloat(optionsMenu, View.TRANSLATION_Y,
-//                    optionsMenu.getTranslationY() + optionsMenu.getHeight())
-//                    .setDuration(350)
-//                    .start();
-//        }
+    public void onDrawingCurveOptionsMenuVisibilityRequest(boolean setVisible, DrawingCurve.State state) {
+        if (setVisible) {
+            optionsMenu.setState(state);
+        } else {
+            ObjectAnimator.ofFloat(optionsMenu, View.TRANSLATION_Y,
+                    optionsMenu.getTranslationY() + optionsMenu.getHeight())
+                    .setDuration(350)
+                    .start();
+        }
     }
 
     @Override

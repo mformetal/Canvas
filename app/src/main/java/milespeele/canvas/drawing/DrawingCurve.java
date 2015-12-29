@@ -83,7 +83,7 @@ public class DrawingCurve {
 
     private DrawingCurveListener listener;
     public interface DrawingCurveListener {
-        void onDrawingCurveOptionsMenuVisibilityRequest(boolean visible);
+        void onDrawingCurveOptionsMenuVisibilityRequest(boolean visible, State state);
         void onDrawingCurveFabMenuVisibilityRequest(boolean visible);
         void onDrawingCurveSnbackRequest(int stringId, int length);
     }
@@ -162,7 +162,7 @@ public class DrawingCurve {
     }
 
     public void onOptionsMenuCancel() {
-        listener.onDrawingCurveOptionsMenuVisibilityRequest(false);
+        listener.onDrawingCurveOptionsMenuVisibilityRequest(false, null);
         listener.onDrawingCurveFabMenuVisibilityRequest(true);
 
         changeState(State.DRAW);
@@ -182,7 +182,7 @@ public class DrawingCurve {
     public void onOptionsMenuAccept() {
         switch (mState) {
             case TEXT:
-                listener.onDrawingCurveOptionsMenuVisibilityRequest(false);
+                listener.onDrawingCurveOptionsMenuVisibilityRequest(false, null);
                 listener.onDrawingCurveFabMenuVisibilityRequest(true);
 
                 mCanvas.save();
@@ -199,7 +199,7 @@ public class DrawingCurve {
                 mTextLayout = null;
                 break;
             case IMPORT:
-                listener.onDrawingCurveOptionsMenuVisibilityRequest(false);
+                listener.onDrawingCurveOptionsMenuVisibilityRequest(false, null);
                 listener.onDrawingCurveFabMenuVisibilityRequest(true);
 
                 mCanvas.save();
@@ -556,7 +556,7 @@ public class DrawingCurve {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                listener.onDrawingCurveOptionsMenuVisibilityRequest(true);
+                listener.onDrawingCurveOptionsMenuVisibilityRequest(true, State.TEXT);
                 listener.onDrawingCurveFabMenuVisibilityRequest(false);
             }
         }, 500);
@@ -601,9 +601,8 @@ public class DrawingCurve {
         } finally {
             if (inputStream != null) {
                 try {
-                    listener.onDrawingCurveOptionsMenuVisibilityRequest(true);
+                    listener.onDrawingCurveOptionsMenuVisibilityRequest(true, State.IMPORT);
                     listener.onDrawingCurveFabMenuVisibilityRequest(false);
-                    listener.onDrawingCurveSnbackRequest(R.string.snackbar_drag_photo, Snackbar.LENGTH_SHORT);
 
                     changeState(State.IMPORT);
 
