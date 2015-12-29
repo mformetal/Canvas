@@ -559,7 +559,7 @@ public class DrawingCurve {
                 listener.onDrawingCurveOptionsMenuVisibilityRequest(true, State.TEXT);
                 listener.onDrawingCurveFabMenuVisibilityRequest(false);
             }
-        }, 500);
+        }, 350);
     }
 
     public void onEvent(EventColorChosen eventColorChosen) {

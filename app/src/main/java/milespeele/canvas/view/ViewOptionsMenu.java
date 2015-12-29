@@ -115,7 +115,6 @@ public class ViewOptionsMenu extends LinearLayout implements View.OnClickListene
                         getResources().getDrawable(R.drawable.ic_format_paint_24dp));
                 break;
             case IMPORT:
-
                 removeView(option1);
 
                 setWeightSum(3);
