@@ -34,16 +34,16 @@
         app:layout_anchorGravity="bottom|center_horizontal"
         app:layout_anchor="@id/fragment_drawer_coordinator" />
 
-    <include
-        layout="@layout/fragment_drawer_options_menu"
-        android:visibility="gone"
-        android:id="@+id/fragment_drawer_options_menu"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|center_horizontal"
-        app:layout_behavior="milespeele.canvas.view.ViewMenuBehavior"
-        app:layout_anchorGravity="bottom|center_horizontal"
-        app:layout_anchor="@id/fragment_drawer_coordinator" />
+    <!--<include-->
+        <!--layout="@layout/fragment_drawer_options_menu"-->
+        <!--android:visibility="gone"-->
+        <!--android:id="@+id/fragment_drawer_options_menu"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_gravity="bottom|center_horizontal"-->
+        <!--app:layout_behavior="milespeele.canvas.view.ViewMenuBehavior"-->
+        <!--app:layout_anchorGravity="bottom|center_horizontal"-->
+        <!--app:layout_anchor="@id/fragment_drawer_coordinator" />-->
 
 
 </milespeele.canvas.view.ViewCanvasLayout>

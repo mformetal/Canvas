@@ -112,7 +112,6 @@ public class ActivityHome extends ActivityBase {
         if (resultCode == RESULT_OK) {
             if (requestCode == REQUEST_IMPORT_CODE) {
                 if (data != null) {
-                    findViewById(R.id.fragment_drawer_options_menu).setVisibility(View.GONE);
                     bus.post(new EventBitmapChosen(data));
                 }
             }

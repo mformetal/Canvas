@@ -20,6 +20,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import milespeele.canvas.R;
 import milespeele.canvas.drawing.DrawingCurve;
+import milespeele.canvas.transition.TransitionHelper;
 import milespeele.canvas.util.Circle;
 import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.ViewUtils;
@@ -33,12 +34,10 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
     @Bind(R.id.fragment_drawer_canvas) ViewCanvasSurface drawer;
     @Bind(R.id.fragment_drawer_menu) ViewFabMenu fabMenu;
     @Bind(R.id.fragment_drawer_animator) ViewRoundedFrameLayout fabFrame;
-    @Bind(R.id.fragment_drawer_options_menu) ViewOptionsMenu optionsMenu;
+//    @Bind(R.id.fragment_drawer_options_menu) ViewOptionsMenu optionsMenu;
 
     private final Rect hitRect = new Rect();
     private Paint shadowPaint;
-
-    private static final int BUTTON_BAR_DURATION = 350;
 
     public ViewCanvasLayout(Context context) {
         super(context);
@@ -72,7 +71,7 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
 
         fabMenu.addListener(this);
         drawer.setListener(this);
-        optionsMenu.addListener(this);
+//        optionsMenu.addListener(this);
     }
 
     @Override
@@ -166,29 +165,29 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
 
     @Override
     public void onDrawingCurveOptionsMenuVisibilityRequest(boolean setVisible) {
-        if (setVisible) {
-            if (optionsMenu.getVisibility() == View.GONE) {
-                ViewUtils.visible(optionsMenu, 350);
-            } else {
-                ObjectAnimator.ofFloat(optionsMenu, View.TRANSLATION_Y,
-                        optionsMenu.getTranslationY() - optionsMenu.getHeight())
-                        .setDuration(350)
-                        .start();
-            }
-        } else {
-            ObjectAnimator.ofFloat(optionsMenu, View.TRANSLATION_Y,
-                    optionsMenu.getTranslationY() + optionsMenu.getHeight())
-                    .setDuration(350)
-                    .start();
-        }
+//        if (setVisible) {
+//            if (optionsMenu.getVisibility() == View.GONE) {
+//                ViewUtils.visible(optionsMenu);
+//            } else {
+//                ObjectAnimator.ofFloat(optionsMenu, View.TRANSLATION_Y,
+//                        optionsMenu.getTranslationY() - optionsMenu.getHeight())
+//                        .setDuration(350)
+//                        .start();
+//            }
+//        } else {
+//            ObjectAnimator.ofFloat(optionsMenu, View.TRANSLATION_Y,
+//                    optionsMenu.getTranslationY() + optionsMenu.getHeight())
+//                    .setDuration(350)
+//                    .start();
+//        }
     }
 
     @Override
     public void onDrawingCurveFabMenuVisibilityRequest(boolean setVisible) {
         if (setVisible) {
-            ViewUtils.visible(fabMenu, 350);
+            ViewUtils.visible(fabMenu);
         } else {
-            ViewUtils.gone(fabMenu, 350);
+            ViewUtils.gone(fabMenu);
         }
     }
 
