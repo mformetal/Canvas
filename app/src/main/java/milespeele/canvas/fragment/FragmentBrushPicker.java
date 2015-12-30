@@ -28,7 +28,7 @@ public class FragmentBrushPicker extends Fragment implements View.OnClickListene
 
     @Inject EventBus bus;
 
-    private static Paint curPaint = new Paint();
+    private static final Paint curPaint = new Paint();
 
     public FragmentBrushPicker() {}
 
@@ -47,7 +47,7 @@ public class FragmentBrushPicker extends Fragment implements View.OnClickListene
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_brush_picker, container, false);
         ButterKnife.bind(this, v);
-        root.setInitialValues(curPaint);
+        root.setPaint(curPaint);
         return v;
     }
 
@@ -56,7 +56,7 @@ public class FragmentBrushPicker extends Fragment implements View.OnClickListene
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.fragment_brush_picker_pos:
-                bus.post(new EventBrushChosen(root.getLastSelectedPaint()));
+                bus.post(new EventBrushChosen(root.getPaint()));
             case R.id.fragment_brush_picker_cancel:
                 getActivity().onBackPressed();
                 break;

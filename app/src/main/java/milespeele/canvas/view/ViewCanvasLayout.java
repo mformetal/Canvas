@@ -1,6 +1,5 @@
 package milespeele.canvas.view;
 
-import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.Context;
@@ -9,47 +8,37 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.os.Handler;
-import android.os.Message;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
-import android.support.v4.view.MotionEventCompat;
 import android.util.AttributeSet;
 import android.util.Property;
 import android.view.MotionEvent;
+import android.view.SoundEffectConstants;
 import android.view.View;
-import android.view.ViewConfiguration;
-import android.widget.FrameLayout;
-
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 import milespeele.canvas.R;
-import milespeele.canvas.util.AbstractAnimatorListener;
+import milespeele.canvas.drawing.DrawingCurve;
+import milespeele.canvas.fragment.FragmentDrawer;
+import milespeele.canvas.transition.TransitionHelper;
+import milespeele.canvas.util.Circle;
+import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.ViewUtils;
 
 /**
  * Created by milespeele on 8/7/15.
  */
-public class ViewCanvasLayout extends CoordinatorLayout implements View.OnClickListener {
+public class ViewCanvasLayout extends CoordinatorLayout implements
+        ViewFabMenu.ViewFabMenuListener, DrawingCurve.DrawingCurveListener, ViewOptionsMenu.ViewOptionsMenuListener {
 
     @Bind(R.id.fragment_drawer_canvas) ViewCanvasSurface drawer;
-    @Bind(R.id.fragment_drawer_menu) ViewFabMenu menu;
-    @Bind(R.id.fragment_drawer_animator) FrameLayout fabFrame;
-    @Bind(R.id.fragment_drawer_button) ViewTypefaceButton button;
+    @Bind(R.id.fragment_drawer_menu) ViewFabMenu fabMenu;
+    @Bind(R.id.fragment_drawer_animator) ViewRoundedFrameLayout fabFrame;
+    @Bind(R.id.fragment_drawer_options_menu) ViewOptionsMenu optionsMenu;
 
     private final Rect hitRect = new Rect();
-    private final MyHandler handler = new MyHandler(this);
     private Paint shadowPaint;
-
-    private float circle = 0;
-    private int[] loc = new int[2];
-    private boolean mIsMoving = false;
-    private static final int MOVING_DELAY = 750;
-    private static final int BUTTON_BAR_DURATION = 350;
 
     public ViewCanvasLayout(Context context) {
         super(context);
@@ -80,137 +69,150 @@ public class ViewCanvasLayout extends CoordinatorLayout implements View.OnClickL
     protected void onFinishInflate() {
         super.onFinishInflate();
         ButterKnife.bind(this);
-        drawer.requestFocus();
+
+        fabMenu.addListener(this);
+        drawer.setListener(this);
+        optionsMenu.addListener(this);
     }
 
     @Override
-    protected void dispatchDraw(Canvas canvas) {
-        super.dispatchDraw(canvas);
+    protected boolean drawChild(Canvas canvas, View child, long drawingTime) {
         if (shadowPaint.getAlpha() != 0) {
-            fabFrame.getLocationOnScreen(loc);
+            canvas.save();
+            canvas.drawPaint(shadowPaint);
+            canvas.restore();
 
-            CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) fabFrame.getLayoutParams();
-
-            float scaleWidth = fabFrame.getScaleX() * fabFrame.getWidth();
-            float scaleHeight = fabFrame.getScaleY() * fabFrame.getHeight();
-
-            float left = loc[0];
-            float top = loc[1] - params.topMargin * .8f;
-            float right = left + scaleWidth;
-            float bottom = top + scaleHeight;
-
-            canvas.drawRect(left, 0, right, top, shadowPaint);
-            canvas.drawRect(0, 0, left, canvas.getHeight(), shadowPaint);
-            canvas.drawRect(right, 0, canvas.getWidth(), canvas.getHeight(), shadowPaint);
-            canvas.drawRect(left, bottom, right, canvas.getHeight(), shadowPaint);
+            int alpha = shadowPaint.getAlpha();
+            if (child == fabMenu) {
+                for (int x = 0; x < fabMenu.getChildCount(); x++) {
+                    fabMenu.getChildAt(x).setAlpha((ViewUtils.MAX_ALPHA - alpha) / ViewUtils.MAX_ALPHA);
+                }
+            }
         }
+        return super.drawChild(canvas, child, drawingTime);
     }
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         final float x = ev.getX(), y = ev.getY();
-        final int action = MotionEventCompat.getActionMasked(ev);
 
-        if (fabFrame.getVisibility() == View.VISIBLE) {
+        if (fabFrame.getVisibility() == View.VISIBLE &&
+                !fabFrame.isAnimating()) {
+            drawer.setOnTouchListener(null);
             fabFrame.getHitRect(hitRect);
             if (!hitRect.contains((int) x, (int) y)) {
                 if (getContext() instanceof Activity) {
+                    playSoundEffect(SoundEffectConstants.CLICK);
                     ((Activity) getContext()).onBackPressed();
-                    return true;
                 }
+            }
+            fabMenu.setEnabled(false);
+            return false;
+        }
+
+        fabMenu.setEnabled(true);
+
+        if (fabMenu.isVisible()) {
+            if (menuContainsTouch(ev)) {
+                drawer.setEnabled(false);
+                return false;
             }
         }
 
-        if (menu.isVisible()) {
-            if (y >= getHeight() - menu.getHeight()) {
-                float centerX = ViewUtils.centerX(menu);
-                float centerY = getHeight();
-                double rad = Math.pow(menu.getCircleRadius(), 2);
-                double pyth = Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2);
-                if (pyth <= rad) {
-                    drawer.setOnTouchListener(null);
-                    return false;
-                }
-            }
-        }
+        drawer.setEnabled(true);
 
-        drawer.setOnTouchListener(drawer);
-
-        switch (action) {
-            case MotionEvent.ACTION_DOWN:
-                break;
-
-            case MotionEvent.ACTION_MOVE:
-                if (fabFrame.getVisibility() == View.VISIBLE) {
-                    fabFrame.getHitRect(hitRect);
-                    if (!hitRect.contains((int) x, (int) y)) {
-                        mIsMoving = true;
-                        ifStillMoving();
-                    }
-                } else {
-                    mIsMoving = true;
-                    ifStillMoving();
-                }
-                break;
-
-            case MotionEvent.ACTION_UP:
-            case MotionEvent.ACTION_CANCEL:
-                mIsMoving = false;
-                break;
-        }
         return false;
     }
 
     @Override
-    @OnClick(R.id.fragment_drawer_button)
-    public void onClick(View v) {
-        drawer.onButtonClicked();
+    public boolean onTouchEvent(MotionEvent ev) {
+        if (menuContainsTouch(ev)) {
+            ev.offsetLocation(0, -(getHeight() - fabMenu.getHeight()));
+            fabMenu.onTouchEvent(ev);
+        }
+
+        return false;
     }
 
-    public void setButtonGone() {
-        ObjectAnimator gone = ObjectAnimator.ofFloat(button, ViewUtils.ALPHA, 1f, 0f);
-        gone.setDuration(BUTTON_BAR_DURATION);
-        gone.addListener(new AbstractAnimatorListener() {
+    @Override
+    public void onFabMenuButtonClicked(ViewFab v) {
+        v.performClick();
 
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                button.setVisibility(View.GONE);
+        switch (v.getId()) {
+            case R.id.menu_toggle:
+                fabMenu.toggleMenu();
+                break;
+            case R.id.menu_undo:
+                undo();
+                break;
+            case R.id.menu_redo:
+                redo();
+                break;
+            case R.id.menu_erase:
+                erase();
+                fabMenu.eraser.toggleScaled();
+                break;
+            case R.id.menu_ink:
+                ink();
+                break;
+        }
+
+        if (v.getId() != R.id.menu_toggle) {
+            if (v.getId() != R.id.menu_erase && fabMenu.eraser.isScaledUp()) {
+                fabMenu.eraser.scaleDown();
             }
-        });
-        gone.start();
+        }
     }
 
-    public void setButtonVisible(String text) {
-        button.setText(text);
-
-        ObjectAnimator visibility = ObjectAnimator.ofFloat(button, ViewUtils.ALPHA, 0f, 1f);
-        visibility.setDuration(BUTTON_BAR_DURATION);
-        visibility.addListener(new AbstractAnimatorListener() {
-
-            @Override
-            public void onAnimationStart(Animator animation) {
-                button.setVisibility(View.VISIBLE);
-            }
-        });
-        visibility.start();
+    @Override
+    public void onDrawingCurveOptionsMenuVisibilityRequest(boolean setVisible, DrawingCurve.State state) {
+        if (setVisible) {
+            optionsMenu.setState(state);
+        } else {
+            ObjectAnimator.ofFloat(optionsMenu, View.TRANSLATION_Y,
+                    optionsMenu.getTranslationY() + optionsMenu.getHeight())
+                    .setDuration(350)
+                    .start();
+        }
     }
 
-    private void ifStillMoving() {
-        handler.postDelayed(() -> {
-            if (mIsMoving) {
-                menu.fadeOut();
-                handler.removeCallbacksAndMessages(null);
-            }
-        }, MOVING_DELAY);
+    @Override
+    public void onDrawingCurveFabMenuVisibilityRequest(boolean setVisible) {
+        if (setVisible) {
+            ViewUtils.visible(fabMenu);
+        } else {
+            ViewUtils.gone(fabMenu);
+        }
     }
 
-    public void setMenuListener(ViewFabMenu.ViewFabMenuListener other) {
-        menu.setListener(other);
+    @Override
+    public void onDrawingCurveSnbackRequest(int stringId, int length) {
+        Snackbar.make(this, stringId, length).show();
     }
 
-    public ArrayList<Integer> getCurrentColors() { return drawer.getCurrentColors(); }
+    @Override
+    public void onOptionsMenuCancel() {
+        drawer.onOptionsMenuCancel();
+    }
 
-    public Paint getCurrentPaint() { return drawer.getCurrentPaint(); }
+    @Override
+    public void onOptionsMenuButtonClicked(View view, DrawingCurve.State state) {}
+
+    @Override
+    public void onOptionsMenuAccept() {
+        drawer.onOptionsMenuAccept();
+    }
+
+    private boolean menuContainsTouch(MotionEvent event) {
+        return Circle.contains(fabMenu.getCenterX() - event.getX(),
+                (fabMenu.getCenterY() + (getHeight() - fabMenu.getHeight())) - event.getY(),
+                fabMenu.getCircleRadius());
+    }
+
+    public void setMenuListeners(FragmentDrawer fragmentDrawer) {
+        fabMenu.addListener(fragmentDrawer);
+        optionsMenu.addListener(fragmentDrawer);
+    }
 
     public int getBrushColor() {
         return drawer.getBrushColor();
@@ -219,6 +221,8 @@ public class ViewCanvasLayout extends CoordinatorLayout implements View.OnClickL
     public Bitmap getDrawerBitmap() {
         return drawer.getDrawingBitmap();
     }
+
+    public Paint getPaint() { return drawer.getCurrentPaint(); }
 
     public void redo() {
         if (!drawer.redo()) {
@@ -238,15 +242,6 @@ public class ViewCanvasLayout extends CoordinatorLayout implements View.OnClickL
 
     public void erase() {
         drawer.erase();
-    }
-
-    public float getCircle() {
-        return circle;
-    }
-
-    public void setCircle(float circle) {
-        this.circle = circle;
-        invalidate();
     }
 
     public void setPaintAlpha(int alpha) {
@@ -270,32 +265,4 @@ public class ViewCanvasLayout extends CoordinatorLayout implements View.OnClickL
             return layout.getPaintAlpha();
         }
     };
-
-    public static final Property<ViewCanvasLayout, Float> CIRCLE = new ViewUtils.FloatProperty<ViewCanvasLayout>("circle") {
-
-        @Override
-        public Float get(ViewCanvasLayout object) {
-            return object.getCircle();
-        }
-
-        @Override
-        public void setValue(ViewCanvasLayout object, float value) {
-            object.setCircle(value);
-        }
-    };
-
-    private final static class MyHandler extends Handler {
-        private final WeakReference<ViewCanvasLayout> ref;
-
-        public MyHandler(ViewCanvasLayout view) {
-            ref = new WeakReference<>(view);
-        }
-
-        @Override
-        public void handleMessage(Message msg) {
-            if (ref.get() != null) {
-                ref.get().ifStillMoving();
-            }
-        }
-    }
 }

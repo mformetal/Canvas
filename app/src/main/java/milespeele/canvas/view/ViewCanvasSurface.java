@@ -12,8 +12,6 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 
-import java.util.ArrayList;
-
 import milespeele.canvas.drawing.DrawingCurve;
 import milespeele.canvas.util.Logg;
 
@@ -21,10 +19,10 @@ import milespeele.canvas.util.Logg;
  * Created by Miles Peele on 10/2/2015.
  */
 public class ViewCanvasSurface extends SurfaceView
-        implements SurfaceHolder.Callback, View.OnTouchListener, DrawingCurve.DrawingCurveListener {
+        implements SurfaceHolder.Callback, View.OnTouchListener {
 
-    private DrawingCurve drawingCurve;
-    private DrawingThread thread;
+    private DrawingCurve mDrawingCurve;
+    private DrawingThread mDrawingThread;
 
     public ViewCanvasSurface(Context context) {
         super(context);
@@ -48,6 +46,8 @@ public class ViewCanvasSurface extends SurfaceView
     }
 
     public void init() {
+        mDrawingCurve = new DrawingCurve(getContext());
+
         setLayerType(LAYER_TYPE_NONE, null);
 
         setWillNotDraw(false);
@@ -58,23 +58,12 @@ public class ViewCanvasSurface extends SurfaceView
     }
 
     @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        super.onSizeChanged(w, h, oldw, oldh);
-
-        if (oldh == 0 || oldw == 0) {
-            drawingCurve = new DrawingCurve(getContext(), w, h);
-            drawingCurve.setListener(this);
-        }
-    }
-
-    @Override
     public void surfaceCreated(SurfaceHolder holder) {
         holder.setFixedSize(getWidth(), getHeight());
-        holder.setKeepScreenOn(true);
 
-        thread = new DrawingThread(holder);
-        thread.setRunning(true);
-        thread.start();
+        mDrawingThread = new DrawingThread(holder);
+        mDrawingThread.setRunning(true);
+        mDrawingThread.start();
     }
 
     @Override
@@ -83,52 +72,47 @@ public class ViewCanvasSurface extends SurfaceView
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
-        drawingCurve.onSave();
-        thread.onDestroy();
+        mDrawingThread.onDestroy();
     }
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-        return drawingCurve.onTouchEvent(event);
+        return mDrawingCurve.onTouchEvent(event);
     }
 
-    @Override
-    public void showButton(String text) {
-        ((ViewCanvasLayout) getParent()).setButtonVisible(text);
+    public void setListener(DrawingCurve.DrawingCurveListener listener) {
+        mDrawingCurve.setListener(listener);
     }
 
-    @Override
-    public void hideButton() {
-        ((ViewCanvasLayout) getParent()).setButtonGone();
+    public void onOptionsMenuAccept() { mDrawingCurve.onOptionsMenuAccept(); }
+
+    public void onOptionsMenuCancel() { mDrawingCurve.onOptionsMenuCancel(); }
+
+    public void ink() {
+        mDrawingCurve.ink();
     }
-
-    public void onButtonClicked() { drawingCurve.onButtonClicked(); }
-
-    public void ink() { drawingCurve.ink(); }
 
     public boolean redo() {
-        return drawingCurve.redo();
+        return mDrawingCurve.redo();
     }
 
     public boolean undo() {
-        return drawingCurve.undo();
+        return mDrawingCurve.undo();
     }
 
     public void erase() {
-        drawingCurve.erase();
+        mDrawingCurve.erase();
     }
 
     public int getBrushColor() {
-        return drawingCurve.getStrokeColor();
+        return mDrawingCurve.getStrokeColor();
     }
 
     public Bitmap getDrawingBitmap() {
-        return drawingCurve.getBitmap();
+        return mDrawingCurve.getBitmap();
     }
 
-    public Paint getCurrentPaint() { return drawingCurve.getPaint(); }
-    
-    public ArrayList<Integer> getCurrentColors() { return drawingCurve.getCurrentColors(); }
+    public Paint getCurrentPaint() { return mDrawingCurve.getPaint(); }
 
     private class DrawingThread extends Thread {
 
@@ -159,7 +143,7 @@ public class ViewCanvasSurface extends SurfaceView
                     synchronized (mSurfaceHolder) {
                         synchronized (mRunLock) {
                             if (mRun)  {
-                                drawingCurve.drawToSurfaceView(c);
+                                mDrawingCurve.drawToSurfaceView(c);
                             }
                         }
                     }
@@ -183,6 +167,5 @@ public class ViewCanvasSurface extends SurfaceView
                 }
             }
         }
-
     }
 }

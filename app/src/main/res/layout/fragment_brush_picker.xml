@@ -4,7 +4,7 @@
     android:id="@+id/fragment_brush_picker_reveal_layout"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent" >
 
     <milespeele.canvas.view.ViewTypefaceTextView
         android:layout_width="match_parent"

@@ -1,6 +1,7 @@
 package milespeele.canvas.view;
 
 import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
@@ -8,6 +9,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.os.SystemClock;
 import android.support.v4.view.MotionEventCompat;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -16,7 +18,6 @@ import android.widget.LinearLayout;
 import java.util.Calendar;
 
 import milespeele.canvas.util.PaintStyles;
-import milespeele.canvas.util.AbstractAnimatorListener;
 import milespeele.canvas.util.ViewUtils;
 
 /**
@@ -68,12 +69,12 @@ public class ViewRippleLinearLayout extends LinearLayout {
 
         switch (event.getAction() & actionMasked) {
             case MotionEvent.ACTION_DOWN: {
-                startClickTime = Calendar.getInstance().getTimeInMillis();
+                startClickTime = SystemClock.currentThreadTimeMillis();
                 break;
             }
 
             case MotionEvent.ACTION_UP: {
-                long clickDuration = Calendar.getInstance().getTimeInMillis() - startClickTime;
+                long clickDuration = SystemClock.currentThreadTimeMillis() - startClickTime;
                 if (clickDuration < MAX_CLICK_DURATION) {
                     if (!animatorSet.isRunning()) {
                         cx = event.getX();
@@ -105,7 +106,7 @@ public class ViewRippleLinearLayout extends LinearLayout {
                     .setDuration(1000);
 
             animatorSet.playTogether(rad, alpha);
-            animatorSet.addListener(new AbstractAnimatorListener() {
+            animatorSet.addListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
                     ripplePaint.setAlpha(255);

@@ -7,20 +7,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-    <milespeele.canvas.view.ViewTypefaceButton
-        android:id="@+id/fragment_drawer_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_anchorGravity="top|center_horizontal"
-        app:layout_anchor="@id/fragment_drawer_coordinator"
-        android:visibility="gone" />
-
     <milespeele.canvas.view.ViewCanvasSurface
         android:id="@+id/fragment_drawer_canvas"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <android.support.v7.widget.CardView
+    <milespeele.canvas.view.ViewRoundedFrameLayout
         android:id="@+id/fragment_drawer_animator"
         android:elevation="24dp"
         app:layout_anchorGravity="center"
@@ -38,7 +30,18 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center_horizontal"
-        app:layout_behavior="milespeele.canvas.view.ViewFabMenuBehavior"
+        app:layout_behavior="milespeele.canvas.view.ViewMenuBehavior"
+        app:layout_anchorGravity="bottom|center_horizontal"
+        app:layout_anchor="@id/fragment_drawer_coordinator" />
+
+    <include
+        layout="@layout/fragment_drawer_options_menu"
+        android:visibility="gone"
+        android:id="@+id/fragment_drawer_options_menu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        app:layout_behavior="milespeele.canvas.view.ViewMenuBehavior"
         app:layout_anchorGravity="bottom|center_horizontal"
         app:layout_anchor="@id/fragment_drawer_coordinator" />
 

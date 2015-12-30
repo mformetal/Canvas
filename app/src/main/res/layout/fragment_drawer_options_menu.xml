@@ -1,8 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<milespeele.canvas.view.ViewOptionsMenu
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="horizontal"
+    android:weightSum="4"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent">
 
-</LinearLayout>
+    <milespeele.canvas.view.ViewTypefaceButton
+        android:id="@+id/view_options_menu_cancel"
+        android:text="@string/view_options_menu_cancel"
+        android:singleLine="true"
+        android:drawableBottom="@drawable/ic_cancel_24dp"
+        android:layout_weight="1"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/fab_margin"
+        app:backgroundColor="@color/accent" />
+
+    <milespeele.canvas.view.ViewTypefaceButton
+        android:id="@+id/view_options_menu_1"
+        android:singleLine="true"
+        android:layout_weight="1"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/fab_margin"
+        app:backgroundColor="@color/accent" />
+
+    <milespeele.canvas.view.ViewTypefaceButton
+        android:id="@+id/view_options_menu_2"
+        android:singleLine="true"
+        android:layout_weight="1"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/fab_margin"
+        app:backgroundColor="@color/accent" />
+
+    <milespeele.canvas.view.ViewTypefaceButton
+        android:id="@+id/view_options_menu_accept"
+        android:text="@string/view_options_menu_accept"
+        android:singleLine="true"
+        android:drawableBottom="@drawable/ic_check_24dp"
+        android:layout_weight="1"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/fab_margin"
+        app:backgroundColor="@color/accent" />
+
+</milespeele.canvas.view.ViewOptionsMenu>

@@ -6,8 +6,10 @@ package milespeele.canvas.event;
 public class EventColorChosen {
 
     public int color;
+    public boolean bool;
 
-    public EventColorChosen(int color) {
+    public EventColorChosen(int color, boolean toFill) {
         this.color = color;
+        this.bool = toFill;
     }
 }

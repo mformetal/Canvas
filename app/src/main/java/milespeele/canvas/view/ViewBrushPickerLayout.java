@@ -4,24 +4,34 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Paint;
 import android.os.Build;
+import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
+import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
+
+import java.util.ArrayList;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import milespeele.canvas.R;
+import milespeele.canvas.adapter.AdapterBrushPicker;
+import milespeele.canvas.util.ItemClickSupport;
+import milespeele.canvas.util.PaintStyles;
+import milespeele.canvas.util.WrapContentLinearLayoutManager;
+
 
 /**
  * Created by milespeele on 8/8/15.
  */
-public class ViewBrushPickerLayout extends LinearLayout implements SeekBar.OnSeekBarChangeListener {
+public class ViewBrushPickerLayout extends LinearLayout implements SeekBar.OnSeekBarChangeListener, ItemClickSupport.OnItemClickListener {
 
-    @Bind(R.id.fragment_brush_picker_view_example) ViewBrushPickerCurrentBrush example;
+    @Bind(R.id.fragment_brush_picker_view_example) ViewBrushExample mainExample;
     @Bind(R.id.fragment_brush_picker_view_sizer) SeekBar sizer;
-    @Bind(R.id.fragment_brush_picker_view_recycler) ViewPaintExamplesRecycler recycler;
+    @Bind(R.id.fragment_brush_picker_view_recycler) RecyclerView recycler;
 
     private final static int MAX_THICKNESS = 100;
+
     private Paint lastSelectedPaint = new Paint();
 
     public ViewBrushPickerLayout(Context context) {
@@ -54,33 +64,19 @@ public class ViewBrushPickerLayout extends LinearLayout implements SeekBar.OnSee
     protected void onFinishInflate() {
         super.onFinishInflate();
         ButterKnife.bind(this);
+
         sizer.setMax(MAX_THICKNESS);
         sizer.setOnSeekBarChangeListener(this);
+
+        recycler.setHasFixedSize(true);
+        recycler.setLayoutManager(new WrapContentLinearLayoutManager(getContext()));
+        ItemClickSupport.addTo(recycler).setOnItemClickListener(this);
     }
-
-    public void changeExamplePaint(Paint paint) {
-        lastSelectedPaint.set(paint);
-        example.changePaint(paint);
-    }
-
-    public void setInitialValues(Paint paint) {
-        float thickness = paint.getStrokeWidth();
-
-        lastSelectedPaint.set(paint);
-
-        recycler.setColor(paint.getColor());
-
-        example.setInitialPaint(paint);
-
-        sizer.setProgress(Math.round(thickness));
-    }
-
-    public Paint getLastSelectedPaint() { return lastSelectedPaint; }
 
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
         if (progress > 1) {
-            example.onThicknessChanged(progress);
+            mainExample.onThicknessChanged(progress);
             lastSelectedPaint.setStrokeWidth((float) progress);
         }
     }
@@ -93,5 +89,35 @@ public class ViewBrushPickerLayout extends LinearLayout implements SeekBar.OnSee
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
 
+    }
+
+    @Override
+    public void onItemClicked(RecyclerView recyclerView, int position, View v) {
+        ViewBrushExample example = (ViewBrushExample) ((LinearLayout) v).getChildAt(1);
+
+        Paint paint = example.getPaint();
+        lastSelectedPaint.set(paint);
+        mainExample.animatePaintChange(paint);
+    }
+
+    public void setPaint(Paint paint) {
+        lastSelectedPaint.set(paint);
+        mainExample.setInitialPaint(paint);
+        createList(getContext());
+    }
+
+    private void createList(Context context) {
+        String[] myResArray = context.getResources().getStringArray(R.array.paint_examples);
+        ArrayList<AdapterBrushPicker.PaintExample> arrayList = new ArrayList<>();
+        for (String res: myResArray) {
+            arrayList.add(new AdapterBrushPicker.PaintExample(
+                    res.substring(0,1).toUpperCase() + res.substring(1),
+                    PaintStyles.getStyleFromName(res, lastSelectedPaint.getColor())));
+        }
+        recycler.setAdapter(new AdapterBrushPicker(arrayList));
+    }
+
+    public Paint getPaint() {
+        return lastSelectedPaint;
     }
 }

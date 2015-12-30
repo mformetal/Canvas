@@ -17,10 +17,6 @@ import java.lang.reflect.Method;
  */
 public class PaintStyles {
 
-    private final static ComposePathEffect composePathEffect = new ComposePathEffect(
-            new DashPathEffect(new float[] {1, 51}, 0),
-            new CornerPathEffect(1f));
-
     public static Paint getStyleFromName(String name, int color) {
         for (Method method: PaintStyles.class.getDeclaredMethods()) {
             try {
@@ -31,7 +27,7 @@ public class PaintStyles {
                 e.printStackTrace();
             }
         }
-        return normal(color, 5f);
+        return null;
     }
 
     public static Paint normal(int currentColor, float width) {
@@ -81,20 +77,9 @@ public class PaintStyles {
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeJoin(Paint.Join.ROUND);
         paint.setStrokeCap(Paint.Cap.ROUND);
-        paint.setPathEffect(composePathEffect);
-        return paint;
-    }
-
-    public static Paint rainbow(int currentColor, float width) {
-        Paint paint = new Paint();
-        paint.setAntiAlias(true);
-        paint.setDither(true);
-        paint.setStrokeWidth(width);
-        paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeJoin(Paint.Join.ROUND);
-        paint.setStrokeCap(Paint.Cap.ROUND);
-        LinearGradient linearGradient = new LinearGradient(0, 0, 0, 50, ViewUtils.rainbow(), null, Shader.TileMode.MIRROR);
-        paint.setShader(linearGradient);
+        paint.setPathEffect(new ComposePathEffect(
+                new DashPathEffect(new float[]{1, 51}, 0),
+                new CornerPathEffect(1f)));
         return paint;
     }
 

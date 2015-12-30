@@ -6,10 +6,8 @@
         <attr name="borderColor" format="color" />
     </declare-styleable>
 
-    <declare-styleable name="ViewDashboardButton">
-        <attr name="text" format="string" />
-        <attr name="image" format="integer" />
-        <attr name="squareColor" format="color" />
+    <declare-styleable name="ViewTypefaceButton">
+        <attr name="backgroundColor" format="color" />
     </declare-styleable>
 
 </resources>

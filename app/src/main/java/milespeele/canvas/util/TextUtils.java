@@ -57,7 +57,7 @@ public final class TextUtils {
         textPaint.setTextSize(size);
     }
 
-    public static  void adjustTextScale(Paint textPaint, String text, int width, int paddingLeft,
+    public static  void adjustTextScale(Paint textPaint, String text, float width, int paddingLeft,
                                          int paddingRight) {
         // do calculation with scale of 1.0 (no scale)
         textPaint.setTextScaleX(1.0f);

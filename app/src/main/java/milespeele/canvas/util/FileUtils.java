@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Paint;
+import android.support.design.widget.Snackbar;
 import android.util.DisplayMetrics;
 import android.view.WindowManager;
 
@@ -29,6 +30,12 @@ import milespeele.canvas.drawing.DrawingHistory;
 import milespeele.canvas.drawing.DrawingPoint;
 import milespeele.canvas.drawing.DrawingPoints;
 import rx.Observable;
+import rx.Single;
+import rx.SingleSubscriber;
+import rx.Subscriber;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
 /**
@@ -36,48 +43,43 @@ import rx.schedulers.Schedulers;
  */
 public class FileUtils {
 
-    private final static String BITMAP_FILENAME = "canvas:bitmap";
-    private final static String COLORS_FILENAME = "canvas:colors";
+    public final static String BITMAP_FILENAME = "canvas:bitmap";
 
-    private Context context;
-
-    public FileUtils(Context otherContext) {
-        context = otherContext;
-    }
-
-    public void cacheBitmap(Bitmap bitmap) {
-        compressBitmapAsObservable(bitmap)
-                .subscribeOn(Schedulers.io())
-                .subscribe(bytes -> {
-                    try {
-                        Output output = new Output(context.openFileOutput(BITMAP_FILENAME, Context.MODE_PRIVATE));
-                        output.write(bytes);
-                        output.close();
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    }
-                });
-    }
-
-    public Observable<byte[]> compressBitmapAsObservable(Bitmap bitmap) {
-        return Observable.just(compressBitmapAsByteArray(bitmap));
-    }
-
-    public static Observable<byte[]> compress(Bitmap bitmap) {
+    public static void cacheInBackground(Bitmap bitmap, Context context) {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-        return Observable.just(stream.toByteArray());
+        byte[] bytes =  stream.toByteArray();
+
+        Output output = null;
+        try {
+            output = new Output(context.openFileOutput(BITMAP_FILENAME, Context.MODE_PRIVATE));
+            output.write(bytes);
+        } catch (FileNotFoundException exception) {
+            Logg.log(exception);
+        } finally {
+            if (output != null) {
+                output.flush();
+                output.close();
+            }
+        }
     }
 
-    public byte[] compressBitmapAsByteArray(Bitmap bitmap) {
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-        return stream.toByteArray();
+    public static Observable<byte[]> cacheAsObservable(Bitmap bitmap, Context context) {
+        return Observable.create(new Observable.OnSubscribe<byte[]>() {
+            @Override
+            public void call(Subscriber<? super byte[]> subscriber) {
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                byte[] bytes =  stream.toByteArray();
+
+                subscriber.onNext(bytes);
+            }
+        })
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread());
     }
 
-    public Bitmap getCachedBitmap() {
-        Bitmap bitmap = null;
-
+    public static BitmapFactory.Options getBitmapOptions(Context context) {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inPreferredConfig = Bitmap.Config.ARGB_8888;
         options.inMutable = true;
@@ -89,10 +91,15 @@ public class FileUtils {
         WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         windowManager.getDefaultDisplay().getMetrics(metrics);
         options.inDensity = metrics.densityDpi;
+        return options;
+    }
+
+    public static Bitmap getCachedBitmap(Context context) {
+        Bitmap bitmap = null;
 
         try {
             Input test = new Input(context.openFileInput(BITMAP_FILENAME));
-            bitmap = BitmapFactory.decodeStream(test, null, options);
+            bitmap = BitmapFactory.decodeStream(test, null, getBitmapOptions(context));
             test.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -101,31 +108,7 @@ public class FileUtils {
         return bitmap;
     }
 
-    public void cacheColors(ArrayList<Integer> colors) {
-        try {
-            Output output = new Output(context.openFileOutput(COLORS_FILENAME, Context.MODE_PRIVATE));
-            output.writeInt(colors.size());
-            output.writeInts(Ints.toArray(colors));
-            output.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public ArrayList<Integer> getColors() {
-        ArrayList<Integer> colors = new ArrayList<>();
-        try {
-            Input input = new Input(context.openFileInput(COLORS_FILENAME));
-            int length = input.readInt();
-            int[] ints = input.readInts(length);
-            for (int primitive: ints) { colors.add(primitive); }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        return colors;
-    }
-
-    public void deleteBitmapFile() {
+    public static void deleteBitmapFile(Context context) {
         context.deleteFile(BITMAP_FILENAME);
     }
 }

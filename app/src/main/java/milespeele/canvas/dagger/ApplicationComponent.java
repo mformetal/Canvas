@@ -27,7 +27,6 @@ public interface ApplicationComponent {
     void inject(ActivityHome activityHome);
 
     void inject(ViewFabMenu viewFabMenu);
-    void inject(ViewCanvasSurface surface);
 
     void inject(FragmentColorPicker fragmentColorPicker);
     void inject(FragmentBrushPicker fragmentBrushPicker);

@@ -1,6 +1,7 @@
 package milespeele.canvas.parse;
 
 import android.app.Application;
+import android.content.Context;
 import android.graphics.Bitmap;
 
 import com.parse.ParseException;
@@ -17,7 +18,12 @@ import milespeele.canvas.activity.ActivityHome;
 import milespeele.canvas.event.EventParseError;
 import milespeele.canvas.util.FileUtils;
 import milespeele.canvas.util.Logg;
+import rx.Observable;
+import rx.Single;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
+import rx.functions.Func1;
+import rx.parse.ParseObservable;
 import rx.schedulers.Schedulers;
 
 /**
@@ -27,44 +33,33 @@ public class ParseUtils {
 
     @Inject EventBus bus;
 
+    public final static String MASTERPIECE_RELATION = "Masterpieces";
+
     public ParseUtils(Application mApplication) {
         ((MainApp) mApplication).getApplicationComponent().inject(this);
     }
 
-    public void saveImageToServer(String filename, final WeakReference<ActivityHome> weakCxt, Bitmap bitmap) {
-        FileUtils.compress(bitmap)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(bytes -> {
-                    final ParseFile photoFile =
-                            new ParseFile(ParseUser.getCurrentUser().getUsername(), bytes);
-                    photoFile.saveInBackground((ParseException e) -> {
-                        if (e == null) {
-                            final Masterpiece art = new Masterpiece();
-                            art.setImage(photoFile);
-                            art.setTitle(filename);
-                            art.saveEventually(e1 -> {
-                                if (e1 == null) {
-                                    ParseUser.getCurrentUser().getRelation("Masterpieces").add(art);
-                                    ParseUser.getCurrentUser().saveEventually(e2 -> {
-                                        if (e2 == null) {
-                                            ActivityHome activityHome = weakCxt.get();
-                                            if (activityHome != null && !activityHome.isFinishing()) {
-                                                activityHome.showSavedImageSnackbar(art);
-                                            }
-                                        } else {
-                                            handleError(e2);
-                                        }
-                                    });
-                                } else {
-                                    handleError(e1);
-                                }
-                            });
-                        } else {
-                            handleError(e);
-                        }
-                    });
-                }, this::handleError);
+    public Observable saveImageToServer(final Context context, final String filename,
+                                  final Bitmap bitmap) {
+        return FileUtils.cacheAsObservable(bitmap, context)
+                .flatMap(bytes -> {
+                    final ParseFile photoFile = new ParseFile(
+                            ParseUser.getCurrentUser().getUsername(), bytes);
+                    return ParseObservable.save(photoFile);
+                })
+                .flatMap(parseFile -> {
+                    final Masterpiece art = new Masterpiece();
+                    art.setImage(parseFile);
+                    art.setTitle(filename);
+                    return ParseObservable.saveEventually(art);
+                })
+                .flatMap(new Func1<Object, Observable<?>>() {
+                    @Override
+                    public Observable<?> call(Object o) {
+                        ParseUser.getCurrentUser().getRelation(MASTERPIECE_RELATION).add((Masterpiece) o);
+                        return ParseObservable.saveEventually(ParseUser.getCurrentUser());
+                    }
+                });
     }
 
     public void handleError(Throwable throwable) {

@@ -2,7 +2,6 @@ package milespeele.canvas.fragment;
 
 import android.app.Activity;
 import android.app.Fragment;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,9 +20,6 @@ import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
 import milespeele.canvas.event.EventColorChosen;
-import milespeele.canvas.util.AbstractAnimatorListener;
-import milespeele.canvas.util.Logg;
-import milespeele.canvas.view.ViewTypefaceButton;
 import milespeele.canvas.view.ViewTypefaceTextView;
 
 
@@ -39,14 +35,14 @@ public class FragmentColorPicker extends Fragment
     @Inject EventBus bus;
 
     private int currentColor;
-    private final static String PREV = "prev";
 
     public FragmentColorPicker() {}
 
-    public static FragmentColorPicker newInstance(int previousColor) {
+    public static FragmentColorPicker newInstance(int previousColor, boolean fillCanvas) {
         FragmentColorPicker fragment = new FragmentColorPicker();
         Bundle args = new Bundle();
-        args.putInt(PREV, previousColor);
+        args.putInt("prev", previousColor);
+        args.putBoolean("toFill", fillCanvas);
         fragment.setArguments(args);
         return fragment;
     }
@@ -63,8 +59,9 @@ public class FragmentColorPicker extends Fragment
         View v = inflater.inflate(R.layout.fragment_color_picker, container, false);
         ButterKnife.bind(this, v);
 
-        currentColor = getArguments().getInt(PREV);
+        currentColor = getArguments().getInt("prev");
 
+        picker.setColor(currentColor);
         picker.setShowOldCenterColor(false);
         picker.setColor(currentColor);
         picker.addSVBar(svBar);
@@ -86,7 +83,8 @@ public class FragmentColorPicker extends Fragment
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.fragment_color_picker_select:
-                bus.post(new EventColorChosen(picker.getColor()));
+                bus.post(new EventColorChosen(picker.getColor(),
+                        getArguments().getBoolean("toFill")));
             case R.id.fragment_color_picker_cancel:
                 getActivity().onBackPressed();
                 break;

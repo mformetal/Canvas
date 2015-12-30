@@ -12,8 +12,6 @@
     <string name="fragment_text_title">Enter Text</string>
     <string name="fragment_text_input_hint">Will Be Drawn On Canvas</string>
 
-    <string name="fragment_colors_title">Choose Color On Canvas</string>
-
     <string name="fragment_color_picker_choose">Choose</string>
     <string name="fragment_color_picker_nah">Cancel</string>
     <string name="fragment_color_picker_title">Choose Color</string>
@@ -22,10 +20,11 @@
     <string name="snackbar_activity_home_imaged_saved_body">View</string>
     <string name="snackbar_no_more_redo">No more strokes to redo!</string>
     <string name="snackbar_no_more_undo">No more strokes to undo!</string>
+    <string name="snackbar_drag_photo">One finger to move, Two to scale and rotate</string>
 
     <string name="toast_fragment_filename_invalid">Must contain only alphanumeric characters</string>
     <string name="fragment_filename_empty">Put in a name to save!</string>
-    <string name="fragment_filename_title">Save Your Masterpiece</string>
+    <string name="fragment_filename_title">Upload Masterpiece</string>
     <string name="fragment_filename_edittext_hint">Enter name</string>
     <string name="fragment_filename_pos_button_text">Save!</string>
     <string name="fragment_filename_neg_button_text">No thanks</string>
@@ -38,15 +37,11 @@
         <item>dots</item>
         <item>emboss</item>
         <item>deboss</item>
-        <item>rainbow</item>
         <item>normalShadow</item>
         <item>innerShadow</item>
         <item>outerShadow</item>
         <item>solidShadow</item>
     </string-array>
-    
-    <string name="TAG_FRAGMENT_FILL">New Canvas Color</string>
-    <string name="TAG_FRAGMENT_STROKE">Brush Color</string>
 
     <string name="error_dialog_pos_button_text">Got it</string>
     <string name="error_dialog_neg_button_text">Retry</string>
@@ -61,9 +56,20 @@
     <string name="error_object_not_found_body">Looks like the thing you want doesn\'t
         exist. Fuck if I know what happened to it. </string>
 
-    <string name="alert_dialog_new_canvas_title">Start Over?</string>
+    <string name="alert_dialog_new_canvas_title">Fill Canvas?</string>
     <string name="alert_dialog_new_canvas_body">Selecting a new Canvas color will erase
         any drawing you currently have.</string>
     <string name="alert_dialog_new_canvas_pos_button">Got it</string>
+    <string name="alert_dialog_new_canvas_neg_button">GTFO</string>
+
+    <string name="alert_dialog_exit">Exit</string>
+    <string name="alert_dialog_save_exit">Save And Exit</string>
+    <string name="alert_dialog_cancel">Cancel</string>
+
+    <string name="view_options_menu_cancel">Cancel</string>
+    <string name="view_options_menu_accept">Done</string>
+    <string name="view_options_menu_edit_text">Text</string>
+    <string name="view_options_menu_edit_color">Color</string>
+    <string name="view_options_menu_edit_import">Import</string>
 
 </resources>

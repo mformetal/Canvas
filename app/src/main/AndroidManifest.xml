@@ -8,7 +8,7 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@drawable/logo"
+        android:icon="@mipmap/ic_launcher"
         android:name=".MainApp"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
@@ -16,12 +16,6 @@
         <activity
             android:name=".activity.ActivityHome"
             android:windowSoftInputMode="stateHidden|adjustResize"
-            android:label="@string/app_name"
-            android:screenOrientation="nosensor" >
-        </activity>
-
-        <activity
-            android:name=".activity.ActivityLoginDispatch"
             android:label="@string/app_name"
             android:screenOrientation="nosensor" >
             <intent-filter>
@@ -36,21 +30,6 @@
                 "keyboard|keyboardHidden|screenLayout|screenSize|orientation"
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
             android:label="@string/app_name" />
-
-        <activity
-            android:name="com.parse.ui.ParseLoginActivity"
-            android:label="@string/app_name"
-            android:launchMode="singleTop">
-            <meta-data
-                android:name="com.parse.ui.ParseLoginActivity.PARSE_LOGIN_ENABLED"
-                android:value="true" />
-            <meta-data
-                android:name="com.parse.ui.ParseLoginActivity.TWITTER_LOGIN_ENABLED"
-                android:value="true" />
-            <meta-data
-                android:name="com.parse.ui.ParseLoginActivity.FACEBOOK_LOGIN_ENABLED"
-                android:value="true" />
-        </activity>
 
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"

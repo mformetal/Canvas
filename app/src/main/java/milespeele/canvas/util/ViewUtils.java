@@ -1,8 +1,12 @@
 package milespeele.canvas.util;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.util.DisplayMetrics;
@@ -24,15 +28,10 @@ public class ViewUtils {
 
     public final static String BACKGROUND = "backgroundColor";
     public final static String ALPHA = "alpha";
-    public final static String ROTATION = "rotation";
-    public final static String TRANSLATION_X = "translationX";
-    public final static String TRANSLATION_Y = "translationY";
-    public final static String SCALE_Y = "scaleY";
+    public final static float MAX_ALPHA = 255f;
+    private final static int DEFAULT_VISBILITY_DURATION = 350;
 
     private final static Random random = new Random();
-    private final static Rect rect = new Rect();
-    private static int[] rainbow;
-    private static int[] fullRainbow;
 
     public static abstract class FloatProperty<T> extends Property<T, Float> {
         public FloatProperty(String name) {
@@ -66,10 +65,6 @@ public class ViewUtils {
         return Color.argb(255, random.nextInt(256), random.nextInt(256), random.nextInt(256));
     }
 
-    public static String colorToHexString(int color) {
-        return String.format("#%06X", (0xFFFFFF & color));
-    }
-
     public static int getComplimentColor(int color) {
         // get existing colors
         int alpha = Color.alpha(color);
@@ -85,102 +80,70 @@ public class ViewUtils {
         return Color.argb(alpha, red, green, blue);
     }
 
-    public static int darken(int color, double fraction) {
-        int red = Color.red(color);
-        int green = Color.green(color);
-        int blue = Color.blue(color);
-        return Color.argb(Color.alpha(color),
-                (int)Math.max(red - (red * fraction), 0),
-                (int)Math.max(green - (green * fraction), 0),
-                (int)Math.max(blue - (blue * fraction), 0));
+    public static float relativeCenterX(View view) {
+        return (view.getLeft() + view.getRight()) / 2f;
     }
 
-    public static int centerX(View view) {
-        return (view.getLeft() + view.getRight()) / 2;
-    }
-
-    public static int centerY(View view) {
-        return (view.getTop() + view.getBottom()) / 2;
-    }
-
-    public static int[] rainbow() {
-        if (rainbow == null) {
-            return (rainbow = new int[]{
-                    Color.RED,
-                    Color.parseColor("#FF7F00"), // ORANGE
-                    Color.YELLOW,
-                    Color.parseColor("#7FFF00"), // CHARTREUSE GREEN
-                    Color.GREEN,
-                    Color.parseColor("#00FF7F"), // SPRING GREEN
-                    Color.CYAN,
-                    Color.parseColor("#007FFF"), // AZURE
-                    Color.BLUE,
-                    Color.parseColor("#7F00FF"), // VIOLET
-                    Color.MAGENTA,
-                    Color.parseColor("#FF007F"), // ROSE
-            });
-        } else {
-            return rainbow;
-        }
-    }
-
-    public static int[] fullRainbow() {
-        if (fullRainbow == null) {
-            return (fullRainbow = new int[] {
-                    Color.WHITE,
-                    Color.GRAY,
-                    Color.BLACK,
-                    Color.RED,
-                    Color.parseColor("#FF7F00"), // ORANGE
-                    Color.YELLOW,
-                    Color.parseColor("#7FFF00"), // CHARTREUSE GREEN
-                    Color.GREEN,
-                    Color.parseColor("#00FF7F"), // SPRING GREEN
-                    Color.CYAN,
-                    Color.parseColor("#007FFF"), // AZURE
-                    Color.BLUE,
-                    Color.parseColor("#7F00FF"), // VIOLET
-                    Color.MAGENTA,
-                    Color.parseColor("#FF007F"), // ROSE
-            });
-        } else {
-            return fullRainbow;
-        }
-    }
-
-    public static int getScreenWidth(Context context) {
-        Display display = ((Activity) context).getWindowManager().getDefaultDisplay();
-        Point size = new Point();
-        display.getSize(size);
-        return size.x;
-    }
-
-    public static int getScreenHeight(Context context) {
-        Display display = ((Activity) context).getWindowManager().getDefaultDisplay();
-        Point size = new Point();
-        display.getSize(size);
-        return size.y;
-    }
-
-    public static float activityVerticalMargin(Context context) {
-        return context.getResources().getDimension(R.dimen.activity_vertical_margin);
-    }
-
-    public static float dpToPx(float dp, Context context) {
-        DisplayMetrics metric = context.getResources().getDisplayMetrics();
-        return dp * (metric.densityDpi / 160f);
-    }
-
-    public static float pxToDp(float px, Context context) {
-        DisplayMetrics metrics = context.getResources().getDisplayMetrics();
-        return px / (metrics.densityDpi / 160f);
+    public static float relativeCenterY(View view) {
+        return (view.getTop() + view.getBottom()) / 2f;
     }
 
     public static Rect boundingRect(float centerX, float centerY, float radius) {
+        Rect rect = new Rect();
         rect.left = Math.round(centerX - radius);
         rect.right = Math.round(centerX + radius);
         rect.top = Math.round(centerY - radius);
         rect.bottom = Math.round(centerY + radius);
         return rect;
+    }
+
+    // ASSUMES VIEW IS A CIRCLE SO WIDTH = HEIGHT
+    public static float radius(View view) {
+        return view.getMeasuredWidth() / 2f;
+    }
+
+    public static void setIdentityMatrix(Matrix matrix) {
+        float[] values = new float[] {1, 0, 0, 0, 1, 0, 0, 0, 1};
+        matrix.setValues(values);
+    }
+
+    public static void gone(View view, int duration) {
+        goneAnimator(view).setDuration(duration).start();
+    }
+
+    public static void gone(View view) {
+        goneAnimator(view).start();
+    }
+
+    public static ObjectAnimator goneAnimator(View view) {
+        ObjectAnimator gone = ObjectAnimator.ofFloat(view, View.ALPHA, 1f, 0f);
+        gone.setDuration(DEFAULT_VISBILITY_DURATION);
+        gone.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                view.setVisibility(View.GONE);
+            }
+        });
+        return gone;
+    }
+
+    public static void visible(View view, int duration) {
+        visibleAnimator(view).setDuration(duration).start();
+    }
+
+    public static void visible(View view) {
+        visibleAnimator(view).start();
+    }
+
+    public static ObjectAnimator visibleAnimator(View view) {
+        ObjectAnimator visibility = ObjectAnimator.ofFloat(view, View.ALPHA, 0f, 1f);
+        visibility.setDuration(DEFAULT_VISBILITY_DURATION);
+        visibility.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                view.setVisibility(View.VISIBLE);
+            }
+        });
+        return visibility;
     }
 }
