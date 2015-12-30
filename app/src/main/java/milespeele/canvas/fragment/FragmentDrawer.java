@@ -11,12 +11,14 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import milespeele.canvas.R;
 import milespeele.canvas.activity.ActivityHome;
+import milespeele.canvas.drawing.DrawingCurve;
 import milespeele.canvas.view.ViewCanvasLayout;
 import milespeele.canvas.view.ViewFab;
 import milespeele.canvas.view.ViewFabMenu;
 import milespeele.canvas.view.ViewOptionsMenu;
 
-public class FragmentDrawer extends Fragment implements ViewFabMenu.ViewFabMenuListener {
+public class FragmentDrawer extends Fragment implements
+        ViewFabMenu.ViewFabMenuListener, ViewOptionsMenu.ViewOptionsMenuListener {
 
     @Bind(R.id.fragment_drawer_coordinator) ViewCanvasLayout coordinatorLayout;
 
@@ -63,4 +65,18 @@ public class FragmentDrawer extends Fragment implements ViewFabMenu.ViewFabMenuL
     public Bitmap getDrawingBitmap() {
         return coordinatorLayout.getDrawerBitmap();
     }
+
+    @Override
+    public void onOptionsMenuCancel() {}
+
+    @Override
+    public void onOptionsMenuButtonClicked(View view, DrawingCurve.State state) {
+        ActivityHome activityHome = (ActivityHome) getActivity();
+        if (activityHome != null) {
+            activityHome.onOptionsMenuClicked(view, state);
+        }
+    }
+
+    @Override
+    public void onOptionsMenuAccept() {}
 }

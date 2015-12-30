@@ -32,10 +32,12 @@ public class ViewOptionsMenu extends LinearLayout implements View.OnClickListene
     @Bind(R.id.view_options_menu_2) ViewTypefaceButton option2;
     @Bind(R.id.view_options_menu_accept) ViewTypefaceButton accept;
 
+    private DrawingCurve.State mState = null;
+
     private ArrayList<ViewOptionsMenuListener> listeners;
     public interface ViewOptionsMenuListener {
         void onOptionsMenuCancel();
-        void onOptionsMenuButtonClicked(View view);
+        void onOptionsMenuButtonClicked(View view, DrawingCurve.State state);
         void onOptionsMenuAccept();
     }
 
@@ -70,7 +72,7 @@ public class ViewOptionsMenu extends LinearLayout implements View.OnClickListene
     }
 
     @Override
-    @OnClick({R.id.view_options_menu_cancel, R.id.view_options_menu_accept,
+    @OnClick({R.id.view_options_menu_cancel, R.id.view_options_menu_accept, R.id.view_options_menu_2,
             R.id.view_options_menu_1})
     public void onClick(View v) {
         switch (v.getId()) {
@@ -85,9 +87,13 @@ public class ViewOptionsMenu extends LinearLayout implements View.OnClickListene
                 }
                 break;
             case R.id.view_options_menu_1:
+                for (ViewOptionsMenuListener listener : listeners) {
+                    listener.onOptionsMenuButtonClicked(v, mState);
+                }
+                break;
             case R.id.view_options_menu_2:
                 for (ViewOptionsMenuListener listener : listeners) {
-                    listener.onOptionsMenuButtonClicked(v);
+                    listener.onOptionsMenuButtonClicked(v, mState);
                 }
                 break;
         }
@@ -98,13 +104,14 @@ public class ViewOptionsMenu extends LinearLayout implements View.OnClickListene
     }
 
     public void setState(DrawingCurve.State state) {
+        mState = state;
+
         switch (state) {
             case TEXT:
                 if (option1.getParent() == null) {
                     addView(option1, getChildCount() - 1);
+                    setWeightSum(4);
                 }
-
-                setWeightSum(4);
 
                 option1.setText(R.string.view_options_menu_edit_text);
                 option1.setCompoundDrawablesWithIntrinsicBounds(null, null, null,

@@ -541,39 +541,55 @@ public class DrawingCurve {
     }
 
     public void onEvent(EventTextChosen eventTextChosen) {
-        int width = mBitmap.getWidth(), height = mBitmap.getHeight();
+        switch (mState) {
+            case DRAW:
+                int width = mBitmap.getWidth(), height = mBitmap.getHeight();
 
-        String textToBeDrawn = eventTextChosen.text;
+                String textToBeDrawn = eventTextChosen.text;
 
-        TextUtils.adjustTextSize(mTextPaint, textToBeDrawn, height);
-        TextUtils.adjustTextScale(mTextPaint, textToBeDrawn, width, 0, 0);
+                TextUtils.adjustTextSize(mTextPaint, textToBeDrawn, height);
+                TextUtils.adjustTextScale(mTextPaint, textToBeDrawn, width, 0, 0);
 
-        mTextLayout = new DynamicLayout(textToBeDrawn, mTextPaint, mBitmap.getWidth(),
-                Layout.Alignment.ALIGN_CENTER, 0, 0, false);
+                mTextLayout = new DynamicLayout(textToBeDrawn, mTextPaint, mBitmap.getWidth(),
+                        Layout.Alignment.ALIGN_CENTER, 0, 0, false);
 
-        changeState(State.TEXT);
+                changeState(State.TEXT);
 
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                listener.onDrawingCurveOptionsMenuVisibilityRequest(true, State.TEXT);
-                listener.onDrawingCurveFabMenuVisibilityRequest(false);
-            }
-        }, 350);
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        listener.onDrawingCurveOptionsMenuVisibilityRequest(true, State.TEXT);
+                        listener.onDrawingCurveFabMenuVisibilityRequest(false);
+                    }
+                }, 350);
+                break;
+            case TEXT:
+//                mTextLayout.getText().
+                break;
+        }
     }
 
     public void onEvent(EventColorChosen eventColorChosen) {
         int color = eventColorChosen.color;
-        if (eventColorChosen.bool) {
-            store.setLastBackgroundColor(color);
 
-            reset(color);
+        switch (mState) {
+            case DRAW:
+                if (eventColorChosen.bool) {
+                    store.setLastBackgroundColor(color);
 
-            changeState(State.DRAW);
-        } else {
-            changeState(State.DRAW);
+                    reset(color);
 
-            setPaintColor(color);
+                    changeState(State.DRAW);
+                } else {
+                    changeState(State.DRAW);
+
+                    setPaintColor(color);
+                }
+                break;
+            case TEXT:
+                mTextPaint.setColor(color);
+                mTextLayout.getPaint().setColor(color);
+                break;
         }
     }
 

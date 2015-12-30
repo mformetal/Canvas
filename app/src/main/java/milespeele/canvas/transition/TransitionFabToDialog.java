@@ -98,7 +98,7 @@ public class TransitionFabToDialog extends ChangeBounds {
         animatorSet.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationStart(Animator animation) {
-                fab.setVisibility(View.GONE);
+                fab.setVisibility(View.INVISIBLE);
 
                 for (int x = 0; x < layout.getChildCount(); x++) {
                     View v = layout.getChildAt(x);

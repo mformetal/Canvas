@@ -20,6 +20,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import milespeele.canvas.R;
 import milespeele.canvas.drawing.DrawingCurve;
+import milespeele.canvas.fragment.FragmentDrawer;
 import milespeele.canvas.transition.TransitionHelper;
 import milespeele.canvas.util.Circle;
 import milespeele.canvas.util.Logg;
@@ -195,8 +196,7 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
     }
 
     @Override
-    public void onOptionsMenuButtonClicked(View view) {
-    }
+    public void onOptionsMenuButtonClicked(View view, DrawingCurve.State state) {}
 
     @Override
     public void onOptionsMenuAccept() {
@@ -209,8 +209,9 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
                 fabMenu.getCircleRadius());
     }
 
-    public void setMenuListeners(ViewFabMenu.ViewFabMenuListener viewFabMenuListener) {
-        fabMenu.addListener(viewFabMenuListener);
+    public void setMenuListeners(FragmentDrawer fragmentDrawer) {
+        fabMenu.addListener(fragmentDrawer);
+        optionsMenu.addListener(fragmentDrawer);
     }
 
     public int getBrushColor() {

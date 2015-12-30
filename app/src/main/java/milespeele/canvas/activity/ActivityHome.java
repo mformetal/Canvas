@@ -22,6 +22,7 @@ import butterknife.ButterKnife;
 import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
+import milespeele.canvas.drawing.DrawingCurve;
 import milespeele.canvas.event.EventBitmapChosen;
 import milespeele.canvas.event.EventFilenameChosen;
 import milespeele.canvas.event.EventParseError;
@@ -115,6 +116,26 @@ public class ActivityHome extends ActivityBase {
                     bus.post(new EventBitmapChosen(data));
                 }
             }
+        }
+    }
+
+    public void saveAndExit() {
+        ProgressDialog dialog = new ProgressDialog(this);
+        dialog.setIndeterminate(true);
+        dialog.setMessage("Saving...");
+        dialog.show();
+
+        FragmentDrawer fragmentDrawer = (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
+        if (fragmentDrawer != null) {
+            final Context context = this;
+            final Bitmap bitmap = fragmentDrawer.getDrawingBitmap();
+            Schedulers.io().createWorker().schedule(() -> {
+                FileUtils.cacheInBackground(bitmap, context);
+
+                if (!isFinishing()) {
+                    finish();
+                }
+            });
         }
     }
 
@@ -247,23 +268,23 @@ public class ActivityHome extends ActivityBase {
         }
     }
 
-    public void saveAndExit() {
-        ProgressDialog dialog = new ProgressDialog(this);
-        dialog.setIndeterminate(true);
-        dialog.setMessage("Saving...");
-        dialog.show();
-
-        FragmentDrawer fragmentDrawer = (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
-        if (fragmentDrawer != null) {
-            final Context context = this;
-            final Bitmap bitmap = fragmentDrawer.getDrawingBitmap();
-            Schedulers.io().createWorker().schedule(() -> {
-                FileUtils.cacheInBackground(bitmap, context);
-
-                if (!isFinishing()) {
-                    finish();
-                }
-            });
+    public void onOptionsMenuClicked(View view, DrawingCurve.State state) {
+        if (state != null) {
+            switch (state) {
+                case TEXT:
+                    if (view.getId() == R.id.view_options_menu_1) {
+                        showTextFragment(view);
+                    } else {
+                        showStrokeColorChooser(view, false);
+                    }
+                    break;
+                case IMPORT:
+                    Intent intent = new Intent();
+                    intent.setType("image/*");
+                    intent.setAction(Intent.ACTION_GET_CONTENT);
+                    startActivityForResult(intent, REQUEST_IMPORT_CODE);
+                    break;
+            }
         }
     }
 }
