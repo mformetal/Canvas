@@ -18,11 +18,13 @@ import android.view.animation.LinearInterpolator;
 import java.util.List;
 
 import milespeele.canvas.R;
+import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.ViewUtils;
 import milespeele.canvas.view.ViewCanvasLayout;
 import milespeele.canvas.view.ViewCanvasSurface;
 import milespeele.canvas.view.ViewFab;
 import milespeele.canvas.view.ViewRoundedFrameLayout;
+import milespeele.canvas.view.ViewTypefaceButton;
 
 /**
  * Created by mbpeele on 11/4/15.
@@ -45,11 +47,8 @@ public class TransitionFabToDialog extends ChangeBounds {
         ViewRoundedFrameLayout fabFrame = (ViewRoundedFrameLayout) views.get(1);
         ViewCanvasLayout layout = (ViewCanvasLayout) views.get(2);
 
-        float fabRadius = ViewUtils.radius(fab);
-        float fabCenterX = fab.getX() + fabRadius;
-        float fabCenterY = fab.getY() + fabRadius;
-        float translationX = fabCenterX - fabFrame.getWidth() / 2 - (3 * fab.getWidth()) / 4;
-        float translationY = fabCenterY + fab.getHeight() * 2;
+        float translationX = fab.getX() - fab.getWidth() * .25f - fabFrame.getWidth() / 2;
+        float translationY = fab.getY() + fab.getHeight() * 2.5f;
 
         fabFrame.setScaleX((float) fab.getWidth() / (float) fabFrame.getWidth());
         fabFrame.setScaleY((float) fab.getHeight() / (float) fabFrame.getHeight());
@@ -94,7 +93,7 @@ public class TransitionFabToDialog extends ChangeBounds {
                 .setDuration(350);
 
         AnimatorSet animatorSet = new AnimatorSet();
-        animatorSet.playTogether(alpha, background, position, scale, corner);
+        animatorSet.playTogether(alpha, background, position, scale, background);
         animatorSet.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationStart(Animator animation) {

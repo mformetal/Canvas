@@ -45,5 +45,4 @@
         app:layout_anchorGravity="bottom|center_horizontal"
         app:layout_anchor="@id/fragment_drawer_coordinator" />
 
-
 </milespeele.canvas.view.ViewCanvasLayout>
