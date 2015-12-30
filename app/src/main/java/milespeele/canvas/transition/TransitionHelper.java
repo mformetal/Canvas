@@ -42,4 +42,20 @@ public class TransitionHelper {
         fragment.setReturnTransition(transitionDialogToFab);
         fragment.setExitTransition(transitionDialogToFab);
     }
+
+    public static void makeButtonDialogTransitions(Context context, View button, FrameLayout fragFrame, Fragment fragment) {
+        TransitionButtonToDialog transitionButtonToDialog = new TransitionButtonToDialog(context);
+        transitionButtonToDialog.addTarget(button);
+        transitionButtonToDialog.addTarget(fragFrame);
+        transitionButtonToDialog.addTarget(((CoordinatorLayout) fragFrame.getParent()));
+
+        TransitionDialogToButton transitionDialogToButton = new TransitionDialogToButton(context);
+        transitionDialogToButton.addTarget(button);
+        transitionDialogToButton.addTarget(fragFrame);
+        transitionDialogToButton.addTarget(((CoordinatorLayout) fragFrame.getParent()));
+
+        fragment.setEnterTransition(transitionButtonToDialog);
+        fragment.setReturnTransition(transitionDialogToButton);
+        fragment.setExitTransition(transitionDialogToButton);
+    }
 }

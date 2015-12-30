@@ -273,9 +273,29 @@ public class ActivityHome extends ActivityBase {
             switch (state) {
                 case TEXT:
                     if (view.getId() == R.id.view_options_menu_1) {
-                        showTextFragment(view);
+                        FragmentText text = FragmentText.newInstance();
+
+                        TransitionHelper.makeButtonDialogTransitions(this, view, fabFrame, text);
+
+                        manager.beginTransaction()
+                                .replace(R.id.fragment_drawer_animator, text, TAG_FRAGMENT_TEXT)
+                                .commit();
+
+                        count++;
                     } else {
-                        showStrokeColorChooser(view, false);
+                        FragmentDrawer frag = (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
+                        if (frag != null) {
+                            FragmentColorPicker picker = FragmentColorPicker
+                                    .newInstance(frag.getRootView().getBrushColor(), false);
+
+                            TransitionHelper.makeButtonDialogTransitions(ActivityHome.this, view, fabFrame, picker);
+
+                            manager.beginTransaction()
+                                    .replace(R.id.fragment_drawer_animator, picker, TAG_FRAGMENT_COLOR_PICKER)
+                                    .commit();
+
+                            count++;
+                        }
                     }
                     break;
                 case IMPORT:

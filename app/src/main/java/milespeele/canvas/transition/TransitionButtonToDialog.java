@@ -22,18 +22,16 @@ import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.ViewUtils;
 import milespeele.canvas.view.ViewCanvasLayout;
 import milespeele.canvas.view.ViewCanvasSurface;
-import milespeele.canvas.view.ViewFab;
 import milespeele.canvas.view.ViewRoundedFrameLayout;
-import milespeele.canvas.view.ViewTypefaceButton;
 
 /**
- * Created by mbpeele on 11/4/15.
+ * Created by mbpeele on 12/30/15.
  */
-public class TransitionFabToDialog extends ChangeBounds {
+public class TransitionButtonToDialog extends ChangeBounds {
 
     private Context context;
 
-    public TransitionFabToDialog(Context context) {
+    public TransitionButtonToDialog(Context context) {
         this.context = context;
     }
 
@@ -47,31 +45,14 @@ public class TransitionFabToDialog extends ChangeBounds {
         ViewRoundedFrameLayout fabFrame = (ViewRoundedFrameLayout) views.get(1);
         ViewCanvasLayout layout = (ViewCanvasLayout) views.get(2);
 
-        float translationX = fab.getX() - fab.getWidth() * .25f - fabFrame.getWidth() / 2;
-        float translationY = fab.getY() + fab.getHeight() * 2.5f;
+        float translationX = fab.getX() - fabFrame.getWidth() / 2 + fab.getWidth() * .1f;
+        float translationY = fab.getY() + fab.getHeight() * 3.25f;
 
         fabFrame.setScaleX((float) fab.getWidth() / (float) fabFrame.getWidth());
         fabFrame.setScaleY((float) fab.getHeight() / (float) fabFrame.getHeight());
         fabFrame.setTranslationX(translationX);
         fabFrame.setTranslationY(translationY);
-        fabFrame.setVisibility(View.VISIBLE);
-
-        Animator corner = ObjectAnimator.ofFloat(fabFrame,
-                ViewRoundedFrameLayout.CORNERS, fabFrame.getWidth(), 0)
-                .setDuration(350);
-        corner.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-                super.onAnimationStart(animation);
-                fabFrame.setAnimating(true);
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                super.onAnimationEnd(animation);
-                fabFrame.setAnimating(false);
-            }
-        });
+        fabFrame.setCorner(0);
 
         Animator alpha = ObjectAnimator.ofInt(layout, ViewCanvasLayout.ALPHA, 128);
         alpha.setInterpolator(new LinearInterpolator());
@@ -81,7 +62,6 @@ public class TransitionFabToDialog extends ChangeBounds {
                 .setDuration(350);
 
         ArcMotion arcMotion = new ArcMotion();
-        arcMotion.setMinimumVerticalAngle(70f);
         Path motionPath = arcMotion.getPath(translationX, translationY, 0, 0);
         Animator position = ObjectAnimator.ofFloat(fabFrame, View.TRANSLATION_X, View
                 .TRANSLATION_Y, motionPath)
@@ -93,11 +73,12 @@ public class TransitionFabToDialog extends ChangeBounds {
                 .setDuration(350);
 
         AnimatorSet animatorSet = new AnimatorSet();
-        animatorSet.playTogether(alpha, background, position, scale, corner);
+        animatorSet.playTogether(alpha, background, position, scale);
         animatorSet.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationStart(Animator animation) {
-                fab.setVisibility(View.GONE);
+                fab.setVisibility(View.INVISIBLE);
+                fabFrame.setVisibility(View.VISIBLE);
 
                 for (int x = 0; x < layout.getChildCount(); x++) {
                     View v = layout.getChildAt(x);
