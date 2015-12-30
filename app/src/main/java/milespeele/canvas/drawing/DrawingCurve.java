@@ -378,7 +378,7 @@ public class DrawingCurve {
                         }
 
                         float mCurrentRotation = calculateTouchAngle(event);
-                        if (Math.abs(mCurrentRotation - mLastRotation) >= 10f) {
+                        if (Math.abs(mCurrentRotation - mLastRotation) >= 1f) {
                             mMatrix.postRotate(mCurrentRotation - mLastRotation,
                                     mMidPoint.x, mMidPoint.y);
                         }
@@ -544,10 +544,10 @@ public class DrawingCurve {
     public void onEvent(EventTextChosen eventTextChosen) {
         mText = eventTextChosen.text;
 
+        int width = mBitmap.getWidth(), height = mBitmap.getHeight();
+
         switch (mState) {
             case DRAW:
-                int width = mBitmap.getWidth(), height = mBitmap.getHeight();
-
                 TextUtils.adjustTextSize(mTextPaint, mText, height);
                 TextUtils.adjustTextScale(mTextPaint, mText, width, 0, 0);
 
@@ -565,6 +565,9 @@ public class DrawingCurve {
                 }, 350);
                 break;
             case TEXT:
+                TextUtils.adjustTextSize(mTextPaint, mText, height);
+                TextUtils.adjustTextScale(mTextPaint, mText, width, 0, 0);
+
                 mTextLayout = new DynamicLayout(mText, mTextPaint, mBitmap.getWidth(),
                         Layout.Alignment.ALIGN_CENTER, 0, 0, false);
                 break;
@@ -609,6 +612,10 @@ public class DrawingCurve {
     }
 
     public void onEvent(EventBitmapChosen eventBitmapChosen) {
+        if (mPhotoBitmap != null) {
+            mPhotoBitmap.recycle();
+        }
+
         Intent data = eventBitmapChosen.data;
         InputStream inputStream = null;
         try {

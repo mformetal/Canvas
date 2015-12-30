@@ -143,4 +143,12 @@ public class ViewOptionsMenu extends LinearLayout implements View.OnClickListene
                     .start();
         }
     }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasWindowFocus) {
+        super.onWindowFocusChanged(hasWindowFocus);
+        if (!hasWindowFocus) {
+            setVisibility(View.GONE);
+        }
+    }
 }
