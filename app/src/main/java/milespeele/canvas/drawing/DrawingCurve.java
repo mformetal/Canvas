@@ -61,6 +61,7 @@ public class DrawingCurve {
     private DrawingHistory mRedoneHistory, mAllHistory;
     private Paint mPaint, mInkPaint;
     private TextPaint mTextPaint;
+    private String mText;
     private State mState = State.DRAW;
     private Context mContext;
     private PointF mStartPoint, mMidPoint;
@@ -541,16 +542,16 @@ public class DrawingCurve {
     }
 
     public void onEvent(EventTextChosen eventTextChosen) {
+        mText = eventTextChosen.text;
+
         switch (mState) {
             case DRAW:
                 int width = mBitmap.getWidth(), height = mBitmap.getHeight();
 
-                String textToBeDrawn = eventTextChosen.text;
+                TextUtils.adjustTextSize(mTextPaint, mText, height);
+                TextUtils.adjustTextScale(mTextPaint, mText, width, 0, 0);
 
-                TextUtils.adjustTextSize(mTextPaint, textToBeDrawn, height);
-                TextUtils.adjustTextScale(mTextPaint, textToBeDrawn, width, 0, 0);
-
-                mTextLayout = new DynamicLayout(textToBeDrawn, mTextPaint, mBitmap.getWidth(),
+                mTextLayout = new DynamicLayout(mText, mTextPaint, mBitmap.getWidth(),
                         Layout.Alignment.ALIGN_CENTER, 0, 0, false);
 
                 changeState(State.TEXT);
@@ -564,7 +565,8 @@ public class DrawingCurve {
                 }, 350);
                 break;
             case TEXT:
-//                mTextLayout.getText().
+                mTextLayout = new DynamicLayout(mText, mTextPaint, mBitmap.getWidth(),
+                        Layout.Alignment.ALIGN_CENTER, 0, 0, false);
                 break;
         }
     }
