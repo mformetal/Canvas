@@ -627,8 +627,6 @@ public class DrawingCurve {
 
             changeState(State.PICTURE);
 
-            Logg.log(mPhotoBitmap == null);
-
             return;
         }
 
