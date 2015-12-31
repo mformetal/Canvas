@@ -29,8 +29,6 @@ public class ViewRippleLinearLayout extends LinearLayout {
     private AnimatorSet animatorSet;
 
     private float radius, cx, cy;
-    private long startClickTime;
-    private final static long MAX_CLICK_DURATION = 200;
 
     public ViewRippleLinearLayout(Context context) {
         super(context);
@@ -69,19 +67,10 @@ public class ViewRippleLinearLayout extends LinearLayout {
 
         switch (event.getAction() & actionMasked) {
             case MotionEvent.ACTION_DOWN: {
-                startClickTime = SystemClock.currentThreadTimeMillis();
+                cx = event.getX();
+                cy = event.getY();
+                ripple();
                 break;
-            }
-
-            case MotionEvent.ACTION_UP: {
-                long clickDuration = SystemClock.currentThreadTimeMillis() - startClickTime;
-                if (clickDuration < MAX_CLICK_DURATION) {
-                    if (!animatorSet.isRunning()) {
-                        cx = event.getX();
-                        cy = event.getY();
-                        ripple();
-                    }
-                }
             }
         }
 
@@ -91,21 +80,17 @@ public class ViewRippleLinearLayout extends LinearLayout {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        if (radius != 0) {
-            canvas.drawCircle(cx, cy, radius, ripplePaint);
-        }
+        canvas.drawCircle(cx, cy, radius, ripplePaint);
     }
 
     private void ripple() {
         if (!animatorSet.isRunning()) {
-            ObjectAnimator rad = ObjectAnimator.ofFloat(this, "radius", 0, getMeasuredWidth())
-                    .setDuration(1000);
-
-            ObjectAnimator alpha =  ObjectAnimator.ofObject(ripplePaint, ViewUtils.ALPHA,
-                    new ArgbEvaluator(), ripplePaint.getAlpha(), 0)
-                    .setDuration(1000);
+            ObjectAnimator rad = ObjectAnimator.ofFloat(this, "radius", 0, getMeasuredWidth());
+            ObjectAnimator alpha = ObjectAnimator.ofObject(ripplePaint, ViewUtils.ALPHA,
+                    new ArgbEvaluator(), ripplePaint.getAlpha(), 0);
 
             animatorSet.playTogether(rad, alpha);
+            animatorSet.setDuration(500);
             animatorSet.addListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {

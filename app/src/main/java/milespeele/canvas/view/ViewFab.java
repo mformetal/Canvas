@@ -35,6 +35,7 @@ public class ViewFab extends FloatingActionButton {
     private boolean isScaledUp = false;
     private boolean isScaling = false;
     private float cx, cy, radius;
+    private final static int RIPPLE_DURATION = 500;
 
     public ViewFab(Context context) {
         super(context);
@@ -142,7 +143,8 @@ public class ViewFab extends FloatingActionButton {
     public void startSaveAnimation() {
         if (pulse == null) {
             pulse = new AnimatorSet();
-            pulse.playTogether(ObjectAnimator.ofFloat(this, View.SCALE_X, 1f, .75f),
+            pulse.playTogether(
+                    ObjectAnimator.ofFloat(this, View.SCALE_X, 1f, .75f),
                     ObjectAnimator.ofFloat(this, View.SCALE_Y, 1f, .75f));
             pulse.setDuration(300);
             pulse.start();
@@ -169,7 +171,7 @@ public class ViewFab extends FloatingActionButton {
                     new ArgbEvaluator(), ripplePaint.getAlpha(), 0);
 
             animatorSet.playTogether(rad, alpha);
-            animatorSet.setDuration(500);
+            animatorSet.setDuration(RIPPLE_DURATION);
             animatorSet.addListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
