@@ -378,10 +378,8 @@ public class DrawingCurve {
                         }
 
                         float mCurrentRotation = calculateTouchAngle(event);
-                        if (Math.abs(mCurrentRotation - mLastRotation) >= 1f) {
-                            mMatrix.postRotate(mCurrentRotation - mLastRotation,
-                                    mMidPoint.x, mMidPoint.y);
-                        }
+                        mMatrix.postRotate(mCurrentRotation - mLastRotation,
+                                mMidPoint.x, mMidPoint.y);
                     }
                 }
                 break;

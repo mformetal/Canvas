@@ -43,27 +43,11 @@ public class FragmentDrawer extends Fragment implements
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-    }
-
-    @Override
     public void onFabMenuButtonClicked(ViewFab v) {
         ActivityHome activityHome = (ActivityHome) getActivity();
         if (activityHome != null) {
             activityHome.onFabMenuButtonClicked(v);
         }
-    }
-
-    public ViewCanvasLayout getRootView() { return coordinatorLayout; }
-
-    public Bitmap getDrawingBitmap() {
-        return coordinatorLayout.getDrawerBitmap();
     }
 
     @Override
@@ -79,4 +63,10 @@ public class FragmentDrawer extends Fragment implements
 
     @Override
     public void onOptionsMenuAccept() {}
+
+    public ViewCanvasLayout getRootView() { return coordinatorLayout; }
+
+    public Bitmap getDrawingBitmap() {
+        return coordinatorLayout.getDrawerBitmap();
+    }
 }

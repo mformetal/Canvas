@@ -128,14 +128,18 @@ public class ViewUtils {
     }
 
     public static void visible(View view, int duration) {
-        visibleAnimator(view).setDuration(duration).start();
+        if (view.getVisibility() != View.VISIBLE) {
+            visibleAnimator(view).setDuration(duration).start();
+        }
     }
 
     public static void visible(View view) {
-        visibleAnimator(view).start();
+        if (view.getVisibility() != View.VISIBLE) {
+            visibleAnimator(view).start();
+        }
     }
 
-    public static ObjectAnimator visibleAnimator(View view) {
+    private static ObjectAnimator visibleAnimator(View view) {
         ObjectAnimator visibility = ObjectAnimator.ofFloat(view, View.ALPHA, 0f, 1f);
         visibility.setDuration(DEFAULT_VISBILITY_DURATION);
         visibility.addListener(new AnimatorListenerAdapter() {
