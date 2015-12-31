@@ -19,6 +19,7 @@ public class ErrorDialog extends Dialog implements View.OnClickListener, DialogI
 
     public final static int NO_INTERNET = 404;
     public final static int GENERAL = -2;
+    public final static int NO_CAMERA = -3;
 
     @Bind(R.id.error_dialog_title) TextView title;
     @Bind(R.id.error_dialog_body) TextView body;
@@ -75,6 +76,11 @@ public class ErrorDialog extends Dialog implements View.OnClickListener, DialogI
                 return new ErrorDialog(context,
                         context.getResources().getString(R.string.error_dialog_general_title),
                         context.getResources().getString(R.string.error_dialog_general_body),
+                        R.style.DialogTheme);
+            case NO_CAMERA:
+                return new ErrorDialog(context,
+                        context.getResources().getString(R.string.error_dialog_no_camera_title),
+                        context.getResources().getString(R.string.error_dialog_no_camera_body),
                         R.style.DialogTheme);
             default:
                 return new ErrorDialog(context,

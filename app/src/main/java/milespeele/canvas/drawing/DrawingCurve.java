@@ -12,14 +12,15 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.PointF;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.SystemClock;
-import android.support.design.widget.Snackbar;
 import android.text.DynamicLayout;
 import android.text.Layout;
 import android.text.TextPaint;
 import android.view.MotionEvent;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,7 +29,6 @@ import javax.inject.Inject;
 
 import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
-import milespeele.canvas.R;
 import milespeele.canvas.event.EventBitmapChosen;
 import milespeele.canvas.event.EventBrushChosen;
 import milespeele.canvas.event.EventColorChosen;
@@ -50,7 +50,7 @@ public class DrawingCurve {
         ERASE,
         TEXT,
         INK,
-        IMPORT
+        PICTURE
     }
 
     private DynamicLayout mTextLayout;
@@ -173,7 +173,7 @@ public class DrawingCurve {
             case TEXT:
                 mTextLayout = null;
                 break;
-            case IMPORT:
+            case PICTURE:
                 mPhotoBitmap.recycle();
                 mPhotoBitmap = null;
                 break;
@@ -199,7 +199,7 @@ public class DrawingCurve {
 
                 mTextLayout = null;
                 break;
-            case IMPORT:
+            case PICTURE:
                 listener.onDrawingCurveOptionsMenuVisibilityRequest(false, null);
                 listener.onDrawingCurveFabMenuVisibilityRequest(true);
 
@@ -249,7 +249,7 @@ public class DrawingCurve {
                     mInkPaint.setColor(mInkedColor);
                     canvas.drawCircle(middleX, middleY, xSpace + lineSize - mPaint.getStrokeWidth(), mInkPaint);
                     break;
-                case IMPORT:
+                case PICTURE:
                     int saveCount = canvas.save();
                     canvas.concat(mMatrix);
                     canvas.drawBitmap(mPhotoBitmap, 0, 0, null);
@@ -309,7 +309,7 @@ public class DrawingCurve {
 
         switch (mState) {
             case TEXT:
-            case IMPORT:
+            case PICTURE:
                 mSavedMatrix.set(mMatrix);
                 mMode = DRAG;
                 mStartPoint.set(x, y);
@@ -325,7 +325,7 @@ public class DrawingCurve {
     public void onPointerDown(MotionEvent event) {
         switch (mState) {
             case TEXT:
-            case IMPORT:
+            case PICTURE:
                 if (event.getPointerCount() <= 2) {
                     mOldDist = calculdateDistance(event);
                     if (mOldDist > 10f) {
@@ -364,7 +364,7 @@ public class DrawingCurve {
                 }
                 break;
             case TEXT:
-            case IMPORT:
+            case PICTURE:
                 if (mMode == DRAG) {
                     mMatrix.set(mSavedMatrix);
                     mMatrix.postTranslate(x - mStartPoint.x, y - mStartPoint.y);
@@ -403,7 +403,7 @@ public class DrawingCurve {
 
         switch (mState) {
             case TEXT:
-            case IMPORT:
+            case PICTURE:
                 mMode = NONE;
                 mLastEvent = null;
                 break;
@@ -611,8 +611,6 @@ public class DrawingCurve {
         mCurrentPoints.redrawPaint.set(mPaint);
 
         STROKE_WIDTH = paint.getStrokeWidth();
-
-//        setPaintThickness(STROKE_WIDTH);
     }
 
     public void onEvent(EventBitmapChosen eventBitmapChosen) {
@@ -620,24 +618,40 @@ public class DrawingCurve {
             mPhotoBitmap.recycle();
         }
 
-        Intent data = eventBitmapChosen.data;
+        String path = eventBitmapChosen.path;
+        if (path != null) {
+            mPhotoBitmap = BitmapFactory.decodeFile(path, FileUtils.getBitmapOptions(mContext));
+
+            listener.onDrawingCurveOptionsMenuVisibilityRequest(true, State.PICTURE);
+            listener.onDrawingCurveFabMenuVisibilityRequest(false);
+
+            changeState(State.PICTURE);
+
+            Logg.log(mPhotoBitmap == null);
+
+            return;
+        }
+
+        Uri data = eventBitmapChosen.data;
         InputStream inputStream = null;
-        try {
-            inputStream = mContext.getContentResolver().openInputStream(data.getData());
-            mPhotoBitmap = BitmapFactory.decodeStream(inputStream, null, FileUtils.getBitmapOptions(mContext));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } finally {
-            if (inputStream != null) {
-                try {
-                    listener.onDrawingCurveOptionsMenuVisibilityRequest(true, State.IMPORT);
-                    listener.onDrawingCurveFabMenuVisibilityRequest(false);
+        if (data != null) {
+            try {
+                inputStream = mContext.getContentResolver().openInputStream(data);
+                mPhotoBitmap = BitmapFactory.decodeStream(inputStream, null, FileUtils.getBitmapOptions(mContext));
+            } catch (FileNotFoundException e) {
+                Logg.log(e);
+            } finally {
+                if (inputStream != null) {
+                    try {
+                        listener.onDrawingCurveOptionsMenuVisibilityRequest(true, State.PICTURE);
+                        listener.onDrawingCurveFabMenuVisibilityRequest(false);
 
-                    changeState(State.IMPORT);
+                        changeState(State.PICTURE);
 
-                    inputStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                        inputStream.close();
+                    } catch (IOException e) {
+                        Logg.log(e);
+                    }
                 }
             }
         }

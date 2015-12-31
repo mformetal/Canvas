@@ -44,7 +44,7 @@
     </string-array>
 
     <string name="error_dialog_pos_button_text">Got it</string>
-    <string name="error_dialog_neg_button_text">Retry</string>
+    <string name="error_dialog_neg_button_text">Aight</string>
     <string name="error_dialog_general_title">Something went wrong</string>
     <string name="error_dialog_general_body">Don\'t look at me. It\'s not my fault.</string>
 
@@ -55,6 +55,10 @@
     <string name="error_object_not_found_title">Where It At Tho?</string>
     <string name="error_object_not_found_body">Looks like the thing you want doesn\'t
         exist. Fuck if I know what happened to it. </string>
+
+    <string name="error_dialog_no_camera_title">No Camera :(</string>
+    <string name="error_dialog_no_camera_body">Looks like your device doesn\'t have a camera to take
+        pictures with. This feature requires that you have a hardware camera</string>
 
     <string name="alert_dialog_new_canvas_title">Fill Canvas?</string>
     <string name="alert_dialog_new_canvas_body">Selecting a new Canvas color will erase

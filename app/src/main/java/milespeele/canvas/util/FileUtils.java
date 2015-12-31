@@ -3,39 +3,23 @@ package milespeele.canvas.util;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Paint;
-import android.support.design.widget.Snackbar;
+import android.os.Environment;
 import android.util.DisplayMetrics;
 import android.view.WindowManager;
 
-import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
-import com.google.common.primitives.Ints;
 
 import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Stack;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
-import milespeele.canvas.drawing.DrawingHistory;
-import milespeele.canvas.drawing.DrawingPoint;
-import milespeele.canvas.drawing.DrawingPoints;
 import rx.Observable;
-import rx.Single;
-import rx.SingleSubscriber;
 import rx.Subscriber;
-import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
 /**
@@ -43,7 +27,8 @@ import rx.schedulers.Schedulers;
  */
 public class FileUtils {
 
-    public final static String BITMAP_FILENAME = "canvas:bitmap";
+    public final static String DRAWING_BITMAP_FILENAME = "canvas:bitmap";
+    public final static String PHOTO_BITMAP_FILENAME = "canvasphoto";
 
     public static void cacheInBackground(Bitmap bitmap, Context context) {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
@@ -52,7 +37,7 @@ public class FileUtils {
 
         Output output = null;
         try {
-            output = new Output(context.openFileOutput(BITMAP_FILENAME, Context.MODE_PRIVATE));
+            output = new Output(context.openFileOutput(DRAWING_BITMAP_FILENAME, Context.MODE_PRIVATE));
             output.write(bytes);
         } catch (FileNotFoundException exception) {
             Logg.log(exception);
@@ -98,7 +83,7 @@ public class FileUtils {
         Bitmap bitmap = null;
 
         try {
-            Input test = new Input(context.openFileInput(BITMAP_FILENAME));
+            Input test = new Input(context.openFileInput(DRAWING_BITMAP_FILENAME));
             bitmap = BitmapFactory.decodeStream(test, null, getBitmapOptions(context));
             test.close();
         } catch (IOException e) {
@@ -109,6 +94,14 @@ public class FileUtils {
     }
 
     public static void deleteBitmapFile(Context context) {
-        context.deleteFile(BITMAP_FILENAME);
+        context.deleteFile(DRAWING_BITMAP_FILENAME);
+    }
+
+    public static File createPhotoFile(Context context) throws IOException {
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "IMG_" + timeStamp + "_";
+        File imageF = File.createTempFile(imageFileName, ".jpg",
+                context.getExternalFilesDir(Environment.DIRECTORY_PICTURES));
+        return imageF;
     }
 }

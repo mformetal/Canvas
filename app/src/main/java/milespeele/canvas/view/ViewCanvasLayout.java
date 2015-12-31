@@ -154,10 +154,6 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
             case R.id.menu_ink:
                 ink();
                 break;
-            case R.id.menu_import:
-                ViewUtils.gone(fabMenu);
-                ViewUtils.visible(optionsMenu);
-                break;
         }
 
         if (v.getId() != R.id.menu_toggle) {

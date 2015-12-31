@@ -1,15 +1,8 @@
 package milespeele.canvas.view;
 
-import android.animation.ObjectAnimator;
 import android.content.Context;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
-import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
 import java.util.ArrayList;
@@ -19,7 +12,6 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import milespeele.canvas.R;
 import milespeele.canvas.drawing.DrawingCurve;
-import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.ViewUtils;
 
 /**
@@ -121,7 +113,7 @@ public class ViewOptionsMenu extends LinearLayout implements View.OnClickListene
                 option2.setCompoundDrawablesWithIntrinsicBounds(null, null, null,
                         getResources().getDrawable(R.drawable.ic_format_paint_24dp));
                 break;
-            case IMPORT:
+            case PICTURE:
                 removeView(option1);
 
                 setWeightSum(3);
