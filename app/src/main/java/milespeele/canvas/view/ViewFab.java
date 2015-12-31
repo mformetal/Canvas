@@ -62,8 +62,6 @@ public class ViewFab extends FloatingActionButton {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        Rect canvasBounds = canvas.getClipBounds();
-//        canvasBounds.in
         canvas.drawCircle(cx, cy, radius, ripplePaint);
     }
 

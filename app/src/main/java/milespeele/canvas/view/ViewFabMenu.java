@@ -13,6 +13,8 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
@@ -501,10 +503,13 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
 
         private Circle mItemCircle;
         private ViewFab mView;
+        private RectF clickedRect;
 
         public ItemPosition(ViewFab child, double itemX, double itemY, float radius) {
             mView = child;
-            mItemCircle = new Circle((float) itemX, (float) itemY, radius);
+            float cx = (float) itemX, cy = (float) itemY;
+            mItemCircle = new Circle(cx, cy, radius);
+            clickedRect = new RectF(cx - radius, cy - radius, cx + radius, cy + radius);
         }
 
         public void update(double matrixAngle) {
@@ -532,7 +537,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
         }
 
         public boolean contains(float x, float y) {
-            return mItemCircle.contains(x, y);
+            return clickedRect.contains(x, y);
         }
     }
 
