@@ -70,6 +70,8 @@
     <string name="alert_dialog_save_exit">Save And Exit</string>
     <string name="alert_dialog_cancel">Cancel</string>
 
+    <string name="alert_dialog_saving_in_progress">Saving...</string>
+
     <string name="view_options_menu_cancel">Cancel</string>
     <string name="view_options_menu_accept">Done</string>
     <string name="view_options_menu_edit_text">Text</string>

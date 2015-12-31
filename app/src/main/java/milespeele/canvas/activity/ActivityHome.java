@@ -136,7 +136,6 @@ public class ActivityHome extends ActivityBase {
             if (requestCode == REQUEST_CAMERA_CODE) {
                 bus.post(new EventBitmapChosen(filePath));
             } else {
-                Logg.log("CAMERA FAILED", requestCode);
                 ErrorDialog.createDialogFromCode(this, ErrorDialog.GENERAL);
             }
         }
@@ -145,7 +144,7 @@ public class ActivityHome extends ActivityBase {
     public void saveAndExit() {
         ProgressDialog dialog = new ProgressDialog(this);
         dialog.setIndeterminate(true);
-        dialog.setMessage("Saving...");
+        dialog.setMessage(getResources().getString(R.string.alert_dialog_saving_in_progress));
         dialog.show();
 
         FragmentDrawer fragmentDrawer = (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);

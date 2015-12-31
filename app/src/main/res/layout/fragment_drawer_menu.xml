@@ -106,16 +106,6 @@
         app:fabSize="mini" />
 
     <milespeele.canvas.view.ViewFab
-        android:id="@+id/menu_layers"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ic_layers_24dp"
-        app:borderWidth="0dp"
-        app:elevation="@dimen/fab_elevation"
-        app:rippleColor="@color/primary_dark"
-        app:fabSize="mini" />
-
-    <milespeele.canvas.view.ViewFab
         android:id="@+id/menu_camera"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

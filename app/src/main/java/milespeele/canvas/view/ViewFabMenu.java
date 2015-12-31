@@ -56,7 +56,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
 
     @Bind({R.id.menu_save, R.id.menu_text, R.id.menu_stroke_color, R.id.menu_canvas_color,
             R.id.menu_ink, R.id.menu_brush, R.id.menu_undo, R.id.menu_redo, R.id.menu_erase,
-            R.id.menu_import, R.id.menu_layers, R.id.menu_camera})
+            R.id.menu_import, R.id.menu_camera})
     List<ViewFab> buttonsList;
 
     @Inject EventBus bus;

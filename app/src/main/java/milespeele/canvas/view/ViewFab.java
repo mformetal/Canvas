@@ -62,6 +62,8 @@ public class ViewFab extends FloatingActionButton {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        Rect canvasBounds = canvas.getClipBounds();
+//        canvasBounds.in
         canvas.drawCircle(cx, cy, radius, ripplePaint);
     }
 
@@ -166,12 +168,13 @@ public class ViewFab extends FloatingActionButton {
 
     public void ripple() {
         if (!animatorSet.isRunning()) {
-            ObjectAnimator rad = ObjectAnimator.ofFloat(this, RIPPLE, 0, getMeasuredWidth());
+            ObjectAnimator rad = ObjectAnimator.ofFloat(this, RIPPLE, 0, getMeasuredWidth() / 2);
             ObjectAnimator alpha =  ObjectAnimator.ofObject(ripplePaint, ViewUtils.ALPHA,
                     new ArgbEvaluator(), ripplePaint.getAlpha(), 0);
 
             animatorSet.playTogether(rad, alpha);
             animatorSet.setDuration(RIPPLE_DURATION);
+            animatorSet.setInterpolator(new AccelerateDecelerateInterpolator());
             animatorSet.addListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
