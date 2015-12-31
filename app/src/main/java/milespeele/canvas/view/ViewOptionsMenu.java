@@ -100,11 +100,6 @@ public class ViewOptionsMenu extends LinearLayout implements View.OnClickListene
 
         switch (state) {
             case TEXT:
-                if (option1.getParent() == null) {
-                    addView(option1, getChildCount() - 1);
-                    setWeightSum(4);
-                }
-
                 option1.setText(R.string.view_options_menu_edit_text);
                 option1.setCompoundDrawablesWithIntrinsicBounds(null, null, null,
                         getResources().getDrawable(R.drawable.ic_text_format_24dp));
@@ -114,15 +109,13 @@ public class ViewOptionsMenu extends LinearLayout implements View.OnClickListene
                         getResources().getDrawable(R.drawable.ic_format_paint_24dp));
                 break;
             case PICTURE:
-                removeView(option1);
-
-                setWeightSum(3);
+                option1.setText(R.string.view_options_menu_edit_camera);
+                option1.setCompoundDrawablesWithIntrinsicBounds(null, null, null,
+                        getResources().getDrawable(R.drawable.ic_camera_alt_24dp));
 
                 option2.setText(R.string.view_options_menu_edit_import);
                 option2.setCompoundDrawablesWithIntrinsicBounds(null, null, null,
                         getResources().getDrawable(R.drawable.ic_photo_24dp));
-
-                requestLayout();
                 break;
         }
 

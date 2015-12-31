@@ -349,7 +349,11 @@ public class ActivityHome extends ActivityBase {
                     }
                     break;
                 case PICTURE:
-                    showGalleryChooser();
+                    if (view.getId() == R.id.view_options_menu_1) {
+                        showCamera();
+                    } else {
+                        showGalleryChooser();
+                    }
                     break;
             }
         }
