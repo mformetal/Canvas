@@ -15,6 +15,7 @@ import android.util.Property;
 import android.view.MotionEvent;
 import android.view.SoundEffectConstants;
 import android.view.View;
+import android.view.ViewTreeObserver;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -110,25 +111,23 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
             return false;
         }
 
-        fabMenu.setEnabled(true);
+        if (!fabMenu.isEnabled()) {
+            fabMenu.setEnabled(true);
+        }
 
         if (fabMenu.isVisible()) {
             if (menuContainsTouch(ev)) {
                 drawer.setEnabled(false);
                 return false;
+            } else {
+//                drawer.onTouch(drawer, ev);
             }
+        } else {
+//            drawer.onTouch(drawer, ev);
         }
 
-        drawer.setEnabled(true);
-
-        return false;
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent ev) {
-        if (menuContainsTouch(ev)) {
-            ev.offsetLocation(0, -(getHeight() - fabMenu.getHeight()));
-            fabMenu.onTouchEvent(ev);
+        if (!drawer.isEnabled()) {
+            drawer.setEnabled(true);
         }
 
         return false;
@@ -169,10 +168,7 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
         if (setVisible) {
             optionsMenu.setState(state);
         } else {
-            ObjectAnimator.ofFloat(optionsMenu, View.TRANSLATION_Y,
-                    optionsMenu.getTranslationY() + optionsMenu.getHeight())
-                    .setDuration(350)
-                    .start();
+            ViewUtils.gone(optionsMenu);
         }
     }
 

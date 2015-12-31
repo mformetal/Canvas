@@ -15,6 +15,7 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Interpolator;
 
 import milespeele.canvas.R;
+import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.PaintStyles;
 
 /**
@@ -96,13 +97,6 @@ public class ViewBrushExample extends View {
         }
     }
 
-    public void onThicknessChanged(float thickness) {
-        if (thickness > 1) {
-            paint.setStrokeWidth(thickness);
-            invalidate();
-        }
-    }
-
     public Paint getPaint() {
         return paint;
     }
@@ -113,9 +107,7 @@ public class ViewBrushExample extends View {
     }
 
     public void animatePaintChange(Paint newPaint) {
-        float picker = paint.getStrokeWidth();
         paint.set(newPaint);
-        paint.setStrokeWidth(picker);
 
         reveal = ObjectAnimator.ofFloat(this, "rectWidth", 0, getMeasuredWidth());
         reveal.setDuration(1000);

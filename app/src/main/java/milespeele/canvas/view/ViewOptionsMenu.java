@@ -136,11 +136,6 @@ public class ViewOptionsMenu extends LinearLayout implements View.OnClickListene
 
         if (getVisibility() == View.GONE) {
             ViewUtils.visible(this);
-        } else {
-            ObjectAnimator.ofFloat(this, View.TRANSLATION_Y,
-                    getTranslationY() - getHeight())
-                    .setDuration(350)
-                    .start();
         }
     }
 

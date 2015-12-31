@@ -426,6 +426,12 @@ public class DrawingCurve {
                 mStrokeColor = mInkedColor;
                 setPaintColor(mStrokeColor);
                 changeState(State.DRAW);
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        listener.onDrawingCurveFabMenuVisibilityRequest(true);
+                    }
+                }, 350);
                 break;
         }
 
@@ -608,7 +614,7 @@ public class DrawingCurve {
 
         STROKE_WIDTH = paint.getStrokeWidth();
 
-        setPaintThickness(STROKE_WIDTH);
+//        setPaintThickness(STROKE_WIDTH);
     }
 
     public void onEvent(EventBitmapChosen eventBitmapChosen) {

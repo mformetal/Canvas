@@ -16,7 +16,7 @@
         android:gravity="center"
         android:paddingStart="1dp"
         android:paddingEnd="1dp"
-        app:borderColor="@color/gray"
+        app:borderColor="@android:color/black"
         app:shouldDrawBorder="true" />
 
     <milespeele.canvas.view.ViewBrushExample
