@@ -93,15 +93,12 @@ public class FileUtils {
         return bitmap;
     }
 
-    public static void deleteBitmapFile(Context context) {
-        context.deleteFile(DRAWING_BITMAP_FILENAME);
+    public static void deleteBitmapFile(Context context, String name) {
+        context.deleteFile(name);
     }
 
     public static File createPhotoFile(Context context) throws IOException {
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "IMG_" + timeStamp + "_";
-        File imageF = File.createTempFile(imageFileName, ".jpg",
+        return File.createTempFile(PHOTO_BITMAP_FILENAME, ".jpg",
                 context.getExternalFilesDir(Environment.DIRECTORY_PICTURES));
-        return imageF;
     }
 }

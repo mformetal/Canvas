@@ -136,7 +136,7 @@ public class DrawingCurve {
         isSafeToDraw = false;
         int width = mBitmap.getWidth(), height = mBitmap.getHeight();
 
-        FileUtils.deleteBitmapFile(mContext);
+        FileUtils.deleteBitmapFile(mContext, FileUtils.DRAWING_BITMAP_FILENAME);
 
         mCurrentPoints.clear();
         mAllHistory.clear();
@@ -626,6 +626,8 @@ public class DrawingCurve {
             listener.onDrawingCurveFabMenuVisibilityRequest(false);
 
             changeState(State.PICTURE);
+
+            FileUtils.deleteBitmapFile(mContext, FileUtils.PHOTO_BITMAP_FILENAME);
 
             return;
         }
