@@ -126,6 +126,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
         mGestureDetector = new GestureDetector(getContext(), new GestureListener());
 
         setWillNotDraw(false);
+        setDescendantFocusability(FOCUS_AFTER_DESCENDANTS);
     }
 
     @Override
@@ -209,6 +210,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
     public void onClick(View v) {
         if (v.getVisibility() != View.GONE) {
             ViewFab fab = (ViewFab) v;
+
             for (ViewFabMenuListener listener: mListeners) {
                 listener.onFabMenuButtonClicked(fab);
             }

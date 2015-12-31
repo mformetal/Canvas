@@ -97,38 +97,33 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         final float x = ev.getX(), y = ev.getY();
 
-        if (fabFrame.getVisibility() == View.VISIBLE &&
-                !fabFrame.isAnimating()) {
-            drawer.setOnTouchListener(null);
+        if (fabFrame.getVisibility() == View.VISIBLE && !fabFrame.isAnimating()) {
+            drawer.setEnabled(false);
+            fabMenu.setEnabled(false);
             fabFrame.getHitRect(hitRect);
+
             if (!hitRect.contains((int) x, (int) y)) {
                 if (getContext() instanceof Activity) {
                     playSoundEffect(SoundEffectConstants.CLICK);
                     ((Activity) getContext()).onBackPressed();
                 }
             }
-            fabMenu.setEnabled(false);
             return false;
         }
 
-        if (!fabMenu.isEnabled()) {
-            fabMenu.setEnabled(true);
-        }
+        drawer.setEnabled(true);
+        fabMenu.setEnabled(true);
 
         if (fabMenu.isVisible()) {
             if (menuContainsTouch(ev)) {
                 drawer.setEnabled(false);
                 return false;
-            } else {
-//                drawer.onTouch(drawer, ev);
             }
         } else {
-//            drawer.onTouch(drawer, ev);
+            drawer.onTouchEvent(ev);
         }
 
-        if (!drawer.isEnabled()) {
-            drawer.setEnabled(true);
-        }
+        drawer.setEnabled(true);
 
         return false;
     }

@@ -92,10 +92,6 @@ public class TransitionDialogToButton extends ChangeBounds {
     private void enableView(View v) {
         v.setEnabled(true);
 
-        if (v instanceof ViewCanvasSurface) {
-            v.setOnTouchListener((View.OnTouchListener) v);
-        }
-
         if (v instanceof ViewGroup) {
             ViewGroup vg = (ViewGroup) v;
             for (int i = 0; i < vg.getChildCount(); i++) {

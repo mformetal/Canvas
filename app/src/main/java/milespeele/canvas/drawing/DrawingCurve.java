@@ -508,17 +508,16 @@ public class DrawingCurve {
     public boolean undo() {
         Logg.log(mAllHistory.size());
         if (!mAllHistory.isEmpty()) {
-//            isSafeToDraw = false;
+            isSafeToDraw = false;
 
             mRedoneHistory.push(mAllHistory.pop());
 
-//            mCanvas.drawBitmap(mCachedBitmap, 0, 0, null);
-            mCanvas.drawColor(mBackgroundColor);
+            mCanvas.drawBitmap(mCachedBitmap, 0, 0, null);
 
             mAllHistory.redraw(mCanvas);
 
-//            isSafeToDraw = true;
-            return true;
+            isSafeToDraw = true;
+            return isSafeToDraw;
         }
         return false;
     }
