@@ -61,7 +61,6 @@ public class DrawingCurve {
     private DrawingHistory mRedoneHistory, mAllHistory;
     private Paint mPaint, mInkPaint;
     private TextPaint mTextPaint;
-    private String mText;
     private State mState = State.DRAW;
     private Context mContext;
     private PointF mStartPoint, mMidPoint;
@@ -507,17 +506,19 @@ public class DrawingCurve {
     }
 
     public boolean undo() {
+        Logg.log(mAllHistory.size());
         if (!mAllHistory.isEmpty()) {
-            isSafeToDraw = false;
+//            isSafeToDraw = false;
 
             mRedoneHistory.push(mAllHistory.pop());
 
-            mCanvas.drawBitmap(mCachedBitmap, 0, 0, null);
+//            mCanvas.drawBitmap(mCachedBitmap, 0, 0, null);
+            mCanvas.drawColor(mBackgroundColor);
 
             mAllHistory.redraw(mCanvas);
 
-            isSafeToDraw = true;
-            return isSafeToDraw;
+//            isSafeToDraw = true;
+            return true;
         }
         return false;
     }
@@ -546,7 +547,7 @@ public class DrawingCurve {
     }
 
     public void onEvent(EventTextChosen eventTextChosen) {
-        mText = eventTextChosen.text;
+        String mText = eventTextChosen.text;
 
         int width = mBitmap.getWidth(), height = mBitmap.getHeight();
 

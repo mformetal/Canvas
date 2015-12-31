@@ -126,7 +126,6 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
         mGestureDetector = new GestureDetector(getContext(), new GestureListener());
 
         setWillNotDraw(false);
-        setDescendantFocusability(FOCUS_AFTER_DESCENDANTS);
     }
 
     @Override
@@ -238,6 +237,11 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
             case MotionEvent.ACTION_DOWN:
                 clickedFab = getClickedItem(x, y);
 
+                if (clickedFab != null) {
+                    onClick(clickedFab);
+                    clickedFab = null;
+                }
+
                 if (isVisible()) {
                     if (isFlinging) {
                         isFlinging = false;
@@ -260,11 +264,6 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
                 }
                 break;
             case MotionEvent.ACTION_UP:
-                if (clickedFab != null) {
-                    onClick(clickedFab);
-                    clickedFab = null;
-                }
-
                 if (isVisible()) {
                     isDragging = false;
                 }
