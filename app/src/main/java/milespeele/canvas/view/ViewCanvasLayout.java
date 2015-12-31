@@ -120,10 +120,10 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
                 drawer.setEnabled(false);
                 return false;
             } else {
-//                drawer.onTouch(drawer, ev);
+                drawer.onTouch(drawer, ev);
             }
         } else {
-//            drawer.onTouch(drawer, ev);
+            drawer.onTouch(drawer, ev);
         }
 
         if (!drawer.isEnabled()) {

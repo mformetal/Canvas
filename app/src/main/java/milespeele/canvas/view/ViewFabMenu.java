@@ -275,13 +275,6 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
     @Override
     protected void onDraw(Canvas canvas) {
         canvas.drawCircle(getCenterX(), getCenterY(), radius, mPaint);
-
-        Paint paint = new Paint();
-        paint.setColor(Color.BLACK);
-        for (ItemPosition position: mItemPositions) {
-            canvas.drawCircle(position.mItemCircle.getCenterX(), position.mItemCircle.getCenterY(),
-                    position.mItemCircle.getRadius(), paint);
-        }
     }
 
     public void addListener(ViewFabMenuListener listener) {
