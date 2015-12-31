@@ -469,47 +469,14 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
 
     public float getCircleRadius() { return mCircle.getRadius(); }
 
-    private static final ButterKnife.Action<View> GONE = new ButterKnife.Action<View>() {
-        @Override
-        public void apply(View view, int index) {
-            ObjectAnimator gone = ObjectAnimator.ofFloat(view, View.ALPHA, 1f, 0f);
-            gone.setDuration(VISIBILITY_DURATION);
-            gone.addListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    view.setVisibility(View.GONE);
-                }
-            });
-            gone.start();
-        }
-    };
-
-    private static final ButterKnife.Action<View> VISIBLE = new ButterKnife.Action<View>() {
-        @Override
-        public void apply(View view, int index) {
-            ObjectAnimator gone = ObjectAnimator.ofFloat(view, View.ALPHA, 0f, 1f);
-            gone.setDuration(VISIBILITY_DURATION);
-            gone.addListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationStart(Animator animation) {
-                    view.setVisibility(View.VISIBLE);
-                }
-            });
-            gone.start();
-        }
-    };
-
     private final class ItemPosition {
 
         private Circle mItemCircle;
         private ViewFab mView;
-        private RectF clickedRect;
 
         public ItemPosition(ViewFab child, double itemX, double itemY, float radius) {
             mView = child;
-            float cx = (float) itemX, cy = (float) itemY;
-            mItemCircle = new Circle(cx, cy, radius);
-            clickedRect = new RectF(cx - radius, cy - radius, cx + radius, cy + radius);
+            mItemCircle = new Circle((float) itemX, (float) itemY, radius);
         }
 
         public void update(double matrixAngle) {
@@ -537,7 +504,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
         }
 
         public boolean contains(float x, float y) {
-            return clickedRect.contains(x, y);
+            return mItemCircle.getBoundingRect().contains(x, y);
         }
     }
 
