@@ -6,6 +6,7 @@ import android.animation.AnimatorSet;
 import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
+import android.animation.ValueAnimator;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Canvas;
@@ -78,7 +79,6 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
     private float radius;
     private double mLastAngle;
     private float mMaxRadius;
-    private final static int VISIBILITY_DURATION = 350;
     private final static int INITIAL_DELAY = 0;
     private final static int DURATION = 400;
     private final static int DELAY_INCREMENT = 15;
@@ -333,8 +333,16 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
 
             anims.add(background);
 
+            ItemPosition max = Collections.max(mItemPositions, new ItemPositionComparator());
+            int ndxOfMax = mItemPositions.indexOf(max);
             int delay = INITIAL_DELAY;
-            for (ItemPosition position: mItemPositions) {
+            for (int i = 0; i < mItemPositions.size(); i++) {
+                int sum = i + ndxOfMax;
+                if (sum > mItemPositions.size() - 1) {
+                    sum -= mItemPositions.size();
+                }
+
+                ItemPosition position = mItemPositions.get(sum);
                 View view = position.mView;
 
                 if (view.getId() == R.id.menu_toggle) {
@@ -367,7 +375,13 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
             set.addListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationStart(Animator animation) {
+                    isAnimating = true;
                     isMenuShowing = true;
+                }
+
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    isAnimating = false;
                 }
             });
             set.start();
@@ -380,15 +394,22 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
 
             ArrayList<Animator> anims = new ArrayList<>();
 
-            ObjectAnimator background = ObjectAnimator.ofFloat(this, RADIUS, radius, 0);
+            ObjectAnimator background = ObjectAnimator.ofFloat(this, RADIUS, radius, 0f);
             background.setDuration(HIDE_DIFF + DURATION + DELAY_INCREMENT * buttonsList.size());
             background.setInterpolator(ANTICIPATE_INTERPOLATOR);
 
             anims.add(background);
 
+            ItemPosition max = Collections.max(mItemPositions, new ItemPositionComparator());
+            int ndxOfMax = mItemPositions.indexOf(max);
             int delay = INITIAL_DELAY;
             for (int i = 0; i < mItemPositions.size(); i++) {
-                ItemPosition position = mItemPositions.get(i);
+                int sum = i + ndxOfMax;
+                if (sum > mItemPositions.size() - 1) {
+                    sum -= mItemPositions.size();
+                }
+
+                ItemPosition position = mItemPositions.get(sum);
                 View view = position.mView;
 
                 if (view.getId() == R.id.menu_toggle) {
@@ -420,8 +441,14 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
             set.playTogether(anims);
             set.addListener(new AnimatorListenerAdapter() {
                 @Override
+                public void onAnimationStart(Animator animation) {
+                    isAnimating = true;
+                }
+
+                @Override
                 public void onAnimationEnd(Animator animation) {
                     isMenuShowing = false;
+                    isAnimating = false;
                 }
             });
             set.start();
