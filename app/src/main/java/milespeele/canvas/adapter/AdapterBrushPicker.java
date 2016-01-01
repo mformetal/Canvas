@@ -1,6 +1,5 @@
 package milespeele.canvas.adapter;
 
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -10,8 +9,7 @@ import android.view.ViewGroup;
 import java.util.List;
 
 import milespeele.canvas.R;
-import milespeele.canvas.view.ViewBrushExample;
-import milespeele.canvas.view.ViewTypefaceTextView;
+import milespeele.canvas.view.ViewTypefaceButton;
 
 /**
  * Created by Miles Peele on 9/17/2015.
@@ -19,13 +17,11 @@ import milespeele.canvas.view.ViewTypefaceTextView;
 public class AdapterBrushPicker extends RecyclerView.Adapter<AdapterBrushPicker.ViewHolder> {
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        public ViewTypefaceTextView paintName;
-        public ViewBrushExample paintExample;
+        public ViewTypefaceButton button;
 
         public ViewHolder(View itemView) {
             super(itemView);
-            paintName = (ViewTypefaceTextView) itemView.findViewById(R.id.paint_example_layout_text);
-            paintExample = (ViewBrushExample) itemView.findViewById(R.id.paint_example_layout_paint);
+            button = (ViewTypefaceButton) itemView.findViewById(R.id.paint_example_layout_text);
         }
     }
 
@@ -47,12 +43,11 @@ public class AdapterBrushPicker extends RecyclerView.Adapter<AdapterBrushPicker.
     public void onBindViewHolder(AdapterBrushPicker.ViewHolder viewHolder, int i) {
         PaintExample example = dataList.get(i);
 
-        ViewTypefaceTextView textView = viewHolder.paintName;
+        ViewTypefaceButton textView = viewHolder.button;
         textView.setText(example.getPaintName());
-        textView.setTextColor(example.getColorForText());
-
-        ViewBrushExample paintExample = viewHolder.paintExample;
-        paintExample.setInitialPaint(example.getPaint());
+        textView.setTextColor(example.getPaint().getColor());
+//        textView.getPaint().setColor(example.getPaint().getColor());
+//        textView.getPaint().set(example.getPaint());
     }
 
     @Override
@@ -64,7 +59,6 @@ public class AdapterBrushPicker extends RecyclerView.Adapter<AdapterBrushPicker.
 
         private String which;
         private Paint paint;
-        private int color;
 
         public PaintExample(String which, Paint paint) {
             this.which = which;
@@ -76,10 +70,6 @@ public class AdapterBrushPicker extends RecyclerView.Adapter<AdapterBrushPicker.
         }
 
         public Paint getPaint() { return paint; }
-
-        public int getColorForText() {
-            return (color != 0) ? color : Color.WHITE;
-        }
 
     }
 }

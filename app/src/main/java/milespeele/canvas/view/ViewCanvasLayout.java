@@ -114,17 +114,6 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
         drawer.setEnabled(true);
         fabMenu.setEnabled(true);
 
-        if (fabMenu.isVisible()) {
-            if (menuContainsTouch(ev)) {
-                drawer.setEnabled(false);
-                return false;
-            }
-        } else {
-            drawer.onTouchEvent(ev);
-        }
-
-        drawer.setEnabled(true);
-
         return false;
     }
 

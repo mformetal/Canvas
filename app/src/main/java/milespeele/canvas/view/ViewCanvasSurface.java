@@ -77,6 +77,10 @@ public class ViewCanvasSurface extends SurfaceView
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        if (!isEnabled()) {
+            return false;
+        }
+
         return mDrawingCurve.onTouchEvent(event);
     }
 

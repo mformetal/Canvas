@@ -9,6 +9,7 @@ import android.animation.PropertyValuesHolder;
 import android.animation.ValueAnimator;
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.graphics.BlurMaskFilter;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -120,8 +121,8 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
 
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mPaint.setStyle(Paint.Style.FILL_AND_STROKE);
-        mPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_OVER));
         mPaint.setColor(getResources().getColor(R.color.primary));
+        mPaint.setAlpha(128);
 
         mGestureDetector = new GestureDetector(getContext(), new GestureListener());
 
@@ -233,6 +234,17 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
             return false;
         }
 
+        if (!isVisible()) {
+            getParent().requestDisallowInterceptTouchEvent(true);
+            View v = getClickedItem(x, y);
+            if (v != null && v.getId() == R.id.menu_toggle) {
+                toggleMenu();
+            }
+            return false;
+        }
+
+//        getParent().requestDisallowInterceptTouchEvent(false);
+
         mGestureDetector.onTouchEvent(event);
 
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
@@ -244,31 +256,25 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
                     clickedFab = null;
                 }
 
-                if (isVisible()) {
-                    if (isFlinging) {
-                        isFlinging = false;
-                    }
-
-                    mLastAngle = mCircle.angleInDegrees(x, y);
+                if (isFlinging) {
+                    isFlinging = false;
                 }
+
+                mLastAngle = mCircle.angleInDegrees(x, y);
                 break;
             case MotionEvent.ACTION_MOVE:
-                if (isVisible()) {
-                    double degrees = mCircle.angleInDegrees(x, y);
-                    double rotater = degrees - mLastAngle;
+                double degrees = mCircle.angleInDegrees(x, y);
+                double rotater = degrees - mLastAngle;
 
-                    if (isDragging) {
-                        updateItemPositions(rotater);
-                    }
-
-                    mLastAngle = degrees;
-                    isDragging = true;
+                if (isDragging) {
+                    updateItemPositions(rotater);
                 }
+
+                mLastAngle = degrees;
+                isDragging = true;
                 break;
             case MotionEvent.ACTION_UP:
-                if (isVisible()) {
-                    isDragging = false;
-                }
+                isDragging = false;
                 break;
         }
 

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.Paint;
 import android.os.Build;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -18,6 +19,7 @@ import milespeele.canvas.R;
 import milespeele.canvas.adapter.AdapterBrushPicker;
 import milespeele.canvas.util.ItemClickSupport;
 import milespeele.canvas.util.PaintStyles;
+import milespeele.canvas.util.SpacingDecoration;
 import milespeele.canvas.util.WrapContentLinearLayoutManager;
 
 
@@ -66,16 +68,17 @@ public class ViewBrushPickerLayout extends LinearLayout implements ItemClickSupp
 
         recycler.setHasFixedSize(true);
         recycler.setLayoutManager(new WrapContentLinearLayoutManager(getContext()));
+        recycler.addItemDecoration(new SpacingDecoration(40));
         ItemClickSupport.addTo(recycler).setOnItemClickListener(this);
     }
 
     @Override
     public void onItemClicked(RecyclerView recyclerView, int position, View v) {
-        ViewBrushExample example = (ViewBrushExample) ((LinearLayout) v).getChildAt(1);
-
-        Paint paint = example.getPaint();
-        lastSelectedPaint.set(paint);
-        mainExample.animatePaintChange(paint);
+//        ViewTypefaceTextView example = (ViewTypefaceTextView) ((LinearLayout) v).getChildAt(0);
+//
+//        Paint paint = example.getPaint();
+//        lastSelectedPaint.set(paint);
+//        mainExample.animatePaintChange(paint);
     }
 
     public void setPaint(Paint paint) {
