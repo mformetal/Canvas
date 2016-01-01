@@ -80,7 +80,7 @@ public class DrawingCurve {
     @Inject Datastore store;
     @Inject EventBus bus;
 
-    private DrawingCurveListener listener;
+    private DrawingCurveListener mListener;
     public interface DrawingCurveListener {
         void onDrawingCurveOptionsMenuVisibilityRequest(boolean visible, State state);
         void onDrawingCurveFabMenuVisibilityRequest(boolean visible);
@@ -161,10 +161,11 @@ public class DrawingCurve {
     }
 
     public void onOptionsMenuCancel() {
-        listener.onDrawingCurveOptionsMenuVisibilityRequest(false, null);
-        listener.onDrawingCurveFabMenuVisibilityRequest(true);
+        mListener.onDrawingCurveOptionsMenuVisibilityRequest(false, null);
+        mListener.onDrawingCurveFabMenuVisibilityRequest(true);
 
         changeState(State.DRAW);
+
         ViewUtils.setIdentityMatrix(mMatrix);
 
         switch (mState) {
@@ -181,8 +182,8 @@ public class DrawingCurve {
     public void onOptionsMenuAccept() {
         switch (mState) {
             case TEXT:
-                listener.onDrawingCurveOptionsMenuVisibilityRequest(false, null);
-                listener.onDrawingCurveFabMenuVisibilityRequest(true);
+                mListener.onDrawingCurveOptionsMenuVisibilityRequest(false, null);
+                mListener.onDrawingCurveFabMenuVisibilityRequest(true);
 
                 mCanvas.save();
                 mCanvas.concat(mMatrix);
@@ -196,8 +197,8 @@ public class DrawingCurve {
                 mTextLayout = null;
                 break;
             case PICTURE:
-                listener.onDrawingCurveOptionsMenuVisibilityRequest(false, null);
-                listener.onDrawingCurveFabMenuVisibilityRequest(true);
+                mListener.onDrawingCurveOptionsMenuVisibilityRequest(false, null);
+                mListener.onDrawingCurveFabMenuVisibilityRequest(true);
 
                 mCanvas.save();
                 mCanvas.concat(mMatrix);
@@ -215,7 +216,7 @@ public class DrawingCurve {
     }
 
     public void setListener(DrawingCurveListener listener) {
-        this.listener = listener;
+        mListener = listener;
     }
 
     public void drawToSurfaceView(Canvas canvas) {
@@ -323,10 +324,10 @@ public class DrawingCurve {
             case TEXT:
             case PICTURE:
                 if (event.getPointerCount() <= 2) {
-                    mOldDist = calculdateDistance(event);
+                    mOldDist = distance(event);
                     if (mOldDist > 10f) {
                         mSavedMatrix.set(mMatrix);
-                        calculateMidpoint(mMidPoint, event);
+                        midpoint(mMidPoint, event);
                         mMode = ZOOM;
                     }
                     mLastEvent = new float[4];
@@ -334,7 +335,7 @@ public class DrawingCurve {
                     mLastEvent[1] = event.getX(1);
                     mLastEvent[2] = event.getY(0);
                     mLastEvent[3] = event.getY(1);
-                    mLastRotation = calculateTouchAngle(event);
+                    mLastRotation = angle(event);
                 }
                 break;
         }
@@ -366,14 +367,14 @@ public class DrawingCurve {
                     mMatrix.postTranslate(x - mStartPoint.x, y - mStartPoint.y);
                 } else if (mMode == ZOOM) {
                     if (event.getPointerCount() == 2) {
-                        double newDist = calculdateDistance(event);
+                        double newDist = distance(event);
                         if (newDist > 10f) {
                             mMatrix.set(mSavedMatrix);
                             double scale = (newDist / mOldDist);
                             mMatrix.postScale((float) scale, (float) scale, mMidPoint.x, mMidPoint.y);
                         }
 
-                        float mCurrentRotation = calculateTouchAngle(event);
+                        float mCurrentRotation = angle(event);
                         mMatrix.postRotate(mCurrentRotation - mLastRotation,
                                 mMidPoint.x, mMidPoint.y);
                     }
@@ -423,7 +424,7 @@ public class DrawingCurve {
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        listener.onDrawingCurveFabMenuVisibilityRequest(true);
+                        mListener.onDrawingCurveFabMenuVisibilityRequest(true);
                     }
                 }, 350);
                 break;
@@ -437,19 +438,19 @@ public class DrawingCurve {
         mActivePointer = INVALID_POINTER;
     }
 
-    private double calculdateDistance(MotionEvent event) {
+    private double distance(MotionEvent event) {
         double dx = event.getX(0) - event.getX(1);
         double dy = event.getY(0) - event.getY(1);
         return Math.sqrt(dx * dx + dy * dy);
     }
 
-    private void calculateMidpoint(PointF point, MotionEvent event) {
+    private void midpoint(PointF point, MotionEvent event) {
         float x = event.getX(0) + event.getX(1);
         float y = event.getY(0) + event.getY(1);
         point.set(x / 2, y / 2);
     }
 
-    private float calculateTouchAngle(MotionEvent event) {
+    private float angle(MotionEvent event) {
         double dx = (event.getX(0) - event.getX(1));
         double dy = (event.getY(0) - event.getY(1));
         double radians = Math.atan2(dy, dx);
@@ -531,7 +532,7 @@ public class DrawingCurve {
     public void ink() {
         changeState(State.INK);
 
-        listener.onDrawingCurveFabMenuVisibilityRequest(false);
+        mListener.onDrawingCurveFabMenuVisibilityRequest(false);
 
         int middleX = mBitmap.getWidth() / 2;
         int middleY = mBitmap.getHeight() / 2;
@@ -569,8 +570,8 @@ public class DrawingCurve {
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        listener.onDrawingCurveOptionsMenuVisibilityRequest(true, State.TEXT);
-                        listener.onDrawingCurveFabMenuVisibilityRequest(false);
+                        mListener.onDrawingCurveOptionsMenuVisibilityRequest(true, State.TEXT);
+                        mListener.onDrawingCurveFabMenuVisibilityRequest(false);
                     }
                 }, 350);
                 break;
@@ -636,8 +637,8 @@ public class DrawingCurve {
                 mMatrix.setScale(scale, scale);
             }
 
-            listener.onDrawingCurveOptionsMenuVisibilityRequest(true, State.PICTURE);
-            listener.onDrawingCurveFabMenuVisibilityRequest(false);
+            mListener.onDrawingCurveOptionsMenuVisibilityRequest(true, State.PICTURE);
+            mListener.onDrawingCurveFabMenuVisibilityRequest(false);
 
             changeState(State.PICTURE);
 
@@ -657,8 +658,8 @@ public class DrawingCurve {
             } finally {
                 if (inputStream != null) {
                     try {
-                        listener.onDrawingCurveOptionsMenuVisibilityRequest(true, State.PICTURE);
-                        listener.onDrawingCurveFabMenuVisibilityRequest(false);
+                        mListener.onDrawingCurveOptionsMenuVisibilityRequest(true, State.PICTURE);
+                        mListener.onDrawingCurveFabMenuVisibilityRequest(false);
 
                         changeState(State.PICTURE);
 
