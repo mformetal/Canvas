@@ -190,7 +190,7 @@ public class DrawingCurve {
                 mTextLayout.draw(mCanvas);
                 mCanvas.restore();
 
-//                mAllHistory.push(new DrawingText(mTextLayout.getText(), mLastX, mLastY, scaleFactor, mTextPaint));
+                mAllHistory.push(new DrawingText(mTextLayout, mMatrix, mTextPaint));
 
                 changeState(State.DRAW);
 

@@ -120,8 +120,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
 
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mPaint.setStyle(Paint.Style.FILL_AND_STROKE);
-        mPaint.setColor(getResources().getColor(R.color.gray));
-        mPaint.setAlpha(128);
+        mPaint.setColor(getResources().getColor(R.color.half_opacity_gray));
 
         mGestureDetector = new GestureDetector(getContext(), new GestureListener());
 

@@ -41,8 +41,8 @@ public class DrawingHistory extends Stack<Object> {
             } else if (object instanceof DrawingText) {
                 DrawingText texts = (DrawingText) object;
                 canvas.save();
-                canvas.scale(texts.scale, texts.scale);
-                canvas.drawText((String) texts.text, texts.x, texts.y, texts.textPaint);
+                canvas.concat(texts.matrix);
+                texts.text.draw(canvas);
                 canvas.restore();
             }
         }

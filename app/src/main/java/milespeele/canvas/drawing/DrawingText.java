@@ -1,6 +1,8 @@
 package milespeele.canvas.drawing;
 
+import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.text.DynamicLayout;
 
 import java.util.ArrayList;
 
@@ -9,17 +11,13 @@ import java.util.ArrayList;
  */
 public class DrawingText {
 
-    public CharSequence text;
-    public float x;
-    public float y;
-    public float scale;
+    public DynamicLayout text;
+    public Matrix matrix;
     public Paint textPaint;
 
-    public DrawingText(CharSequence text, float x, float y, float scale, Paint textPaint) {
+    public DrawingText(DynamicLayout text, Matrix matrix, Paint textPaint) {
         this.text = text;
-        this.x = x;
-        this.y = y;
-        this.scale = scale;
+        this.matrix = matrix;
         this.textPaint = new Paint(textPaint);
     }
 

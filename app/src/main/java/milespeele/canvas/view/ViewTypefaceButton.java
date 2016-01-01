@@ -12,6 +12,7 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.Button;
 
+import me.grantland.widget.AutofitHelper;
 import milespeele.canvas.R;
 import milespeele.canvas.util.TextUtils;
 import milespeele.canvas.util.ViewUtils;
@@ -20,7 +21,6 @@ import milespeele.canvas.util.ViewUtils;
  * Created by mbpeele on 9/2/15.
  */
 public class ViewTypefaceButton extends Button {
-
 
     public ViewTypefaceButton(Context context) {
         super(context);
@@ -50,6 +50,9 @@ public class ViewTypefaceButton extends Button {
         int background = typedArray.getColor(R.styleable.ViewTypefaceButton_backgroundColor, Color.WHITE);
         if (background != Color.WHITE) {
             getBackground().setColorFilter(background, PorterDuff.Mode.SRC_ATOP);
+        }
+        if (typedArray.getBoolean(R.styleable.ViewTypefaceTextView_shouldAutofit, false)) {
+            AutofitHelper.create(this);
         }
         typedArray.recycle();
     }
