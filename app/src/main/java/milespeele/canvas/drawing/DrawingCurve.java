@@ -505,7 +505,6 @@ public class DrawingCurve {
     }
 
     public boolean undo() {
-        Logg.log(mAllHistory.size());
         if (!mAllHistory.isEmpty()) {
             isSafeToDraw = false;
 

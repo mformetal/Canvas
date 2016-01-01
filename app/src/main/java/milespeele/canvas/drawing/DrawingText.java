@@ -18,5 +18,4 @@ public class DrawingText {
         this.matrix = matrix;
         this.paint = new Paint(textPaint);
     }
-
 }
