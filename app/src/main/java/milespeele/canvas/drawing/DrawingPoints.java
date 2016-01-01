@@ -9,8 +9,7 @@ import java.util.ArrayList;
  */
 public class DrawingPoints extends ArrayList<DrawingPoint> {
 
-    public float lastWidth = 1, lastVelocity = 1;
-    public float[] redrawPts = new float[0];
+    public float[] redrawPts;
 
     public Paint redrawPaint;
 
@@ -21,11 +20,7 @@ public class DrawingPoints extends ArrayList<DrawingPoint> {
 
     public DrawingPoints(DrawingPoints other) {
         super(other);
-        redrawPts = new float[other.redrawPts.length];
-        System.arraycopy(other.redrawPts, 0, redrawPts, 0, other.redrawPts.length);
-
-        lastWidth = other.lastWidth;
-        lastVelocity = other.lastVelocity;
+        storePoints(other.size(), other);
         redrawPaint = new Paint(other.redrawPaint);
     }
 
@@ -33,15 +28,8 @@ public class DrawingPoints extends ArrayList<DrawingPoint> {
         return get(size() - 1);
     }
 
-    @Override
-    public void clear() {
-        super.clear();
-        lastWidth = 1;
-        lastVelocity = 1;
-    }
-
-    public void storePoints() {
-        int n = size() * 2;
+    public void storePoints(int length, DrawingPoints other) {
+        int n = length * 2;
         int arraySize = n + (n - 4);
 
         if (arraySize <= 0) {
@@ -51,8 +39,8 @@ public class DrawingPoints extends ArrayList<DrawingPoint> {
         redrawPts = new float[arraySize];
         int counter = 1;
 
-        for (int ndx = 0; ndx < size(); ndx++) {
-            float x = get(ndx).x, y = get(ndx).y;
+        for (int ndx = 0; ndx < length; ndx++) {
+            float x = other.get(ndx).x, y = other.get(ndx).y;
 
             if (ndx == 0) {
                 redrawPts[ndx] = x;
@@ -61,8 +49,8 @@ public class DrawingPoints extends ArrayList<DrawingPoint> {
             }
 
             if (ndx == size() - 1) {
-                redrawPts[redrawPts.length - 2] = get(ndx).x;
-                redrawPts[redrawPts.length - 1] = get(ndx).y;
+                redrawPts[redrawPts.length - 2] = other.get(ndx).x;
+                redrawPts[redrawPts.length - 1] = other.get(ndx).y;
                 break;
             }
 

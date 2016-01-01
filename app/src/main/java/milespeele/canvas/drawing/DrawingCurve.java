@@ -189,8 +189,6 @@ public class DrawingCurve {
                 mTextLayout.draw(mCanvas);
                 mCanvas.restore();
 
-                mAllHistory.push(new DrawingText(mTextLayout, mMatrix, mTextPaint));
-
                 changeState(State.DRAW);
 
                 ViewUtils.setIdentityMatrix(mMatrix);
@@ -414,7 +412,6 @@ public class DrawingCurve {
         switch (mState) {
             case ERASE:
             case DRAW:
-                mCurrentPoints.storePoints();
                 mAllHistory.push(new DrawingPoints(mCurrentPoints));
                 mCurrentPoints.clear();
                 break;
@@ -422,6 +419,7 @@ public class DrawingCurve {
                 mStrokeColor = mInkedColor;
                 setPaintColor(mStrokeColor);
                 changeState(State.DRAW);
+
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
