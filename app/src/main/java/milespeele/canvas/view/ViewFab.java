@@ -142,10 +142,16 @@ public class ViewFab extends FloatingActionButton {
 
     public void startSaveAnimation() {
         if (pulse == null) {
+            ObjectAnimator scaleX = ObjectAnimator.ofFloat(this, View.SCALE_X, 1f, .75f);
+            scaleX.setRepeatCount(ValueAnimator.INFINITE);
+            scaleX.setRepeatMode(ValueAnimator.REVERSE);
+
+            ObjectAnimator scaleY = ObjectAnimator.ofFloat(this, View.SCALE_Y, 1f, .75f);
+            scaleY.setRepeatCount(ValueAnimator.INFINITE);
+            scaleY.setRepeatMode(ValueAnimator.REVERSE);
+
             pulse = new AnimatorSet();
-            pulse.playTogether(
-                    ObjectAnimator.ofFloat(this, View.SCALE_X, 1f, .75f),
-                    ObjectAnimator.ofFloat(this, View.SCALE_Y, 1f, .75f));
+            pulse.playTogether(scaleX, scaleY);
             pulse.setDuration(300);
             pulse.start();
         } else {
