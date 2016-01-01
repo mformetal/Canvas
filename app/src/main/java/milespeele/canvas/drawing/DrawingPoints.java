@@ -14,10 +14,6 @@ public class DrawingPoints extends ArrayList<DrawingPoint> {
 
     public Paint redrawPaint;
 
-    public DrawingPoints() {
-        redrawPaint = new Paint();
-    }
-
     public DrawingPoints(Paint paint) {
         super();
         redrawPaint = new Paint(paint);

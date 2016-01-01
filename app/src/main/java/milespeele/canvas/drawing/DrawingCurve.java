@@ -4,7 +4,6 @@ import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -20,10 +19,10 @@ import android.text.Layout;
 import android.text.TextPaint;
 import android.view.MotionEvent;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Stack;
 
 import javax.inject.Inject;
 
@@ -58,7 +57,7 @@ public class DrawingCurve {
     private Bitmap mBitmap, mCachedBitmap, mPhotoBitmap;
     private Canvas mCanvas;
     private DrawingPoints mCurrentPoints;
-    private DrawingHistory mRedoneHistory, mAllHistory;
+    private Stack<Object> mRedoneHistory, mAllHistory;
     private Paint mPaint, mInkPaint;
     private TextPaint mTextPaint;
     private State mState = State.DRAW;
@@ -126,8 +125,8 @@ public class DrawingCurve {
         mTextPaint.setColor(mStrokeColor);
         mTextPaint.setStyle(Paint.Style.FILL_AND_STROKE);
 
-        mAllHistory = new DrawingHistory();
-        mRedoneHistory = new DrawingHistory();
+        mAllHistory = new Stack<>();
+        mRedoneHistory = new Stack<>();
         mCurrentPoints = new DrawingPoints(mPaint);
     }
 
@@ -416,7 +415,7 @@ public class DrawingCurve {
             case ERASE:
             case DRAW:
                 mCurrentPoints.storePoints();
-                mAllHistory.push(mCurrentPoints);
+                mAllHistory.push(new DrawingPoints(mCurrentPoints));
                 mCurrentPoints.clear();
                 break;
             case INK:
@@ -497,7 +496,7 @@ public class DrawingCurve {
 
             mCanvas.drawBitmap(mCachedBitmap, 0, 0, null);
 
-            mAllHistory.redraw(mCanvas);
+            redraw();
 
             isSafeToDraw = true;
             return isSafeToDraw;
@@ -514,12 +513,22 @@ public class DrawingCurve {
 
             mCanvas.drawBitmap(mCachedBitmap, 0, 0, null);
 
-            mAllHistory.redraw(mCanvas);
+            redraw();
 
             isSafeToDraw = true;
             return isSafeToDraw;
         }
         return false;
+    }
+
+    @SuppressWarnings("ResourceType")
+    public void redraw() {
+        for (Object object: mAllHistory) {
+            if (object instanceof DrawingPoints) {
+                DrawingPoints points = (DrawingPoints) object;
+                mCanvas.drawLines(points.redrawPts, points.redrawPaint);
+            }
+        }
     }
 
     public void ink() {
@@ -621,6 +630,14 @@ public class DrawingCurve {
         String path = eventBitmapChosen.path;
         if (path != null) {
             mPhotoBitmap = BitmapFactory.decodeFile(path, FileUtils.getBitmapOptions(mContext));
+
+            float scale = Math.min((float) mBitmap.getWidth() / mPhotoBitmap.getWidth(),
+                    (float) mBitmap.getHeight() / mPhotoBitmap.getHeight());
+            scale = Math.max(scale, Math.min((float) mBitmap.getHeight() / mPhotoBitmap.getWidth(),
+                    (float) mBitmap.getWidth() / mPhotoBitmap.getHeight()));
+            if (scale < 1) {
+                mMatrix.setScale(scale, scale);
+            }
 
             listener.onDrawingCurveOptionsMenuVisibilityRequest(true, State.PICTURE);
             listener.onDrawingCurveFabMenuVisibilityRequest(false);

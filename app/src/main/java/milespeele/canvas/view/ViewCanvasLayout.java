@@ -79,16 +79,9 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
     @Override
     protected boolean drawChild(Canvas canvas, View child, long drawingTime) {
         if (shadowPaint.getAlpha() != 0) {
-            canvas.save();
-            canvas.drawPaint(shadowPaint);
-            canvas.restore();
-
             int alpha = shadowPaint.getAlpha();
-            if (child == fabMenu) {
-                for (int x = 0; x < fabMenu.getChildCount(); x++) {
-                    fabMenu.getChildAt(x).setAlpha((ViewUtils.MAX_ALPHA - alpha) / ViewUtils.MAX_ALPHA);
-                }
-            }
+            float viewAlpha = alpha / ViewUtils.MAX_ALPHA;
+            fabMenu.setAlpha(1.0f - viewAlpha);
         }
         return super.drawChild(canvas, child, drawingTime);
     }
