@@ -6,6 +6,7 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.Path;
 import android.transition.ArcMotion;
 import android.transition.ChangeBounds;
@@ -39,7 +40,7 @@ public class TransitionDialogToFab extends ChangeBounds {
         super.createAnimator(sceneRoot, startValues, endValues);
 
         int startColor = context.getResources().getColor(R.color.primary_dark);
-        int endColor = context.getResources().getColor(R.color.accent);
+        int endColor = Color.WHITE;
 
         List<View> views = getTargets();
         View fab = views.get(0);
