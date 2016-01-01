@@ -7,13 +7,12 @@ import android.os.Environment;
 import android.util.DisplayMetrics;
 import android.view.WindowManager;
 
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -35,16 +34,20 @@ public class FileUtils {
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
         byte[] bytes =  stream.toByteArray();
 
-        Output output = null;
+        FileOutputStream output = null;
         try {
-            output = new Output(context.openFileOutput(DRAWING_BITMAP_FILENAME, Context.MODE_PRIVATE));
+            output = context.openFileOutput(DRAWING_BITMAP_FILENAME, Context.MODE_PRIVATE);
             output.write(bytes);
-        } catch (FileNotFoundException exception) {
-            Logg.log(exception);
+        } catch (IOException e) {
+            Logg.log(e);
         } finally {
             if (output != null) {
-                output.flush();
-                output.close();
+                try {
+                    output.flush();
+                    output.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
@@ -83,7 +86,7 @@ public class FileUtils {
         Bitmap bitmap = null;
 
         try {
-            Input test = new Input(context.openFileInput(DRAWING_BITMAP_FILENAME));
+            InputStream test = context.openFileInput(DRAWING_BITMAP_FILENAME);
             bitmap = BitmapFactory.decodeStream(test, null, getBitmapOptions(context));
             test.close();
         } catch (IOException e) {
