@@ -69,7 +69,6 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
     private Circle mCircle;
     private ArrayList<ItemPosition> mItemPositions;
     private GestureDetector mGestureDetector;
-    private ViewFab clickedFab;
     private static final Interpolator OVERSHOOT_INTERPOLATOR = new OvershootInterpolator();
     private static final Interpolator ANTICIPATE_INTERPOLATOR = new AnticipateInterpolator();
 
@@ -121,7 +120,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
 
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mPaint.setStyle(Paint.Style.FILL_AND_STROKE);
-        mPaint.setColor(getResources().getColor(R.color.primary));
+        mPaint.setColor(getResources().getColor(R.color.gray));
         mPaint.setAlpha(128);
 
         mGestureDetector = new GestureDetector(getContext(), new GestureListener());
@@ -243,13 +242,11 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
             return false;
         }
 
-//        getParent().requestDisallowInterceptTouchEvent(false);
-
         mGestureDetector.onTouchEvent(event);
 
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
-                clickedFab = getClickedItem(x, y);
+                ViewFab clickedFab = getClickedItem(x, y);
 
                 if (clickedFab != null) {
                     onClick(clickedFab);

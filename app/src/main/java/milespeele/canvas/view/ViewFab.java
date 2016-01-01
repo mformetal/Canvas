@@ -106,7 +106,7 @@ public class ViewFab extends FloatingActionButton {
         scaleDown.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationStart(Animator animation) {
-                setBackgroundTintList(getResources().getColorStateList(R.color.accent));
+                setBackgroundTintList(getResources().getColorStateList(android.R.color.white));
                 isScaling = true;
             }
 
@@ -127,7 +127,7 @@ public class ViewFab extends FloatingActionButton {
         scaleUp.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationStart(Animator animation) {
-                setBackgroundTintList(getResources().getColorStateList(R.color.primary_light));
+                setBackgroundTintList(getResources().getColorStateList(android.R.color.black));
                 isScaling = true;
             }
 
