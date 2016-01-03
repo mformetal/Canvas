@@ -38,3 +38,6 @@ bin/
 *~
 *.swp
 build/
+
+gradle.properties
+captures/

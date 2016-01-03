@@ -161,6 +161,8 @@ public class DrawingCurve {
     }
 
     public void onOptionsMenuCancel() {
+        mAllHistory.pop();
+
         mListener.onDrawingCurveOptionsMenuVisibilityRequest(false, null);
         mListener.onDrawingCurveFabMenuVisibilityRequest(true);
 
@@ -194,6 +196,8 @@ public class DrawingCurve {
 
                 ViewUtils.setIdentityMatrix(mMatrix);
 
+                // push text to history
+
                 mTextLayout = null;
                 break;
             case PICTURE:
@@ -208,6 +212,8 @@ public class DrawingCurve {
                 changeState(State.DRAW);
 
                 ViewUtils.setIdentityMatrix(mMatrix);
+
+                // push uri/ filepath to history
 
                 mPhotoBitmap.recycle();
                 mPhotoBitmap = null;
@@ -627,6 +633,8 @@ public class DrawingCurve {
 
         String path = eventBitmapChosen.path;
         if (path != null) {
+            mAllHistory.push(path);
+
             mPhotoBitmap = BitmapFactory.decodeFile(path, FileUtils.getBitmapOptions(mContext));
 
             float scale = Math.min((float) mBitmap.getWidth() / mPhotoBitmap.getWidth(),
@@ -658,6 +666,8 @@ public class DrawingCurve {
             } finally {
                 if (inputStream != null) {
                     try {
+                        mAllHistory.push(data);
+
                         mListener.onDrawingCurveOptionsMenuVisibilityRequest(true, State.PICTURE);
                         mListener.onDrawingCurveFabMenuVisibilityRequest(false);
 
