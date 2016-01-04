@@ -3,7 +3,6 @@ package milespeele.canvas.drawing;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.app.Activity;
-import android.app.ActivityManager;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -14,11 +13,10 @@ import android.graphics.Point;
 import android.graphics.PointF;
 import android.net.Uri;
 import android.os.*;
-import android.os.Process;
-import android.text.DynamicLayout;
-import android.text.Layout;
 import android.text.TextPaint;
 import android.view.MotionEvent;
+
+import org.w3c.dom.Text;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -475,11 +473,11 @@ public class DrawingCurve {
             if (object instanceof DrawingPoints) {
                 DrawingPoints points = (DrawingPoints) object;
                 mCanvas.drawLines(points.redrawPts, points.redrawPaint);
-            } else if (object instanceof DrawingBitmapPair) {
+            } else if (object instanceof BitmapDrawHistory) {
                 float[] prevMatrixValues = new float[9];
                 mMatrix.getValues(prevMatrixValues);
 
-                DrawingBitmapPair pair = (DrawingBitmapPair) object;
+                BitmapDrawHistory pair = (BitmapDrawHistory) object;
 
                 Uri uri = pair.uri;
                 InputStream inputStream = null;
@@ -506,6 +504,22 @@ public class DrawingCurve {
                         }
                     }
                 }
+            } else if (object instanceof TextDrawHistory) {
+                TextDrawHistory history = (TextDrawHistory) object;
+                float[] prevMatrixValues = new float[9];
+                mMatrix.getValues(prevMatrixValues);
+
+                mMatrix.setValues(history.matrixValues);
+
+                mCanvas.save();
+                mCanvas.concat(mMatrix);
+                mCanvas.drawText(history.text,
+                        mBitmap.getWidth() / 2 - history.paint.measureText(history.text) / 2,
+                        mBitmap.getHeight() / 2,
+                        history.paint);
+                mCanvas.restore();
+
+                mMatrix.setValues(prevMatrixValues);
             }
         }
     }
@@ -670,10 +684,9 @@ public class DrawingCurve {
                 changeState(State.DRAW);
 
                 mMatrix.getValues(values);
+                mAllHistory.push(new TextDrawHistory(mText, values, mTextPaint));
 
                 ViewUtils.setIdentityMatrix(mMatrix);
-
-                // push text to history
 
                 mText = null;
                 break;
@@ -689,7 +702,7 @@ public class DrawingCurve {
                 changeState(State.DRAW);
 
                 mMatrix.getValues(values);
-                mAllHistory.push(new DrawingBitmapPair(mPhotoBitmapUri, values));
+                mAllHistory.push(new BitmapDrawHistory(mPhotoBitmapUri, values));
 
                 ViewUtils.setIdentityMatrix(mMatrix);
 
