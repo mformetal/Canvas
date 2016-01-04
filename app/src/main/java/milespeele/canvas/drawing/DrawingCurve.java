@@ -63,6 +63,8 @@ public class DrawingCurve {
     private State mState = State.DRAW;
     private Context mContext;
     private PointF mStartPoint, mMidPoint;
+    private Uri mPhotoBitmapUri;
+    private String mPhotoBitmapPath;
 
     private static final float TOLERANCE = 5f;
     private static float STROKE_WIDTH = 5f;
@@ -194,11 +196,11 @@ public class DrawingCurve {
 
                 changeState(State.DRAW);
 
+                mTextLayout = null;
+
                 ViewUtils.setIdentityMatrix(mMatrix);
 
                 // push text to history
-
-                mTextLayout = null;
                 break;
             case PICTURE:
                 mListener.onDrawingCurveOptionsMenuVisibilityRequest(false, null);
@@ -211,10 +213,18 @@ public class DrawingCurve {
 
                 changeState(State.DRAW);
 
+                float[] values = new float[9];
+                mMatrix.getValues(values);
+                if (mPhotoBitmapPath == null) {
+                    mAllHistory.push(new DrawingBitmapPair(mPhotoBitmapUri, values));
+                } else {
+                    mAllHistory.push(new DrawingBitmapPair(mPhotoBitmapPath, values));
+                }
+
                 ViewUtils.setIdentityMatrix(mMatrix);
 
-                // push uri/ filepath to history
-
+                mPhotoBitmapPath = null;
+                mPhotoBitmapUri = null;
                 mPhotoBitmap.recycle();
                 mPhotoBitmap = null;
                 break;
@@ -531,6 +541,38 @@ public class DrawingCurve {
             if (object instanceof DrawingPoints) {
                 DrawingPoints points = (DrawingPoints) object;
                 mCanvas.drawLines(points.redrawPts, points.redrawPaint);
+            } else if (object instanceof DrawingBitmapPair) {
+                float[] prevMatrixValues = new float[9];
+                mMatrix.getValues(prevMatrixValues);
+
+                DrawingBitmapPair pair = (DrawingBitmapPair) object;
+                if (pair.uri == null) {
+                    String path = pair.string;
+                } else {
+                    Uri uri = pair.uri;
+                    InputStream inputStream = null;
+                    try {
+                        inputStream = mContext.getContentResolver().openInputStream(uri);
+                        Bitmap bitmap = BitmapFactory.decodeStream(inputStream, null, FileUtils.getBitmapOptions(mContext));
+
+                        mMatrix.setValues(pair.matrixValues);
+
+                        mCanvas.save();
+                        mCanvas.concat(mMatrix);
+                        mCanvas.drawBitmap(bitmap, 0, 0, null);
+                        mCanvas.restore();
+                    } catch (FileNotFoundException e) {
+                        Logg.log(e);
+                    } finally {
+                        if (inputStream != null) {
+                            try {
+                                inputStream.close();
+                            } catch (IOException e) {
+                                Logg.log(e);
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -574,13 +616,8 @@ public class DrawingCurve {
 
                 changeState(State.TEXT);
 
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        mListener.onDrawingCurveOptionsMenuVisibilityRequest(true, State.TEXT);
-                        mListener.onDrawingCurveFabMenuVisibilityRequest(false);
-                    }
-                }, 350);
+                mListener.onDrawingCurveOptionsMenuVisibilityRequest(true, State.TEXT);
+                mListener.onDrawingCurveFabMenuVisibilityRequest(false);
                 break;
             case TEXT:
                 TextUtils.adjustTextSize(mTextPaint, mText, height);
@@ -635,11 +672,9 @@ public class DrawingCurve {
             mPhotoBitmap.recycle();
         }
 
-        String path = eventBitmapChosen.path;
-        if (path != null) {
-            mAllHistory.push(path);
-
-            mPhotoBitmap = BitmapFactory.decodeFile(path, FileUtils.getBitmapOptions(mContext));
+        mPhotoBitmapPath = eventBitmapChosen.path;
+        if (mPhotoBitmapPath != null) {
+            mPhotoBitmap = BitmapFactory.decodeFile(mPhotoBitmapPath, FileUtils.getBitmapOptions(mContext));
 
             float scale = Math.min((float) mBitmap.getWidth() / mPhotoBitmap.getWidth(),
                     (float) mBitmap.getHeight() / mPhotoBitmap.getHeight());
@@ -659,19 +694,17 @@ public class DrawingCurve {
             return;
         }
 
-        Uri data = eventBitmapChosen.data;
+        mPhotoBitmapUri = eventBitmapChosen.data;
         InputStream inputStream = null;
-        if (data != null) {
+        if (mPhotoBitmapUri != null) {
             try {
-                inputStream = mContext.getContentResolver().openInputStream(data);
+                inputStream = mContext.getContentResolver().openInputStream(mPhotoBitmapUri);
                 mPhotoBitmap = BitmapFactory.decodeStream(inputStream, null, FileUtils.getBitmapOptions(mContext));
             } catch (FileNotFoundException e) {
                 Logg.log(e);
             } finally {
                 if (inputStream != null) {
                     try {
-                        mAllHistory.push(data);
-
                         mListener.onDrawingCurveOptionsMenuVisibilityRequest(true, State.PICTURE);
                         mListener.onDrawingCurveFabMenuVisibilityRequest(false);
 
