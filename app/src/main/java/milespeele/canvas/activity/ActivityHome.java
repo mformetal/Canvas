@@ -134,7 +134,8 @@ public class ActivityHome extends ActivityBase {
 
         if (resultCode == RESULT_OK) {
             if (requestCode == REQUEST_CAMERA_CODE) {
-                bus.post(new EventBitmapChosen(filePath));
+                FileUtils.addFileToGallery(this, filePath);
+                bus.post(new EventBitmapChosen(Uri.fromFile(new File(filePath))));
             } else {
                 ErrorDialog.createDialogFromCode(this, ErrorDialog.GENERAL);
             }

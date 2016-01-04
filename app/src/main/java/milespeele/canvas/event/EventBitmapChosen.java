@@ -16,8 +16,4 @@ public class EventBitmapChosen {
     public EventBitmapChosen(Uri data) {
         this.data = data;
     }
-
-    public EventBitmapChosen(String path) {
-        this.path = path;
-    }
 }

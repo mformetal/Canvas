@@ -64,7 +64,6 @@ public class DrawingCurve {
     private Context mContext;
     private PointF mStartPoint, mMidPoint;
     private Uri mPhotoBitmapUri;
-    private String mPhotoBitmapPath;
 
     private static final float TOLERANCE = 5f;
     private static float STROKE_WIDTH = 5f;
@@ -215,15 +214,10 @@ public class DrawingCurve {
 
                 float[] values = new float[9];
                 mMatrix.getValues(values);
-                if (mPhotoBitmapPath == null) {
-                    mAllHistory.push(new DrawingBitmapPair(mPhotoBitmapUri, values));
-                } else {
-                    mAllHistory.push(new DrawingBitmapPair(mPhotoBitmapPath, values));
-                }
+                mAllHistory.push(new DrawingBitmapPair(mPhotoBitmapUri, values));
 
                 ViewUtils.setIdentityMatrix(mMatrix);
 
-                mPhotoBitmapPath = null;
                 mPhotoBitmapUri = null;
                 mPhotoBitmap.recycle();
                 mPhotoBitmap = null;
@@ -546,30 +540,29 @@ public class DrawingCurve {
                 mMatrix.getValues(prevMatrixValues);
 
                 DrawingBitmapPair pair = (DrawingBitmapPair) object;
-                if (pair.uri == null) {
-                    String path = pair.string;
-                } else {
-                    Uri uri = pair.uri;
-                    InputStream inputStream = null;
-                    try {
-                        inputStream = mContext.getContentResolver().openInputStream(uri);
-                        Bitmap bitmap = BitmapFactory.decodeStream(inputStream, null, FileUtils.getBitmapOptions(mContext));
 
-                        mMatrix.setValues(pair.matrixValues);
+                Uri uri = pair.uri;
+                InputStream inputStream = null;
+                try {
+                    inputStream = mContext.getContentResolver().openInputStream(uri);
+                    Bitmap bitmap = BitmapFactory.decodeStream(inputStream, null, FileUtils.getBitmapOptions(mContext));
 
-                        mCanvas.save();
-                        mCanvas.concat(mMatrix);
-                        mCanvas.drawBitmap(bitmap, 0, 0, null);
-                        mCanvas.restore();
-                    } catch (FileNotFoundException e) {
-                        Logg.log(e);
-                    } finally {
-                        if (inputStream != null) {
-                            try {
-                                inputStream.close();
-                            } catch (IOException e) {
-                                Logg.log(e);
-                            }
+                    mMatrix.setValues(pair.matrixValues);
+
+                    mCanvas.save();
+                    mCanvas.concat(mMatrix);
+                    mCanvas.drawBitmap(bitmap, 0, 0, null);
+                    mCanvas.restore();
+
+                    mMatrix.setValues(prevMatrixValues);
+                } catch (FileNotFoundException e) {
+                    Logg.log(e);
+                } finally {
+                    if (inputStream != null) {
+                        try {
+                            inputStream.close();
+                        } catch (IOException e) {
+                            Logg.log(e);
                         }
                     }
                 }
@@ -672,34 +665,20 @@ public class DrawingCurve {
             mPhotoBitmap.recycle();
         }
 
-        mPhotoBitmapPath = eventBitmapChosen.path;
-        if (mPhotoBitmapPath != null) {
-            mPhotoBitmap = BitmapFactory.decodeFile(mPhotoBitmapPath, FileUtils.getBitmapOptions(mContext));
-
-            float scale = Math.min((float) mBitmap.getWidth() / mPhotoBitmap.getWidth(),
-                    (float) mBitmap.getHeight() / mPhotoBitmap.getHeight());
-            scale = Math.max(scale, Math.min((float) mBitmap.getHeight() / mPhotoBitmap.getWidth(),
-                    (float) mBitmap.getWidth() / mPhotoBitmap.getHeight()));
-            if (scale < 1) {
-                mMatrix.setScale(scale, scale);
-            }
-
-            mListener.onDrawingCurveOptionsMenuVisibilityRequest(true, State.PICTURE);
-            mListener.onDrawingCurveFabMenuVisibilityRequest(false);
-
-            changeState(State.PICTURE);
-
-            FileUtils.deleteBitmapFile(mContext, FileUtils.PHOTO_BITMAP_FILENAME);
-
-            return;
-        }
-
         mPhotoBitmapUri = eventBitmapChosen.data;
         InputStream inputStream = null;
         if (mPhotoBitmapUri != null) {
             try {
                 inputStream = mContext.getContentResolver().openInputStream(mPhotoBitmapUri);
                 mPhotoBitmap = BitmapFactory.decodeStream(inputStream, null, FileUtils.getBitmapOptions(mContext));
+
+                float scale = Math.min((float) mBitmap.getWidth() / mPhotoBitmap.getWidth(),
+                        (float) mBitmap.getHeight() / mPhotoBitmap.getHeight());
+                scale = Math.max(scale, Math.min((float) mBitmap.getHeight() / mPhotoBitmap.getWidth(),
+                        (float) mBitmap.getWidth() / mPhotoBitmap.getHeight()));
+                if (scale < 1) {
+                    mMatrix.setScale(scale, scale);
+                }
             } catch (FileNotFoundException e) {
                 Logg.log(e);
             } finally {

@@ -1,8 +1,10 @@
 package milespeele.canvas.util;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Environment;
 import android.util.DisplayMetrics;
 import android.view.WindowManager;
@@ -15,6 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 import rx.Observable;
 import rx.Subscriber;
@@ -101,7 +104,22 @@ public class FileUtils {
     }
 
     public static File createPhotoFile(Context context) throws IOException {
-        return File.createTempFile(PHOTO_BITMAP_FILENAME, ".jpg",
-                context.getExternalFilesDir(Environment.DIRECTORY_PICTURES));
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES);
+        return File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
+    }
+
+    public static void addFileToGallery(Context context, String filePath) {
+        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+        File f = new File(filePath);
+        Uri contentUri = Uri.fromFile(f);
+        mediaScanIntent.setData(contentUri);
+        context.sendBroadcast(mediaScanIntent);
     }
 }
