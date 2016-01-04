@@ -1,6 +1,5 @@
 package milespeele.canvas.fragment;
 
-import android.app.Fragment;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -17,7 +16,7 @@ import milespeele.canvas.view.ViewFab;
 import milespeele.canvas.view.ViewFabMenu;
 import milespeele.canvas.view.ViewOptionsMenu;
 
-public class FragmentDrawer extends Fragment implements
+public class FragmentDrawer extends FragmentBase implements
         ViewFabMenu.ViewFabMenuListener, ViewOptionsMenu.ViewOptionsMenuListener {
 
     @Bind(R.id.fragment_drawer_coordinator) ViewCanvasLayout coordinatorLayout;
@@ -43,27 +42,11 @@ public class FragmentDrawer extends Fragment implements
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-    }
-
-    @Override
     public void onFabMenuButtonClicked(ViewFab v) {
         ActivityHome activityHome = (ActivityHome) getActivity();
         if (activityHome != null) {
             activityHome.onFabMenuButtonClicked(v);
         }
-    }
-
-    public ViewCanvasLayout getRootView() { return coordinatorLayout; }
-
-    public Bitmap getDrawingBitmap() {
-        return coordinatorLayout.getDrawerBitmap();
     }
 
     @Override
@@ -79,4 +62,10 @@ public class FragmentDrawer extends Fragment implements
 
     @Override
     public void onOptionsMenuAccept() {}
+
+    public ViewCanvasLayout getRootView() { return coordinatorLayout; }
+
+    public Bitmap getDrawingBitmap() {
+        return coordinatorLayout.getDrawerBitmap();
+    }
 }

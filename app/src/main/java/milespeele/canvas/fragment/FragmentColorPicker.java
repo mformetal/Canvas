@@ -1,7 +1,5 @@
 package milespeele.canvas.fragment;
 
-import android.app.Activity;
-import android.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,28 +9,22 @@ import com.larswerkman.holocolorpicker.ColorPicker;
 import com.larswerkman.holocolorpicker.OpacityBar;
 import com.larswerkman.holocolorpicker.SVBar;
 
-import javax.inject.Inject;
-
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import de.greenrobot.event.EventBus;
-import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
 import milespeele.canvas.event.EventColorChosen;
 import milespeele.canvas.view.ViewTypefaceTextView;
 
 
 
-public class FragmentColorPicker extends Fragment
+public class FragmentColorPicker extends FragmentBase
         implements View.OnClickListener, ColorPicker.OnColorChangedListener {
 
     @Bind(R.id.fragment_color_picker_title) ViewTypefaceTextView title;
     @Bind(R.id.fragment_color_picker_view) ColorPicker picker;
     @Bind(R.id.fragment_color_picker_sv) SVBar svBar;
     @Bind(R.id.fragment_color_picker_opacity) OpacityBar opacityBar;
-
-    @Inject EventBus bus;
 
     private int currentColor;
 
@@ -45,12 +37,6 @@ public class FragmentColorPicker extends Fragment
         args.putBoolean("toFill", fillCanvas);
         fragment.setArguments(args);
         return fragment;
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        ((MainApp) activity.getApplicationContext()).getApplicationComponent().inject(this);
     }
 
     @Override

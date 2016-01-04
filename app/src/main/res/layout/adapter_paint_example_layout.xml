@@ -1,28 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<milespeele.canvas.view.ViewRippleLinearLayout
+<milespeele.canvas.view.ViewTypefaceButton
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="horizontal"
-    android:layout_marginStart="@dimen/paint_example_items_margin"
-    android:layout_marginEnd="@dimen/paint_example_items_margin"
+    android:id="@+id/paint_example_layout_text"
     android:layout_width="match_parent"
-    android:layout_height="60dp" >
-
-    <milespeele.canvas.view.ViewTypefaceTextView
-        android:id="@+id/paint_example_layout_text"
-        android:layout_weight="1.25"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:paddingStart="1dp"
-        android:paddingEnd="1dp"
-        app:borderColor="@color/gray"
-        app:shouldDrawBorder="true" />
-
-    <milespeele.canvas.view.ViewBrushExample
-        android:layout_weight="3.75"
-        android:id="@+id/paint_example_layout_paint"
-        android:layout_width="0dp"
-        android:layout_height="match_parent" />
-
-</milespeele.canvas.view.ViewRippleLinearLayout>
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:paddingStart="1dp"
+    android:paddingEnd="1dp" />

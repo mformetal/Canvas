@@ -1,15 +1,8 @@
 package milespeele.canvas.view;
 
-import android.animation.ObjectAnimator;
 import android.content.Context;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
-import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
 import java.util.ArrayList;
@@ -19,7 +12,6 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import milespeele.canvas.R;
 import milespeele.canvas.drawing.DrawingCurve;
-import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.ViewUtils;
 
 /**
@@ -108,11 +100,6 @@ public class ViewOptionsMenu extends LinearLayout implements View.OnClickListene
 
         switch (state) {
             case TEXT:
-                if (option1.getParent() == null) {
-                    addView(option1, getChildCount() - 1);
-                    setWeightSum(4);
-                }
-
                 option1.setText(R.string.view_options_menu_edit_text);
                 option1.setCompoundDrawablesWithIntrinsicBounds(null, null, null,
                         getResources().getDrawable(R.drawable.ic_text_format_24dp));
@@ -121,34 +108,17 @@ public class ViewOptionsMenu extends LinearLayout implements View.OnClickListene
                 option2.setCompoundDrawablesWithIntrinsicBounds(null, null, null,
                         getResources().getDrawable(R.drawable.ic_format_paint_24dp));
                 break;
-            case IMPORT:
-                removeView(option1);
-
-                setWeightSum(3);
+            case PICTURE:
+                option1.setText(R.string.view_options_menu_edit_camera);
+                option1.setCompoundDrawablesWithIntrinsicBounds(null, null, null,
+                        getResources().getDrawable(R.drawable.ic_camera_alt_24dp));
 
                 option2.setText(R.string.view_options_menu_edit_import);
                 option2.setCompoundDrawablesWithIntrinsicBounds(null, null, null,
                         getResources().getDrawable(R.drawable.ic_photo_24dp));
-
-                requestLayout();
                 break;
         }
 
-        if (getVisibility() == View.GONE) {
-            ViewUtils.visible(this);
-        } else {
-            ObjectAnimator.ofFloat(this, View.TRANSLATION_Y,
-                    getTranslationY() - getHeight())
-                    .setDuration(350)
-                    .start();
-        }
-    }
-
-    @Override
-    public void onWindowFocusChanged(boolean hasWindowFocus) {
-        super.onWindowFocusChanged(hasWindowFocus);
-        if (!hasWindowFocus) {
-            setVisibility(View.GONE);
-        }
+        ViewUtils.visible(this);
     }
 }

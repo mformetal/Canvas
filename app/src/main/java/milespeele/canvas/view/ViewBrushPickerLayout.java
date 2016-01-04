@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.Paint;
 import android.os.Build;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -18,21 +19,19 @@ import milespeele.canvas.R;
 import milespeele.canvas.adapter.AdapterBrushPicker;
 import milespeele.canvas.util.ItemClickSupport;
 import milespeele.canvas.util.PaintStyles;
+import milespeele.canvas.util.SpacingDecoration;
 import milespeele.canvas.util.WrapContentLinearLayoutManager;
 
 
 /**
  * Created by milespeele on 8/8/15.
  */
-public class ViewBrushPickerLayout extends LinearLayout implements SeekBar.OnSeekBarChangeListener, ItemClickSupport.OnItemClickListener {
+public class ViewBrushPickerLayout extends LinearLayout implements ItemClickSupport.OnItemClickListener {
 
     @Bind(R.id.fragment_brush_picker_view_example) ViewBrushExample mainExample;
-    @Bind(R.id.fragment_brush_picker_view_sizer) SeekBar sizer;
     @Bind(R.id.fragment_brush_picker_view_recycler) RecyclerView recycler;
 
-    private final static int MAX_THICKNESS = 100;
-
-    private Paint lastSelectedPaint = new Paint();
+    private Paint lastSelectedPaint;
 
     public ViewBrushPickerLayout(Context context) {
         super(context);
@@ -56,6 +55,8 @@ public class ViewBrushPickerLayout extends LinearLayout implements SeekBar.OnSee
     }
 
     private void init() {
+        lastSelectedPaint = new Paint();
+
         setOrientation(VERTICAL);
         setClipChildren(true);
     }
@@ -65,39 +66,19 @@ public class ViewBrushPickerLayout extends LinearLayout implements SeekBar.OnSee
         super.onFinishInflate();
         ButterKnife.bind(this);
 
-        sizer.setMax(MAX_THICKNESS);
-        sizer.setOnSeekBarChangeListener(this);
-
         recycler.setHasFixedSize(true);
         recycler.setLayoutManager(new WrapContentLinearLayoutManager(getContext()));
+        recycler.addItemDecoration(new SpacingDecoration(40));
         ItemClickSupport.addTo(recycler).setOnItemClickListener(this);
     }
 
     @Override
-    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-        if (progress > 1) {
-            mainExample.onThicknessChanged(progress);
-            lastSelectedPaint.setStrokeWidth((float) progress);
-        }
-    }
-
-    @Override
-    public void onStartTrackingTouch(SeekBar seekBar) {
-
-    }
-
-    @Override
-    public void onStopTrackingTouch(SeekBar seekBar) {
-
-    }
-
-    @Override
     public void onItemClicked(RecyclerView recyclerView, int position, View v) {
-        ViewBrushExample example = (ViewBrushExample) ((LinearLayout) v).getChildAt(1);
-
-        Paint paint = example.getPaint();
-        lastSelectedPaint.set(paint);
-        mainExample.animatePaintChange(paint);
+//        ViewTypefaceTextView example = (ViewTypefaceTextView) ((LinearLayout) v).getChildAt(0);
+//
+//        Paint paint = example.getPaint();
+//        lastSelectedPaint.set(paint);
+//        mainExample.animatePaintChange(paint);
     }
 
     public void setPaint(Paint paint) {

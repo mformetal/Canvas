@@ -9,15 +9,5 @@
     <color name="icons">#212121</color>
     <color name="divider">#B6B6B6</color>
     <color name="gray">#FF888888</color>
-    <color name="spirit_gold">#F0B323</color>
-    <color name="dark_purple">#87034E</color>
-    <color name="violet">#3A03B3</color>
-
-    <array name="rainbow">
-        <item>#FF0000</item>
-        <item>#FFFF00</item>
-        <item>#00FF00</item>
-        <item>#0000FF</item>
-        <item>#551A8B</item>
-    </array>
+    <color name="half_opacity_gray">#80888888</color>
 </resources>

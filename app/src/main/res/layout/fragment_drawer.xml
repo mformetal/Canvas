@@ -10,19 +10,19 @@
     <milespeele.canvas.view.ViewCanvasSurface
         android:id="@+id/fragment_drawer_canvas"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        app:layout_anchorGravity="top"
+        app:layout_anchor="@id/fragment_drawer_coordinator" />
 
     <milespeele.canvas.view.ViewRoundedFrameLayout
         android:id="@+id/fragment_drawer_animator"
         android:elevation="24dp"
-        app:layout_anchorGravity="center"
-        app:layout_anchor="@id/fragment_drawer_coordinator"
-        card_view:cardCornerRadius="4dp"
-        card_view:cardElevation="4dp"
         android:visibility="gone"
-        android:layout_margin="30dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_margin="30dp"
+        app:layout_anchorGravity="center"
+        app:layout_anchor="@id/fragment_drawer_coordinator" />
 
     <include
         layout="@layout/fragment_drawer_menu"

@@ -1,41 +1,30 @@
 package milespeele.canvas.util;
 
 import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Paint;
-import android.support.design.widget.Snackbar;
+import android.net.Uri;
+import android.os.Environment;
+import android.provider.DocumentsContract;
+import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.view.WindowManager;
 
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
-import com.google.common.primitives.Ints;
-
 import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Stack;
+import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
-import milespeele.canvas.drawing.DrawingHistory;
-import milespeele.canvas.drawing.DrawingPoint;
-import milespeele.canvas.drawing.DrawingPoints;
 import rx.Observable;
-import rx.Single;
-import rx.SingleSubscriber;
 import rx.Subscriber;
-import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
 /**
@@ -43,23 +32,28 @@ import rx.schedulers.Schedulers;
  */
 public class FileUtils {
 
-    public final static String BITMAP_FILENAME = "canvas:bitmap";
+    public final static String DRAWING_BITMAP_FILENAME = "canvas:bitmap";
+    public final static String PHOTO_BITMAP_FILENAME = "canvasphoto";
 
     public static void cacheInBackground(Bitmap bitmap, Context context) {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
         byte[] bytes =  stream.toByteArray();
 
-        Output output = null;
+        FileOutputStream output = null;
         try {
-            output = new Output(context.openFileOutput(BITMAP_FILENAME, Context.MODE_PRIVATE));
+            output = context.openFileOutput(DRAWING_BITMAP_FILENAME, Context.MODE_PRIVATE);
             output.write(bytes);
-        } catch (FileNotFoundException exception) {
-            Logg.log(exception);
+        } catch (IOException e) {
+            Logg.log(e);
         } finally {
             if (output != null) {
-                output.flush();
-                output.close();
+                try {
+                    output.flush();
+                    output.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
@@ -98,7 +92,7 @@ public class FileUtils {
         Bitmap bitmap = null;
 
         try {
-            Input test = new Input(context.openFileInput(BITMAP_FILENAME));
+            InputStream test = context.openFileInput(DRAWING_BITMAP_FILENAME);
             bitmap = BitmapFactory.decodeStream(test, null, getBitmapOptions(context));
             test.close();
         } catch (IOException e) {
@@ -108,7 +102,52 @@ public class FileUtils {
         return bitmap;
     }
 
-    public static void deleteBitmapFile(Context context) {
-        context.deleteFile(BITMAP_FILENAME);
+    public static void deleteBitmapFile(Context context, String name) {
+        context.deleteFile(name);
+    }
+
+    public static File createPhotoFile(Context context) throws IOException {
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES);
+        return File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
+    }
+
+    public static Uri addFileToGallery(Context context, String filePath) {
+        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+        File f = new File(filePath);
+        Uri contentUri = Uri.fromFile(f);
+        mediaScanIntent.setData(contentUri);
+        context.sendBroadcast(mediaScanIntent);
+        return contentUri;
+    }
+
+    public static String pathFromUri(Context context, Uri uri) {
+        String filePath = "";
+        String wholeID = DocumentsContract.getDocumentId(uri);
+
+        // Split at colon, use second item in the array
+        String id = wholeID.split(":")[1];
+
+        String[] column = { MediaStore.Images.Media.DATA };
+
+        // where id is equal to
+        String sel = MediaStore.Images.Media._ID + "=?";
+
+        Cursor cursor = context.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                column, sel, new String[]{ id }, null);
+
+        int columnIndex = cursor.getColumnIndex(column[0]);
+
+        if (cursor.moveToFirst()) {
+            filePath = cursor.getString(columnIndex);
+        }
+        cursor.close();
+        return filePath;
     }
 }

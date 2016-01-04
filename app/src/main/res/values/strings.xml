@@ -44,7 +44,7 @@
     </string-array>
 
     <string name="error_dialog_pos_button_text">Got it</string>
-    <string name="error_dialog_neg_button_text">Retry</string>
+    <string name="error_dialog_neg_button_text">Aight</string>
     <string name="error_dialog_general_title">Something went wrong</string>
     <string name="error_dialog_general_body">Don\'t look at me. It\'s not my fault.</string>
 
@@ -56,6 +56,10 @@
     <string name="error_object_not_found_body">Looks like the thing you want doesn\'t
         exist. Fuck if I know what happened to it. </string>
 
+    <string name="error_dialog_no_camera_title">No Camera :(</string>
+    <string name="error_dialog_no_camera_body">Looks like your device doesn\'t have a camera to take
+        pictures with. This feature requires that you have a hardware camera</string>
+
     <string name="alert_dialog_new_canvas_title">Fill Canvas?</string>
     <string name="alert_dialog_new_canvas_body">Selecting a new Canvas color will erase
         any drawing you currently have.</string>
@@ -66,10 +70,13 @@
     <string name="alert_dialog_save_exit">Save And Exit</string>
     <string name="alert_dialog_cancel">Cancel</string>
 
+    <string name="alert_dialog_saving_in_progress">Saving...</string>
+
     <string name="view_options_menu_cancel">Cancel</string>
     <string name="view_options_menu_accept">Done</string>
     <string name="view_options_menu_edit_text">Text</string>
     <string name="view_options_menu_edit_color">Color</string>
     <string name="view_options_menu_edit_import">Import</string>
+    <string name="view_options_menu_edit_camera">Camera</string>
 
 </resources>

@@ -62,9 +62,13 @@ public class Circle {
 
     public void setCenterX(float x) {
         centerX = x;
+        boundingRect.left = centerX - radius;
+        boundingRect.right = centerX + radius;
     }
 
     public void setCenterY(float y) {
         centerY = y;
+        boundingRect.top = centerY - radius;
+        boundingRect.bottom = centerY + radius;
     }
 }

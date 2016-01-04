@@ -1,6 +1,7 @@
 package milespeele.canvas.event;
 
 import android.content.Intent;
+import android.net.Uri;
 
 import java.io.InputStream;
 
@@ -9,9 +10,10 @@ import java.io.InputStream;
  */
 public class EventBitmapChosen {
 
-    public Intent data;
+    public Uri data;
+    public String path;
 
-    public EventBitmapChosen(Intent data) {
+    public EventBitmapChosen(Uri data) {
         this.data = data;
     }
 }

@@ -4,8 +4,6 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.util.Log;
 
-import milespeele.canvas.drawing.DrawingPoint;
-
 /**
  * Created by milespeele on 7/3/15.
  */
@@ -25,21 +23,6 @@ public class Logg {
             Log.d(LOG_TAG, "Argument to Logg is null");
         }
         builder.setLength(0);
-    }
-
-    public static void log(DrawingPoint point) {
-        log(point.x, point.y);
-    }
-
-    public static void log(DrawingPoint... points) {
-        for (DrawingPoint point: points) {
-            builder.append("POINT ");
-            builder.append(String.valueOf(point.x));
-            builder.append(", ");
-            builder.append(String.valueOf(point.y));
-            builder.append(", ");
-        }
-        mainLog(builder.toString());
     }
 
     public static void log(Double... doubles) {

@@ -6,6 +6,7 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.Path;
 import android.transition.ArcMotion;
 import android.transition.ChangeBounds;
@@ -39,7 +40,7 @@ public class TransitionFabToDialog extends ChangeBounds {
 
     @Override
     public Animator createAnimator(ViewGroup sceneRoot, TransitionValues startValues, TransitionValues endValues) {
-        int startColor = context.getResources().getColor(R.color.accent);
+        int startColor = Color.WHITE;
         int endColor = context.getResources().getColor(R.color.primary_dark);
 
         List<View> views = getTargets();
@@ -113,12 +114,8 @@ public class TransitionFabToDialog extends ChangeBounds {
         return animatorSet;
     }
 
-    public void disableView(View v) {
+    private void disableView(View v) {
         v.setEnabled(false);
-
-        if (v instanceof ViewCanvasSurface) {
-            v.setOnTouchListener(null);
-        }
 
         if (v instanceof ViewGroup) {
             ViewGroup vg = (ViewGroup) v;

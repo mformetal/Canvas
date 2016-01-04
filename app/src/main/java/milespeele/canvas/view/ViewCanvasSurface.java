@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.os.Build;
+import android.os.Looper;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -122,6 +123,7 @@ public class ViewCanvasSurface extends SurfaceView
         private final Object mRunLock = new Object();
 
         public DrawingThread(SurfaceHolder holder) {
+            super("drawingThread");
             mSurfaceHolder = holder;
         }
 

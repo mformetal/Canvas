@@ -7,14 +7,18 @@ import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.PersistableBundle;
+import android.provider.MediaStore;
 import android.support.design.widget.Snackbar;
-import android.transition.Slide;
-import android.view.Gravity;
 import android.view.View;
 
-import java.lang.ref.WeakReference;
+import java.io.File;
+import java.io.IOException;
 
 import javax.inject.Inject;
 
@@ -31,7 +35,6 @@ import milespeele.canvas.fragment.FragmentColorPicker;
 import milespeele.canvas.fragment.FragmentDrawer;
 import milespeele.canvas.fragment.FragmentFilename;
 import milespeele.canvas.fragment.FragmentText;
-import milespeele.canvas.parse.Masterpiece;
 import milespeele.canvas.parse.ParseUtils;
 import milespeele.canvas.transition.TransitionHelper;
 import milespeele.canvas.util.ErrorDialog;
@@ -39,7 +42,6 @@ import milespeele.canvas.util.FileUtils;
 import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.NetworkUtils;
 import milespeele.canvas.view.ViewFab;
-import milespeele.canvas.view.ViewOptionsMenu;
 import milespeele.canvas.view.ViewRoundedFrameLayout;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
@@ -52,13 +54,15 @@ public class ActivityHome extends ActivityBase {
     private final static String TAG_FRAGMENT_FILENAME = "name";
     private final static String TAG_FRAGMENT_BRUSH = "brush";
     private final static String TAG_FRAGMENT_TEXT = "text";
-    private final static int REQUEST_IMPORT_CODE = 1;
+    private final static int REQUEST_IMPORT_CODE = 2001;
+    private final static int REQUEST_CAMERA_CODE = 2002;
 
     @Inject ParseUtils parseUtils;
     @Inject EventBus bus;
 
     private ViewRoundedFrameLayout fabFrame;
     private FragmentManager manager;
+    private String filePath;
 
     private int count;
 
@@ -82,6 +86,18 @@ public class ActivityHome extends ActivityBase {
     }
 
     @Override
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+        super.onSaveInstanceState(outState, outPersistentState);
+        outState.putString("filePath", filePath);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        filePath = savedInstanceState.getString("filePath");
+    }
+
+    @Override
     public void onBackPressed() {
         if (count == 0) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this)
@@ -97,7 +113,7 @@ public class ActivityHome extends ActivityBase {
                     });
             builder.create().show();
         } else {
-            // UGLY, but popBackStack() results in a weird exception
+            // UGLY, but popBackStack() results in a weird exception on certain devices
             // https://code.google.com/p/android/issues/detail?id=82832
             count--;
 
@@ -112,17 +128,25 @@ public class ActivityHome extends ActivityBase {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
             if (requestCode == REQUEST_IMPORT_CODE) {
-                if (data != null) {
-                    bus.post(new EventBitmapChosen(data));
-                }
+                bus.post(new EventBitmapChosen(data.getData()));
+                return;
+            }
+        }
+
+        if (resultCode == RESULT_OK) {
+            if (requestCode == REQUEST_CAMERA_CODE) {
+                Uri uri = FileUtils.addFileToGallery(this, filePath);
+                bus.post(new EventBitmapChosen(uri));
+            } else {
+                ErrorDialog.createDialogFromCode(this, ErrorDialog.GENERAL);
             }
         }
     }
 
-    public void saveAndExit() {
+    private void saveAndExit() {
         ProgressDialog dialog = new ProgressDialog(this);
         dialog.setIndeterminate(true);
-        dialog.setMessage("Saving...");
+        dialog.setMessage(getResources().getString(R.string.alert_dialog_saving_in_progress));
         dialog.show();
 
         FragmentDrawer fragmentDrawer = (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
@@ -139,6 +163,7 @@ public class ActivityHome extends ActivityBase {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public void onEvent(EventParseError eventParseError) {
         ErrorDialog.createDialogFromCode(this, eventParseError.getErrorCode()).show();
     }
@@ -170,7 +195,7 @@ public class ActivityHome extends ActivityBase {
         }
     }
 
-    public void showBrushChooser(View view) {
+    private void showBrushChooser(View view) {
         FragmentDrawer frag = (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
         if (frag != null) {
             FragmentBrushPicker picker = FragmentBrushPicker.newInstance(frag.getRootView().getPaint());
@@ -185,7 +210,7 @@ public class ActivityHome extends ActivityBase {
         }
     }
 
-    public void showStrokeColorChooser(View view, boolean toFill) {
+    private void showStrokeColorChooser(View view, boolean toFill) {
         FragmentDrawer frag = (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
         if (frag != null) {
             FragmentColorPicker picker = FragmentColorPicker
@@ -201,7 +226,7 @@ public class ActivityHome extends ActivityBase {
         }
     }
 
-    public void showTextFragment(View fab) {
+    private void showTextFragment(View fab) {
         FragmentText text = FragmentText.newInstance();
 
         TransitionHelper.makeFabDialogTransitions(this, fab, fabFrame, text);
@@ -213,7 +238,7 @@ public class ActivityHome extends ActivityBase {
         count++;
     }
 
-    public void showFilenameFragment(View view) {
+    private void showFilenameFragment(View view) {
         FragmentFilename filename = FragmentFilename.newInstance();
 
         TransitionHelper.makeFabDialogTransitions(ActivityHome.this, view, fabFrame, filename);
@@ -225,8 +250,36 @@ public class ActivityHome extends ActivityBase {
         count++;
     }
 
-    public void onOptionsMenuButtonClicked(View view) {
-        showStrokeColorChooser(null, false);
+    private void showGalleryChooser() {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(intent, REQUEST_IMPORT_CODE);
+    }
+
+    private void showCamera() {
+        if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
+            Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+                File photoFile = null;
+                try {
+                    photoFile = FileUtils.createPhotoFile(this);
+                    filePath = photoFile.getAbsolutePath();
+                } catch (IOException e) {
+                    Logg.log(e);
+                    ErrorDialog.createDialogFromCode(this, ErrorDialog.GENERAL);
+                }
+
+                if (photoFile != null) {
+                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
+                    startActivityForResult(takePictureIntent, REQUEST_CAMERA_CODE);
+                }
+
+                return;
+            }
+        }
+
+        ErrorDialog.createDialogFromCode(this, ErrorDialog.NO_CAMERA);
     }
 
     public void onFabMenuButtonClicked(View view) {
@@ -260,10 +313,10 @@ public class ActivityHome extends ActivityBase {
                 builder.create().show();
                 break;
             case R.id.menu_import:
-                Intent intent = new Intent();
-                intent.setType("image/*");
-                intent.setAction(Intent.ACTION_GET_CONTENT);
-                startActivityForResult(intent, REQUEST_IMPORT_CODE);
+                showGalleryChooser();
+                break;
+            case R.id.menu_camera:
+                showCamera();
                 break;
         }
     }
@@ -298,11 +351,12 @@ public class ActivityHome extends ActivityBase {
                         }
                     }
                     break;
-                case IMPORT:
-                    Intent intent = new Intent();
-                    intent.setType("image/*");
-                    intent.setAction(Intent.ACTION_GET_CONTENT);
-                    startActivityForResult(intent, REQUEST_IMPORT_CODE);
+                case PICTURE:
+                    if (view.getId() == R.id.view_options_menu_1) {
+                        showCamera();
+                    } else {
+                        showGalleryChooser();
+                    }
                     break;
             }
         }

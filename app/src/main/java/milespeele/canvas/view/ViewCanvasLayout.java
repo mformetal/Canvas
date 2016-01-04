@@ -15,6 +15,7 @@ import android.util.Property;
 import android.view.MotionEvent;
 import android.view.SoundEffectConstants;
 import android.view.View;
+import android.view.ViewTreeObserver;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -78,16 +79,9 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
     @Override
     protected boolean drawChild(Canvas canvas, View child, long drawingTime) {
         if (shadowPaint.getAlpha() != 0) {
-            canvas.save();
-            canvas.drawPaint(shadowPaint);
-            canvas.restore();
-
             int alpha = shadowPaint.getAlpha();
-            if (child == fabMenu) {
-                for (int x = 0; x < fabMenu.getChildCount(); x++) {
-                    fabMenu.getChildAt(x).setAlpha((ViewUtils.MAX_ALPHA - alpha) / ViewUtils.MAX_ALPHA);
-                }
-            }
+            float viewAlpha = alpha / ViewUtils.MAX_ALPHA;
+            fabMenu.setAlpha(1.0f - viewAlpha);
         }
         return super.drawChild(canvas, child, drawingTime);
     }
@@ -96,40 +90,22 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         final float x = ev.getX(), y = ev.getY();
 
-        if (fabFrame.getVisibility() == View.VISIBLE &&
-                !fabFrame.isAnimating()) {
-            drawer.setOnTouchListener(null);
+        if (fabFrame.getVisibility() == View.VISIBLE && !fabFrame.isAnimating()) {
+            drawer.setEnabled(false);
+            fabMenu.setEnabled(false);
             fabFrame.getHitRect(hitRect);
+
             if (!hitRect.contains((int) x, (int) y)) {
                 if (getContext() instanceof Activity) {
                     playSoundEffect(SoundEffectConstants.CLICK);
                     ((Activity) getContext()).onBackPressed();
                 }
             }
-            fabMenu.setEnabled(false);
             return false;
         }
 
-        fabMenu.setEnabled(true);
-
-        if (fabMenu.isVisible()) {
-            if (menuContainsTouch(ev)) {
-                drawer.setEnabled(false);
-                return false;
-            }
-        }
-
         drawer.setEnabled(true);
-
-        return false;
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent ev) {
-        if (menuContainsTouch(ev)) {
-            ev.offsetLocation(0, -(getHeight() - fabMenu.getHeight()));
-            fabMenu.onTouchEvent(ev);
-        }
+        fabMenu.setEnabled(true);
 
         return false;
     }
@@ -169,10 +145,7 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
         if (setVisible) {
             optionsMenu.setState(state);
         } else {
-            ObjectAnimator.ofFloat(optionsMenu, View.TRANSLATION_Y,
-                    optionsMenu.getTranslationY() + optionsMenu.getHeight())
-                    .setDuration(350)
-                    .start();
+            ViewUtils.gone(optionsMenu);
         }
     }
 
@@ -224,32 +197,32 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
 
     public Paint getPaint() { return drawer.getCurrentPaint(); }
 
-    public void redo() {
+    private void redo() {
         if (!drawer.redo()) {
             Snackbar.make(this, R.string.snackbar_no_more_redo, Snackbar.LENGTH_SHORT).show();
         }
     }
 
-    public void undo() {
+    private void undo() {
         if (!drawer.undo()) {
             Snackbar.make(this, R.string.snackbar_no_more_undo, Snackbar.LENGTH_SHORT).show();
         }
     }
 
-    public void ink() {
+    private void ink() {
         drawer.ink();
     }
 
-    public void erase() {
+    private void erase() {
         drawer.erase();
     }
 
-    public void setPaintAlpha(int alpha) {
+    private void setPaintAlpha(int alpha) {
         shadowPaint.setAlpha(alpha);
         invalidate();
     }
 
-    public int getPaintAlpha() {
+    private int getPaintAlpha() {
         return shadowPaint.getAlpha();
     }
 
