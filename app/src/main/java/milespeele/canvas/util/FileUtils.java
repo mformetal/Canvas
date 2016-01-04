@@ -115,11 +115,12 @@ public class FileUtils {
         );
     }
 
-    public static void addFileToGallery(Context context, String filePath) {
+    public static Uri addFileToGallery(Context context, String filePath) {
         Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
         File f = new File(filePath);
         Uri contentUri = Uri.fromFile(f);
         mediaScanIntent.setData(contentUri);
         context.sendBroadcast(mediaScanIntent);
+        return contentUri;
     }
 }

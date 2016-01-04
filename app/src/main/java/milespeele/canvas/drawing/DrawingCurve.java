@@ -3,6 +3,7 @@ package milespeele.canvas.drawing;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -195,11 +196,11 @@ public class DrawingCurve {
 
                 changeState(State.DRAW);
 
-                mTextLayout = null;
-
                 ViewUtils.setIdentityMatrix(mMatrix);
 
                 // push text to history
+
+                mTextLayout = null;
                 break;
             case PICTURE:
                 mListener.onDrawingCurveOptionsMenuVisibilityRequest(false, null);
@@ -230,7 +231,7 @@ public class DrawingCurve {
     }
 
     public void drawToSurfaceView(Canvas canvas) {
-        if (isSafeToDraw && mBitmap != null && canvas != null) {
+        if (isSafeToDraw && canvas != null) {
             canvas.drawBitmap(mBitmap, 0, 0, null);
 
             switch (mState) {

@@ -113,7 +113,7 @@ public class ActivityHome extends ActivityBase {
                     });
             builder.create().show();
         } else {
-            // UGLY, but popBackStack() results in a weird exception
+            // UGLY, but popBackStack() results in a weird exception on certain devices
             // https://code.google.com/p/android/issues/detail?id=82832
             count--;
 
@@ -134,8 +134,8 @@ public class ActivityHome extends ActivityBase {
 
         if (resultCode == RESULT_OK) {
             if (requestCode == REQUEST_CAMERA_CODE) {
-                FileUtils.addFileToGallery(this, filePath);
-                bus.post(new EventBitmapChosen(Uri.fromFile(new File(filePath))));
+                Uri uri = FileUtils.addFileToGallery(this, filePath);
+                bus.post(new EventBitmapChosen(uri));
             } else {
                 ErrorDialog.createDialogFromCode(this, ErrorDialog.GENERAL);
             }
@@ -162,6 +162,7 @@ public class ActivityHome extends ActivityBase {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public void onEvent(EventParseError eventParseError) {
         ErrorDialog.createDialogFromCode(this, eventParseError.getErrorCode()).show();
     }
