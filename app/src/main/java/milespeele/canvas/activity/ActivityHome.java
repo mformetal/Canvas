@@ -54,8 +54,8 @@ public class ActivityHome extends ActivityBase {
     private final static String TAG_FRAGMENT_FILENAME = "name";
     private final static String TAG_FRAGMENT_BRUSH = "brush";
     private final static String TAG_FRAGMENT_TEXT = "text";
-    private final static int REQUEST_IMPORT_CODE = 1;
-    private final static int REQUEST_CAMERA_CODE = 2;
+    private final static int REQUEST_IMPORT_CODE = 2001;
+    private final static int REQUEST_CAMERA_CODE = 2002;
 
     @Inject ParseUtils parseUtils;
     @Inject EventBus bus;
@@ -129,6 +129,7 @@ public class ActivityHome extends ActivityBase {
         if (resultCode == RESULT_OK) {
             if (requestCode == REQUEST_IMPORT_CODE) {
                 bus.post(new EventBitmapChosen(data.getData()));
+                return;
             }
         }
 

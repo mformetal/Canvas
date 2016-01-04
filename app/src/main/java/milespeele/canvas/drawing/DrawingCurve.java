@@ -16,8 +16,6 @@ import android.os.*;
 import android.text.TextPaint;
 import android.view.MotionEvent;
 
-import org.w3c.dom.Text;
-
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -79,6 +77,7 @@ public class DrawingCurve {
 
     @Inject Datastore store;
     @Inject EventBus bus;
+    private BitmapCache cache;
 
     private DrawingCurveListener mListener;
     public interface DrawingCurveListener {
@@ -92,6 +91,8 @@ public class DrawingCurve {
         bus.register(this);
 
         mContext = context;
+
+        cache = new BitmapCache(mContext);
 
         Point size = new Point();
         ((Activity) context).getWindowManager().getDefaultDisplay().getSize(size);
@@ -700,6 +701,8 @@ public class DrawingCurve {
                 mCanvas.restore();
 
                 changeState(State.DRAW);
+
+                cache.set("TEST", mPhotoBitmap);
 
                 mMatrix.getValues(values);
                 mAllHistory.push(new BitmapDrawHistory(mPhotoBitmapUri, values));

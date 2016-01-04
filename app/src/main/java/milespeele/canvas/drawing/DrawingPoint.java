@@ -3,7 +3,7 @@ package milespeele.canvas.drawing;
 /**
  * Created by mbpeele on 11/29/15.
  */
-public class DrawingPoint {
+class DrawingPoint {
 
     public float x, y;
     public long time;
