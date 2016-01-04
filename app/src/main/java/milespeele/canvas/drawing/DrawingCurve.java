@@ -13,8 +13,8 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.PointF;
 import android.net.Uri;
-import android.os.Handler;
-import android.os.SystemClock;
+import android.os.*;
+import android.os.Process;
 import android.text.DynamicLayout;
 import android.text.Layout;
 import android.text.TextPaint;
@@ -53,7 +53,6 @@ public class DrawingCurve {
         PICTURE
     }
 
-    private DynamicLayout mTextLayout;
     private Matrix mMatrix, mSavedMatrix;
     private Bitmap mBitmap, mCachedBitmap, mPhotoBitmap;
     private Canvas mCanvas;
@@ -61,6 +60,7 @@ public class DrawingCurve {
     private Stack<Object> mRedoneHistory, mAllHistory;
     private Paint mPaint, mInkPaint;
     private TextPaint mTextPaint;
+    private String mText;
     private State mState = State.DRAW;
     private Context mContext;
     private PointF mStartPoint, mMidPoint;
@@ -162,70 +162,6 @@ public class DrawingCurve {
         isSafeToDraw = true;
     }
 
-    public void onOptionsMenuCancel() {
-        mAllHistory.pop();
-
-        mListener.onDrawingCurveOptionsMenuVisibilityRequest(false, null);
-        mListener.onDrawingCurveFabMenuVisibilityRequest(true);
-
-        changeState(State.DRAW);
-
-        ViewUtils.setIdentityMatrix(mMatrix);
-
-        switch (mState) {
-            case TEXT:
-                mTextLayout = null;
-                break;
-            case PICTURE:
-                mPhotoBitmap.recycle();
-                mPhotoBitmap = null;
-                break;
-        }
-    }
-
-    public void onOptionsMenuAccept() {
-        switch (mState) {
-            case TEXT:
-                mListener.onDrawingCurveOptionsMenuVisibilityRequest(false, null);
-                mListener.onDrawingCurveFabMenuVisibilityRequest(true);
-
-                mCanvas.save();
-                mCanvas.concat(mMatrix);
-                mTextLayout.draw(mCanvas);
-                mCanvas.restore();
-
-                changeState(State.DRAW);
-
-                ViewUtils.setIdentityMatrix(mMatrix);
-
-                // push text to history
-
-                mTextLayout = null;
-                break;
-            case PICTURE:
-                mListener.onDrawingCurveOptionsMenuVisibilityRequest(false, null);
-                mListener.onDrawingCurveFabMenuVisibilityRequest(true);
-
-                mCanvas.save();
-                mCanvas.concat(mMatrix);
-                mCanvas.drawBitmap(mPhotoBitmap, 0, 0, null);
-                mCanvas.restore();
-
-                changeState(State.DRAW);
-
-                float[] values = new float[9];
-                mMatrix.getValues(values);
-                mAllHistory.push(new DrawingBitmapPair(mPhotoBitmapUri, values));
-
-                ViewUtils.setIdentityMatrix(mMatrix);
-
-                mPhotoBitmapUri = null;
-                mPhotoBitmap.recycle();
-                mPhotoBitmap = null;
-                break;
-        }
-    }
-
     public void setListener(DrawingCurveListener listener) {
         mListener = listener;
     }
@@ -238,7 +174,10 @@ public class DrawingCurve {
                 case TEXT:
                     int count = canvas.save();
                     canvas.concat(mMatrix);
-                    mTextLayout.draw(canvas);
+                    canvas.drawText(mText,
+                            mBitmap.getWidth() / 2 - mTextPaint.measureText(mText) / 2,
+                            mBitmap.getHeight() / 2,
+                            mTextPaint);
                     canvas.restoreToCount(count);
                     break;
                 case INK:
@@ -596,7 +535,7 @@ public class DrawingCurve {
 
     @SuppressWarnings("unused")
     public void onEvent(EventTextChosen eventTextChosen) {
-        String mText = eventTextChosen.text;
+        mText = eventTextChosen.text;
 
         int width = mBitmap.getWidth(), height = mBitmap.getHeight();
 
@@ -604,9 +543,6 @@ public class DrawingCurve {
             case DRAW:
                 TextUtils.adjustTextSize(mTextPaint, mText, height);
                 TextUtils.adjustTextScale(mTextPaint, mText, width, 0, 0);
-
-                mTextLayout = new DynamicLayout(mText, mTextPaint, mBitmap.getWidth(),
-                        Layout.Alignment.ALIGN_CENTER, 0, 0, false);
 
                 changeState(State.TEXT);
 
@@ -616,9 +552,6 @@ public class DrawingCurve {
             case TEXT:
                 TextUtils.adjustTextSize(mTextPaint, mText, height);
                 TextUtils.adjustTextScale(mTextPaint, mText, width, 0, 0);
-
-                mTextLayout = new DynamicLayout(mText, mTextPaint, mBitmap.getWidth(),
-                        Layout.Alignment.ALIGN_CENTER, 0, 0, false);
                 break;
         }
     }
@@ -643,7 +576,6 @@ public class DrawingCurve {
                 break;
             case TEXT:
                 mTextPaint.setColor(color);
-                mTextLayout.getPaint().setColor(color);
                 break;
         }
     }
@@ -696,6 +628,75 @@ public class DrawingCurve {
                     }
                 }
             }
+        }
+    }
+
+    public void onOptionsMenuCancel() {
+        mAllHistory.pop();
+
+        mListener.onDrawingCurveOptionsMenuVisibilityRequest(false, null);
+        mListener.onDrawingCurveFabMenuVisibilityRequest(true);
+
+        changeState(State.DRAW);
+
+        ViewUtils.setIdentityMatrix(mMatrix);
+
+        switch (mState) {
+            case TEXT:
+                mText = null;
+                break;
+            case PICTURE:
+                mPhotoBitmap.recycle();
+                mPhotoBitmap = null;
+                break;
+        }
+    }
+
+    public void onOptionsMenuAccept() {
+        float[] values = new float[9];
+        switch (mState) {
+            case TEXT:
+                mListener.onDrawingCurveOptionsMenuVisibilityRequest(false, null);
+                mListener.onDrawingCurveFabMenuVisibilityRequest(true);
+
+                mCanvas.save();
+                mCanvas.concat(mMatrix);
+                mCanvas.drawText(mText,
+                        mBitmap.getWidth() / 2 - mTextPaint.measureText(mText) / 2,
+                        mBitmap.getHeight() / 2,
+                        mTextPaint);
+                mCanvas.restore();
+
+                changeState(State.DRAW);
+
+                mMatrix.getValues(values);
+
+                ViewUtils.setIdentityMatrix(mMatrix);
+
+                // push text to history
+
+                mText = null;
+                break;
+            case PICTURE:
+                mListener.onDrawingCurveOptionsMenuVisibilityRequest(false, null);
+                mListener.onDrawingCurveFabMenuVisibilityRequest(true);
+
+                mCanvas.save();
+                mCanvas.concat(mMatrix);
+                mCanvas.drawBitmap(mPhotoBitmap, 0, 0, null);
+                mCanvas.restore();
+
+                changeState(State.DRAW);
+
+                mMatrix.getValues(values);
+                mAllHistory.push(new DrawingBitmapPair(mPhotoBitmapUri, values));
+
+                ViewUtils.setIdentityMatrix(mMatrix);
+
+                mPhotoBitmapUri = null;
+                mPhotoBitmap.recycle();
+                mPhotoBitmap = null;
+                break;
         }
     }
 

@@ -6,8 +6,8 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.os.Build;
+import android.os.Looper;
 import android.util.AttributeSet;
-import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -20,7 +20,7 @@ import milespeele.canvas.util.Logg;
  * Created by Miles Peele on 10/2/2015.
  */
 public class ViewCanvasSurface extends SurfaceView
-        implements SurfaceHolder.Callback {
+        implements SurfaceHolder.Callback, View.OnTouchListener {
 
     private DrawingCurve mDrawingCurve;
     private DrawingThread mDrawingThread;
@@ -46,13 +46,14 @@ public class ViewCanvasSurface extends SurfaceView
         init();
     }
 
-    private void init() {
+    public void init() {
         mDrawingCurve = new DrawingCurve(getContext());
 
         setLayerType(LAYER_TYPE_NONE, null);
 
         setWillNotDraw(false);
         setSaveEnabled(true);
+        setOnTouchListener(this);
 
         getHolder().addCallback(this);
     }
@@ -76,8 +77,8 @@ public class ViewCanvasSurface extends SurfaceView
     }
 
     @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        return isEnabled() && mDrawingCurve.onTouchEvent(event);
+    public boolean onTouch(View v, MotionEvent event) {
+        return mDrawingCurve.onTouchEvent(event);
     }
 
     public void setListener(DrawingCurve.DrawingCurveListener listener) {
@@ -122,6 +123,7 @@ public class ViewCanvasSurface extends SurfaceView
         private final Object mRunLock = new Object();
 
         public DrawingThread(SurfaceHolder holder) {
+            super("drawingThread");
             mSurfaceHolder = holder;
         }
 
