@@ -12,7 +12,7 @@ import milespeele.canvas.R;
 /**
  * Created by milespeele on 7/14/15.
  */
-public abstract class ActivityBase extends AppCompatActivity {
+public abstract class ActivityBase extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -1,20 +1,14 @@
 package milespeele.canvas.fragment;
 
-import android.app.Activity;
-import android.app.Fragment;
 import android.graphics.Paint;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import javax.inject.Inject;
-
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import de.greenrobot.event.EventBus;
-import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
 import milespeele.canvas.event.EventBrushChosen;
 import milespeele.canvas.view.ViewBrushPickerLayout;
@@ -22,11 +16,9 @@ import milespeele.canvas.view.ViewBrushPickerLayout;
 /**
  * Created by milespeele on 7/13/15.
  */
-public class FragmentBrushPicker extends Fragment implements View.OnClickListener {
+public class FragmentBrushPicker extends FragmentBase implements View.OnClickListener {
 
     @Bind(R.id.fragment_brush_picker_view) ViewBrushPickerLayout root;
-
-    @Inject EventBus bus;
 
     private static final Paint curPaint = new Paint();
 
@@ -35,12 +27,6 @@ public class FragmentBrushPicker extends Fragment implements View.OnClickListene
     public static FragmentBrushPicker newInstance(Paint paint) {
         curPaint.set(paint);
         return new FragmentBrushPicker();
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        ((MainApp) activity.getApplicationContext()).getApplicationComponent().inject(this);
     }
 
     @Override

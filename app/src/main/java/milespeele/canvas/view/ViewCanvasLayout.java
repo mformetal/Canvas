@@ -197,32 +197,32 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
 
     public Paint getPaint() { return drawer.getCurrentPaint(); }
 
-    public void redo() {
+    private void redo() {
         if (!drawer.redo()) {
             Snackbar.make(this, R.string.snackbar_no_more_redo, Snackbar.LENGTH_SHORT).show();
         }
     }
 
-    public void undo() {
+    private void undo() {
         if (!drawer.undo()) {
             Snackbar.make(this, R.string.snackbar_no_more_undo, Snackbar.LENGTH_SHORT).show();
         }
     }
 
-    public void ink() {
+    private void ink() {
         drawer.ink();
     }
 
-    public void erase() {
+    private void erase() {
         drawer.erase();
     }
 
-    public void setPaintAlpha(int alpha) {
+    private void setPaintAlpha(int alpha) {
         shadowPaint.setAlpha(alpha);
         invalidate();
     }
 
-    public int getPaintAlpha() {
+    private int getPaintAlpha() {
         return shadowPaint.getAlpha();
     }
 

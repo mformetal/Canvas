@@ -325,7 +325,7 @@ public class DrawingCurve {
         mLastY = y;
     }
 
-    public void onPointerDown(MotionEvent event) {
+    private void onPointerDown(MotionEvent event) {
         switch (mState) {
             case TEXT:
             case PICTURE:
@@ -526,7 +526,7 @@ public class DrawingCurve {
     }
 
     @SuppressWarnings("ResourceType")
-    public void redraw() {
+    private void redraw() {
         for (Object object: mAllHistory) {
             if (object instanceof DrawingPoints) {
                 DrawingPoints points = (DrawingPoints) object;
@@ -558,6 +558,7 @@ public class DrawingCurve {
         }
     }
 
+    @SuppressWarnings("unused")
     public void onEvent(EventTextChosen eventTextChosen) {
         String mText = eventTextChosen.text;
 
@@ -591,6 +592,7 @@ public class DrawingCurve {
         }
     }
 
+    @SuppressWarnings("unused")
     public void onEvent(EventColorChosen eventColorChosen) {
         int color = eventColorChosen.color;
 
@@ -615,6 +617,7 @@ public class DrawingCurve {
         }
     }
 
+    @SuppressWarnings("unused")
     public void onEvent(EventBrushChosen eventBrushChosen) {
         Paint paint = eventBrushChosen.paint;
 
@@ -626,6 +629,7 @@ public class DrawingCurve {
         STROKE_WIDTH = paint.getStrokeWidth();
     }
 
+    @SuppressWarnings("unused")
     public void onEvent(EventBitmapChosen eventBitmapChosen) {
         if (mPhotoBitmap != null) {
             mPhotoBitmap.recycle();

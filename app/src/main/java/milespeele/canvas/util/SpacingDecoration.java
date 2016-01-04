@@ -10,7 +10,7 @@ public class SpacingDecoration extends RecyclerView.ItemDecoration {
     private Rect outRect;
 
     public SpacingDecoration(int space) {
-        this.mSpace = space;
+        this.mSpace = 40;
     }
 
     @Override

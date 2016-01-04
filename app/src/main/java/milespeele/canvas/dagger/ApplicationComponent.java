@@ -5,13 +5,8 @@ import javax.inject.Singleton;
 import dagger.Component;
 import milespeele.canvas.activity.ActivityHome;
 import milespeele.canvas.drawing.DrawingCurve;
-import milespeele.canvas.fragment.FragmentBrushPicker;
-import milespeele.canvas.fragment.FragmentColorPicker;
-import milespeele.canvas.fragment.FragmentFilename;
-import milespeele.canvas.fragment.FragmentText;
+import milespeele.canvas.fragment.FragmentBase;
 import milespeele.canvas.parse.ParseUtils;
-import milespeele.canvas.view.ViewCanvasLayout;
-import milespeele.canvas.view.ViewCanvasSurface;
 import milespeele.canvas.view.ViewFabMenu;
 
 /**
@@ -28,8 +23,5 @@ public interface ApplicationComponent {
 
     void inject(ViewFabMenu viewFabMenu);
 
-    void inject(FragmentColorPicker fragmentColorPicker);
-    void inject(FragmentBrushPicker fragmentBrushPicker);
-    void inject(FragmentFilename fragmentFilename);
-    void inject(FragmentText fragmentText);
+    void inject(FragmentBase fragment);
 }

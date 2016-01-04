@@ -141,7 +141,7 @@ public class ActivityHome extends ActivityBase {
         }
     }
 
-    public void saveAndExit() {
+    private void saveAndExit() {
         ProgressDialog dialog = new ProgressDialog(this);
         dialog.setIndeterminate(true);
         dialog.setMessage(getResources().getString(R.string.alert_dialog_saving_in_progress));
@@ -192,7 +192,7 @@ public class ActivityHome extends ActivityBase {
         }
     }
 
-    public void showBrushChooser(View view) {
+    private void showBrushChooser(View view) {
         FragmentDrawer frag = (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
         if (frag != null) {
             FragmentBrushPicker picker = FragmentBrushPicker.newInstance(frag.getRootView().getPaint());
@@ -207,7 +207,7 @@ public class ActivityHome extends ActivityBase {
         }
     }
 
-    public void showStrokeColorChooser(View view, boolean toFill) {
+    private void showStrokeColorChooser(View view, boolean toFill) {
         FragmentDrawer frag = (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
         if (frag != null) {
             FragmentColorPicker picker = FragmentColorPicker
@@ -223,7 +223,7 @@ public class ActivityHome extends ActivityBase {
         }
     }
 
-    public void showTextFragment(View fab) {
+    private void showTextFragment(View fab) {
         FragmentText text = FragmentText.newInstance();
 
         TransitionHelper.makeFabDialogTransitions(this, fab, fabFrame, text);
@@ -235,7 +235,7 @@ public class ActivityHome extends ActivityBase {
         count++;
     }
 
-    public void showFilenameFragment(View view) {
+    private void showFilenameFragment(View view) {
         FragmentFilename filename = FragmentFilename.newInstance();
 
         TransitionHelper.makeFabDialogTransitions(ActivityHome.this, view, fabFrame, filename);

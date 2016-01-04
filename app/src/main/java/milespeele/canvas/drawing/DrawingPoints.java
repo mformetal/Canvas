@@ -7,7 +7,7 @@ import java.util.ArrayList;
 /**
  * Created by mbpeele on 11/23/15.
  */
-public class DrawingPoints extends ArrayList<DrawingPoint> {
+class DrawingPoints extends ArrayList<DrawingPoint> {
 
     public float[] redrawPts = new float[0];
 

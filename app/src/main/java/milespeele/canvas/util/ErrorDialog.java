@@ -28,8 +28,8 @@ public class ErrorDialog extends Dialog implements View.OnClickListener, DialogI
     private String titleText;
     private String bodyText;
 
-    protected ErrorDialog(Context context,  String titleText, String bodyText, int theme) {
-        super(context, theme);
+    protected ErrorDialog(Context context, String titleText, String bodyText) {
+        super(context, R.style.DialogTheme);
         this.titleText = titleText;
         this.bodyText = bodyText;
         getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
@@ -64,29 +64,29 @@ public class ErrorDialog extends Dialog implements View.OnClickListener, DialogI
             case ParseException.OBJECT_NOT_FOUND:
                 return new ErrorDialog(context,
                         context.getResources().getString(R.string.error_object_not_found_title),
-                        context.getResources().getString(R.string.error_object_not_found_body),
-                        R.style.DialogTheme);
+                        context.getResources().getString(R.string.error_object_not_found_body)
+                );
             case NO_INTERNET:
             case ParseException.CONNECTION_FAILED:
                 return new ErrorDialog(context,
                         context.getResources().getString(R.string.error_no_internet_title),
-                        context.getResources().getString(R.string.error_no_internet_body),
-                        R.style.DialogTheme);
+                        context.getResources().getString(R.string.error_no_internet_body)
+                );
             case GENERAL:
                 return new ErrorDialog(context,
                         context.getResources().getString(R.string.error_dialog_general_title),
-                        context.getResources().getString(R.string.error_dialog_general_body),
-                        R.style.DialogTheme);
+                        context.getResources().getString(R.string.error_dialog_general_body)
+                );
             case NO_CAMERA:
                 return new ErrorDialog(context,
                         context.getResources().getString(R.string.error_dialog_no_camera_title),
-                        context.getResources().getString(R.string.error_dialog_no_camera_body),
-                        R.style.DialogTheme);
+                        context.getResources().getString(R.string.error_dialog_no_camera_body)
+                );
             default:
                 return new ErrorDialog(context,
                         context.getResources().getString(R.string.error_dialog_general_title),
-                        context.getResources().getString(R.string.error_dialog_general_body),
-                        R.style.DialogTheme);
+                        context.getResources().getString(R.string.error_dialog_general_body)
+                );
         }
     }
 }

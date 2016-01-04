@@ -1,6 +1,5 @@
 package milespeele.canvas.fragment;
 
-import android.app.Fragment;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -17,7 +16,7 @@ import milespeele.canvas.view.ViewFab;
 import milespeele.canvas.view.ViewFabMenu;
 import milespeele.canvas.view.ViewOptionsMenu;
 
-public class FragmentDrawer extends Fragment implements
+public class FragmentDrawer extends FragmentBase implements
         ViewFabMenu.ViewFabMenuListener, ViewOptionsMenu.ViewOptionsMenuListener {
 
     @Bind(R.id.fragment_drawer_coordinator) ViewCanvasLayout coordinatorLayout;

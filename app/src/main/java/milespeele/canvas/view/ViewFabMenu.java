@@ -286,12 +286,12 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
         mListeners.add(listener);
     }
 
-    public void rotateToggleOpen() {
+    private void rotateToggleOpen() {
         ObjectAnimator.ofFloat(toggle, View.ROTATION,
                 toggle.getRotation(), toggle.getRotation() - 135f).start();
     }
 
-    public void rotateToggleClosed() {
+    private void rotateToggleClosed() {
         ObjectAnimator.ofFloat(toggle, View.ROTATION,
                 toggle.getRotation(), toggle.getRotation() - 135f)
                 .setDuration(HIDE_DIFF + DURATION + DELAY_INCREMENT * buttonsList.size())
@@ -324,7 +324,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
         }
     }
 
-    public void show() {
+    private void show() {
         if (!isMenuShowing && !isAnimating) {
             rotateToggleOpen();
 
@@ -391,7 +391,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
         }
     }
 
-    public void hide() {
+    private void hide() {
         if (isMenuShowing && !isAnimating) {
             rotateToggleClosed();
 
