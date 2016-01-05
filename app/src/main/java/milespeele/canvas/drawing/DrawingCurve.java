@@ -34,8 +34,6 @@ import milespeele.canvas.util.PaintStyles;
 import milespeele.canvas.util.TextUtils;
 import milespeele.canvas.util.ViewUtils;
 import rx.Observable;
-import rx.Subscriber;
-import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
 /**
@@ -282,6 +280,7 @@ public class DrawingCurve {
                         midpoint(mMidPoint, event);
                         mMode = ZOOM;
                     }
+                    mLastRotation = angle(event);
                 }
                 break;
         }
@@ -358,7 +357,7 @@ public class DrawingCurve {
         switch (mState) {
             case ERASE:
             case DRAW:
-                mAllHistory.push(new NormalDrawHistory(mStroke, mStroke.redrawPaint));
+                mAllHistory.push(new NormalDrawHistory(mStroke, mStroke.paint));
                 mStroke.clear();
                 break;
             case INK:
@@ -414,8 +413,7 @@ public class DrawingCurve {
         } else {
             CanvasPoint prevPoint = mStroke.peek();
 
-            if (Math.abs(prevPoint.x - x) < TOLERANCE &&
-                    Math.abs(prevPoint.y - y) < TOLERANCE) {
+            if (Math.abs(prevPoint.x - x) < TOLERANCE && Math.abs(prevPoint.y - y) < TOLERANCE) {
                 return;
             }
 
@@ -551,7 +549,7 @@ public class DrawingCurve {
         changeState(State.DRAW);
 
         mPaint.set(paint);
-        mStroke.redrawPaint.set(mPaint);
+        mStroke.paint.set(mPaint);
 
         STROKE_WIDTH = paint.getStrokeWidth();
     }
@@ -681,12 +679,12 @@ public class DrawingCurve {
     private void setPaintColor(int color) {
         mTextPaint.setColor(color);
         mPaint.setColor(color);
-        mStroke.redrawPaint.setColor(color);
+        mStroke.paint.setColor(color);
     }
 
     private void setPaintThickness(float floater) {
         mPaint.setStrokeWidth(floater);
-        mStroke.redrawPaint.setStrokeWidth(floater);
+        mStroke.paint.setStrokeWidth(floater);
     }
 
     private boolean eventCoordsInRange(int x, int y) {

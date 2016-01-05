@@ -9,11 +9,11 @@ import java.util.ArrayList;
  */
 class Stroke extends ArrayList<CanvasPoint> {
 
-    public Paint redrawPaint;
+    public Paint paint;
 
     public Stroke(Paint paint) {
         super();
-        redrawPaint = new Paint(paint);
+        this.paint = new Paint(paint);
     }
 
     public CanvasPoint peek() {

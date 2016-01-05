@@ -62,5 +62,4 @@ class NormalDrawHistory {
         }
         return pts;
     }
-
 }
