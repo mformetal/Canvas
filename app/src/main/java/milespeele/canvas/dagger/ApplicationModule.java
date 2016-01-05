@@ -55,7 +55,7 @@ public class ApplicationModule {
 
     @Provides
     @Singleton
-    public Cache getCache(Application mApplication) {
+    public LruCache getCache(Application mApplication) {
         return new LruCache(mApplication.getApplicationContext());
     }
 

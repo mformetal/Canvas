@@ -16,6 +16,9 @@ import android.os.*;
 import android.text.TextPaint;
 import android.view.MotionEvent;
 
+import com.squareup.picasso.Cache;
+import com.squareup.picasso.LruCache;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,6 +39,10 @@ import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.PaintStyles;
 import milespeele.canvas.util.TextUtils;
 import milespeele.canvas.util.ViewUtils;
+import rx.Observable;
+import rx.Scheduler;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
 /**
@@ -80,7 +87,7 @@ public class DrawingCurve {
 
     @Inject Datastore store;
     @Inject EventBus bus;
-    private BitmapCache cache;
+    @Inject LruCache cache;
 
     private DrawingCurveListener mListener;
     public interface DrawingCurveListener {
@@ -94,8 +101,6 @@ public class DrawingCurve {
         bus.register(this);
 
         mContext = context;
-
-        cache = new BitmapCache(mContext);
 
         Point size = new Point();
         ((Activity) context).getWindowManager().getDefaultDisplay().getSize(size);
@@ -467,69 +472,71 @@ public class DrawingCurve {
 
     @SuppressWarnings("ResourceType")
     private void redraw() {
-        Schedulers.io().createWorker().schedule(() -> {
-            synchronized (mAllHistory) {
-                isSafeToDraw = false;
+        synchronized (mAllHistory) {
+            Observable.from(mAllHistory)
+                    .flatMap(this::redrawObject)
+                    .subscribeOn(Schedulers.newThread())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe();
+        }
+    }
 
-                for (Object object : mAllHistory) {
-                    if (object instanceof DrawingPoints) {
-                        DrawingPoints points = (DrawingPoints) object;
-                        mCanvas.drawLines(points.redrawPts, points.redrawPaint);
-                    } else if (object instanceof BitmapDrawHistory) {
-                        float[] prevMatrixValues = new float[9];
-                        mMatrix.getValues(prevMatrixValues);
+    private Observable redrawObject(Object object) {
+        if (object instanceof DrawingPoints) {
+            DrawingPoints points = (DrawingPoints) object;
+            mCanvas.drawLines(points.redrawPts, points.redrawPaint);
+        } else if (object instanceof BitmapDrawHistory) {
+            float[] prevMatrixValues = new float[9];
+            mMatrix.getValues(prevMatrixValues);
 
-                        BitmapDrawHistory pair = (BitmapDrawHistory) object;
+            BitmapDrawHistory pair = (BitmapDrawHistory) object;
 
-                        Uri uri = pair.uri;
-                        InputStream inputStream = null;
-                        try {
-                            inputStream = mContext.getContentResolver().openInputStream(uri);
-                            Bitmap bitmap = BitmapFactory.decodeStream(inputStream, null, FileUtils.getBitmapOptions(mContext));
+            Uri uri = pair.uri;
 
-//                            Bitmap bitmap = cache.decode(mContext, FileUtils.pathFromUri(mContext, uri));
+            InputStream inputStream = null;
+            try {
+                inputStream = mContext.getContentResolver().openInputStream(uri);
+                Bitmap bitmap = BitmapFactory.decodeStream(inputStream, null, FileUtils.getBitmapOptions(mContext));
 
-                            mMatrix.setValues(pair.matrixValues);
+                mMatrix.setValues(pair.matrixValues);
 
-                            mCanvas.save();
-                            mCanvas.concat(mMatrix);
-                            mCanvas.drawBitmap(bitmap, 0, 0, null);
-                            mCanvas.restore();
+                mCanvas.save();
+                mCanvas.concat(mMatrix);
+                mCanvas.drawBitmap(bitmap, 0, 0, null);
+                mCanvas.restore();
 
-                            mMatrix.setValues(prevMatrixValues);
-                        } catch (FileNotFoundException e) {
-                            Logg.log(e);
-                        } finally {
-                            if (inputStream != null) {
-                                try {
-                                    inputStream.close();
-                                } catch (IOException e) {
-                                    Logg.log(e);
-                                }
-                            }
-                        }
-                    } else if (object instanceof TextDrawHistory) {
-                        TextDrawHistory history = (TextDrawHistory) object;
-                        float[] prevMatrixValues = new float[9];
-                        mMatrix.getValues(prevMatrixValues);
+                mMatrix.setValues(prevMatrixValues);
 
-                        mMatrix.setValues(history.matrixValues);
-
-                        mCanvas.save();
-                        mCanvas.concat(mMatrix);
-                        mCanvas.drawText(history.text,
-                                mBitmap.getWidth() / 2 - history.paint.measureText(history.text) / 2,
-                                mBitmap.getHeight() / 2,
-                                history.paint);
-                        mCanvas.restore();
-
-                        mMatrix.setValues(prevMatrixValues);
+            } catch (FileNotFoundException e) {
+                Logg.log(e);
+            } finally {
+                if (inputStream != null) {
+                    try {
+                        inputStream.close();
+                    } catch (IOException e) {
+                        Logg.log(e);
                     }
                 }
-
-                isSafeToDraw = true;
             }
-        });
+        } else if (object instanceof TextDrawHistory) {
+            TextDrawHistory history = (TextDrawHistory) object;
+            float[] prevMatrixValues = new float[9];
+            mMatrix.getValues(prevMatrixValues);
+
+            mMatrix.setValues(history.matrixValues);
+
+            mCanvas.save();
+            mCanvas.concat(mMatrix);
+            mCanvas.drawText(history.text,
+                    mBitmap.getWidth() / 2 - history.paint.measureText(history.text) / 2,
+                    mBitmap.getHeight() / 2,
+                    history.paint);
+            mCanvas.restore();
+
+            mMatrix.setValues(prevMatrixValues);
+        }
+
+        return Observable.empty();
     }
 
     public void ink() {
@@ -619,6 +626,8 @@ public class DrawingCurve {
         if (mPhotoBitmap != null) {
             mPhotoBitmap.recycle();
         }
+
+        ViewUtils.setIdentityMatrix(mMatrix);
 
         mPhotoBitmapUri = eventBitmapChosen.data;
         InputStream inputStream = null;
@@ -711,8 +720,6 @@ public class DrawingCurve {
                 mCanvas.restore();
 
                 changeState(State.DRAW);
-
-                cache.set(FileUtils.pathFromUri(mContext, mPhotoBitmapUri), mPhotoBitmap);
 
                 mMatrix.getValues(values);
                 mAllHistory.push(new BitmapDrawHistory(mPhotoBitmapUri, values));
