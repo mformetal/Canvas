@@ -1,6 +1,8 @@
 package milespeele.canvas.dagger;
 
+import android.app.ActivityManager;
 import android.app.Application;
+import android.content.Context;
 
 import com.squareup.picasso.Cache;
 import com.squareup.picasso.LruCache;
@@ -13,6 +15,11 @@ import dagger.Provides;
 import de.greenrobot.event.EventBus;
 import milespeele.canvas.parse.ParseUtils;
 import milespeele.canvas.util.Datastore;
+
+import static android.content.Context.ACTIVITY_SERVICE;
+import static android.content.pm.ApplicationInfo.FLAG_LARGE_HEAP;
+import static android.os.Build.VERSION.SDK_INT;
+import static android.os.Build.VERSION_CODES.HONEYCOMB;
 
 /**
  * Created by milespeele on 7/5/15.
@@ -48,15 +55,7 @@ public class ApplicationModule {
     @Provides
     @Singleton
     public Picasso getPicasso(Application mApplication) {
-        return new Picasso.Builder(mApplication)
-                .memoryCache(getCache(mApplication))
-                .build();
-    }
-
-    @Provides
-    @Singleton
-    public LruCache getCache(Application mApplication) {
-        return new LruCache(mApplication.getApplicationContext());
+        return new Picasso.Builder(mApplication).build();
     }
 
     @Provides

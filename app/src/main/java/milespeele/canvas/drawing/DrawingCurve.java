@@ -41,7 +41,10 @@ import milespeele.canvas.util.TextUtils;
 import milespeele.canvas.util.ViewUtils;
 import rx.Observable;
 import rx.Scheduler;
+import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action0;
+import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
@@ -87,7 +90,7 @@ public class DrawingCurve {
 
     @Inject Datastore store;
     @Inject EventBus bus;
-    @Inject LruCache cache;
+    private BitmapCache cache;
 
     private DrawingCurveListener mListener;
     public interface DrawingCurveListener {
@@ -101,6 +104,8 @@ public class DrawingCurve {
         bus.register(this);
 
         mContext = context;
+
+        cache = new BitmapCache(mContext, BitmapCache.getMaxSize(mContext));
 
         Point size = new Point();
         ((Activity) context).getWindowManager().getDefaultDisplay().getSize(size);
@@ -448,8 +453,6 @@ public class DrawingCurve {
         if (!mRedoneHistory.isEmpty()) {
             mAllHistory.push(mRedoneHistory.pop());
 
-            mCanvas.drawBitmap(mCachedBitmap, 0, 0, null);
-
             redraw();
 
             return true;
@@ -461,8 +464,6 @@ public class DrawingCurve {
         if (!mAllHistory.isEmpty()) {
             mRedoneHistory.push(mAllHistory.pop());
 
-            mCanvas.drawBitmap(mCachedBitmap, 0, 0, null);
-
             redraw();
 
             return true;
@@ -470,14 +471,34 @@ public class DrawingCurve {
         return false;
     }
 
-    @SuppressWarnings("ResourceType")
+    @SuppressWarnings("ResourceType, unchecked")
     private void redraw() {
         synchronized (mAllHistory) {
             Observable.from(mAllHistory)
                     .flatMap(this::redrawObject)
-                    .subscribeOn(Schedulers.newThread())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe();
+                    .doOnError(Logg::log)
+                    .subscribeOn(Schedulers.io())
+                    .subscribe(new Subscriber() {
+                        @Override
+                        public void onCompleted() {
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+
+                        }
+
+                        @Override
+                        public void onNext(Object o) {
+
+                        }
+
+                        @Override
+                        public void onStart() {
+                            super.onStart();
+                            mCanvas.drawBitmap(mCachedBitmap, 0, 0, null);
+                        }
+                    });
         }
     }
 
@@ -493,31 +514,29 @@ public class DrawingCurve {
 
             Uri uri = pair.uri;
 
-            InputStream inputStream = null;
-            try {
-                inputStream = mContext.getContentResolver().openInputStream(uri);
-                Bitmap bitmap = BitmapFactory.decodeStream(inputStream, null, FileUtils.getBitmapOptions(mContext));
+            Bitmap bitmap = cache.retrieve(uri);
+            if (bitmap == null) {
+                InputStream inputStream;
+                try {
+                    inputStream = mContext.getContentResolver().openInputStream(uri);
+                    bitmap = cache.decodeStream(inputStream);
 
-                mMatrix.setValues(pair.matrixValues);
-
-                mCanvas.save();
-                mCanvas.concat(mMatrix);
-                mCanvas.drawBitmap(bitmap, 0, 0, null);
-                mCanvas.restore();
-
-                mMatrix.setValues(prevMatrixValues);
-
-            } catch (FileNotFoundException e) {
-                Logg.log(e);
-            } finally {
-                if (inputStream != null) {
-                    try {
+                    if (inputStream != null) {
                         inputStream.close();
-                    } catch (IOException e) {
-                        Logg.log(e);
                     }
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
+
+            mMatrix.setValues(pair.matrixValues);
+
+            mCanvas.save();
+            mCanvas.concat(mMatrix);
+            mCanvas.drawBitmap(bitmap, 0, 0, null);
+            mCanvas.restore();
+
+            mMatrix.setValues(prevMatrixValues);
         } else if (object instanceof TextDrawHistory) {
             TextDrawHistory history = (TextDrawHistory) object;
             float[] prevMatrixValues = new float[9];
@@ -629,42 +648,44 @@ public class DrawingCurve {
 
         ViewUtils.setIdentityMatrix(mMatrix);
 
-        mPhotoBitmapUri = eventBitmapChosen.data;
-        InputStream inputStream = null;
-        if (mPhotoBitmapUri != null) {
-            try {
-                inputStream = mContext.getContentResolver().openInputStream(mPhotoBitmapUri);
-                mPhotoBitmap = BitmapFactory.decodeStream(inputStream, null, FileUtils.getBitmapOptions(mContext));
+        Schedulers.io().createWorker().schedule(() -> {
+            mPhotoBitmapUri = eventBitmapChosen.data;
+            InputStream inputStream = null;
+            if (mPhotoBitmapUri != null) {
+                try {
+                    inputStream = mContext.getContentResolver().openInputStream(mPhotoBitmapUri);
+                    mPhotoBitmap = FileUtils.getBitmapFromStream(inputStream);
 
-                float scale = Math.min((float) mBitmap.getWidth() / mPhotoBitmap.getWidth(),
-                        (float) mBitmap.getHeight() / mPhotoBitmap.getHeight());
-                scale = Math.max(scale, Math.min((float) mBitmap.getHeight() / mPhotoBitmap.getWidth(),
-                        (float) mBitmap.getWidth() / mPhotoBitmap.getHeight()));
-                if (scale < 1) {
-                    mMatrix.setScale(scale, scale);
-                }
-            } catch (FileNotFoundException e) {
-                Logg.log(e);
-            } finally {
-                if (inputStream != null) {
-                    try {
-                        new Handler().postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                mListener.onDrawingCurveOptionsMenuVisibilityRequest(true, State.PICTURE);
-                                mListener.onDrawingCurveFabMenuVisibilityRequest(false);
-                            }
-                        }, 350);
+                    float scale = Math.min((float) mBitmap.getWidth() / mPhotoBitmap.getWidth(),
+                            (float) mBitmap.getHeight() / mPhotoBitmap.getHeight());
+                    scale = Math.max(scale, Math.min((float) mBitmap.getHeight() / mPhotoBitmap.getWidth(),
+                            (float) mBitmap.getWidth() / mPhotoBitmap.getHeight()));
+                    if (scale < 1) {
+                        mMatrix.setScale(scale, scale);
+                    }
+                } catch (IOException e) {
+                    Logg.log(e);
+                } finally {
+                    if (inputStream != null) {
+                        try {
+                            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    mListener.onDrawingCurveOptionsMenuVisibilityRequest(true, State.PICTURE);
+                                    mListener.onDrawingCurveFabMenuVisibilityRequest(false);
+                                }
+                            }, 350);
 
-                        changeState(State.PICTURE);
+                            changeState(State.PICTURE);
 
-                        inputStream.close();
-                    } catch (IOException e) {
-                        Logg.log(e);
+                            inputStream.close();
+                        } catch (IOException e) {
+                            Logg.log(e);
+                        }
                     }
                 }
             }
-        }
+        });
     }
 
     public void onOptionsMenuCancel() {
@@ -720,6 +741,8 @@ public class DrawingCurve {
                 mCanvas.restore();
 
                 changeState(State.DRAW);
+
+                cache.add(mPhotoBitmapUri, mPhotoBitmap.copy(mPhotoBitmap.getConfig(), true));
 
                 mMatrix.getValues(values);
                 mAllHistory.push(new BitmapDrawHistory(mPhotoBitmapUri, values));

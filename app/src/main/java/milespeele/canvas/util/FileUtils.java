@@ -1,10 +1,12 @@
 package milespeele.canvas.util;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Point;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.DocumentsContract;
@@ -73,25 +75,57 @@ public class FileUtils {
         .observeOn(AndroidSchedulers.mainThread());
     }
 
-    public static BitmapFactory.Options getBitmapOptions(Context context) {
+    public static BitmapFactory.Options getBitmapOptions() {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inPreferredConfig = Bitmap.Config.ARGB_8888;
         options.inMutable = true;
         return options;
     }
 
+    public static int calculateInSampleSize(
+            BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        // Raw height and width of image
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+
+        if (height > reqHeight || width > reqWidth) {
+
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
+
+            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+            // height and width larger than the requested height and width.
+            while ((halfHeight / inSampleSize) > reqHeight
+                    && (halfWidth / inSampleSize) > reqWidth) {
+                inSampleSize *= 2;
+            }
+        }
+
+        return inSampleSize;
+    }
+
     public static Bitmap getCachedBitmap(Context context) {
+        Point size = new Point();
+        ((Activity) context).getWindowManager().getDefaultDisplay().getSize(size);
+        int w = size.x;
+        int h = size.y;
+
         Bitmap bitmap = null;
 
         try {
             InputStream test = context.openFileInput(DRAWING_BITMAP_FILENAME);
-            bitmap = BitmapFactory.decodeStream(test, null, getBitmapOptions(context));
+            bitmap = BitmapFactory.decodeStream(test, null, getBitmapOptions());
             test.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         return bitmap;
+    }
+
+    public static Bitmap getBitmapFromStream(InputStream inputStream) {
+        return BitmapFactory.decodeStream(inputStream, null, getBitmapOptions());
     }
 
     public static void deleteBitmapFile(Context context, String name) {
