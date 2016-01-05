@@ -19,7 +19,9 @@ class NormalDrawHistory {
     }
 
     public void draw(Canvas canvas) {
-        canvas.drawLines(lines, paint);
+        if (lines != null) {
+            canvas.drawLines(lines, paint);
+        }
     }
 
     private float[] storePoints(ArrayList<CanvasPoint> points) {
@@ -29,7 +31,7 @@ class NormalDrawHistory {
         int arraySize = n + (n - 4);
 
         if (arraySize <= 0) {
-            throw new UnsupportedOperationException("Drawing Points length is 0");
+            return null;
         }
 
         float[] pts = new float[arraySize];

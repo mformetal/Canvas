@@ -21,7 +21,7 @@
     <string name="snackbar_no_more_redo">Nothing more to redo!</string>
     <string name="snackbar_no_more_undo">Nothing more to undo!</string>
     <string name="snackbar_no_internet">Get yo internet up</string>
-    <string name="snackbar_no_camera">Phone ain't got no camera bih</string>
+    <string name="snackbar_no_camera">Phone ain\'t got no camera bih</string>
 
     <string name="toast_fragment_filename_invalid">Must contain only alphanumeric characters</string>
     <string name="fragment_filename_empty">Put in a name to save!</string>

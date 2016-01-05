@@ -35,6 +35,7 @@ import milespeele.canvas.util.TextUtils;
 import milespeele.canvas.util.ViewUtils;
 import rx.Observable;
 import rx.Subscriber;
+import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
 /**
@@ -451,36 +452,13 @@ public class DrawingCurve {
         return false;
     }
 
-    @SuppressWarnings("ResourceType, unchecked")
     private void redraw() {
+        mCanvas.drawBitmap(mCachedBitmap, 0, 0, null);
         synchronized (mAllHistory) {
             Observable.from(mAllHistory)
-                    .flatMap(this::redrawObject)
                     .doOnError(Logg::log)
                     .subscribeOn(Schedulers.io())
-                    .subscribe(new Subscriber() {
-                        @Override
-                        public void onCompleted() {
-                            isSafeToDraw = true;
-                        }
-
-                        @Override
-                        public void onError(Throwable e) {
-
-                        }
-
-                        @Override
-                        public void onNext(Object o) {
-
-                        }
-
-                        @Override
-                        public void onStart() {
-                            super.onStart();
-                            isSafeToDraw = false;
-                            mCanvas.drawBitmap(mCachedBitmap, 0, 0, null);
-                        }
-                    });
+                    .subscribe(this::redrawObject);
         }
     }
 
