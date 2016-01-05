@@ -75,7 +75,6 @@ public class DrawingCurve {
     private boolean isSafeToDraw = true;
     private double mOldDist = 1f;
     private float mLastRotation = 0f;
-    private float[] mLastEvent = null;
 
     @Inject Datastore store;
     @Inject EventBus bus;
@@ -263,7 +262,6 @@ public class DrawingCurve {
                 mSavedMatrix.set(mMatrix);
                 mMode = DRAG;
                 mStartPoint.set(x, y);
-                mLastEvent = null;
                 break;
         }
 
@@ -283,12 +281,6 @@ public class DrawingCurve {
                         midpoint(mMidPoint, event);
                         mMode = ZOOM;
                     }
-                    mLastEvent = new float[4];
-                    mLastEvent[0] = event.getX(0);
-                    mLastEvent[1] = event.getX(1);
-                    mLastEvent[2] = event.getY(0);
-                    mLastEvent[3] = event.getY(1);
-                    mLastRotation = angle(event);
                 }
                 break;
         }
@@ -355,7 +347,6 @@ public class DrawingCurve {
             case TEXT:
             case PICTURE:
                 mMode = NONE;
-                mLastEvent = null;
                 break;
         }
     }
