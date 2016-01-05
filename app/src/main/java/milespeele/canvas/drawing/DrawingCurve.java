@@ -35,6 +35,7 @@ import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.PaintStyles;
 import milespeele.canvas.util.TextUtils;
 import milespeele.canvas.util.ViewUtils;
+import rx.schedulers.Schedulers;
 
 /**
  * Created by mbpeele on 9/25/15.
@@ -53,7 +54,8 @@ public class DrawingCurve {
     private Bitmap mBitmap, mCachedBitmap, mPhotoBitmap;
     private Canvas mCanvas;
     private DrawingPoints mCurrentPoints;
-    private Stack<Object> mRedoneHistory, mAllHistory;
+    private Stack<Object> mRedoneHistory;
+    private final Stack<Object> mAllHistory;
     private Paint mPaint, mInkPaint;
     private TextPaint mTextPaint;
     private String mText;
@@ -470,59 +472,63 @@ public class DrawingCurve {
 
     @SuppressWarnings("ResourceType")
     private void redraw() {
-        for (Object object: mAllHistory) {
-            if (object instanceof DrawingPoints) {
-                DrawingPoints points = (DrawingPoints) object;
-                mCanvas.drawLines(points.redrawPts, points.redrawPaint);
-            } else if (object instanceof BitmapDrawHistory) {
-                float[] prevMatrixValues = new float[9];
-                mMatrix.getValues(prevMatrixValues);
+        Schedulers.io().createWorker().schedule(() -> {
+            synchronized (mAllHistory) {
+                for (Object object: mAllHistory) {
+                    if (object instanceof DrawingPoints) {
+                        DrawingPoints points = (DrawingPoints) object;
+                        mCanvas.drawLines(points.redrawPts, points.redrawPaint);
+                    } else if (object instanceof BitmapDrawHistory) {
+                        float[] prevMatrixValues = new float[9];
+                        mMatrix.getValues(prevMatrixValues);
 
-                BitmapDrawHistory pair = (BitmapDrawHistory) object;
+                        BitmapDrawHistory pair = (BitmapDrawHistory) object;
 
-                Uri uri = pair.uri;
-                InputStream inputStream = null;
-                try {
-                    inputStream = mContext.getContentResolver().openInputStream(uri);
-                    Bitmap bitmap = BitmapFactory.decodeStream(inputStream, null, FileUtils.getBitmapOptions(mContext));
-
-                    mMatrix.setValues(pair.matrixValues);
-
-                    mCanvas.save();
-                    mCanvas.concat(mMatrix);
-                    mCanvas.drawBitmap(bitmap, 0, 0, null);
-                    mCanvas.restore();
-
-                    mMatrix.setValues(prevMatrixValues);
-                } catch (FileNotFoundException e) {
-                    Logg.log(e);
-                } finally {
-                    if (inputStream != null) {
+                        Uri uri = pair.uri;
+                        InputStream inputStream = null;
                         try {
-                            inputStream.close();
-                        } catch (IOException e) {
+                            inputStream = mContext.getContentResolver().openInputStream(uri);
+                            Bitmap bitmap = BitmapFactory.decodeStream(inputStream, null, FileUtils.getBitmapOptions(mContext));
+
+                            mMatrix.setValues(pair.matrixValues);
+
+                            mCanvas.save();
+                            mCanvas.concat(mMatrix);
+                            mCanvas.drawBitmap(bitmap, 0, 0, null);
+                            mCanvas.restore();
+
+                            mMatrix.setValues(prevMatrixValues);
+                        } catch (FileNotFoundException e) {
                             Logg.log(e);
+                        } finally {
+                            if (inputStream != null) {
+                                try {
+                                    inputStream.close();
+                                } catch (IOException e) {
+                                    Logg.log(e);
+                                }
+                            }
                         }
+                    } else if (object instanceof TextDrawHistory) {
+                        TextDrawHistory history = (TextDrawHistory) object;
+                        float[] prevMatrixValues = new float[9];
+                        mMatrix.getValues(prevMatrixValues);
+
+                        mMatrix.setValues(history.matrixValues);
+
+                        mCanvas.save();
+                        mCanvas.concat(mMatrix);
+                        mCanvas.drawText(history.text,
+                                mBitmap.getWidth() / 2 - history.paint.measureText(history.text) / 2,
+                                mBitmap.getHeight() / 2,
+                                history.paint);
+                        mCanvas.restore();
+
+                        mMatrix.setValues(prevMatrixValues);
                     }
                 }
-            } else if (object instanceof TextDrawHistory) {
-                TextDrawHistory history = (TextDrawHistory) object;
-                float[] prevMatrixValues = new float[9];
-                mMatrix.getValues(prevMatrixValues);
-
-                mMatrix.setValues(history.matrixValues);
-
-                mCanvas.save();
-                mCanvas.concat(mMatrix);
-                mCanvas.drawText(history.text,
-                        mBitmap.getWidth() / 2 - history.paint.measureText(history.text) / 2,
-                        mBitmap.getHeight() / 2,
-                        history.paint);
-                mCanvas.restore();
-
-                mMatrix.setValues(prevMatrixValues);
             }
-        }
+        });
     }
 
     public void ink() {
@@ -632,8 +638,13 @@ public class DrawingCurve {
             } finally {
                 if (inputStream != null) {
                     try {
-                        mListener.onDrawingCurveOptionsMenuVisibilityRequest(true, State.PICTURE);
-                        mListener.onDrawingCurveFabMenuVisibilityRequest(false);
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                mListener.onDrawingCurveOptionsMenuVisibilityRequest(true, State.PICTURE);
+                                mListener.onDrawingCurveFabMenuVisibilityRequest(false);
+                            }
+                        }, 350);
 
                         changeState(State.PICTURE);
 
