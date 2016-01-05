@@ -25,23 +25,14 @@ import milespeele.canvas.util.Logg;
 class BitmapCache extends LruCache {
 
     private final Set<SoftReference<Bitmap>> mReusableBitmaps;
-    public int count = 0;
 
     public BitmapCache(Context context) {
         super(context);
         mReusableBitmaps = Collections.synchronizedSet(new HashSet<>());
     }
 
-    public void set(Bitmap bitmap) {
-        String val = String.valueOf(count);
-        mReusableBitmaps.add(new SoftReference<>(bitmap));
-        super.set(val, bitmap);
-        count++;
-    }
-
     public Bitmap decode(Context context, String path) {
         BitmapFactory.Options options = FileUtils.getBitmapOptions(context);
-        BitmapFactory.decodeFile(path, options);
 
         addInBitmapOptions(options);
 
@@ -63,8 +54,7 @@ class BitmapCache extends LruCache {
 
         if (mReusableBitmaps != null && !mReusableBitmaps.isEmpty()) {
             synchronized (mReusableBitmaps) {
-                final Iterator<SoftReference<Bitmap>> iterator
-                        = mReusableBitmaps.iterator();
+                final Iterator<SoftReference<Bitmap>> iterator = mReusableBitmaps.iterator();
                 Bitmap item;
 
                 while (iterator.hasNext()) {
@@ -82,6 +72,7 @@ class BitmapCache extends LruCache {
                 }
             }
         }
+
         return bitmap;
     }
 

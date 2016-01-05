@@ -19,6 +19,7 @@ import android.view.MotionEvent;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Iterator;
 import java.util.Stack;
 
 import javax.inject.Inject;
@@ -440,32 +441,26 @@ public class DrawingCurve {
 
     public boolean redo() {
         if (!mRedoneHistory.isEmpty()) {
-            isSafeToDraw = false;
-
             mAllHistory.push(mRedoneHistory.pop());
 
             mCanvas.drawBitmap(mCachedBitmap, 0, 0, null);
 
             redraw();
 
-            isSafeToDraw = true;
-            return isSafeToDraw;
+            return true;
         }
         return false;
     }
 
     public boolean undo() {
         if (!mAllHistory.isEmpty()) {
-            isSafeToDraw = false;
-
             mRedoneHistory.push(mAllHistory.pop());
 
             mCanvas.drawBitmap(mCachedBitmap, 0, 0, null);
 
             redraw();
 
-            isSafeToDraw = true;
-            return isSafeToDraw;
+            return true;
         }
         return false;
     }
@@ -474,7 +469,9 @@ public class DrawingCurve {
     private void redraw() {
         Schedulers.io().createWorker().schedule(() -> {
             synchronized (mAllHistory) {
-                for (Object object: mAllHistory) {
+                isSafeToDraw = false;
+
+                for (Object object : mAllHistory) {
                     if (object instanceof DrawingPoints) {
                         DrawingPoints points = (DrawingPoints) object;
                         mCanvas.drawLines(points.redrawPts, points.redrawPaint);
@@ -489,6 +486,8 @@ public class DrawingCurve {
                         try {
                             inputStream = mContext.getContentResolver().openInputStream(uri);
                             Bitmap bitmap = BitmapFactory.decodeStream(inputStream, null, FileUtils.getBitmapOptions(mContext));
+
+//                            Bitmap bitmap = cache.decode(mContext, FileUtils.pathFromUri(mContext, uri));
 
                             mMatrix.setValues(pair.matrixValues);
 
@@ -527,6 +526,8 @@ public class DrawingCurve {
                         mMatrix.setValues(prevMatrixValues);
                     }
                 }
+
+                isSafeToDraw = true;
             }
         });
     }
@@ -658,8 +659,6 @@ public class DrawingCurve {
     }
 
     public void onOptionsMenuCancel() {
-        mAllHistory.pop();
-
         mListener.onDrawingCurveOptionsMenuVisibilityRequest(false, null);
         mListener.onDrawingCurveFabMenuVisibilityRequest(true);
 
@@ -713,7 +712,7 @@ public class DrawingCurve {
 
                 changeState(State.DRAW);
 
-                cache.set("TEST", mPhotoBitmap);
+                cache.set(FileUtils.pathFromUri(mContext, mPhotoBitmapUri), mPhotoBitmap);
 
                 mMatrix.getValues(values);
                 mAllHistory.push(new BitmapDrawHistory(mPhotoBitmapUri, values));
