@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.PersistableBundle;
 import android.provider.MediaStore;
+import android.support.annotation.StringRes;
 import android.support.design.widget.Snackbar;
 import android.view.View;
 
@@ -127,18 +128,14 @@ public class ActivityHome extends ActivityBase {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
-            if (requestCode == REQUEST_IMPORT_CODE) {
-                bus.post(new EventBitmapChosen(data.getData()));
-                return;
-            }
-        }
-
-        if (resultCode == RESULT_OK) {
-            if (requestCode == REQUEST_CAMERA_CODE) {
-                Uri uri = FileUtils.addFileToGallery(this, filePath);
-                bus.post(new EventBitmapChosen(uri));
-            } else {
-                ErrorDialog.createDialogFromCode(this, ErrorDialog.GENERAL);
+            switch (requestCode) {
+                case REQUEST_IMPORT_CODE:
+                    bus.post(new EventBitmapChosen(data.getData()));
+                    break;
+                case REQUEST_CAMERA_CODE:
+                    Uri uri = FileUtils.addFileToGallery(this, filePath);
+                    bus.post(new EventBitmapChosen(uri));
+                    break;
             }
         }
     }
@@ -191,7 +188,7 @@ public class ActivityHome extends ActivityBase {
                         });
             }
         } else {
-            ErrorDialog.createDialogFromCode(this, ErrorDialog.NO_INTERNET).show();
+            showSnackBar(R.string.snackbar_no_internet, Snackbar.LENGTH_LONG);
         }
     }
 
@@ -267,19 +264,17 @@ public class ActivityHome extends ActivityBase {
                     filePath = photoFile.getAbsolutePath();
                 } catch (IOException e) {
                     Logg.log(e);
-                    ErrorDialog.createDialogFromCode(this, ErrorDialog.GENERAL);
+                    showSnackBar(R.string.error_dialog_no_camera_body, Snackbar.LENGTH_SHORT);
                 }
 
                 if (photoFile != null) {
                     takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
                     startActivityForResult(takePictureIntent, REQUEST_CAMERA_CODE);
                 }
-
-                return;
             }
+        } else {
+            showSnackBar(R.string.error_dialog_no_camera_body, Snackbar.LENGTH_SHORT);
         }
-
-        ErrorDialog.createDialogFromCode(this, ErrorDialog.NO_CAMERA);
     }
 
     public void onFabMenuButtonClicked(View view) {
@@ -359,6 +354,13 @@ public class ActivityHome extends ActivityBase {
                     }
                     break;
             }
+        }
+    }
+
+    private void showSnackBar(@StringRes int id, int duration) {
+        FragmentDrawer drawer = (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
+        if (drawer != null && drawer.getRootView() != null) {
+            Snackbar.make(drawer.getRootView(), id, duration).show();
         }
     }
 }

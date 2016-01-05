@@ -1,5 +1,6 @@
 package milespeele.canvas.drawing;
 
+import android.graphics.Canvas;
 import android.graphics.Paint;
 
 import java.util.ArrayList;
@@ -15,6 +16,10 @@ class NormalDrawHistory {
     public NormalDrawHistory(ArrayList<CanvasPoint> points, Paint paint) {
         this.paint = new Paint(paint);
         lines = storePoints(points);
+    }
+
+    public void draw(Canvas canvas) {
+        canvas.drawLines(lines, paint);
     }
 
     private float[] storePoints(ArrayList<CanvasPoint> points) {

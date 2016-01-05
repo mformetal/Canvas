@@ -50,10 +50,10 @@ public class DrawingCurve {
         PICTURE
     }
 
-    private Matrix mMatrix, mSavedMatrix;
+    private final Matrix mMatrix, mSavedMatrix;
     private Bitmap mBitmap, mCachedBitmap, mPhotoBitmap;
     private Canvas mCanvas;
-    private DrawingPoints mCurrentPoints;
+    private Stroke mStroke;
     private Stack<Object> mRedoneHistory;
     private final Stack<Object> mAllHistory;
     private Paint mPaint, mInkPaint;
@@ -130,7 +130,7 @@ public class DrawingCurve {
 
         mAllHistory = new Stack<>();
         mRedoneHistory = new Stack<>();
-        mCurrentPoints = new DrawingPoints(mPaint);
+        mStroke = new Stroke(mPaint);
     }
 
     private void reset(int color) {
@@ -139,7 +139,7 @@ public class DrawingCurve {
 
         FileUtils.deleteBitmapFile(mContext, FileUtils.DRAWING_BITMAP_FILENAME);
 
-        mCurrentPoints.clear();
+        mStroke.clear();
         mAllHistory.clear();
         mRedoneHistory.clear();
 
@@ -366,8 +366,8 @@ public class DrawingCurve {
         switch (mState) {
             case ERASE:
             case DRAW:
-                mAllHistory.push(new NormalDrawHistory(mCurrentPoints, mCurrentPoints.redrawPaint));
-                mCurrentPoints.clear();
+                mAllHistory.push(new NormalDrawHistory(mStroke, mStroke.redrawPaint));
+                mStroke.clear();
                 break;
             case INK:
                 mStrokeColor = mInkedColor;
@@ -412,15 +412,15 @@ public class DrawingCurve {
 
     private void addPoint(float x, float y) {
         CanvasPoint nextPoint;
-        if (mCurrentPoints.isEmpty()) {
+        if (mStroke.isEmpty()) {
             nextPoint = new CanvasPoint(x, y, SystemClock.currentThreadTimeMillis());
 
             mPaint.setStrokeWidth(mPaint.getStrokeWidth() / 2);
             mCanvas.drawPoint(x, y, mPaint);
-            mCurrentPoints.add(nextPoint);
+            mStroke.add(nextPoint);
             mPaint.setStrokeWidth(mPaint.getStrokeWidth() * 2);
         } else {
-            CanvasPoint prevPoint = mCurrentPoints.peek();
+            CanvasPoint prevPoint = mStroke.peek();
 
             if (Math.abs(prevPoint.x - x) < TOLERANCE &&
                     Math.abs(prevPoint.y - y) < TOLERANCE) {
@@ -429,7 +429,7 @@ public class DrawingCurve {
 
             nextPoint = new CanvasPoint(x, y, SystemClock.currentThreadTimeMillis());
 
-            mCurrentPoints.add(nextPoint);
+            mStroke.add(nextPoint);
             algorithmDraw(prevPoint, nextPoint);
         }
     }
@@ -495,55 +495,11 @@ public class DrawingCurve {
 
     private Observable redrawObject(Object object) {
         if (object instanceof NormalDrawHistory) {
-            NormalDrawHistory pair = (NormalDrawHistory) object;
-            mCanvas.drawLines(pair.lines, pair.paint);
+            ((NormalDrawHistory) object).draw(mCanvas);
         } else if (object instanceof BitmapDrawHistory) {
-            float[] prevMatrixValues = new float[9];
-            mMatrix.getValues(prevMatrixValues);
-
-            BitmapDrawHistory pair = (BitmapDrawHistory) object;
-
-            Uri uri = pair.uri;
-
-            Bitmap bitmap = cache.retrieve(uri);
-            if (bitmap == null) {
-                InputStream inputStream;
-                try {
-                    inputStream = mContext.getContentResolver().openInputStream(uri);
-                    bitmap = cache.decodeStream(inputStream);
-
-                    if (inputStream != null) {
-                        inputStream.close();
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            mMatrix.setValues(pair.matrixValues);
-
-            mCanvas.save();
-            mCanvas.concat(mMatrix);
-            mCanvas.drawBitmap(bitmap, 0, 0, null);
-            mCanvas.restore();
-
-            mMatrix.setValues(prevMatrixValues);
+            ((BitmapDrawHistory) object).draw(mMatrix, cache, mContext, mCanvas);
         } else if (object instanceof TextDrawHistory) {
-            TextDrawHistory history = (TextDrawHistory) object;
-            float[] prevMatrixValues = new float[9];
-            mMatrix.getValues(prevMatrixValues);
-
-            mMatrix.setValues(history.matrixValues);
-
-            mCanvas.save();
-            mCanvas.concat(mMatrix);
-            mCanvas.drawText(history.text,
-                    mBitmap.getWidth() / 2 - history.paint.measureText(history.text) / 2,
-                    mBitmap.getHeight() / 2,
-                    history.paint);
-            mCanvas.restore();
-
-            mMatrix.setValues(prevMatrixValues);
+            ((TextDrawHistory) object).draw(mCanvas, mMatrix, mBitmap.getWidth(), mBitmap.getHeight());
         }
 
         return Observable.empty();
@@ -626,7 +582,7 @@ public class DrawingCurve {
         changeState(State.DRAW);
 
         mPaint.set(paint);
-        mCurrentPoints.redrawPaint.set(mPaint);
+        mStroke.redrawPaint.set(mPaint);
 
         STROKE_WIDTH = paint.getStrokeWidth();
     }
@@ -756,12 +712,12 @@ public class DrawingCurve {
     private void setPaintColor(int color) {
         mTextPaint.setColor(color);
         mPaint.setColor(color);
-        mCurrentPoints.redrawPaint.setColor(color);
+        mStroke.redrawPaint.setColor(color);
     }
 
     private void setPaintThickness(float floater) {
         mPaint.setStrokeWidth(floater);
-        mCurrentPoints.redrawPaint.setStrokeWidth(floater);
+        mStroke.redrawPaint.setStrokeWidth(floater);
     }
 
     private boolean eventCoordsInRange(int x, int y) {

@@ -1,5 +1,7 @@
 package milespeele.canvas.drawing;
 
+import android.graphics.Canvas;
+import android.graphics.Matrix;
 import android.text.TextPaint;
 
 /**
@@ -15,5 +17,22 @@ class TextDrawHistory {
         this.text = text;
         this.matrixValues = matrixValues;
         this.paint = new TextPaint(paint);
+    }
+
+    public void draw(Canvas canvas, Matrix matrix, int width, int height) {
+        float[] prevMatrixValues = new float[9];
+        matrix.getValues(prevMatrixValues);
+
+        matrix.setValues(matrixValues);
+
+        canvas.save();
+        canvas.concat(matrix);
+        canvas.drawText(text,
+                width / 2 - paint.measureText(text) / 2,
+                height / 2,
+                paint);
+        canvas.restore();
+
+        matrix.setValues(prevMatrixValues);
     }
 }
