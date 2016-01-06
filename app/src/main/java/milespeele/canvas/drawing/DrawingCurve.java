@@ -465,11 +465,12 @@ public class DrawingCurve {
                     .subscribe(new Subscriber<Object>() {
                         @Override
                         public void onCompleted() {
-                            isSafeToDraw = true;
                             mBitmap = worker.copy(Bitmap.Config.ARGB_8888, true);
                             mCanvas = new Canvas(mBitmap);
 
                             worker.recycle();
+
+                            isSafeToDraw = true;
                         }
 
                         @Override
