@@ -18,9 +18,10 @@
 
     <string name="snackbar_activity_home_image_saved_title">Saved Your Masterpiece!</string>
     <string name="snackbar_activity_home_imaged_saved_body">View</string>
-    <string name="snackbar_no_more_redo">No more strokes to redo!</string>
-    <string name="snackbar_no_more_undo">No more strokes to undo!</string>
-    <string name="snackbar_drag_photo">One finger to move, Two to scale and rotate</string>
+    <string name="snackbar_no_more_redo">Nothing more to redo!</string>
+    <string name="snackbar_no_more_undo">Nothing more to undo!</string>
+    <string name="snackbar_no_internet">Get yo internet up</string>
+    <string name="snackbar_no_camera">Phone ain\'t got no camera bih</string>
 
     <string name="toast_fragment_filename_invalid">Must contain only alphanumeric characters</string>
     <string name="fragment_filename_empty">Put in a name to save!</string>

@@ -16,7 +16,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/fab_margin"
-        app:shouldAutofit="true"
+        app:buttonAutofit="true"
         app:backgroundColor="@color/half_opacity_gray" />
 
     <milespeele.canvas.view.ViewTypefaceButton
@@ -26,7 +26,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/fab_margin"
-        app:shouldAutofit="true"
+        app:buttonAutofit="true"
         app:backgroundColor="@color/half_opacity_gray" />
 
     <milespeele.canvas.view.ViewTypefaceButton
@@ -36,7 +36,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/fab_margin"
-        app:shouldAutofit="true"
+        app:buttonAutofit="true"
         app:backgroundColor="@color/half_opacity_gray" />
 
     <milespeele.canvas.view.ViewTypefaceButton
@@ -48,7 +48,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/fab_margin"
-        app:shouldAutofit="true"
+        app:buttonAutofit="true"
         app:backgroundColor="@color/half_opacity_gray" />
 
 </milespeele.canvas.view.ViewOptionsMenu>

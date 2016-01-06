@@ -5,15 +5,25 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
+import android.graphics.BlurMaskFilter;
 import android.graphics.Color;
+import android.graphics.MaskFilter;
+import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.os.Build;
+import android.text.Editable;
+import android.text.TextPaint;
+import android.text.TextWatcher;
+import android.text.method.SingleLineTransformationMethod;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import me.grantland.widget.AutofitHelper;
+import me.grantland.widget.AutofitTextView;
 import milespeele.canvas.R;
+import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.TextUtils;
 import milespeele.canvas.util.ViewUtils;
 
@@ -21,6 +31,9 @@ import milespeele.canvas.util.ViewUtils;
  * Created by mbpeele on 9/2/15.
  */
 public class ViewTypefaceButton extends Button {
+
+    private Paint mPaint;
+    private AutofitHelper mAutofitHelper;
 
     public ViewTypefaceButton(Context context) {
         super(context);
@@ -51,10 +64,16 @@ public class ViewTypefaceButton extends Button {
         if (background != Color.WHITE) {
             getBackground().setColorFilter(background, PorterDuff.Mode.SRC_ATOP);
         }
-        if (typedArray.getBoolean(R.styleable.ViewTypefaceTextView_shouldAutofit, false)) {
-            AutofitHelper.create(this);
+        if (typedArray.getBoolean(R.styleable.ViewTypefaceButton_buttonAutofit, false)) {
+            mAutofitHelper = AutofitHelper.create(this);
         }
         typedArray.recycle();
     }
+
+    public void setPaint(Paint paint) {
+        mPaint = paint;
+    }
+
+    public Paint getExamplePaint() { return mPaint; }
 
 }

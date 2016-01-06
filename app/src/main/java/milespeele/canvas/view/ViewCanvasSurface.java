@@ -15,6 +15,9 @@ import android.view.View;
 
 import milespeele.canvas.drawing.DrawingCurve;
 import milespeele.canvas.util.Logg;
+import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 /**
  * Created by Miles Peele on 10/2/2015.

@@ -8,7 +8,10 @@ import android.view.ViewGroup;
 
 import java.util.List;
 
+import me.grantland.widget.AutofitTextView;
 import milespeele.canvas.R;
+import milespeele.canvas.util.Logg;
+import milespeele.canvas.util.TextUtils;
 import milespeele.canvas.view.ViewTypefaceButton;
 
 /**
@@ -34,9 +37,7 @@ public class AdapterBrushPicker extends RecyclerView.Adapter<AdapterBrushPicker.
     @Override
     public AdapterBrushPicker.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
         return new ViewHolder(LayoutInflater.from(viewGroup.getContext())
-                .inflate(R.layout.adapter_paint_example_layout,
-                        viewGroup,
-                        false));
+                .inflate(R.layout.adapter_paint_example_layout, viewGroup, false));
     }
 
     @Override
@@ -44,10 +45,17 @@ public class AdapterBrushPicker extends RecyclerView.Adapter<AdapterBrushPicker.
         PaintExample example = dataList.get(i);
 
         ViewTypefaceButton textView = viewHolder.button;
-        textView.setText(example.getPaintName());
-        textView.setTextColor(example.getPaint().getColor());
-//        textView.getPaint().setColor(example.getPaint().getColor());
-//        textView.getPaint().set(example.getPaint());
+
+        String paintName = example.getPaintName();
+        Paint paint = example.getPaint();
+
+        textView.setText(paintName);
+        textView.setPaint(paint);
+
+        if (!TextUtils.containsNewLine(paintName)) {
+            textView.setSingleLine();
+            textView.setMaxLines(1);
+        }
     }
 
     @Override

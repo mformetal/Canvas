@@ -1,10 +1,12 @@
 package milespeele.canvas.util;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Point;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.DocumentsContract;
@@ -73,33 +75,57 @@ public class FileUtils {
         .observeOn(AndroidSchedulers.mainThread());
     }
 
-    public static BitmapFactory.Options getBitmapOptions(Context context) {
+    public static BitmapFactory.Options getBitmapOptions() {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inPreferredConfig = Bitmap.Config.ARGB_8888;
         options.inMutable = true;
-        options.inPreferQualityOverSpeed = true;
-        options.inScaled = false;
-        options.inJustDecodeBounds = false;
-
-        DisplayMetrics metrics = new DisplayMetrics();
-        WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-        windowManager.getDefaultDisplay().getMetrics(metrics);
-        options.inDensity = metrics.densityDpi;
         return options;
     }
 
+    public static int calculateInSampleSize(
+            BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        // Raw height and width of image
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+
+        if (height > reqHeight || width > reqWidth) {
+
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
+
+            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+            // height and width larger than the requested height and width.
+            while ((halfHeight / inSampleSize) > reqHeight
+                    && (halfWidth / inSampleSize) > reqWidth) {
+                inSampleSize *= 2;
+            }
+        }
+
+        return inSampleSize;
+    }
+
     public static Bitmap getCachedBitmap(Context context) {
+        Point size = new Point();
+        ((Activity) context).getWindowManager().getDefaultDisplay().getSize(size);
+        int w = size.x;
+        int h = size.y;
+
         Bitmap bitmap = null;
 
         try {
             InputStream test = context.openFileInput(DRAWING_BITMAP_FILENAME);
-            bitmap = BitmapFactory.decodeStream(test, null, getBitmapOptions(context));
+            bitmap = BitmapFactory.decodeStream(test, null, getBitmapOptions());
             test.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         return bitmap;
+    }
+
+    public static Bitmap getBitmapFromStream(InputStream inputStream) {
+        return BitmapFactory.decodeStream(inputStream, null, getBitmapOptions());
     }
 
     public static void deleteBitmapFile(Context context, String name) {
@@ -125,29 +151,5 @@ public class FileUtils {
         mediaScanIntent.setData(contentUri);
         context.sendBroadcast(mediaScanIntent);
         return contentUri;
-    }
-
-    public static String pathFromUri(Context context, Uri uri) {
-        String filePath = "";
-        String wholeID = DocumentsContract.getDocumentId(uri);
-
-        // Split at colon, use second item in the array
-        String id = wholeID.split(":")[1];
-
-        String[] column = { MediaStore.Images.Media.DATA };
-
-        // where id is equal to
-        String sel = MediaStore.Images.Media._ID + "=?";
-
-        Cursor cursor = context.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                column, sel, new String[]{ id }, null);
-
-        int columnIndex = cursor.getColumnIndex(column[0]);
-
-        if (cursor.moveToFirst()) {
-            filePath = cursor.getString(columnIndex);
-        }
-        cursor.close();
-        return filePath;
     }
 }

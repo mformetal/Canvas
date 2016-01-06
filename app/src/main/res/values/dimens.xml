@@ -2,6 +2,8 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
 
+    <dimen name="brush_recycler_spacing">10dp</dimen>
+
     <dimen name="fragment_color_picker_title_padding_bottom">8dp</dimen>
     <dimen name="fragment_color_picker_vertical_margin">15dp</dimen>
 
