@@ -37,9 +37,7 @@ public class AdapterBrushPicker extends RecyclerView.Adapter<AdapterBrushPicker.
     @Override
     public AdapterBrushPicker.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
         return new ViewHolder(LayoutInflater.from(viewGroup.getContext())
-                .inflate(R.layout.adapter_paint_example_layout,
-                        viewGroup,
-                        false));
+                .inflate(R.layout.adapter_paint_example_layout, viewGroup, false));
     }
 
     @Override

@@ -2,8 +2,10 @@ package milespeele.canvas.util;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.view.ViewGroup;
 
 import milespeele.canvas.R;
+import milespeele.canvas.adapter.AdapterBrushPicker;
 
 public class RecyclerClickListener {
 
@@ -14,8 +16,12 @@ public class RecyclerClickListener {
         @Override
         public void onClick(View v) {
             if (mOnItemClickListener != null) {
-                RecyclerView.ViewHolder holder = mRecyclerView.getChildViewHolder(v);
-                mOnItemClickListener.onItemClicked(mRecyclerView, holder.getAdapterPosition(), v);
+                try {
+                    RecyclerView.ViewHolder holder = mRecyclerView.getChildViewHolder(v);
+                    mOnItemClickListener.onItemClicked(mRecyclerView, holder.getAdapterPosition(), v);
+                } catch (IllegalArgumentException e) {
+                    mOnItemClickListener.onItemClicked(mRecyclerView, -1, v);
+                }
             }
         }
     };
@@ -37,10 +43,24 @@ public class RecyclerClickListener {
         public void onChildViewAttachedToWindow(View view) {
             if (mOnItemClickListener != null) {
                 view.setOnClickListener(mOnClickListener);
+
+                if (view instanceof ViewGroup) {
+                    ViewGroup vg = (ViewGroup) view;
+                    for (int i = 0; i < vg.getChildCount(); i++) {
+                        vg.getChildAt(i).setOnClickListener(mOnClickListener);
+                    }
+                }
             }
 
             if (mOnItemLongClickListener != null) {
                 view.setOnLongClickListener(mOnLongClickListener);
+
+                if (view instanceof ViewGroup) {
+                    ViewGroup vg = (ViewGroup) view;
+                    for (int i = 0; i < vg.getChildCount(); i++) {
+                        vg.getChildAt(i).setOnLongClickListener(mOnLongClickListener);
+                    }
+                }
             }
         }
 
@@ -83,8 +103,8 @@ public class RecyclerClickListener {
     }
 
     private void detach(RecyclerView view) {
-//        view.removeOnChildAttachStateChangeListener(mAttachListener);
-//        view.setTag(R.id.recycler_click_listener, null);
+        view.removeOnChildAttachStateChangeListener(mAttachListener);
+        view.setTag(R.id.recycler_click_listener, null);
     }
 
     public interface OnItemClickListener {
