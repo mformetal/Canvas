@@ -34,6 +34,9 @@ import milespeele.canvas.util.PaintStyles;
 import milespeele.canvas.util.TextUtils;
 import milespeele.canvas.util.ViewUtils;
 import rx.Observable;
+import rx.Subscriber;
+import rx.functions.Action0;
+import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
 /**
@@ -133,6 +136,7 @@ public class DrawingCurve {
 
     private void reset(int color) {
         isSafeToDraw = false;
+
         int width = mBitmap.getWidth(), height = mBitmap.getHeight();
 
         FileUtils.deleteBitmapFile(mContext, FileUtils.DRAWING_BITMAP_FILENAME);
@@ -451,25 +455,52 @@ public class DrawingCurve {
     }
 
     private void redraw() {
-        mCanvas.drawBitmap(mCachedBitmap, 0, 0, null);
+        final Bitmap worker = Bitmap.createBitmap(mBitmap);
+        Canvas workerCanvas = new Canvas(worker);
+
         synchronized (mAllHistory) {
             Observable.from(mAllHistory)
                     .doOnError(Logg::log)
                     .subscribeOn(Schedulers.io())
-                    .subscribe(this::redrawObject);
+                    .subscribe(new Subscriber<Object>() {
+                        @Override
+                        public void onCompleted() {
+                            isSafeToDraw = true;
+                            mBitmap = worker.copy(Bitmap.Config.ARGB_8888, true);
+                            mCanvas = new Canvas(mBitmap);
+
+                            worker.recycle();
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+
+                        }
+
+                        @Override
+                        public void onNext(Object o) {
+                            redrawObject(o, workerCanvas);
+                        }
+
+                        @Override
+                        public void onStart() {
+                            super.onStart();
+
+                            isSafeToDraw = false;
+                            workerCanvas.drawBitmap(mCachedBitmap, 0, 0, null);
+                        }
+                    });
         }
     }
 
-    private Observable redrawObject(Object object) {
+    private void redrawObject(Object object, Canvas canvas) {
         if (object instanceof NormalDrawHistory) {
-            ((NormalDrawHistory) object).draw(mCanvas);
+            ((NormalDrawHistory) object).draw(canvas);
         } else if (object instanceof BitmapDrawHistory) {
-            ((BitmapDrawHistory) object).draw(mMatrix, cache, mContext, mCanvas);
+            ((BitmapDrawHistory) object).draw(mMatrix, cache, mContext, canvas);
         } else if (object instanceof TextDrawHistory) {
-            ((TextDrawHistory) object).draw(mCanvas, mMatrix, mBitmap.getWidth(), mBitmap.getHeight());
+            ((TextDrawHistory) object).draw(canvas, mMatrix, mBitmap.getWidth(), mBitmap.getHeight());
         }
-
-        return Observable.empty();
     }
 
     public void ink() {
