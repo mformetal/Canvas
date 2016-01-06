@@ -508,8 +508,13 @@ public class DrawingCurve {
 
                 changeState(State.TEXT);
 
-                mListener.onDrawingCurveOptionsMenuVisibilityRequest(true, State.TEXT);
-                mListener.onDrawingCurveFabMenuVisibilityRequest(false);
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        mListener.onDrawingCurveOptionsMenuVisibilityRequest(true, State.TEXT);
+                        mListener.onDrawingCurveFabMenuVisibilityRequest(false);
+                    }
+                }, 350);
                 break;
             case TEXT:
                 TextUtils.adjustTextSize(mTextPaint, mText, height);
