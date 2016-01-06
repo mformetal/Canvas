@@ -298,10 +298,10 @@ public class DrawingCurve {
             case ERASE:
             case DRAW:
                 for (int i = 0; i < event.getHistorySize(); i++) {
-                    addPoint(event.getHistoricalX(pointerIndex, i),
-                            event.getHistoricalY(pointerIndex, i));
+                    mStroke.addPoint(event.getHistoricalX(pointerIndex, i),
+                            event.getHistoricalY(pointerIndex, i), mCanvas, mPaint);
                 }
-                addPoint(x, y);
+                mStroke.addPoint(x, y, mCanvas, mPaint);
                 break;
             case INK:
                 int inkx = Math.round(x), inky = Math.round(y - mBitmap.getHeight() * .095f);
@@ -403,33 +403,6 @@ public class DrawingCurve {
         double dy = (event.getY(0) - event.getY(1));
         double radians = Math.atan2(dy, dx);
         return (float) Math.toDegrees(radians);
-    }
-
-    private void addPoint(float x, float y) {
-        CanvasPoint nextPoint;
-        if (mStroke.isEmpty()) {
-            nextPoint = new CanvasPoint(x, y, SystemClock.currentThreadTimeMillis());
-
-            mPaint.setStrokeWidth(mPaint.getStrokeWidth() / 2);
-            mCanvas.drawPoint(x, y, mPaint);
-            mStroke.add(nextPoint);
-            mPaint.setStrokeWidth(mPaint.getStrokeWidth() * 2);
-        } else {
-            CanvasPoint prevPoint = mStroke.peek();
-
-            if (Math.abs(prevPoint.x - x) < TOLERANCE && Math.abs(prevPoint.y - y) < TOLERANCE) {
-                return;
-            }
-
-            nextPoint = new CanvasPoint(x, y, SystemClock.currentThreadTimeMillis());
-
-            mStroke.add(nextPoint);
-            algorithmDraw(prevPoint, nextPoint);
-        }
-    }
-
-    private void algorithmDraw(CanvasPoint previous, CanvasPoint current) {
-        mCanvas.drawLine(previous.x, previous.y, current.x, current.y, mPaint);
     }
 
     public boolean redo() {
