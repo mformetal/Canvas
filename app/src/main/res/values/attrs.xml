@@ -4,11 +4,12 @@
     <declare-styleable name="ViewTypefaceTextView">
         <attr name="shouldDrawBorder" format="boolean" />
         <attr name="borderColor" format="color" />
-        <attr name="shouldAutofit" format="boolean" />
+        <attr name="textViewAutofit" format="boolean" />
     </declare-styleable>
 
     <declare-styleable name="ViewTypefaceButton">
         <attr name="backgroundColor" format="color" />
+        <attr name="buttonAutofit" format="boolean" />
     </declare-styleable>
 
 </resources>

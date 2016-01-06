@@ -2,6 +2,7 @@ package milespeele.canvas.view;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Build;
 import android.support.v7.widget.RecyclerView;
@@ -33,6 +34,7 @@ public class ViewBrushPickerLayout extends LinearLayout implements RecyclerClick
     @Bind(R.id.fragment_brush_picker_view_recycler) RecyclerView recycler;
 
     private Paint lastSelectedPaint;
+    private int trueColor;
 
     public ViewBrushPickerLayout(Context context) {
         super(context);
@@ -56,8 +58,6 @@ public class ViewBrushPickerLayout extends LinearLayout implements RecyclerClick
     }
 
     private void init() {
-        lastSelectedPaint = new Paint();
-
         setOrientation(VERTICAL);
         setClipChildren(true);
     }
@@ -84,6 +84,12 @@ public class ViewBrushPickerLayout extends LinearLayout implements RecyclerClick
     }
 
     public void setPaint(Paint paint) {
+        if (lastSelectedPaint == null) {
+            trueColor = paint.getColor();
+            lastSelectedPaint = new Paint();
+        }
+
+        paint.setColor(Color.WHITE);
         lastSelectedPaint.set(paint);
         mainExample.setInitialPaint(paint);
         createList(getContext());
@@ -108,6 +114,7 @@ public class ViewBrushPickerLayout extends LinearLayout implements RecyclerClick
     }
 
     public Paint getPaint() {
+        lastSelectedPaint.setColor(trueColor);
         return lastSelectedPaint;
     }
 }

@@ -51,13 +51,13 @@ public class AdapterBrushPicker extends RecyclerView.Adapter<AdapterBrushPicker.
         String paintName = example.getPaintName();
         Paint paint = example.getPaint();
 
+        textView.setText(paintName);
+        textView.setPaint(paint);
+
         if (!TextUtils.containsNewLine(paintName)) {
             textView.setSingleLine();
+            textView.setMaxLines(1);
         }
-
-        textView.setText(paintName);
-        textView.setTextColor(paint.getColor());
-        textView.setPaint(paint);
     }
 
     @Override
