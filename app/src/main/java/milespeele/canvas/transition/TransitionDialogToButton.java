@@ -38,7 +38,7 @@ public class TransitionDialogToButton extends ChangeBounds {
         super.createAnimator(sceneRoot, startValues, endValues);
 
         int startColor = context.getResources().getColor(R.color.primary_dark);
-        int endColor = context.getResources().getColor(R.color.accent);
+        int endColor = context.getResources().getColor(R.color.half_opacity_gray);
 
         List<View> views = getTargets();
         View fab = views.get(0);

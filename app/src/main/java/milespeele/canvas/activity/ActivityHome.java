@@ -160,12 +160,12 @@ public class ActivityHome extends ActivityBase {
         }
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("unused")
     public void onEvent(EventParseError eventParseError) {
         ErrorDialog.createDialogFromCode(this, eventParseError.getErrorCode()).show();
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("unused")
     public void onEvent(EventFilenameChosen eventFilenameChosen) {
         if (NetworkUtils.hasInternet(this)) {
             FragmentDrawer frag = (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
@@ -197,7 +197,7 @@ public class ActivityHome extends ActivityBase {
         if (frag != null) {
             FragmentBrushPicker picker = FragmentBrushPicker.newInstance(frag.getRootView().getPaint());
 
-            TransitionHelper.makeFabDialogTransitions(ActivityHome.this, view, fabFrame, picker);
+            TransitionHelper.makeFabDialogTransitions(this, view, fabFrame, picker);
 
             manager.beginTransaction()
                     .replace(R.id.fragment_drawer_animator, picker, TAG_FRAGMENT_BRUSH)
@@ -213,7 +213,11 @@ public class ActivityHome extends ActivityBase {
             FragmentColorPicker picker = FragmentColorPicker
                     .newInstance(frag.getRootView().getBrushColor(), toFill);
 
-            TransitionHelper.makeFabDialogTransitions(ActivityHome.this, view, fabFrame, picker);
+            if (view instanceof ViewFab) {
+                TransitionHelper.makeFabDialogTransitions(this, view, fabFrame, picker);
+            } else {
+                TransitionHelper.makeButtonDialogTransitions(this, view, fabFrame, picker);
+            }
 
             manager.beginTransaction()
                     .replace(R.id.fragment_drawer_animator, picker, TAG_FRAGMENT_COLOR_PICKER)
@@ -223,10 +227,14 @@ public class ActivityHome extends ActivityBase {
         }
     }
 
-    private void showTextFragment(View fab) {
+    private void showTextFragment(View view) {
         FragmentText text = FragmentText.newInstance();
 
-        TransitionHelper.makeFabDialogTransitions(this, fab, fabFrame, text);
+        if (view instanceof ViewFab) {
+            TransitionHelper.makeFabDialogTransitions(this, view, fabFrame, text);
+        } else {
+            TransitionHelper.makeButtonDialogTransitions(this, view, fabFrame, text);
+        }
 
         manager.beginTransaction()
                 .replace(R.id.fragment_drawer_animator, text, TAG_FRAGMENT_TEXT)
@@ -238,7 +246,7 @@ public class ActivityHome extends ActivityBase {
     private void showFilenameFragment(View view) {
         FragmentFilename filename = FragmentFilename.newInstance();
 
-        TransitionHelper.makeFabDialogTransitions(ActivityHome.this, view, fabFrame, filename);
+        TransitionHelper.makeFabDialogTransitions(this, view, fabFrame, filename);
 
         manager.beginTransaction()
                 .replace(R.id.fragment_drawer_animator, filename, TAG_FRAGMENT_FILENAME)
@@ -321,29 +329,9 @@ public class ActivityHome extends ActivityBase {
             switch (state) {
                 case TEXT:
                     if (view.getId() == R.id.view_options_menu_1) {
-                        FragmentText text = FragmentText.newInstance();
-
-                        TransitionHelper.makeButtonDialogTransitions(this, view, fabFrame, text);
-
-                        manager.beginTransaction()
-                                .replace(R.id.fragment_drawer_animator, text, TAG_FRAGMENT_TEXT)
-                                .commit();
-
-                        count++;
+                        showTextFragment(view);
                     } else {
-                        FragmentDrawer frag = (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
-                        if (frag != null) {
-                            FragmentColorPicker picker = FragmentColorPicker
-                                    .newInstance(frag.getRootView().getBrushColor(), false);
-
-                            TransitionHelper.makeButtonDialogTransitions(ActivityHome.this, view, fabFrame, picker);
-
-                            manager.beginTransaction()
-                                    .replace(R.id.fragment_drawer_animator, picker, TAG_FRAGMENT_COLOR_PICKER)
-                                    .commit();
-
-                            count++;
-                        }
+                        showStrokeColorChooser(view, false);
                     }
                     break;
                 case PICTURE:
