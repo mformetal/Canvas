@@ -12,7 +12,7 @@
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/fragment_brush_picker_view_recycler"
-        android:tag="@+id/item_click_support"
+        android:tag="@+id/recycler_click_listener"
         android:scrollbars="vertical"
         android:scrollbarThumbVertical="@drawable/scrollbar"
         android:layout_width="match_parent"

@@ -8,12 +8,14 @@ import android.animation.PropertyValuesHolder;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Path;
+import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.transition.ArcMotion;
 import android.transition.ChangeBounds;
 import android.transition.TransitionValues;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AnimationUtils;
 import android.view.animation.LinearInterpolator;
 
 import java.util.List;
@@ -84,9 +86,8 @@ public class TransitionFabToDialog extends ChangeBounds {
         ArcMotion arcMotion = new ArcMotion();
         arcMotion.setMinimumVerticalAngle(70f);
         Path motionPath = arcMotion.getPath(translationX, translationY, 0, 0);
-        Animator position = ObjectAnimator.ofFloat(fabFrame, View.TRANSLATION_X, View
-                .TRANSLATION_Y, motionPath)
-                .setDuration(350);
+        Animator position = ObjectAnimator.ofFloat(fabFrame,
+                View.TRANSLATION_X, View.TRANSLATION_Y, motionPath).setDuration(350);
 
         ObjectAnimator scale = ObjectAnimator.ofPropertyValuesHolder(fabFrame,
                 PropertyValuesHolder.ofFloat(View.SCALE_X, fabFrame.getScaleX(), 1f),

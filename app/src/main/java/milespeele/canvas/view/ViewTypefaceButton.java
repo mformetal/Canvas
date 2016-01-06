@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.os.Build;
 import android.util.AttributeSet;
@@ -21,6 +22,8 @@ import milespeele.canvas.util.ViewUtils;
  * Created by mbpeele on 9/2/15.
  */
 public class ViewTypefaceButton extends Button {
+
+    private Paint mPaint;
 
     public ViewTypefaceButton(Context context) {
         super(context);
@@ -56,5 +59,11 @@ public class ViewTypefaceButton extends Button {
         }
         typedArray.recycle();
     }
+
+    public void setPaint(Paint paint) {
+        mPaint = paint;
+    }
+
+    public Paint getExamplePaint() { return mPaint; }
 
 }

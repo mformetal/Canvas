@@ -75,4 +75,21 @@ public final class TextUtils {
         textPaint.setTextScaleX(xscale * .6f);
     }
 
+    public static boolean containsCapital(String string) {
+        for (int i = 0; i < string.length(); i++) {
+            if (Character.isUpperCase(string.charAt(i))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static String capitalizeFirst(String string) {
+        return string.substring(0, 1).toUpperCase() + string.substring(1, string.length());
+    }
+
+    public static boolean containsNewLine(String string) {
+        return string.contains("\n");
+    }
+
 }

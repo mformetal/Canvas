@@ -8,8 +8,8 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.AttributeSet;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import android.widget.SeekBar;
 
 import java.util.ArrayList;
 
@@ -17,16 +17,17 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import milespeele.canvas.R;
 import milespeele.canvas.adapter.AdapterBrushPicker;
-import milespeele.canvas.util.ItemClickSupport;
+import milespeele.canvas.util.RecyclerClickListener;
+import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.PaintStyles;
 import milespeele.canvas.util.SpacingDecoration;
-import milespeele.canvas.util.WrapContentLinearLayoutManager;
+import milespeele.canvas.util.TextUtils;
 
 
 /**
  * Created by milespeele on 8/8/15.
  */
-public class ViewBrushPickerLayout extends LinearLayout implements ItemClickSupport.OnItemClickListener {
+public class ViewBrushPickerLayout extends LinearLayout implements RecyclerClickListener.OnItemClickListener {
 
     @Bind(R.id.fragment_brush_picker_view_example) ViewBrushExample mainExample;
     @Bind(R.id.fragment_brush_picker_view_recycler) RecyclerView recycler;
@@ -67,18 +68,19 @@ public class ViewBrushPickerLayout extends LinearLayout implements ItemClickSupp
         ButterKnife.bind(this);
 
         recycler.setHasFixedSize(true);
-        recycler.setLayoutManager(new WrapContentLinearLayoutManager(getContext()));
-        recycler.addItemDecoration(new SpacingDecoration(40));
-        ItemClickSupport.addTo(recycler).setOnItemClickListener(this);
+        recycler.setLayoutManager(new StaggeredGridLayoutManager(3, VERTICAL));
+        recycler.addItemDecoration(new SpacingDecoration(
+                getResources().getDimensionPixelOffset(R.dimen.brush_recycler_spacing)));
+        RecyclerClickListener.addTo(recycler).setOnItemClickListener(this);
     }
 
     @Override
     public void onItemClicked(RecyclerView recyclerView, int position, View v) {
-//        ViewTypefaceTextView example = (ViewTypefaceTextView) ((LinearLayout) v).getChildAt(0);
-//
-//        Paint paint = example.getPaint();
-//        lastSelectedPaint.set(paint);
-//        mainExample.animatePaintChange(paint);
+        ViewTypefaceButton example = (ViewTypefaceButton) v;
+
+        Paint paint = example.getExamplePaint();
+        lastSelectedPaint.set(paint);
+        mainExample.animatePaintChange(paint);
     }
 
     public void setPaint(Paint paint) {
@@ -91,8 +93,15 @@ public class ViewBrushPickerLayout extends LinearLayout implements ItemClickSupp
         String[] myResArray = context.getResources().getStringArray(R.array.paint_examples);
         ArrayList<AdapterBrushPicker.PaintExample> arrayList = new ArrayList<>();
         for (String res: myResArray) {
-            arrayList.add(new AdapterBrushPicker.PaintExample(
-                    res.substring(0,1).toUpperCase() + res.substring(1),
+            String name = res;
+            if (TextUtils.containsCapital(name)) {
+                String[] array = name.split("(?=\\p{Upper})");
+                String first = array[0], second = array[1];
+                name = TextUtils.capitalizeFirst(first) + "\n" + TextUtils.capitalizeFirst(second);
+            } else {
+                name = name.toUpperCase();
+            }
+            arrayList.add(new AdapterBrushPicker.PaintExample(name,
                     PaintStyles.getStyleFromName(res, lastSelectedPaint.getColor())));
         }
         recycler.setAdapter(new AdapterBrushPicker(arrayList));
