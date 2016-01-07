@@ -263,8 +263,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
                 mLastY = y;
                 break;
             case MotionEvent.ACTION_MOVE:
-                if (Math.abs(mLastY - y) < 50) {
-                    Logg.log("Y DIST < 50");
+                if (Math.abs(mLastY - y) < 200) {
                     double degrees = mCircle.angleInDegrees(x, y);
                     double rotater = degrees - mLastAngle;
 

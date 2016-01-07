@@ -5,9 +5,11 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Path;
+import android.graphics.Point;
 import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.transition.ArcMotion;
 import android.transition.ChangeBounds;
@@ -16,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AnimationUtils;
+import android.view.animation.AnticipateOvershootInterpolator;
 import android.view.animation.LinearInterpolator;
 
 import java.util.List;
@@ -50,13 +53,20 @@ public class TransitionFabToDialog extends ChangeBounds {
         ViewRoundedFrameLayout fabFrame = (ViewRoundedFrameLayout) views.get(1);
         ViewCanvasLayout layout = (ViewCanvasLayout) views.get(2);
 
-        float translationX = fab.getX() - fab.getWidth() * .25f - fabFrame.getWidth() / 2;
-        float translationY = fab.getY() + fab.getHeight() * 2.5f;
+        Point size = new Point();
+        ((Activity) context).getWindowManager().getDefaultDisplay().getSize(size);
+        float yDiff = layout.getHeight() - size.y;
 
-        fabFrame.setScaleX((float) fab.getWidth() / (float) fabFrame.getWidth());
-        fabFrame.setScaleY((float) fab.getHeight() / (float) fabFrame.getHeight());
+        float xRatio = (float) fab.getWidth() / (float) fabFrame.getWidth();
+        float yRatio = (float) fab.getHeight() / (float) fabFrame.getHeight();
+
+        float translationX = fab.getX() - fab.getWidth() * .25f - fabFrame.getWidth() / 2;
+        float translationY = fab.getY() + fab.getHeight() * 2.75f;
+
+        fabFrame.setScaleX(xRatio);
+        fabFrame.setScaleY(yRatio);
         fabFrame.setTranslationX(translationX);
-        fabFrame.setTranslationY(translationY);
+        fabFrame.setTranslationY(translationY + yDiff);
         fabFrame.setVisibility(View.VISIBLE);
 
         Animator corner = ObjectAnimator.ofFloat(fabFrame,
@@ -85,17 +95,20 @@ public class TransitionFabToDialog extends ChangeBounds {
 
         ArcMotion arcMotion = new ArcMotion();
         arcMotion.setMinimumVerticalAngle(70f);
+        arcMotion.setMinimumHorizontalAngle(15f);
         Path motionPath = arcMotion.getPath(translationX, translationY, 0, 0);
         Animator position = ObjectAnimator.ofFloat(fabFrame,
-                View.TRANSLATION_X, View.TRANSLATION_Y, motionPath).setDuration(350);
+                View.TRANSLATION_X, View.TRANSLATION_Y, motionPath)
+                .setDuration(350);
 
         ObjectAnimator scale = ObjectAnimator.ofPropertyValuesHolder(fabFrame,
                 PropertyValuesHolder.ofFloat(View.SCALE_X, fabFrame.getScaleX(), 1f),
                 PropertyValuesHolder.ofFloat(View.SCALE_Y, fabFrame.getScaleX(), 1f))
                 .setDuration(350);
+        scale.setStartDelay(position.getDuration() / 2);
 
         AnimatorSet animatorSet = new AnimatorSet();
-        animatorSet.playTogether(alpha, background, position, scale, corner);
+        animatorSet.playTogether(alpha, background, corner, position, scale);
         animatorSet.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationStart(Animator animation) {
@@ -109,7 +122,6 @@ public class TransitionFabToDialog extends ChangeBounds {
                 }
             }
         });
-        animatorSet.setDuration(350);
         animatorSet.setInterpolator(new AccelerateDecelerateInterpolator());
 
         return animatorSet;

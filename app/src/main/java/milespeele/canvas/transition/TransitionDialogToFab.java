@@ -5,9 +5,11 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Path;
+import android.graphics.Point;
 import android.transition.ArcMotion;
 import android.transition.ChangeBounds;
 import android.transition.TransitionValues;
@@ -51,7 +53,7 @@ public class TransitionDialogToFab extends ChangeBounds {
         float fabCenterX = fab.getX() + fabRadius;
         float fabCenterY = fab.getY() + fabRadius;
         float translationX = fabCenterX - fabFrame.getWidth() / 2 - fab.getWidth() * .75f;
-        float translationY = fabCenterY + fab.getHeight() * 2;
+        float translationY = fabCenterY + fab.getHeight() * 3.1f;
 
         Animator alpha = ObjectAnimator.ofArgb(layout, ViewCanvasLayout.ALPHA, 0);
 
@@ -74,10 +76,11 @@ public class TransitionDialogToFab extends ChangeBounds {
 
         Animator background = ObjectAnimator.ofArgb(fabFrame,
                 ViewUtils.BACKGROUND, startColor, endColor)
-                .setDuration(450);
+                .setDuration(350);
 
         ArcMotion arcMotion = new ArcMotion();
         arcMotion.setMinimumVerticalAngle(70f);
+        arcMotion.setMinimumHorizontalAngle(15f);
         Path motionPath = arcMotion.getPath(0, 0, translationX, translationY);
         Animator position = ObjectAnimator.ofFloat(fabFrame, View.TRANSLATION_X, View
                 .TRANSLATION_Y, motionPath)
@@ -91,7 +94,7 @@ public class TransitionDialogToFab extends ChangeBounds {
                 .setDuration(350);
 
         AnimatorSet animatorSet = new AnimatorSet();
-        animatorSet.playTogether(alpha, background, scale, position, corner);
+        animatorSet.playTogether(background, position, corner, alpha, scale);
         animatorSet.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {

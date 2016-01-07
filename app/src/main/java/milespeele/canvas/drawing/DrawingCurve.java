@@ -23,6 +23,7 @@ import javax.inject.Inject;
 
 import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
+import milespeele.canvas.R;
 import milespeele.canvas.event.EventBitmapChosen;
 import milespeele.canvas.event.EventBrushChosen;
 import milespeele.canvas.event.EventClearCanvas;
@@ -124,6 +125,7 @@ public class DrawingCurve {
 
         mTextPaint = new TextPaint(TextPaint.ANTI_ALIAS_FLAG);
         mTextPaint.setColor(mStrokeColor);
+        mTextPaint.setTextSize(mContext.getResources().getDimension(R.dimen.medium_text_size));
         mTextPaint.setStyle(Paint.Style.FILL_AND_STROKE);
 
         mAllHistory = new Stack<>();
