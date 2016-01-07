@@ -35,6 +35,7 @@ dependencies {
     provided 'com.google.dagger:dagger-compiler:2.0'
     provided 'org.glassfish:javax.annotation:10.0-b28'
     compile 'com.google.guava:guava:19.0'
+    compile 'com.android.support:palette-v7:23.1.1'
     compile 'com.android.support:design:23.1.1'
     compile 'com.android.support:recyclerview-v7:23.1.1'
     compile 'com.larswerkman:HoloColorPicker:1.5'

@@ -44,6 +44,7 @@ import milespeele.canvas.util.ErrorDialog;
 import milespeele.canvas.util.FileUtils;
 import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.NetworkUtils;
+import milespeele.canvas.view.ViewCanvasLayout;
 import milespeele.canvas.view.ViewFab;
 import milespeele.canvas.view.ViewRoundedFrameLayout;
 import rx.Subscriber;
@@ -236,8 +237,9 @@ public class ActivityHome extends ActivityBase {
     private void showColorChooser(View view, boolean toFill) {
         FragmentDrawer frag = (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
         if (frag != null) {
-            FragmentColorPicker picker = FragmentColorPicker
-                    .newInstance(frag.getRootView().getBrushColor(), toFill);
+            ViewCanvasLayout layout = frag.getRootView();
+            int color = toFill ? layout.getBackgroundColor() : layout.getBrushColor();
+            FragmentColorPicker picker = FragmentColorPicker.newInstance(color, toFill);
 
             if (view instanceof ViewFab) {
                 TransitionHelper.makeFabDialogTransitions(this, view, fabFrame, picker);

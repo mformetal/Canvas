@@ -11,12 +11,14 @@ import android.graphics.PointF;
 import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.*;
+import android.support.v7.graphics.Palette;
 import android.text.TextPaint;
 import android.view.MotionEvent;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Stack;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
@@ -40,7 +42,7 @@ import rx.schedulers.Schedulers;
 /**
  * Created by mbpeele on 9/25/15.
  */
-public class DrawingCurve {
+public class DrawingCurve implements Palette.PaletteAsyncListener {
 
     public enum State {
         DRAW,
@@ -84,7 +86,7 @@ public class DrawingCurve {
     public interface DrawingCurveListener {
         void toggleOptionsMenuVisibilty(boolean visible, State state);
         void toggleFabMenuVisibility(boolean visible);
-        void onDrawingCurveSnbackRequest(int stringId, int length);
+        void changeStatusBarColor(int color);
     }
 
     public DrawingCurve(Context context) {
@@ -129,6 +131,16 @@ public class DrawingCurve {
         mAllHistory = new Stack<>();
         mRedoneHistory = new Stack<>();
         mStroke = new Stroke(mPaint);
+
+//        Schedulers.io().createWorker().schedulePeriodically(() ->
+//                Palette.from(mCachedBitmap).generate(this), 0, 5, TimeUnit.SECONDS);
+    }
+
+    @Override
+    public void onGenerated(Palette palette) {
+        int color = palette.getVibrantColor(mOppositeBackgroundColor);
+        mListener.changeStatusBarColor(color);
+        Logg.log("ON GENERATED", color, mOppositeBackgroundColor);
     }
 
     private void reset() {
@@ -533,9 +545,11 @@ public class DrawingCurve {
 
                     mBackgroundColor = color;
 
-                    changeState(State.DRAW);
+                    mOppositeBackgroundColor = ViewUtils.getComplimentColor(mBackgroundColor);
+
+                    mListener.changeStatusBarColor(mOppositeBackgroundColor);
                 } else {
-                    changeState(State.DRAW);
+                    mStrokeColor = color;
 
                     setPaintColor(color);
                 }
@@ -676,7 +690,7 @@ public class DrawingCurve {
         }
     }
 
-    public int getStrokeColor() { return mStrokeColor; }
+    public int getStrokeColor() { return mPaint.getColor(); }
 
     public int getBackgroundColor() { return mBackgroundColor; }
 

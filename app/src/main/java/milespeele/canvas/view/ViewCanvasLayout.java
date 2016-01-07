@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -18,6 +19,8 @@ import android.util.Property;
 import android.view.MotionEvent;
 import android.view.SoundEffectConstants;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.BounceInterpolator;
 import android.view.animation.DecelerateInterpolator;
@@ -26,6 +29,7 @@ import android.view.animation.LinearInterpolator;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import milespeele.canvas.R;
+import milespeele.canvas.activity.ActivityHome;
 import milespeele.canvas.drawing.DrawingCurve;
 import milespeele.canvas.fragment.FragmentDrawer;
 import milespeele.canvas.util.ViewUtils;
@@ -40,8 +44,7 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
     @Bind(R.id.fragment_drawer_menu) ViewFabMenu fabMenu;
     @Bind(R.id.fragment_drawer_animator) ViewRoundedFrameLayout fabFrame;
     @Bind(R.id.fragment_drawer_options_menu) ViewOptionsMenu optionsMenu;
-    @Bind(R.id.fragment_drawer_save_animation)
-    ViewSaveAnimator saveAnimator;
+    @Bind(R.id.fragment_drawer_save_animation) ViewSaveAnimator saveAnimator;
 
     private final Rect hitRect = new Rect();
     private Paint shadowPaint;
@@ -169,8 +172,19 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
     }
 
     @Override
-    public void onDrawingCurveSnbackRequest(int stringId, int length) {
-        Snackbar.make(this, stringId, length).show();
+    public void changeStatusBarColor(int color) {
+        Window window = ((ActivityHome) getContext()).getWindow();
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+
+        int curStatusBarColor = window.getStatusBarColor();
+        if (curStatusBarColor != color) {
+            ValueAnimator valueAnimator = ValueAnimator.ofArgb(curStatusBarColor, color);
+            valueAnimator.addUpdateListener(animation ->
+                    window.setStatusBarColor((Integer) animation.getAnimatedValue()));
+            valueAnimator.setDuration(500);
+            valueAnimator.start();
+        }
     }
 
     @Override
@@ -228,6 +242,8 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
     public int getBrushColor() {
         return drawer.getBrushColor();
     }
+
+    public int getBackgroundColor() { return drawer.getBackgroundColor(); }
 
     public Bitmap getDrawerBitmap() {
         return drawer.getDrawingBitmap();

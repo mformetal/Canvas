@@ -1,5 +1,6 @@
 package milespeele.canvas.fragment;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -47,9 +48,8 @@ public class FragmentColorPicker extends FragmentBase
 
         currentColor = getArguments().getInt("prev");
 
-        picker.setColor(currentColor);
+        picker.setColor(Color.rgb(Color.red(currentColor), Color.green(currentColor), Color.blue(currentColor)));
         picker.setShowOldCenterColor(false);
-        picker.setColor(currentColor);
         picker.addSVBar(svBar);
         picker.addOpacityBar(opacityBar);
         picker.setOnColorChangedListener(this);
