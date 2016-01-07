@@ -15,6 +15,7 @@ import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.animation.AnticipateOvershootInterpolator;
@@ -135,14 +136,19 @@ public class ViewSaveAnimator extends View {
     public void stopAnimation(AnimatorListenerAdapter adapter) {
         if (mAnimatorSet != null) {
             ArrayList<Animator> childAnimations = mAnimatorSet.getChildAnimations();
-            for (Animator animator: childAnimations) {
-                if (animator instanceof ValueAnimator) {
-                    ((ValueAnimator) animator).setRepeatCount(0);
-                    ((ValueAnimator) animator).setRepeatMode(0);
-                }
-
-                if (animator == childAnimations.get(childAnimations.size()  - 1)) {
-                    ObjectAnimator scale = ObjectAnimator.ofPropertyValuesHolder(this,
+            Animator animator = childAnimations.get(childAnimations.size() - 1);
+            animator.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationRepeat(Animator animation) {
+                    super.onAnimationEnd(animation);
+                    for (Animator child: childAnimations) {
+                        if (child instanceof ValueAnimator) {
+                            ((ValueAnimator) child).setRepeatCount(0);
+                            ((ValueAnimator) child).setRepeatMode(0);
+                            child.removeAllListeners();
+                        }
+                    }
+                    ObjectAnimator scale = ObjectAnimator.ofPropertyValuesHolder(ViewSaveAnimator.this,
                             PropertyValuesHolder.ofFloat(View.SCALE_X, .2f, 1f),
                             PropertyValuesHolder.ofFloat(View.SCALE_Y, .2f, 1f));
                     scale.setDuration(350);
@@ -163,16 +169,50 @@ public class ViewSaveAnimator extends View {
                         }
                     });
 
-                    scale.addUpdateListener(animation -> invalidate());
+                    scale.addUpdateListener(animation1 -> invalidate());
 
-                    animator.addListener(new AnimatorListenerAdapter() {
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-                            scale.start();
-                        }
-                    });
+                    scale.start();
                 }
-            }
+            });
+//            ArrayList<Animator> childAnimations = mAnimatorSet.getChildAnimations();
+//            for (Animator animator: childAnimations) {
+//                if (animator instanceof ValueAnimator) {
+//                    ((ValueAnimator) animator).setRepeatCount(0);
+//                    ((ValueAnimator) animator).setRepeatMode(0);
+//                }
+//
+//                if (animator == childAnimations.get(childAnimations.size()  - 1)) {
+//                    ObjectAnimator scale = ObjectAnimator.ofPropertyValuesHolder(this,
+//                            PropertyValuesHolder.ofFloat(View.SCALE_X, .2f, 1f),
+//                            PropertyValuesHolder.ofFloat(View.SCALE_Y, .2f, 1f));
+//                    scale.setDuration(350);
+//                    scale.setInterpolator(new AnticipateOvershootInterpolator());
+//                    scale.addListener(new AnimatorListenerAdapter() {
+//                        @Override
+//                        public void onAnimationStart(Animator animation) {
+//                            super.onAnimationStart(animation);
+//                            mDrawable = getResources().getDrawable(R.drawable.ic_check_24dp);
+//                            mDrawable.setColorFilter(ViewUtils.getComplimentColor(mBackgroundColor),
+//                                    PorterDuff.Mode.SRC_ATOP);
+//                            mDrawable.setBounds(0, 0, getWidth(), getHeight());
+//                        }
+//
+//                        @Override
+//                        public void onAnimationEnd(Animator animation) {
+//                            new Handler().postDelayed(() -> adapter.onAnimationEnd(animation), 750);
+//                        }
+//                    });
+//
+//                    scale.addUpdateListener(animation -> invalidate());
+//
+//                    animator.addListener(new AnimatorListenerAdapter() {
+//                        @Override
+//                        public void onAnimationEnd(Animator animation) {
+//                            scale.start();
+//                        }
+//                    });
+//                }
+//            }
         } else {
             adapter.onAnimationEnd(null);
         }
