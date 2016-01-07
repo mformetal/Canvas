@@ -3,6 +3,7 @@ package milespeele.canvas.activity;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
@@ -105,18 +106,16 @@ public class ActivityHome extends ActivityBase {
     @Override
     public void onBackPressed() {
         if (count == 0) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this)
-                    .setPositiveButton(R.string.alert_dialog_save_exit, (dialog, which) -> {
-                        saveAndExit();
-                    })
-                    .setNeutralButton(R.string.alert_dialog_cancel, (dialog, which) -> {
-                        dialog.dismiss();
-                    })
-                    .setNegativeButton(R.string.alert_dialog_exit, (dialog, which) -> {
-                        dialog.dismiss();
-                        super.onBackPressed();
-                    });
-            builder.create().show();
+            Dialog builder = new Dialog(this);
+            builder.setContentView(R.layout.dialog_save);
+            builder.findViewById(R.id.dialog_save_drawing).setOnClickListener(v -> {
+                builder.dismiss();
+                saveAndExit();
+            });
+            builder.findViewById(R.id.dialog_exit_app).setOnClickListener(v -> {
+                super.onBackPressed();
+            });
+            builder.show();
         } else {
             // UGLY, but popBackStack() results in a weird exception on certain devices
             // https://code.google.com/p/android/issues/detail?id=82832
@@ -160,6 +159,7 @@ public class ActivityHome extends ActivityBase {
                         finish();
                     }
                 };
+
                 fragmentDrawer.getRootView().stopSaveAnimation(listenerAdapter);
             }
 
