@@ -35,8 +35,6 @@ import milespeele.canvas.util.TextUtils;
 import milespeele.canvas.util.ViewUtils;
 import rx.Observable;
 import rx.Subscriber;
-import rx.functions.Action0;
-import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
 /**
@@ -115,7 +113,6 @@ public class DrawingCurve {
         mCachedBitmap = FileUtils.getCachedBitmap(mContext);
         if (mCachedBitmap == null) {
             mCachedBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-            mCachedBitmap.eraseColor(mBackgroundColor);
         }
 
         mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
@@ -534,7 +531,7 @@ public class DrawingCurve {
 
         switch (mState) {
             case DRAW:
-                if (eventColorChosen.bool) {
+                if (eventColorChosen.fill) {
                     store.setLastBackgroundColor(color);
 
                     reset(color);
