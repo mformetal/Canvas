@@ -151,7 +151,7 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
     }
 
     @Override
-    public void onDrawingCurveOptionsMenuVisibilityRequest(boolean setVisible, DrawingCurve.State state) {
+    public void toggleOptionsMenuVisibilty(boolean setVisible, DrawingCurve.State state) {
         if (setVisible) {
             optionsMenu.setState(state);
         } else {
@@ -160,7 +160,7 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
     }
 
     @Override
-    public void onDrawingCurveFabMenuVisibilityRequest(boolean setVisible) {
+    public void toggleFabMenuVisibility(boolean setVisible) {
         if (setVisible) {
             ViewUtils.visible(fabMenu);
         } else {

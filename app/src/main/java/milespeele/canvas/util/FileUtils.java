@@ -38,29 +38,6 @@ public class FileUtils {
     public final static String DRAWING_BITMAP_FILENAME = "canvas:bitmap";
     public final static String PHOTO_BITMAP_FILENAME = "canvasphoto";
 
-    public static void cache(Bitmap bitmap, Context context) {
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-        byte[] bytes =  stream.toByteArray();
-
-        FileOutputStream output = null;
-        try {
-            output = context.openFileOutput(DRAWING_BITMAP_FILENAME, Context.MODE_PRIVATE);
-            output.write(bytes);
-        } catch (IOException e) {
-            Logg.log(e);
-        } finally {
-            if (output != null) {
-                try {
-                    output.flush();
-                    output.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
-
     public static Observable<byte[]> cacheAsObservable(Bitmap bitmap, Context context) {
         return Observable.create(new Observable.OnSubscribe<byte[]>() {
             @Override

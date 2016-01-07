@@ -1,7 +1,5 @@
 package milespeele.canvas.drawing;
 
-import android.animation.ObjectAnimator;
-import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -84,8 +82,8 @@ public class DrawingCurve {
 
     private DrawingCurveListener mListener;
     public interface DrawingCurveListener {
-        void onDrawingCurveOptionsMenuVisibilityRequest(boolean visible, State state);
-        void onDrawingCurveFabMenuVisibilityRequest(boolean visible);
+        void toggleOptionsMenuVisibilty(boolean visible, State state);
+        void toggleFabMenuVisibility(boolean visible);
         void onDrawingCurveSnbackRequest(int stringId, int length);
     }
 
@@ -159,45 +157,43 @@ public class DrawingCurve {
     }
 
     public void drawToSurfaceView(Canvas canvas) {
-        if (canvas != null) {
-            if (isSafeToDraw) {
-                canvas.drawColor(mBackgroundColor);
+        if (canvas != null && isSafeToDraw) {
+            canvas.drawColor(mBackgroundColor);
 
-                canvas.drawBitmap(mBitmap, 0, 0, null);
+            canvas.drawBitmap(mBitmap, 0, 0, null);
 
-                switch (mState) {
-                    case TEXT:
-                        int count = canvas.save();
-                        canvas.concat(mMatrix);
-                        canvas.drawText(mText,
-                                mBitmap.getWidth() / 2 - mTextPaint.measureText(mText) / 2,
-                                mBitmap.getHeight() / 2,
-                                mTextPaint);
-                        canvas.restoreToCount(count);
-                        break;
-                    case INK:
-                        float lineSize = canvas.getWidth() * .1f, xSpace = canvas.getWidth() * .05f;
-                        float middleX = mLastX, middleY = mLastY - canvas.getHeight() * .1f;
+            switch (mState) {
+                case TEXT:
+                    int count = canvas.save();
+                    canvas.concat(mMatrix);
+                    canvas.drawText(mText,
+                            mBitmap.getWidth() / 2 - mTextPaint.measureText(mText) / 2,
+                            mBitmap.getHeight() / 2,
+                            mTextPaint);
+                    canvas.restoreToCount(count);
+                    break;
+                case INK:
+                    float lineSize = canvas.getWidth() * .1f, xSpace = canvas.getWidth() * .05f;
+                    float middleX = mLastX, middleY = mLastY - canvas.getHeight() * .1f;
 
-                        // base "pointer"
-                        mInkPaint.setColor(mOppositeBackgroundColor);
-                        canvas.drawLine(middleX + xSpace / 2, middleY, middleX + xSpace + lineSize, middleY, mInkPaint);
-                        canvas.drawLine(middleX - xSpace / 2, middleY, middleX - xSpace - lineSize, middleY, mInkPaint);
-                        canvas.drawLine(middleX, middleY + xSpace / 2, middleX, middleY + xSpace + lineSize, mInkPaint);
-                        canvas.drawLine(middleX, middleY - xSpace / 2, middleX, middleY - xSpace - lineSize, mInkPaint);
-                        canvas.drawCircle(middleX, middleY, xSpace + lineSize, mInkPaint);
+                    // base "pointer"
+                    mInkPaint.setColor(mOppositeBackgroundColor);
+                    canvas.drawLine(middleX + xSpace / 2, middleY, middleX + xSpace + lineSize, middleY, mInkPaint);
+                    canvas.drawLine(middleX - xSpace / 2, middleY, middleX - xSpace - lineSize, middleY, mInkPaint);
+                    canvas.drawLine(middleX, middleY + xSpace / 2, middleX, middleY + xSpace + lineSize, mInkPaint);
+                    canvas.drawLine(middleX, middleY - xSpace / 2, middleX, middleY - xSpace - lineSize, mInkPaint);
+                    canvas.drawCircle(middleX, middleY, xSpace + lineSize, mInkPaint);
 
-                        // ink circle
-                        mInkPaint.setColor(mInkedColor);
-                        canvas.drawCircle(middleX, middleY, xSpace + lineSize - mPaint.getStrokeWidth(), mInkPaint);
-                        break;
-                    case PICTURE:
-                        int saveCount = canvas.save();
-                        canvas.concat(mMatrix);
-                        canvas.drawBitmap(mPhotoBitmap, 0, 0, null);
-                        canvas.restoreToCount(saveCount);
-                        break;
-                }
+                    // ink circle
+                    mInkPaint.setColor(mInkedColor);
+                    canvas.drawCircle(middleX, middleY, xSpace + lineSize - mPaint.getStrokeWidth(), mInkPaint);
+                    break;
+                case PICTURE:
+                    int saveCount = canvas.save();
+                    canvas.concat(mMatrix);
+                    canvas.drawBitmap(mPhotoBitmap, 0, 0, null);
+                    canvas.restoreToCount(saveCount);
+                    break;
             }
         }
     }
@@ -251,6 +247,10 @@ public class DrawingCurve {
         float x = event.getX(), y = event.getY();
 
         switch (mState) {
+            case ERASE:
+            case DRAW:
+                mStroke.addPoint(x, y, mCanvas, mPaint);
+                break;
             case TEXT:
             case PICTURE:
                 mSavedMatrix.set(mMatrix);
@@ -296,7 +296,8 @@ public class DrawingCurve {
                 break;
             case INK:
                 int inkx = Math.round(x), inky = Math.round(y - mBitmap.getHeight() * .095f);
-                if (eventCoordsInRange(inkx, inky)) {
+                if ((0 <= inkx && inkx <= mBitmap.getWidth() - 1) &&
+                    (0 <= inky && inky <= mBitmap.getHeight() - 1)) {
                     mInkedColor = mBitmap.getPixel(inkx, inky);
                 }
                 break;
@@ -360,12 +361,7 @@ public class DrawingCurve {
                 setPaintColor(mStrokeColor);
                 changeState(State.DRAW);
 
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        mListener.onDrawingCurveFabMenuVisibilityRequest(true);
-                    }
-                }, 350);
+                new Handler().postDelayed(() -> mListener.toggleFabMenuVisibility(true), 350);
                 break;
         }
 
@@ -473,7 +469,7 @@ public class DrawingCurve {
     public void ink() {
         changeState(State.INK);
 
-        mListener.onDrawingCurveFabMenuVisibilityRequest(false);
+        mListener.toggleFabMenuVisibility(false);
 
         int middleX = mBitmap.getWidth() / 2;
         int middleY = mBitmap.getHeight() / 2;
@@ -514,8 +510,8 @@ public class DrawingCurve {
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        mListener.onDrawingCurveOptionsMenuVisibilityRequest(true, State.TEXT);
-                        mListener.onDrawingCurveFabMenuVisibilityRequest(false);
+                        mListener.toggleOptionsMenuVisibilty(true, State.TEXT);
+                        mListener.toggleFabMenuVisibility(false);
                     }
                 }, 350);
                 break;
@@ -574,49 +570,47 @@ public class DrawingCurve {
 
         ViewUtils.setIdentityMatrix(mMatrix);
 
-        Schedulers.io().createWorker().schedule(() -> {
-            mPhotoBitmapUri = eventBitmapChosen.data;
-            InputStream inputStream = null;
-            if (mPhotoBitmapUri != null) {
-                try {
-                    inputStream = mContext.getContentResolver().openInputStream(mPhotoBitmapUri);
-                    mPhotoBitmap = FileUtils.getBitmapFromStream(inputStream);
+        mPhotoBitmapUri = eventBitmapChosen.data;
+        InputStream inputStream = null;
+        if (mPhotoBitmapUri != null) {
+            try {
+                inputStream = mContext.getContentResolver().openInputStream(mPhotoBitmapUri);
+                mPhotoBitmap = FileUtils.getBitmapFromStream(inputStream);
 
-                    float scale = Math.min((float) mBitmap.getWidth() / mPhotoBitmap.getWidth(),
-                            (float) mBitmap.getHeight() / mPhotoBitmap.getHeight());
-                    scale = Math.max(scale, Math.min((float) mBitmap.getHeight() / mPhotoBitmap.getWidth(),
-                            (float) mBitmap.getWidth() / mPhotoBitmap.getHeight()));
-                    if (scale < 1) {
-                        mMatrix.setScale(scale, scale);
-                    }
-                } catch (IOException e) {
-                    Logg.log(e);
-                } finally {
-                    if (inputStream != null) {
-                        try {
-                            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    mListener.onDrawingCurveOptionsMenuVisibilityRequest(true, State.PICTURE);
-                                    mListener.onDrawingCurveFabMenuVisibilityRequest(false);
-                                }
-                            }, 350);
+                float scale = Math.min((float) mBitmap.getWidth() / mPhotoBitmap.getWidth(),
+                        (float) mBitmap.getHeight() / mPhotoBitmap.getHeight());
+                scale = Math.max(scale, Math.min((float) mBitmap.getHeight() / mPhotoBitmap.getWidth(),
+                        (float) mBitmap.getWidth() / mPhotoBitmap.getHeight()));
+                if (scale < 1) {
+                    mMatrix.setScale(scale, scale);
+                }
+            } catch (IOException e) {
+                Logg.log(e);
+            } finally {
+                if (inputStream != null) {
+                    try {
+                        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                mListener.toggleOptionsMenuVisibilty(true, State.PICTURE);
+                                mListener.toggleFabMenuVisibility(false);
+                            }
+                        }, 350);
 
-                            changeState(State.PICTURE);
+                        changeState(State.PICTURE);
 
-                            inputStream.close();
-                        } catch (IOException e) {
-                            Logg.log(e);
-                        }
+                        inputStream.close();
+                    } catch (IOException e) {
+                        Logg.log(e);
                     }
                 }
             }
-        });
+        }
     }
 
     public void onOptionsMenuCancel() {
-        mListener.onDrawingCurveOptionsMenuVisibilityRequest(false, null);
-        mListener.onDrawingCurveFabMenuVisibilityRequest(true);
+        mListener.toggleOptionsMenuVisibilty(false, null);
+        mListener.toggleFabMenuVisibility(true);
 
         changeState(State.DRAW);
 
@@ -637,8 +631,8 @@ public class DrawingCurve {
         float[] values = new float[9];
         switch (mState) {
             case TEXT:
-                mListener.onDrawingCurveOptionsMenuVisibilityRequest(false, null);
-                mListener.onDrawingCurveFabMenuVisibilityRequest(true);
+                mListener.toggleOptionsMenuVisibilty(false, null);
+                mListener.toggleFabMenuVisibility(true);
 
                 mCanvas.save();
                 mCanvas.concat(mMatrix);
@@ -658,8 +652,8 @@ public class DrawingCurve {
                 mText = null;
                 break;
             case PICTURE:
-                mListener.onDrawingCurveOptionsMenuVisibilityRequest(false, null);
-                mListener.onDrawingCurveFabMenuVisibilityRequest(true);
+                mListener.toggleOptionsMenuVisibilty(false, null);
+                mListener.toggleFabMenuVisibility(true);
 
                 mCanvas.save();
                 mCanvas.concat(mMatrix);
@@ -699,10 +693,5 @@ public class DrawingCurve {
     private void setPaintThickness(float floater) {
         mPaint.setStrokeWidth(floater);
         mStroke.paint.setStrokeWidth(floater);
-    }
-
-    private boolean eventCoordsInRange(int x, int y) {
-        return (0 <= x && x <= mBitmap.getWidth() - 1) &&
-                (0 <= y && y <= mBitmap.getHeight() - 1);
     }
 }
