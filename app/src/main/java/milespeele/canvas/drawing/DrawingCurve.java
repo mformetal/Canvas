@@ -10,6 +10,7 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.PointF;
+import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.*;
 import android.text.TextPaint;
@@ -420,6 +421,7 @@ public class DrawingCurve {
     private void redraw() {
         final Bitmap worker = Bitmap.createBitmap(mBitmap);
         Canvas workerCanvas = new Canvas(worker);
+        workerCanvas.drawColor(mBackgroundColor, PorterDuff.Mode.CLEAR);
 
         synchronized (mAllHistory) {
             Observable.from(mAllHistory)
