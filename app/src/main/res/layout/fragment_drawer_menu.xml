@@ -44,7 +44,7 @@
         android:id="@+id/menu_stroke_color"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_format_paint_24dp"
+        android:src="@drawable/ic_palette_24dp"
         app:backgroundTint="@android:color/white"
         app:borderWidth="0dp"
         app:elevation="@dimen/fab_elevation"
@@ -111,6 +111,17 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_erase_24dp"
+        app:backgroundTint="@android:color/white"
+        app:borderWidth="0dp"
+        app:elevation="@dimen/fab_elevation"
+        app:rippleColor="@color/primary_dark"
+        app:fabSize="mini" />
+
+    <milespeele.canvas.view.ViewFab
+        android:id="@+id/menu_clear_canvas"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_clear_canvas_24dp"
         app:backgroundTint="@android:color/white"
         app:borderWidth="0dp"
         app:elevation="@dimen/fab_elevation"

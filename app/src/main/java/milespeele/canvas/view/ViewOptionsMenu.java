@@ -106,7 +106,7 @@ public class ViewOptionsMenu extends LinearLayout implements View.OnClickListene
 
                 option2.setText(R.string.view_options_menu_edit_color);
                 option2.setCompoundDrawablesWithIntrinsicBounds(null, null, null,
-                        getResources().getDrawable(R.drawable.ic_format_paint_24dp));
+                        getResources().getDrawable(R.drawable.ic_palette_24dp));
                 break;
             case PICTURE:
                 option1.setText(R.string.view_options_menu_edit_camera);

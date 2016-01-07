@@ -12,7 +12,6 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.PersistableBundle;
-import android.os.SystemClock;
 import android.provider.MediaStore;
 import android.support.annotation.StringRes;
 import android.support.design.widget.Snackbar;
@@ -31,6 +30,7 @@ import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
 import milespeele.canvas.drawing.DrawingCurve;
 import milespeele.canvas.event.EventBitmapChosen;
+import milespeele.canvas.event.EventClearCanvas;
 import milespeele.canvas.event.EventFilenameChosen;
 import milespeele.canvas.event.EventParseError;
 import milespeele.canvas.fragment.FragmentBrushPicker;
@@ -233,7 +233,7 @@ public class ActivityHome extends ActivityBase {
         }
     }
 
-    private void showStrokeColorChooser(View view, boolean toFill) {
+    private void showColorChooser(View view, boolean toFill) {
         FragmentDrawer frag = (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
         if (frag != null) {
             FragmentColorPicker picker = FragmentColorPicker
@@ -321,7 +321,7 @@ public class ActivityHome extends ActivityBase {
                 showBrushChooser(view);
                 break;
             case R.id.menu_stroke_color:
-                showStrokeColorChooser(view, false);
+                showColorChooser(view, false);
                 break;
             case R.id.menu_text:
                 showTextFragment(view);
@@ -330,22 +330,25 @@ public class ActivityHome extends ActivityBase {
                 showFilenameFragment(view);
                 break;
             case R.id.menu_canvas_color:
-                AlertDialog.Builder builder = new AlertDialog.Builder(this)
-                        .setTitle(R.string.alert_dialog_new_canvas_title)
-                        .setMessage(R.string.alert_dialog_new_canvas_body)
-                        .setPositiveButton(R.string.alert_dialog_new_canvas_pos_button, (dialog, which) -> {
-                            showStrokeColorChooser(view, true);
-                        })
-                        .setNegativeButton(R.string.alert_dialog_new_canvas_neg_button, (dialog, which) -> {
-                            dialog.dismiss();
-                        });
-                builder.create().show();
+                showColorChooser(view, true);
                 break;
             case R.id.menu_import:
                 showGalleryChooser();
                 break;
             case R.id.menu_camera:
                 showCamera();
+                break;
+            case R.id.menu_clear_canvas:
+                AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                        .setTitle(R.string.alert_dialog_new_canvas_title)
+                        .setMessage(R.string.alert_dialog_new_canvas_body)
+                        .setPositiveButton(R.string.alert_dialog_new_canvas_pos_button, (dialog, which) -> {
+                            bus.post(new EventClearCanvas());
+                        })
+                        .setNegativeButton(R.string.alert_dialog_new_canvas_neg_button, (dialog, which) -> {
+                            dialog.dismiss();
+                        });
+                builder.create().show();
                 break;
         }
     }
@@ -357,7 +360,7 @@ public class ActivityHome extends ActivityBase {
                     if (view.getId() == R.id.view_options_menu_1) {
                         showTextFragment(view);
                     } else {
-                        showStrokeColorChooser(view, false);
+                        showColorChooser(view, false);
                     }
                     break;
                 case PICTURE:

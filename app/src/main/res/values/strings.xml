@@ -61,11 +61,11 @@
     <string name="error_dialog_no_camera_body">Looks like your device doesn\'t have a camera to take
         pictures with. This feature requires that you have a hardware camera</string>
 
-    <string name="alert_dialog_new_canvas_title">Fill Canvas?</string>
-    <string name="alert_dialog_new_canvas_body">Selecting a new Canvas color will erase
-        any drawing you currently have.</string>
-    <string name="alert_dialog_new_canvas_pos_button">Got it</string>
-    <string name="alert_dialog_new_canvas_neg_button">GTFO</string>
+    <string name="alert_dialog_new_canvas_title">Clear Canvas?</string>
+    <string name="alert_dialog_new_canvas_body">Pressing "Got it" would delete any drawing
+        you currently have and the one saved on disk.</string>
+    <string name="alert_dialog_new_canvas_pos_button">Bet</string>
+    <string name="alert_dialog_new_canvas_neg_button">Oh NO!</string>
 
     <string name="alert_dialog_exit">Exit</string>
     <string name="alert_dialog_save_exit">Save And Exit</string>
