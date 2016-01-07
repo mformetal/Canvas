@@ -10,6 +10,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
@@ -34,6 +35,7 @@ public class ViewSaveAnimator extends View {
     private Paint mPaint;
     private AnimatorSet mAnimatorSet;
     private Drawable mDrawable;
+    private Path mPath;
 
     private int mBackgroundColor;
     private float mStart, mEnd;
@@ -60,6 +62,8 @@ public class ViewSaveAnimator extends View {
     }
 
     private void init() {
+        mPath = new Path();
+
         mBackgroundColor = Color.WHITE;
         mPaint = new Paint();
         mPaint.setColor(Color.BLACK);
@@ -85,6 +89,11 @@ public class ViewSaveAnimator extends View {
 
         Rect bounds = canvas.getClipBounds();
         int prevColor = mPaint.getColor();
+
+        mPath.reset();
+        mPath.addRoundRect(bounds.left, bounds.top, bounds.right, bounds.bottom,
+                canvas.getWidth() * .1f, canvas.getHeight() * .1f, Path.Direction.CW);
+        canvas.clipPath(mPath);
 
         mPaint.setColor(mBackgroundColor);
         canvas.drawRect(bounds, mPaint);
