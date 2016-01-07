@@ -40,7 +40,7 @@ public class ParseUtils {
     }
 
     public Observable saveImageToServer(final Context context, final String filename,
-                                  final Bitmap bitmap) {
+                                        final Bitmap bitmap) {
         return FileUtils.cacheAsObservable(bitmap, context)
                 .flatMap(bytes -> {
                     final ParseFile photoFile = new ParseFile(

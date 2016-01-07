@@ -1,5 +1,8 @@
 package milespeele.canvas.view;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.Context;
@@ -15,16 +18,16 @@ import android.util.Property;
 import android.view.MotionEvent;
 import android.view.SoundEffectConstants;
 import android.view.View;
-import android.view.ViewTreeObserver;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.BounceInterpolator;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.LinearInterpolator;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import milespeele.canvas.R;
 import milespeele.canvas.drawing.DrawingCurve;
 import milespeele.canvas.fragment.FragmentDrawer;
-import milespeele.canvas.transition.TransitionHelper;
-import milespeele.canvas.util.Circle;
-import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.ViewUtils;
 
 /**
@@ -37,6 +40,8 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
     @Bind(R.id.fragment_drawer_menu) ViewFabMenu fabMenu;
     @Bind(R.id.fragment_drawer_animator) ViewRoundedFrameLayout fabFrame;
     @Bind(R.id.fragment_drawer_options_menu) ViewOptionsMenu optionsMenu;
+    @Bind(R.id.fragment_drawer_save_animation)
+    ViewSaveAnimator saveAnimator;
 
     private final Rect hitRect = new Rect();
     private Paint shadowPaint;
@@ -181,10 +186,38 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
         drawer.onOptionsMenuAccept();
     }
 
-    private boolean menuContainsTouch(MotionEvent event) {
-        return Circle.contains(fabMenu.getCenterX() - event.getX(),
-                (fabMenu.getCenterY() + (getHeight() - fabMenu.getHeight())) - event.getY(),
-                fabMenu.getCircleRadius());
+    public void startSaveAnimation() {
+        saveAnimator.setColors(drawer.getBackgroundColor());
+        saveAnimator.setTranslationY(getHeight());
+
+        AnimatorSet animatorSet = new AnimatorSet();
+
+        Animator alpha = ObjectAnimator.ofInt(this, ViewCanvasLayout.ALPHA, 128);
+        alpha.setInterpolator(new LinearInterpolator());
+        alpha.setDuration(500);
+
+        ObjectAnimator yPosition = ObjectAnimator.ofFloat(saveAnimator,
+                View.TRANSLATION_Y, 0 - saveAnimator.getHeight() / 2);
+        yPosition.setDuration(500);
+        yPosition.setInterpolator(new DecelerateInterpolator());
+        yPosition.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                saveAnimator.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                saveAnimator.startAnimation();
+            }
+        });
+
+        animatorSet.playTogether(alpha, yPosition);
+        animatorSet.start();
+    }
+
+    public void stopSaveAnimation(AnimatorListenerAdapter adapter) {
+        saveAnimator.stopAnimation(adapter);
     }
 
     public void setMenuListeners(FragmentDrawer fragmentDrawer) {

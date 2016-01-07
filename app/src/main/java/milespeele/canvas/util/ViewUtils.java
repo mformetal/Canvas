@@ -31,8 +31,6 @@ public class ViewUtils {
     public final static float MAX_ALPHA = 255f;
     private final static int DEFAULT_VISBILITY_DURATION = 350;
 
-    private final static Random random = new Random();
-
     public static abstract class FloatProperty<T> extends Property<T, Float> {
         public FloatProperty(String name) {
             super(Float.class, name);
@@ -58,10 +56,10 @@ public class ViewUtils {
         final public void set(T object, Integer value) {
             setValue(object, value);
         }
-
     }
 
     public static int randomColor() {
+        Random random = new Random();
         return Color.argb(255, random.nextInt(256), random.nextInt(256), random.nextInt(256));
     }
 
@@ -97,7 +95,6 @@ public class ViewUtils {
         return rect;
     }
 
-    // ASSUMES VIEW IS A CIRCLE SO WIDTH = HEIGHT
     public static float radius(View view) {
         return view.getMeasuredWidth() / 2f;
     }

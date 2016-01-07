@@ -27,6 +27,7 @@ import java.util.Locale;
 import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Func0;
 import rx.schedulers.Schedulers;
 
 /**
@@ -37,7 +38,7 @@ public class FileUtils {
     public final static String DRAWING_BITMAP_FILENAME = "canvas:bitmap";
     public final static String PHOTO_BITMAP_FILENAME = "canvasphoto";
 
-    public static void cacheInBackground(Bitmap bitmap, Context context) {
+    public static void cache(Bitmap bitmap, Context context) {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
         byte[] bytes =  stream.toByteArray();
@@ -66,13 +67,30 @@ public class FileUtils {
             public void call(Subscriber<? super byte[]> subscriber) {
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                byte[] bytes =  stream.toByteArray();
+                byte[] bytes = stream.toByteArray();
 
-                subscriber.onNext(bytes);
+                FileOutputStream output = null;
+                try {
+                    output = context.openFileOutput(DRAWING_BITMAP_FILENAME, Context.MODE_PRIVATE);
+                    output.write(bytes);
+
+                    subscriber.onNext(bytes);
+                } catch (IOException e) {
+                    Logg.log(e);
+                } finally {
+                    if (output != null) {
+                        try {
+                            output.flush();
+                            output.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+
+                subscriber.onCompleted();
             }
-        })
-        .subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread());
+        });
     }
 
     public static BitmapFactory.Options getBitmapOptions() {

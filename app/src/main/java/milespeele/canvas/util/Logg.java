@@ -49,15 +49,6 @@ public class Logg {
         mainLog(builder.toString());
     }
 
-    public static void log(Circle circle) {
-        builder.append(circle.getCenterX());
-        builder.append(", ");
-        builder.append(circle.getCenterY());
-        builder.append(", ");
-        builder.append(circle.getRadius());
-        mainLog(builder.toString());
-    }
-
     public static void log(Double value) {
         mainLog(value.toString());
     }
@@ -65,6 +56,14 @@ public class Logg {
     public static void log(int[] array) {
         for (int integer: array) {
             builder.append(String.valueOf(integer));
+            builder.append(", ");
+        }
+        mainLog(builder.toString());
+    }
+
+    public static void log(Long... longs) {
+        for (long longVal: longs) {
+            builder.append(String.valueOf(longVal));
             builder.append(", ");
         }
         mainLog(builder.toString());
@@ -130,12 +129,6 @@ public class Logg {
 
     public static void log(Throwable throwable) {
         mainLog(throwable.toString());
-    }
-
-    public static void log(String string, Circle circle) {
-        builder.append(string);
-        builder.append(", ");
-        log(circle);
     }
 
     public static void log(String string, float... floats) {

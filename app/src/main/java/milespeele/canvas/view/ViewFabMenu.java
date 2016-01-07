@@ -249,7 +249,6 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
 
                 if (clickedFab != null) {
                     onClick(clickedFab);
-                    clickedFab = null;
                 }
 
                 if (isFlinging) {
