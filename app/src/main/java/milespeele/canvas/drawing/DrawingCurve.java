@@ -682,6 +682,8 @@ public class DrawingCurve {
 
     public int getStrokeColor() { return mStrokeColor; }
 
+    public int getBackgroundColor() { return mBackgroundColor; }
+
     public Bitmap getBitmap() { return mBitmap; }
 
     public Paint getPaint() { return mPaint; }

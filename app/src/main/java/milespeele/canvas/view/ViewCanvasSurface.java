@@ -112,6 +112,8 @@ public class ViewCanvasSurface extends SurfaceView
         return mDrawingCurve.getStrokeColor();
     }
 
+    public int getBackgroundColor() { return mDrawingCurve.getBackgroundColor(); }
+
     public Bitmap getDrawingBitmap() {
         return mDrawingCurve.getBitmap();
     }

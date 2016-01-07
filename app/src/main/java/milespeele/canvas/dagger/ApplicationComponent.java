@@ -17,6 +17,7 @@ import milespeele.canvas.view.ViewFabMenu;
 public interface ApplicationComponent {
 
     void inject(ParseUtils utils);
+
     void inject(DrawingCurve drawingCurve);
 
     void inject(ActivityHome activityHome);

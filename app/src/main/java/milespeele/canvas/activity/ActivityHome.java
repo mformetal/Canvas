@@ -1,5 +1,8 @@
 package milespeele.canvas.activity;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -11,18 +14,20 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
+import android.os.Handler;
 import android.os.PersistableBundle;
 import android.provider.MediaStore;
 import android.support.annotation.StringRes;
 import android.support.design.widget.Snackbar;
 import android.view.View;
+import android.widget.FrameLayout;
 
 import java.io.File;
 import java.io.IOException;
 
 import javax.inject.Inject;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
 import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
@@ -43,7 +48,10 @@ import milespeele.canvas.util.FileUtils;
 import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.NetworkUtils;
 import milespeele.canvas.view.ViewFab;
+import milespeele.canvas.view.ViewSaveAnimation;
 import milespeele.canvas.view.ViewRoundedFrameLayout;
+import rx.Observable;
+import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.schedulers.Schedulers;
@@ -60,6 +68,8 @@ public class ActivityHome extends ActivityBase {
 
     @Inject ParseUtils parseUtils;
     @Inject EventBus bus;
+
+    @Bind(R.id.activity_home_fragment_frame) FrameLayout frameLayout;
 
     private ViewRoundedFrameLayout fabFrame;
     private FragmentManager manager;
@@ -141,23 +151,44 @@ public class ActivityHome extends ActivityBase {
     }
 
     private void saveAndExit() {
-        ProgressDialog dialog = new ProgressDialog(this);
-        dialog.setIndeterminate(true);
-        dialog.setMessage(getResources().getString(R.string.alert_dialog_saving_in_progress));
-        dialog.show();
+        FragmentDrawer fragmentDrawer = getFragmentDrawer();
 
-        FragmentDrawer fragmentDrawer = (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
-        if (fragmentDrawer != null) {
-            final Context context = this;
-            final Bitmap bitmap = fragmentDrawer.getDrawingBitmap();
-            Schedulers.io().createWorker().schedule(() -> {
-                FileUtils.cacheInBackground(bitmap, context);
+        Subscriber<byte[]> subscriber = new Subscriber<byte[]>() {
+            @Override
+            public void onCompleted() {
+                removeSubscription(this);
 
-                if (!isFinishing()) {
-                    finish();
-                }
-            });
-        }
+                AnimatorListenerAdapter listenerAdapter = new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        super.onAnimationEnd(animation);
+                        finish();
+                    }
+                };
+                fragmentDrawer.getRootView().stopSaveAnimation(listenerAdapter);
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+            }
+
+            @Override
+            public void onNext(byte[] bytes) {
+
+            }
+
+            @Override
+            public void onStart() {
+                super.onStart();
+                fragmentDrawer.getRootView().startSaveAnimation();
+            }
+        };
+
+        addSubscription(FileUtils.cacheAsObservable(fragmentDrawer.getDrawingBitmap(), this)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(subscriber));
     }
 
     @SuppressWarnings("unused")
@@ -165,7 +196,7 @@ public class ActivityHome extends ActivityBase {
         ErrorDialog.createDialogFromCode(this, eventParseError.getErrorCode()).show();
     }
 
-    @SuppressWarnings("unused")
+    @SuppressWarnings("unused, unchecked")
     public void onEvent(EventFilenameChosen eventFilenameChosen) {
         if (NetworkUtils.hasInternet(this)) {
             FragmentDrawer frag = (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
@@ -350,5 +381,9 @@ public class ActivityHome extends ActivityBase {
         if (drawer != null && drawer.getRootView() != null) {
             Snackbar.make(drawer.getRootView(), id, duration).show();
         }
+    }
+
+    private FragmentDrawer getFragmentDrawer() {
+        return (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
     }
 }
