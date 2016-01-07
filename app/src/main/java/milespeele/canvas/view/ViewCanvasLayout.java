@@ -19,6 +19,8 @@ import android.view.MotionEvent;
 import android.view.SoundEffectConstants;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.BounceInterpolator;
+import android.view.animation.DecelerateInterpolator;
 import android.view.animation.LinearInterpolator;
 
 import butterknife.Bind;
@@ -38,7 +40,8 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
     @Bind(R.id.fragment_drawer_menu) ViewFabMenu fabMenu;
     @Bind(R.id.fragment_drawer_animator) ViewRoundedFrameLayout fabFrame;
     @Bind(R.id.fragment_drawer_options_menu) ViewOptionsMenu optionsMenu;
-    @Bind(R.id.fragment_drawer_save_animation) ViewSaveAnimation saveAnimator;
+    @Bind(R.id.fragment_drawer_save_animation)
+    ViewSaveAnimator saveAnimator;
 
     private final Rect hitRect = new Rect();
     private Paint shadowPaint;
@@ -196,7 +199,7 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
         ObjectAnimator yPosition = ObjectAnimator.ofFloat(saveAnimator,
                 View.TRANSLATION_Y, 0 - saveAnimator.getHeight() / 2);
         yPosition.setDuration(500);
-        yPosition.setInterpolator(new AccelerateDecelerateInterpolator());
+        yPosition.setInterpolator(new DecelerateInterpolator());
         yPosition.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationStart(Animator animation) {

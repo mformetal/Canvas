@@ -25,7 +25,7 @@
         app:layout_anchor="@id/fragment_drawer_coordinator" />
 
     <include
-        layout="@layout/view_save_animation"
+        layout="@layout/view_save_animator"
         android:id="@+id/fragment_drawer_save_animation"
         android:layout_gravity="center"
         android:layout_width="@dimen/view_save_animation_dimens"

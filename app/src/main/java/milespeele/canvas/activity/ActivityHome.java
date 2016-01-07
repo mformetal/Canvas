@@ -2,20 +2,16 @@ package milespeele.canvas.activity;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.animation.AnimatorSet;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
-import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.PersistableBundle;
+import android.os.SystemClock;
 import android.provider.MediaStore;
 import android.support.annotation.StringRes;
 import android.support.design.widget.Snackbar;
@@ -48,9 +44,7 @@ import milespeele.canvas.util.FileUtils;
 import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.NetworkUtils;
 import milespeele.canvas.view.ViewFab;
-import milespeele.canvas.view.ViewSaveAnimation;
 import milespeele.canvas.view.ViewRoundedFrameLayout;
-import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
@@ -154,6 +148,7 @@ public class ActivityHome extends ActivityBase {
         FragmentDrawer fragmentDrawer = getFragmentDrawer();
 
         Subscriber<byte[]> subscriber = new Subscriber<byte[]>() {
+
             @Override
             public void onCompleted() {
                 removeSubscription(this);

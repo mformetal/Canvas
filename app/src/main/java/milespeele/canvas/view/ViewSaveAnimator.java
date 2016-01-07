@@ -29,7 +29,7 @@ import milespeele.canvas.util.ViewUtils;
 /**
  * Created by mbpeele on 1/6/16.
  */
-public class ViewSaveAnimation extends View {
+public class ViewSaveAnimator extends View {
 
     private Paint mPaint;
     private AnimatorSet mAnimatorSet;
@@ -39,22 +39,22 @@ public class ViewSaveAnimation extends View {
     private float mStart, mEnd;
     private float[] mAnimatedEnds;
 
-    public ViewSaveAnimation(Context context) {
+    public ViewSaveAnimator(Context context) {
         super(context);
         init();
     }
 
-    public ViewSaveAnimation(Context context, AttributeSet attrs) {
+    public ViewSaveAnimator(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
     }
 
-    public ViewSaveAnimation(Context context, AttributeSet attrs, int defStyleAttr) {
+    public ViewSaveAnimator(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init();
     }
 
-    public ViewSaveAnimation(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public ViewSaveAnimator(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         init();
     }
@@ -124,45 +124,48 @@ public class ViewSaveAnimation extends View {
     }
 
     public void stopAnimation(AnimatorListenerAdapter adapter) {
-        ArrayList<Animator> childAnimations = mAnimatorSet.getChildAnimations();
-        for (Animator animator: childAnimations) {
-            if (animator instanceof ValueAnimator) {
-                animator.removeAllListeners();
-                ((ValueAnimator) animator).setRepeatCount(0);
-                ((ValueAnimator) animator).setRepeatMode(0);
+        if (mAnimatorSet != null) {
+            ArrayList<Animator> childAnimations = mAnimatorSet.getChildAnimations();
+            for (Animator animator: childAnimations) {
+                if (animator instanceof ValueAnimator) {
+                    ((ValueAnimator) animator).setRepeatCount(0);
+                    ((ValueAnimator) animator).setRepeatMode(0);
+                }
+
+                if (animator == childAnimations.get(childAnimations.size()  - 1)) {
+                    ObjectAnimator scale = ObjectAnimator.ofPropertyValuesHolder(this,
+                            PropertyValuesHolder.ofFloat(View.SCALE_X, .2f, 1f),
+                            PropertyValuesHolder.ofFloat(View.SCALE_Y, .2f, 1f));
+                    scale.setDuration(350);
+                    scale.setInterpolator(new AnticipateOvershootInterpolator());
+                    scale.addListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationStart(Animator animation) {
+                            super.onAnimationStart(animation);
+                            mDrawable = getResources().getDrawable(R.drawable.ic_check_24dp);
+                            mDrawable.setColorFilter(ViewUtils.getComplimentColor(mBackgroundColor),
+                                    PorterDuff.Mode.SRC_ATOP);
+                            mDrawable.setBounds(0, 0, getWidth(), getHeight());
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            new Handler().postDelayed(() -> adapter.onAnimationEnd(animation), 750);
+                        }
+                    });
+
+                    scale.addUpdateListener(animation -> invalidate());
+
+                    animator.addListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            scale.start();
+                        }
+                    });
+                }
             }
-
-            if (animator == childAnimations.get(childAnimations.size()  - 1)) {
-                ObjectAnimator scale = ObjectAnimator.ofPropertyValuesHolder(this,
-                        PropertyValuesHolder.ofFloat(View.SCALE_X, .2f, 1f),
-                        PropertyValuesHolder.ofFloat(View.SCALE_Y, .2f, 1f));
-                scale.setDuration(350);
-                scale.setInterpolator(new AnticipateOvershootInterpolator());
-                scale.addListener(new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationStart(Animator animation) {
-                        super.onAnimationStart(animation);
-                        mDrawable = getResources().getDrawable(R.drawable.ic_check_24dp);
-                        mDrawable.setColorFilter(ViewUtils.getComplimentColor(mBackgroundColor),
-                                PorterDuff.Mode.SRC_ATOP);
-                        mDrawable.setBounds(0, 0, getWidth(), getHeight());
-                    }
-
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        new Handler().postDelayed(() -> adapter.onAnimationEnd(animation), 750);
-                    }
-                });
-
-                scale.addUpdateListener(animation -> invalidate());
-
-                animator.addListener(new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        scale.start();
-                    }
-                });
-            }
+        } else {
+            adapter.onAnimationEnd(null);
         }
     }
 
