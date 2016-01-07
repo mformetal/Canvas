@@ -41,7 +41,7 @@ import rx.schedulers.Schedulers;
 /**
  * Created by mbpeele on 9/25/15.
  */
-public class DrawingCurve implements Palette.PaletteAsyncListener {
+public class DrawingCurve {
 
     public enum State {
         DRAW,
@@ -65,7 +65,6 @@ public class DrawingCurve implements Palette.PaletteAsyncListener {
     private PointF mStartPoint, mMidPoint;
     private Uri mPhotoBitmapUri;
 
-    private static final float TOLERANCE = 5f;
     private static float STROKE_WIDTH = 5f;
     private static final int INVALID_POINTER = -1;
     private static final int NONE = 0, DRAG = 1, ZOOM = 2;
@@ -85,7 +84,6 @@ public class DrawingCurve implements Palette.PaletteAsyncListener {
     public interface DrawingCurveListener {
         void toggleOptionsMenuVisibilty(boolean visible, State state);
         void toggleFabMenuVisibility(boolean visible);
-        void changeStatusBarColor(int color);
         void hideSystemUI();
     }
 
@@ -131,16 +129,6 @@ public class DrawingCurve implements Palette.PaletteAsyncListener {
         mAllHistory = new Stack<>();
         mRedoneHistory = new Stack<>();
         mStroke = new Stroke(mPaint);
-
-//        Schedulers.io().createWorker().schedulePeriodically(() ->
-//                Palette.from(mCachedBitmap).generate(this), 0, 5, TimeUnit.SECONDS);
-    }
-
-    @Override
-    public void onGenerated(Palette palette) {
-        int color = palette.getVibrantColor(mOppositeBackgroundColor);
-        mListener.changeStatusBarColor(color);
-        Logg.log("ON GENERATED", color, mOppositeBackgroundColor);
     }
 
     private void reset() {

@@ -13,6 +13,7 @@ import android.graphics.BlurMaskFilter;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
@@ -79,6 +80,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
     private float radius;
     private double mLastAngle;
     private float mMaxRadius;
+    private float mLastX, mLastY;
     private final static int INITIAL_DELAY = 0;
     private final static int DURATION = 400;
     private final static int DELAY_INCREMENT = 15;
@@ -256,17 +258,24 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
                 }
 
                 mLastAngle = mCircle.angleInDegrees(x, y);
+
+                mLastX = x;
+                mLastY = y;
                 break;
             case MotionEvent.ACTION_MOVE:
-                double degrees = mCircle.angleInDegrees(x, y);
-                double rotater = degrees - mLastAngle;
+                if (Math.abs(mLastY - y) < 50) {
+                    Logg.log("Y DIST < 50");
+                    double degrees = mCircle.angleInDegrees(x, y);
+                    double rotater = degrees - mLastAngle;
 
-                if (isDragging) {
-                    updateItemPositions(rotater);
+                    if (isDragging) {
+                        updateItemPositions(rotater);
+                    }
+
+                    mLastAngle = degrees;
+
+                    isDragging = true;
                 }
-
-                mLastAngle = degrees;
-                isDragging = true;
                 break;
             case MotionEvent.ACTION_UP:
                 isDragging = false;
