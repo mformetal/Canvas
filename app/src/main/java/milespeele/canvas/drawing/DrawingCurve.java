@@ -132,34 +132,35 @@ public class DrawingCurve {
     }
 
     private void reset(int color) {
-        isSafeToDraw = false;
-
-        int width = mBitmap.getWidth(), height = mBitmap.getHeight();
-
-        FileUtils.deleteBitmapFile(mContext, FileUtils.DRAWING_BITMAP_FILENAME);
-
-        mStroke.clear();
-        mAllHistory.clear();
-        mRedoneHistory.clear();
-
-        mCachedBitmap.recycle();
-        mCachedBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        mCachedBitmap.eraseColor(color);
-
-        mBitmap.recycle();
-        mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        mCanvas = new Canvas(mBitmap);
-
-        ValueAnimator colorAnimation = ObjectAnimator.ofArgb(mBackgroundColor, color);
-        colorAnimation.addUpdateListener(animator ->
-                mCanvas.drawColor((Integer) animator.getAnimatedValue()));
-        colorAnimation.setDuration(1000);
-        colorAnimation.start();
-
         mBackgroundColor = color;
-        mOppositeBackgroundColor = ViewUtils.getComplimentColor(mBackgroundColor);
-
-        isSafeToDraw = true;
+//        isSafeToDraw = false;
+//
+//        int width = mBitmap.getWidth(), height = mBitmap.getHeight();
+//
+//        FileUtils.deleteBitmapFile(mContext, FileUtils.DRAWING_BITMAP_FILENAME);
+//
+//        mStroke.clear();
+//        mAllHistory.clear();
+//        mRedoneHistory.clear();
+//
+//        mCachedBitmap.recycle();
+//        mCachedBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+//        mCachedBitmap.eraseColor(color);
+//
+//        mBitmap.recycle();
+//        mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+//        mCanvas = new Canvas(mBitmap);
+//
+//        ValueAnimator colorAnimation = ObjectAnimator.ofArgb(mBackgroundColor, color);
+//        colorAnimation.addUpdateListener(animator ->
+//                mCanvas.drawColor((Integer) animator.getAnimatedValue()));
+//        colorAnimation.setDuration(1000);
+//        colorAnimation.start();
+//
+//        mBackgroundColor = color;
+//        mOppositeBackgroundColor = ViewUtils.getComplimentColor(mBackgroundColor);
+//
+//        isSafeToDraw = true;
     }
 
     public void setListener(DrawingCurveListener listener) {
@@ -169,6 +170,8 @@ public class DrawingCurve {
     public void drawToSurfaceView(Canvas canvas) {
         if (canvas != null) {
             if (isSafeToDraw) {
+                canvas.drawColor(mBackgroundColor);
+
                 canvas.drawBitmap(mBitmap, 0, 0, null);
 
                 switch (mState) {
@@ -458,6 +461,7 @@ public class DrawingCurve {
                             super.onStart();
 
                             isSafeToDraw = false;
+
                             workerCanvas.drawBitmap(mCachedBitmap, 0, 0, null);
                         }
                     });
