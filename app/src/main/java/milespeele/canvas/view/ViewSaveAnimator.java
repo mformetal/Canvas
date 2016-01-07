@@ -15,7 +15,6 @@ import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
-import android.os.SystemClock;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.animation.AnticipateOvershootInterpolator;
@@ -25,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import milespeele.canvas.R;
-import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.ViewUtils;
 
 /**
@@ -115,9 +113,9 @@ public class ViewSaveAnimator extends View {
     }
 
     public void setColors(int backgroundOfCanvas) {
-        mBackgroundColor = ViewUtils.getComplimentColor(backgroundOfCanvas);
+        mBackgroundColor = ViewUtils.complementColor(backgroundOfCanvas);
 
-        mPaint.setColor(ViewUtils.getComplimentColor(mBackgroundColor));
+        mPaint.setColor(ViewUtils.complementColor(mBackgroundColor));
     }
 
     public void startAnimation() {
@@ -159,7 +157,7 @@ public class ViewSaveAnimator extends View {
                         public void onAnimationStart(Animator animation) {
                             super.onAnimationStart(animation);
                             mDrawable = getResources().getDrawable(R.drawable.ic_check_24dp);
-                            mDrawable.setColorFilter(ViewUtils.getComplimentColor(mBackgroundColor),
+                            mDrawable.setColorFilter(ViewUtils.complementColor(mBackgroundColor),
                                     PorterDuff.Mode.SRC_ATOP);
                             mDrawable.setBounds(0, 0, getWidth(), getHeight());
                         }

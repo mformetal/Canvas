@@ -82,6 +82,8 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
         fabMenu.addListener(this);
         drawer.setListener(this);
         optionsMenu.addListener(this);
+
+        ViewUtils.systemUIGone(this);
     }
 
     @Override
@@ -185,6 +187,11 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
             valueAnimator.setDuration(500);
             valueAnimator.start();
         }
+    }
+
+    @Override
+    public void hideSystemUI() {
+        ViewUtils.systemUIGone(this);
     }
 
     @Override

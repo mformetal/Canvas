@@ -63,19 +63,27 @@ public class ViewUtils {
         return Color.argb(255, random.nextInt(256), random.nextInt(256), random.nextInt(256));
     }
 
-    public static int getComplimentColor(int color) {
-        // get existing colors
+    public static int complementColor(int color) {
         int alpha = Color.alpha(color);
         int red = Color.red(color);
         int blue = Color.blue(color);
         int green = Color.green(color);
 
-        // find compliments
         red = (~red) & 0xff;
         blue = (~blue) & 0xff;
         green = (~green) & 0xff;
 
         return Color.argb(alpha, red, green, blue);
+    }
+
+    public static void systemUIGone(View decorView) {
+        decorView.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE);
     }
 
     public static float relativeCenterX(View view) {
@@ -99,7 +107,7 @@ public class ViewUtils {
         return view.getMeasuredWidth() / 2f;
     }
 
-    public static void setIdentityMatrix(Matrix matrix) {
+    public static void identityMatrix(Matrix matrix) {
         float[] values = new float[] {1, 0, 0, 0, 1, 0, 0, 0, 1};
         matrix.setValues(values);
     }

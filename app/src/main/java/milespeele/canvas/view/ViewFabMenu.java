@@ -550,9 +550,12 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
     }
 
     private final class GestureListener extends GestureDetector.SimpleOnGestureListener {
+
+        private static final int SWIPE_MAX_OFF_PATH = 250;
+
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            if (isVisible()) {
+            if (isVisible() && !isUpFling(e1, e2)) {
                 isDragging = false;
 
                 isFlinging = true;
@@ -565,6 +568,10 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
             }
 
             return false;
+        }
+
+        private boolean isUpFling(MotionEvent e1, MotionEvent e2) {
+            return Math.abs(e1.getY() - e2.getY()) > SWIPE_MAX_OFF_PATH;
         }
     }
 

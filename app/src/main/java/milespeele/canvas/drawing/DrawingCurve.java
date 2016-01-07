@@ -18,7 +18,6 @@ import android.view.MotionEvent;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Stack;
-import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
@@ -87,6 +86,7 @@ public class DrawingCurve implements Palette.PaletteAsyncListener {
         void toggleOptionsMenuVisibilty(boolean visible, State state);
         void toggleFabMenuVisibility(boolean visible);
         void changeStatusBarColor(int color);
+        void hideSystemUI();
     }
 
     public DrawingCurve(Context context) {
@@ -98,13 +98,13 @@ public class DrawingCurve implements Palette.PaletteAsyncListener {
         cache = new BitmapCache(mContext, BitmapCache.getMaxSize(mContext));
 
         Point size = new Point();
-        ((Activity) context).getWindowManager().getDefaultDisplay().getSize(size);
+        ((Activity) context).getWindowManager().getDefaultDisplay().getRealSize(size);
         int w = size.x;
         int h = size.y;
 
         mStrokeColor = ViewUtils.randomColor();
         mBackgroundColor = store.getLastBackgroundColor();
-        mOppositeBackgroundColor = ViewUtils.getComplimentColor(mBackgroundColor);
+        mOppositeBackgroundColor = ViewUtils.complementColor(mBackgroundColor);
         mInkedColor = mStrokeColor;
 
         mMatrix = new Matrix();
@@ -294,6 +294,8 @@ public class DrawingCurve implements Palette.PaletteAsyncListener {
     }
 
     private void onTouchMove(MotionEvent event) {
+        new Handler().postDelayed(mListener::hideSystemUI, 350);
+
         final int pointerIndex = event.findPointerIndex(mActivePointer);
         float x = event.getX(pointerIndex), y = event.getY(pointerIndex);
 
@@ -545,9 +547,7 @@ public class DrawingCurve implements Palette.PaletteAsyncListener {
 
                     mBackgroundColor = color;
 
-                    mOppositeBackgroundColor = ViewUtils.getComplimentColor(mBackgroundColor);
-
-                    mListener.changeStatusBarColor(mOppositeBackgroundColor);
+                    mOppositeBackgroundColor = ViewUtils.complementColor(mBackgroundColor);
                 } else {
                     mStrokeColor = color;
 
@@ -582,7 +582,7 @@ public class DrawingCurve implements Palette.PaletteAsyncListener {
             mPhotoBitmap.recycle();
         }
 
-        ViewUtils.setIdentityMatrix(mMatrix);
+        ViewUtils.identityMatrix(mMatrix);
 
         mPhotoBitmapUri = eventBitmapChosen.data;
         InputStream inputStream = null;
@@ -628,7 +628,7 @@ public class DrawingCurve implements Palette.PaletteAsyncListener {
 
         changeState(State.DRAW);
 
-        ViewUtils.setIdentityMatrix(mMatrix);
+        ViewUtils.identityMatrix(mMatrix);
 
         switch (mState) {
             case TEXT:
@@ -661,7 +661,7 @@ public class DrawingCurve implements Palette.PaletteAsyncListener {
                 mMatrix.getValues(values);
                 mAllHistory.push(new TextDrawHistory(mText, values, mTextPaint));
 
-                ViewUtils.setIdentityMatrix(mMatrix);
+                ViewUtils.identityMatrix(mMatrix);
 
                 mText = null;
                 break;
@@ -681,7 +681,7 @@ public class DrawingCurve implements Palette.PaletteAsyncListener {
                 mMatrix.getValues(values);
                 mAllHistory.push(new BitmapDrawHistory(mPhotoBitmapUri, values));
 
-                ViewUtils.setIdentityMatrix(mMatrix);
+                ViewUtils.identityMatrix(mMatrix);
 
                 mPhotoBitmapUri = null;
                 mPhotoBitmap.recycle();
