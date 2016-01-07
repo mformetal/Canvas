@@ -36,7 +36,6 @@ import rx.schedulers.Schedulers;
 public class FileUtils {
 
     public final static String DRAWING_BITMAP_FILENAME = "canvas:bitmap";
-    public final static String PHOTO_BITMAP_FILENAME = "canvasphoto";
 
     public static Observable<byte[]> cacheAsObservable(Bitmap bitmap, Context context) {
         return Observable.create(new Observable.OnSubscribe<byte[]>() {
@@ -127,7 +126,7 @@ public class FileUtils {
         context.deleteFile(name);
     }
 
-    public static File createPhotoFile(Context context) throws IOException {
+    public static File createPhotoFile() throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_";
         File storageDir = Environment.getExternalStoragePublicDirectory(

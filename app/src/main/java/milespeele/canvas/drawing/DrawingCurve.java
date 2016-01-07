@@ -589,7 +589,7 @@ public class DrawingCurve {
             } finally {
                 if (inputStream != null) {
                     try {
-                        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                        new Handler().postDelayed(new Runnable() {
                             @Override
                             public void run() {
                                 mListener.toggleOptionsMenuVisibilty(true, State.PICTURE);

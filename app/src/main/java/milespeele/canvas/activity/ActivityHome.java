@@ -294,7 +294,7 @@ public class ActivityHome extends ActivityBase {
             if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
                 File photoFile = null;
                 try {
-                    photoFile = FileUtils.createPhotoFile(this);
+                    photoFile = FileUtils.createPhotoFile();
                     filePath = photoFile.getAbsolutePath();
                 } catch (IOException e) {
                     Logg.log(e);
