@@ -547,6 +547,10 @@ public class DrawingCurve {
             case TEXT:
                 mTextPaint.setColor(color);
                 break;
+            case ERASE:
+                mStrokeColor = color;
+                changeState(State.DRAW);
+                break;
         }
     }
 
