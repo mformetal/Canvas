@@ -12,6 +12,8 @@ import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.*;
 import android.support.v7.graphics.Palette;
+import android.text.Layout;
+import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.view.MotionEvent;
 
@@ -60,7 +62,7 @@ public class DrawingCurve {
     private final Stack<Object> mAllHistory;
     private Paint mPaint, mInkPaint;
     private TextPaint mTextPaint;
-    private String mText;
+    private StaticLayout mTextLayout;
     private State mState = State.DRAW;
     private Context mContext;
     private PointF mStartPoint, mMidPoint;
@@ -126,7 +128,7 @@ public class DrawingCurve {
 
         mTextPaint = new TextPaint(TextPaint.ANTI_ALIAS_FLAG);
         mTextPaint.setColor(mStrokeColor);
-        mTextPaint.setTextSize(mContext.getResources().getDimension(R.dimen.medium_text_size));
+        mTextPaint.setTextSize(mContext.getResources().getDimension(R.dimen.large_text_size) * 4f);
         mTextPaint.setStyle(Paint.Style.FILL_AND_STROKE);
 
         mAllHistory = new Stack<>();
@@ -171,10 +173,7 @@ public class DrawingCurve {
                 case TEXT:
                     int count = canvas.save();
                     canvas.concat(mMatrix);
-                    canvas.drawText(mText,
-                            mBitmap.getWidth() / 2 - mTextPaint.measureText(mText) / 2,
-                            mBitmap.getHeight() / 2,
-                            mTextPaint);
+                    mTextLayout.draw(canvas);
                     canvas.restoreToCount(count);
                     break;
                 case INK:
@@ -501,14 +500,13 @@ public class DrawingCurve {
 
     @SuppressWarnings("unused")
     public void onEvent(EventTextChosen eventTextChosen) {
-        mText = eventTextChosen.text;
-
-        int width = mBitmap.getWidth(), height = mBitmap.getHeight();
+        String text = eventTextChosen.text;
+        mTextLayout = new StaticLayout(text, mTextPaint, mBitmap.getWidth(),
+                Layout.Alignment.ALIGN_CENTER, 1, 1, false);
 
         switch (mState) {
             case DRAW:
-                TextUtils.adjustTextSize(mTextPaint, mText, height);
-                TextUtils.adjustTextScale(mTextPaint, mText, width);
+                mMatrix.postTranslate(0, mBitmap.getHeight() / 2f);
 
                 changeState(State.TEXT);
 
@@ -519,10 +517,6 @@ public class DrawingCurve {
                         mListener.toggleFabMenuVisibility(false);
                     }
                 }, 350);
-                break;
-            case TEXT:
-                TextUtils.adjustTextSize(mTextPaint, mText, height);
-                TextUtils.adjustTextScale(mTextPaint, mText, width);
                 break;
         }
     }
@@ -623,7 +617,7 @@ public class DrawingCurve {
 
         switch (mState) {
             case TEXT:
-                mText = null;
+                mTextLayout = null;
                 break;
             case PICTURE:
                 mPhotoBitmap.recycle();
@@ -641,20 +635,17 @@ public class DrawingCurve {
 
                 mCanvas.save();
                 mCanvas.concat(mMatrix);
-                mCanvas.drawText(mText,
-                        mBitmap.getWidth() / 2 - mTextPaint.measureText(mText) / 2,
-                        mBitmap.getHeight() / 2,
-                        mTextPaint);
+                mTextLayout.draw(mCanvas);
                 mCanvas.restore();
 
                 changeState(State.DRAW);
 
                 mMatrix.getValues(values);
-                mAllHistory.push(new TextDrawHistory(mText, values, mTextPaint));
+//                mAllHistory.push(new TextDrawHistory(mText, values, mTextPaint));
 
                 ViewUtils.identityMatrix(mMatrix);
 
-                mText = null;
+                mTextLayout = null;
                 break;
             case PICTURE:
                 mListener.toggleOptionsMenuVisibilty(false, null);

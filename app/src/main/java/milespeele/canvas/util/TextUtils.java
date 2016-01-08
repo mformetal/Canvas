@@ -39,26 +39,6 @@ public final class TextUtils {
         return typeface;
     }
 
-    public static void adjustTextSize(Paint textPaint, String text, int height) {
-        textPaint.setTextSize(100);
-        textPaint.setTextScaleX(1.0f);
-        Rect bounds = new Rect();
-        textPaint.getTextBounds(text, 0, text.length(), bounds);
-        int h = bounds.height();
-        float target = (float) height * .2f;
-        float size = ((target/h) * 100f);
-        textPaint.setTextSize(size);
-    }
-
-    public static  void adjustTextScale(Paint textPaint, String text, float width) {
-        textPaint.setTextScaleX(1.0f);
-        Rect bounds = new Rect();
-        textPaint.getTextBounds(text, 0, text.length(), bounds);
-        int w = bounds.width();
-        float xscale = (width) / w;
-        textPaint.setTextScaleX(xscale * .6f);
-    }
-
     public static boolean containsCapital(String string) {
         for (int i = 0; i < string.length(); i++) {
             if (Character.isUpperCase(string.charAt(i))) {

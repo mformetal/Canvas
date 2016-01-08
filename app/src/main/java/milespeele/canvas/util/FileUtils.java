@@ -37,6 +37,7 @@ import rx.schedulers.Schedulers;
 public class FileUtils {
 
     public final static String DRAWING_BITMAP_FILENAME = "canvas:bitmap";
+
     private static ArrayList<String> mFilenames;
 
     public static Observable<byte[]> cacheAsObservable(Bitmap bitmap, Context context) {
