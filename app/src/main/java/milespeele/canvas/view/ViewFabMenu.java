@@ -59,6 +59,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
 
     private Paint mPaint;
     private Circle mCircle;
+    private ViewFab mClickedItem;
     private ArrayList<ItemPosition> mItemPositions;
     private GestureDetector mGestureDetector;
     private static final Interpolator OVERSHOOT_INTERPOLATOR = new OvershootInterpolator();
@@ -238,11 +239,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
 
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
-                ViewFab clickedFab = getClickedItem(x, y);
-
-                if (clickedFab != null) {
-                    onClick(clickedFab);
-                }
+                mClickedItem = getClickedItem(x, y);
 
                 if (isFlinging) {
                     isFlinging = false;
@@ -268,6 +265,10 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
                 break;
             case MotionEvent.ACTION_UP:
                 isDragging = false;
+                if (mClickedItem != null && mClickedItem == getClickedItem(x, y)) {
+                    onClick(mClickedItem);
+                    mClickedItem = null;
+                }
                 break;
         }
 
