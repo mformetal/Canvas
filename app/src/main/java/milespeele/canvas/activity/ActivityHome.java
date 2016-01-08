@@ -9,12 +9,14 @@ import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.provider.MediaStore;
 import android.support.annotation.StringRes;
 import android.support.design.widget.Snackbar;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 
@@ -33,6 +35,7 @@ import milespeele.canvas.event.EventBitmapChosen;
 import milespeele.canvas.event.EventClearCanvas;
 import milespeele.canvas.event.EventFilenameChosen;
 import milespeele.canvas.event.EventParseError;
+import milespeele.canvas.fragment.FragmentBase;
 import milespeele.canvas.fragment.FragmentBrushPicker;
 import milespeele.canvas.fragment.FragmentColorPicker;
 import milespeele.canvas.fragment.FragmentDrawer;
@@ -106,6 +109,9 @@ public class ActivityHome extends ActivityBase {
 
     @Override
     public void onBackPressed() {
+        // UGLY, but popBackStack() results in a weird exception on certain devices
+        // https://code.google.com/p/android/issues/detail?id=82832
+
         if (count == 0) {
             Dialog builder = new Dialog(this);
             builder.setContentView(R.layout.dialog_save);
@@ -118,13 +124,16 @@ public class ActivityHome extends ActivityBase {
             });
             builder.show();
         } else {
-            // UGLY, but popBackStack() results in a weird exception on certain devices
-            // https://code.google.com/p/android/issues/detail?id=82832
-            count--;
+            FragmentBase fragment = (FragmentBase)
+                    manager.findFragmentById(R.id.fragment_drawer_animator);
+            boolean shouldLetFragmentHandle = fragment.onBackPressed();
+            if (!shouldLetFragmentHandle) {
+                count--;
 
-            FragmentTransaction ft = getFragmentManager().beginTransaction();
-            ft.replace(R.id.fragment_drawer_animator, new Fragment());
-            ft.commit();
+                FragmentTransaction ft = getFragmentManager().beginTransaction();
+                ft.replace(R.id.fragment_drawer_animator, new Fragment());
+                ft.commit();
+            }
         }
     }
 
@@ -195,25 +204,25 @@ public class ActivityHome extends ActivityBase {
     @SuppressWarnings("unused, unchecked")
     public void onEvent(EventFilenameChosen eventFilenameChosen) {
         if (NetworkUtils.hasInternet(this)) {
-            FragmentDrawer frag = (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
-            if (frag != null) {
-                parseUtils.saveImageToServer(this, eventFilenameChosen.filename, frag.getDrawingBitmap())
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe((Action1) o -> {
-                            ((ViewFab) findViewById(R.id.menu_save)).stopSaveAnimation();
-
-                            FragmentDrawer fragmentDrawer =
-                                    (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
-
-                            if (fragmentDrawer != null && fragmentDrawer.getRootView() != null) {
-                                Snackbar.make(fragmentDrawer.getRootView(),
-                                        R.string.snackbar_activity_home_image_saved_title,
-                                        Snackbar.LENGTH_LONG)
-                                        .show();
-                            }
-                        });
-            }
+//            FragmentDrawer frag = (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
+//            if (frag != null) {
+//                parseUtils.saveImageToServer(this, eventFilenameChosen.filename, frag.getDrawingBitmap())
+//                        .subscribeOn(Schedulers.io())
+//                        .observeOn(AndroidSchedulers.mainThread())
+//                        .subscribe((Action1) o -> {
+//                            ((ViewFab) findViewById(R.id.menu_save)).stopSaveAnimation();
+//
+//                            FragmentDrawer fragmentDrawer =
+//                                    (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
+//
+//                            if (fragmentDrawer != null && fragmentDrawer.getRootView() != null) {
+//                                Snackbar.make(fragmentDrawer.getRootView(),
+//                                        R.string.snackbar_activity_home_image_saved_title,
+//                                        Snackbar.LENGTH_LONG)
+//                                        .show();
+//                            }
+//                        });
+//            }
         } else {
             showSnackBar(R.string.snackbar_no_internet, Snackbar.LENGTH_LONG);
         }

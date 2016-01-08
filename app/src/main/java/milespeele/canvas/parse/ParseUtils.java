@@ -41,25 +41,30 @@ public class ParseUtils {
 
     public Observable saveImageToServer(final Context context, final String filename,
                                         final Bitmap bitmap) {
-        return FileUtils.cacheAsObservable(bitmap, context)
-                .flatMap(bytes -> {
-                    final ParseFile photoFile = new ParseFile(
-                            ParseUser.getCurrentUser().getUsername(), bytes);
-                    return ParseObservable.save(photoFile);
-                })
-                .flatMap(parseFile -> {
-                    final Masterpiece art = new Masterpiece();
-                    art.setImage(parseFile);
-                    art.setTitle(filename);
-                    return ParseObservable.saveEventually(art);
-                })
-                .flatMap(new Func1<Object, Observable<?>>() {
-                    @Override
-                    public Observable<?> call(Object o) {
-                        ParseUser.getCurrentUser().getRelation(MASTERPIECE_RELATION).add((Masterpiece) o);
-                        return ParseObservable.saveEventually(ParseUser.getCurrentUser());
-                    }
-                });
+        ParseUser user = ParseUser.getCurrentUser();
+        if (user != null && user.isAuthenticated()) {
+            return FileUtils.cacheAsObservable(bitmap, context)
+                    .flatMap(bytes -> {
+                        final ParseFile photoFile = new ParseFile(
+                                ParseUser.getCurrentUser().getUsername(), bytes);
+                        return ParseObservable.save(photoFile);
+                    })
+                    .flatMap(parseFile -> {
+                        final Masterpiece art = new Masterpiece();
+                        art.setImage(parseFile);
+                        art.setTitle(filename);
+                        return ParseObservable.saveEventually(art);
+                    })
+                    .flatMap(new Func1<Object, Observable<?>>() {
+                        @Override
+                        public Observable<?> call(Object o) {
+                            ParseUser.getCurrentUser().getRelation(MASTERPIECE_RELATION).add((Masterpiece) o);
+                            return ParseObservable.saveEventually(ParseUser.getCurrentUser());
+                        }
+                    });
+        } else {
+            return Observable.empty();
+        }
     }
 
     public void handleError(Throwable throwable) {

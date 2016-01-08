@@ -53,7 +53,7 @@ public class TransitionDialogToFab extends ChangeBounds {
         float fabCenterX = fab.getX() + fabRadius;
         float fabCenterY = fab.getY() + fabRadius;
         float translationX = fabCenterX - fabFrame.getWidth() / 2 - fab.getWidth() * .75f;
-        float translationY = fabCenterY + fab.getHeight() * 3.1f;
+        float translationY = fabCenterY + fab.getHeight() * 3.5f;
 
         Animator alpha = ObjectAnimator.ofArgb(layout, ViewCanvasLayout.ALPHA, 0);
 

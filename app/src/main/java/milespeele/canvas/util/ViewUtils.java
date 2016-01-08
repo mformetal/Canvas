@@ -86,6 +86,12 @@ public class ViewUtils {
                         | View.SYSTEM_UI_FLAG_IMMERSIVE);
     }
 
+    public static int displayHeight(Context context) {
+        Point point = new Point();
+        ((Activity) context).getWindow().getWindowManager().getDefaultDisplay().getRealSize(point);
+        return point.y;
+    }
+
     public static float relativeCenterX(View view) {
         return (view.getLeft() + view.getRight()) / 2f;
     }
