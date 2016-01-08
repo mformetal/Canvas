@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.PersistableBundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
@@ -22,7 +23,6 @@ import android.widget.FrameLayout;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.jar.Manifest;
 
 import javax.inject.Inject;
 
@@ -173,7 +173,7 @@ public class ActivityHome extends ActivityBase {
     @Override
     protected void onResume() {
         super.onResume();
-        ViewUtils.systemUIGone(getWindow().getDecorView());
+        new Handler().postDelayed(() -> ViewUtils.systemUIGone(getWindow().getDecorView()), 750);
     }
 
     @Override
@@ -254,39 +254,36 @@ public class ActivityHome extends ActivityBase {
     }
 
     private void showBrushChooser(View view) {
-        FragmentDrawer frag = (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
-        if (frag != null) {
-            FragmentBrushPicker picker = FragmentBrushPicker.newInstance(frag.getRootView().getPaint());
+        FragmentDrawer frag = getFragmentDrawer();
 
-            TransitionHelper.makeFabDialogTransitions(this, view, fabFrame, picker);
+        FragmentBrushPicker picker = FragmentBrushPicker.newInstance(frag.getRootView().getPaint());
 
-            manager.beginTransaction()
-                    .replace(R.id.fragment_drawer_animator, picker, TAG_FRAGMENT_BRUSH)
-                    .commit();
+        TransitionHelper.makeFabDialogTransitions(this, view, fabFrame, picker);
 
-            count++;
-        }
+        manager.beginTransaction()
+                .replace(R.id.fragment_drawer_animator, picker, TAG_FRAGMENT_BRUSH)
+                .commit();
+
+        count++;
     }
 
     private void showColorChooser(View view, boolean toFill) {
-        FragmentDrawer frag = (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
-        if (frag != null) {
-            ViewCanvasLayout layout = frag.getRootView();
-            int color = toFill ? layout.getBackgroundColor() : layout.getBrushColor();
-            FragmentColorPicker picker = FragmentColorPicker.newInstance(color, toFill);
+        FragmentDrawer frag = getFragmentDrawer();
+        ViewCanvasLayout layout = frag.getRootView();
+        int color = toFill ? layout.getBackgroundColor() : layout.getBrushColor();
+        FragmentColorPicker picker = FragmentColorPicker.newInstance(color, toFill);
 
-            if (view instanceof ViewFab) {
-                TransitionHelper.makeFabDialogTransitions(this, view, fabFrame, picker);
-            } else {
-                TransitionHelper.makeButtonDialogTransitions(this, view, fabFrame, picker);
-            }
-
-            manager.beginTransaction()
-                    .replace(R.id.fragment_drawer_animator, picker, TAG_FRAGMENT_COLOR_PICKER)
-                    .commit();
-
-            count++;
+        if (view instanceof ViewFab) {
+            TransitionHelper.makeFabDialogTransitions(this, view, fabFrame, picker);
+        } else {
+            TransitionHelper.makeButtonDialogTransitions(this, view, fabFrame, picker);
         }
+
+        manager.beginTransaction()
+                .replace(R.id.fragment_drawer_animator, picker, TAG_FRAGMENT_COLOR_PICKER)
+                .commit();
+
+        count++;
     }
 
     private void showTextFragment(View view) {
@@ -317,7 +314,7 @@ public class ActivityHome extends ActivityBase {
         count++;
     }
 
-    private void showGalleryChooser() {
+    private void showGallery() {
         Intent intent = new Intent();
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
@@ -350,6 +347,33 @@ public class ActivityHome extends ActivityBase {
         }
     }
 
+    private void showClearCanvasDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                .setTitle(R.string.alert_dialog_new_canvas_title)
+                .setMessage(R.string.alert_dialog_new_canvas_body)
+                .setPositiveButton(R.string.alert_dialog_new_canvas_pos_button, (dialog, which) -> {
+                    bus.post(new EventClearCanvas());
+                })
+                .setNegativeButton(R.string.alert_dialog_new_canvas_neg_button, (dialog, which) -> {
+                    dialog.dismiss();
+                });
+        builder.create().show();
+    }
+
+    private void showImageChooser() {
+        Dialog builder = new Dialog(this);
+        builder.setContentView(R.layout.dialog_image_chooser);
+        builder.findViewById(R.id.dialog_from_camera).setOnClickListener(v -> {
+            builder.dismiss();
+            showCamera();
+        });
+        builder.findViewById(R.id.dialog_from_gallery).setOnClickListener(v -> {
+            builder.dismiss();
+            showGallery();
+        });
+        builder.show();
+    }
+
     public void onFabMenuButtonClicked(View view) {
         if (fabFrame == null) {
             fabFrame = (ViewRoundedFrameLayout) findViewById(R.id.fragment_drawer_animator);
@@ -371,23 +395,15 @@ public class ActivityHome extends ActivityBase {
             case R.id.menu_canvas_color:
                 showColorChooser(view, true);
                 break;
-            case R.id.menu_import:
-                showGalleryChooser();
-                break;
-            case R.id.menu_camera:
-                showCamera();
+            case R.id.menu_image:
+                showImageChooser();
+//                showGallery();
+//                showCamera();
                 break;
             case R.id.menu_clear_canvas:
-                AlertDialog.Builder builder = new AlertDialog.Builder(this)
-                        .setTitle(R.string.alert_dialog_new_canvas_title)
-                        .setMessage(R.string.alert_dialog_new_canvas_body)
-                        .setPositiveButton(R.string.alert_dialog_new_canvas_pos_button, (dialog, which) -> {
-                            bus.post(new EventClearCanvas());
-                        })
-                        .setNegativeButton(R.string.alert_dialog_new_canvas_neg_button, (dialog, which) -> {
-                            dialog.dismiss();
-                        });
-                builder.create().show();
+                showClearCanvasDialog();
+                break;
+            case R.id.menu_settings:
                 break;
         }
     }
@@ -406,7 +422,7 @@ public class ActivityHome extends ActivityBase {
                     if (view.getId() == R.id.view_options_menu_1) {
                         showCamera();
                     } else {
-                        showGalleryChooser();
+                        showGallery();
                     }
                     break;
             }

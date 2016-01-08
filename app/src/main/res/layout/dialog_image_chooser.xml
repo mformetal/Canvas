@@ -6,25 +6,25 @@
     android:layout_height="match_parent" >
 
     <milespeele.canvas.view.ViewTypefaceTextView
-        android:id="@+id/dialog_save_drawing"
+        android:id="@+id/dialog_from_gallery"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/dialog_save_drawing"
+        android:text="@string/dialog_from_gallery"
         android:textSize="@dimen/medium_text_size"
         android:drawablePadding="5dp"
         android:layout_margin="15dp"
         android:gravity="center"
-        android:drawableStart="@drawable/ic_save_24dp" />
+        android:drawableStart="@drawable/ic_photo_24dp" />
 
     <milespeele.canvas.view.ViewTypefaceTextView
-        android:id="@+id/dialog_exit_app"
+        android:id="@+id/dialog_from_camera"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/dialog_exit_canvas"
+        android:text="@string/dialog_from_camera"
         android:textSize="@dimen/medium_text_size"
         android:drawablePadding="5dp"
         android:layout_margin="15dp"
         android:gravity="center"
-        android:drawableStart="@drawable/ic_cancel_24dp" />
+        android:drawableStart="@drawable/ic_camera_alt_24dp" />
 
 </LinearLayout>

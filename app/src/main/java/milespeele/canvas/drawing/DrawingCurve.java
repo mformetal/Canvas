@@ -88,7 +88,6 @@ public class DrawingCurve {
     public interface DrawingCurveListener {
         void toggleOptionsMenuVisibilty(boolean visible, State state);
         void toggleFabMenuVisibility(boolean visible);
-        void hideSystemUI();
     }
 
     public DrawingCurve(Context context) {

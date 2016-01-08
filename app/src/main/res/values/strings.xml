@@ -71,6 +71,12 @@
     <string name="alert_dialog_save_exit">Save And Exit</string>
     <string name="alert_dialog_cancel">Cancel</string>
 
+    <string name="dialog_save_drawing">Save Drawing</string>
+    <string name="dialog_exit_canvas">Exit Canvas</string>
+    
+    <string name="dialog_from_gallery">Picture From Gallery</string>
+    <string name="dialog_from_camera">Take a Picture</string>
+
     <string name="alert_dialog_saving_in_progress">Saving...</string>
 
     <string name="view_options_menu_cancel">Cancel</string>

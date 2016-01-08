@@ -54,7 +54,7 @@ public class ViewFab extends FloatingActionButton {
 
     private void init(AttributeSet attrs) {
         ripplePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        ripplePaint.setColor(getResources().getColor(R.color.primary_dark));
+        ripplePaint.setColor(getResources().getColor(R.color.half_opacity_gray));
 
         animatorSet = new AnimatorSet();
     }

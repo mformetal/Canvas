@@ -194,11 +194,6 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
     }
 
     @Override
-    public void hideSystemUI() {
-        ViewUtils.systemUIGone(this);
-    }
-
-    @Override
     public void onOptionsMenuCancel() {
         drawer.onOptionsMenuCancel();
     }

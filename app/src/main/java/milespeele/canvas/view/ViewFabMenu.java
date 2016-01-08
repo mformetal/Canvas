@@ -36,7 +36,6 @@ import milespeele.canvas.event.EventColorChosen;
 import milespeele.canvas.event.EventFilenameChosen;
 import milespeele.canvas.event.EventParseError;
 import milespeele.canvas.util.Circle;
-import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.NetworkUtils;
 import milespeele.canvas.util.ViewUtils;
 
@@ -52,7 +51,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
 
     @Bind({R.id.menu_upload, R.id.menu_text, R.id.menu_stroke_color, R.id.menu_canvas_color,
             R.id.menu_ink, R.id.menu_brush, R.id.menu_undo, R.id.menu_redo, R.id.menu_erase,
-            R.id.menu_import, R.id.menu_camera})
+            R.id.menu_image, R.id.menu_settings})
     List<ViewFab> buttonsList;
 
     @Inject EventBus bus;
