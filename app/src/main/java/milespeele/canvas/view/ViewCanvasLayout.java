@@ -86,8 +86,6 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
         fabMenu.addListener(this);
         drawer.setListener(this);
         optionsMenu.addListener(this);
-
-        ViewUtils.systemUIGone(this);
     }
 
     @Override

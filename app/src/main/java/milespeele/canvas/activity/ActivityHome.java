@@ -45,6 +45,7 @@ import milespeele.canvas.util.ErrorDialog;
 import milespeele.canvas.util.FileUtils;
 import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.NetworkUtils;
+import milespeele.canvas.util.ViewUtils;
 import milespeele.canvas.view.ViewCanvasLayout;
 import milespeele.canvas.view.ViewFab;
 import milespeele.canvas.view.ViewRoundedFrameLayout;
@@ -148,6 +149,12 @@ public class ActivityHome extends ActivityBase {
                     break;
             }
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        ViewUtils.systemUIGone(getWindow().getDecorView());
     }
 
     private void saveAndExit() {

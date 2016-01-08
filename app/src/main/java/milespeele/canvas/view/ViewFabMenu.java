@@ -71,7 +71,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
     private float radius;
     private double mLastAngle;
     private float mMaxRadius;
-    private float mStartX, mStartY;
+    private float mStartY;
     private final static int INITIAL_DELAY = 0;
     private final static int DURATION = 400;
     private final static int DELAY_INCREMENT = 15;
@@ -250,7 +250,6 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
 
                 mLastAngle = mCircle.angleInDegrees(x, y);
 
-                mStartX = x;
                 mStartY = y;
                 break;
             case MotionEvent.ACTION_MOVE:
