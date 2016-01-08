@@ -240,7 +240,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
 
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
-                if (y >= getHeight() - getResources().getDimension(R.dimen.status_bar_height)) {
+                if (y >= getHeight() - getResources().getDimension(R.dimen.status_bar_height) / 4) {
                     return false;
                 }
 
@@ -571,7 +571,8 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
         }
 
         private boolean startedFromBottom(MotionEvent event) {
-            return event.getY() >= getHeight() - getResources().getDimension(R.dimen.status_bar_height);
+            return event.getY() >= getHeight() -
+                    getResources().getDimension(R.dimen.status_bar_height) / 4;
         }
     }
 
