@@ -284,8 +284,6 @@ public class DrawingCurve {
     }
 
     private void onTouchMove(MotionEvent event) {
-        new Handler().postDelayed(mListener::hideSystemUI, 350);
-
         final int pointerIndex = event.findPointerIndex(mActivePointer);
         float x = event.getX(pointerIndex), y = event.getY(pointerIndex);
 

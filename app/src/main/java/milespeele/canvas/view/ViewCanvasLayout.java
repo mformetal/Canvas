@@ -12,6 +12,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.os.Handler;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.util.AttributeSet;
@@ -135,6 +136,10 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
                     drawer.setEnabled(false);
                 }
                 break;
+        }
+
+        if (ev.getAction() == MotionEvent.ACTION_MOVE) {
+            new Handler().postDelayed(() -> ViewUtils.systemUIGone(getRootView()), 350);
         }
 
         return false;
