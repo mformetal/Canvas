@@ -2,6 +2,8 @@ package milespeele.canvas.drawing;
 
 import android.graphics.Canvas;
 import android.graphics.Matrix;
+import android.text.Layout;
+import android.text.StaticLayout;
 import android.text.TextPaint;
 
 /**
@@ -9,17 +11,20 @@ import android.text.TextPaint;
  */
 class TextDrawHistory {
 
-    public String text;
+    public CharSequence text;
     public float[] matrixValues;
     public TextPaint paint;
 
-    public TextDrawHistory(String text, float[] matrixValues, TextPaint paint) {
+    public TextDrawHistory(CharSequence text, float[] matrixValues, TextPaint paint) {
         this.text = text;
         this.matrixValues = matrixValues;
         this.paint = new TextPaint(paint);
     }
 
-    public void draw(Canvas canvas, Matrix matrix, int width, int height) {
+    public void draw(Canvas canvas, Matrix matrix) {
+        StaticLayout layout = new StaticLayout(text, paint, canvas.getWidth(),
+                Layout.Alignment.ALIGN_CENTER, 1, 1, false);
+
         float[] prevMatrixValues = new float[9];
         matrix.getValues(prevMatrixValues);
 
@@ -27,10 +32,7 @@ class TextDrawHistory {
 
         canvas.save();
         canvas.concat(matrix);
-        canvas.drawText(text,
-                width / 2 - paint.measureText(text) / 2,
-                height / 2,
-                paint);
+        layout.draw(canvas);
         canvas.restore();
 
         matrix.setValues(prevMatrixValues);

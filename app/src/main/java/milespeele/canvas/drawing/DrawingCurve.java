@@ -444,8 +444,14 @@ public class DrawingCurve {
                         }
 
                         @Override
-                        public void onNext(Object o) {
-                            redrawObject(o, workerCanvas);
+                        public void onNext(Object object) {
+                            if (object instanceof NormalDrawHistory) {
+                                ((NormalDrawHistory) object).draw(workerCanvas);
+                            } else if (object instanceof BitmapDrawHistory) {
+                                ((BitmapDrawHistory) object).draw(mMatrix, cache, mContext, workerCanvas);
+                            } else if (object instanceof TextDrawHistory) {
+                                ((TextDrawHistory) object).draw(workerCanvas, mMatrix);
+                            }
                         }
 
                         @Override
@@ -457,16 +463,6 @@ public class DrawingCurve {
                             workerCanvas.drawBitmap(mCachedBitmap, 0, 0, null);
                         }
                     });
-        }
-    }
-
-    private void redrawObject(Object object, Canvas canvas) {
-        if (object instanceof NormalDrawHistory) {
-            ((NormalDrawHistory) object).draw(canvas);
-        } else if (object instanceof BitmapDrawHistory) {
-            ((BitmapDrawHistory) object).draw(mMatrix, cache, mContext, canvas);
-        } else if (object instanceof TextDrawHistory) {
-            ((TextDrawHistory) object).draw(canvas, mMatrix, mBitmap.getWidth(), mBitmap.getHeight());
         }
     }
 
@@ -641,7 +637,7 @@ public class DrawingCurve {
                 changeState(State.DRAW);
 
                 mMatrix.getValues(values);
-//                mAllHistory.push(new TextDrawHistory(mText, values, mTextPaint));
+                mAllHistory.push(new TextDrawHistory(mTextLayout.getText(), values, mTextPaint));
 
                 ViewUtils.identityMatrix(mMatrix);
 
