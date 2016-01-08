@@ -397,13 +397,12 @@ public class ActivityHome extends ActivityBase {
                 break;
             case R.id.menu_image:
                 showImageChooser();
-//                showGallery();
-//                showCamera();
                 break;
             case R.id.menu_clear_canvas:
                 showClearCanvasDialog();
                 break;
-            case R.id.menu_settings:
+            case R.id.menu_navigation:
+
                 break;
         }
     }
