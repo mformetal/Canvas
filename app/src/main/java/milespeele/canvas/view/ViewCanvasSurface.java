@@ -81,7 +81,12 @@ public class ViewCanvasSurface extends SurfaceView implements SurfaceHolder.Call
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
-            if (event.getY() <= getResources().getDimension(R.dimen.status_bar_height)) {
+            float y = event.getY();
+            if (y <= getResources().getDimension(R.dimen.status_bar_height)) {
+                return false;
+            }
+
+            if (y >= getHeight() - getResources().getDimension(R.dimen.status_bar_height)) {
                 return false;
             }
         }
