@@ -126,6 +126,8 @@ public class ActivityHome extends ActivityBase {
                     manager.findFragmentById(R.id.fragment_drawer_animator);
             boolean shouldLetFragmentHandle = fragment.onBackPressed();
             if (!shouldLetFragmentHandle) {
+                ViewUtils.systemUIGone(getWindow().getDecorView());
+
                 count--;
 
                 FragmentTransaction ft = getFragmentManager().beginTransaction();

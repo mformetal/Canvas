@@ -5,8 +5,10 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Path;
+import android.graphics.Point;
 import android.transition.ArcMotion;
 import android.transition.ChangeBounds;
 import android.transition.TransitionValues;
@@ -45,8 +47,12 @@ public class TransitionDialogToButton extends ChangeBounds {
         ViewRoundedFrameLayout fabFrame = (ViewRoundedFrameLayout) views.get(1);
         ViewCanvasLayout layout = (ViewCanvasLayout) views.get(2);
 
+        Point size = new Point();
+        ((Activity) context).getWindowManager().getDefaultDisplay().getSize(size);
+        float yDiff = layout.getHeight() - size.y;
+
         float translationX = fab.getX() - fabFrame.getWidth() / 2 + fab.getWidth() * .1f;
-        float translationY = fab.getY() + fab.getHeight() * 3.25f;
+        float translationY = fab.getY() + fab.getHeight() * 3.25f + yDiff;
 
         Animator alpha = ObjectAnimator.ofArgb(layout, ViewCanvasLayout.ALPHA, 0);
 
