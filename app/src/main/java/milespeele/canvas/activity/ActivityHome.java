@@ -176,6 +176,12 @@ public class ActivityHome extends ActivityBase {
         ViewUtils.systemUIGone(getWindow().getDecorView());
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        FileUtils.deleteTemporaryFiles(this);
+    }
+
     private void saveAndExit() {
         FragmentDrawer fragmentDrawer = getFragmentDrawer();
 

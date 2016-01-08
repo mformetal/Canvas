@@ -32,7 +32,6 @@ public class ErrorDialog extends Dialog implements View.OnClickListener, DialogI
         super(context, R.style.DialogTheme);
         this.titleText = titleText;
         this.bodyText = bodyText;
-        getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
     }
 
     @Override

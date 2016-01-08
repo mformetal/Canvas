@@ -21,6 +21,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
@@ -36,6 +37,7 @@ import rx.schedulers.Schedulers;
 public class FileUtils {
 
     public final static String DRAWING_BITMAP_FILENAME = "canvas:bitmap";
+    private static ArrayList<String> mFilenames;
 
     public static Observable<byte[]> cacheAsObservable(Bitmap bitmap, Context context) {
         return Observable.create(new Observable.OnSubscribe<byte[]>() {
@@ -127,10 +129,15 @@ public class FileUtils {
     }
 
     public static File createPhotoFile() throws IOException {
+        if (mFilenames == null) {
+            mFilenames = new ArrayList<>();
+        }
+
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_";
         File storageDir = Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_PICTURES);
+        mFilenames.add(imageFileName + ".jpg");
         return File.createTempFile(
                 imageFileName,  /* prefix */
                 ".jpg",         /* suffix */
@@ -145,5 +152,13 @@ public class FileUtils {
         mediaScanIntent.setData(contentUri);
         context.sendBroadcast(mediaScanIntent);
         return contentUri;
+    }
+
+    public static void deleteTemporaryFiles(Context context) {
+        if (mFilenames != null) {
+            for (String name: mFilenames) {
+                context.deleteFile(name);
+            }
+        }
     }
 }
