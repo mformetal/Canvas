@@ -113,7 +113,7 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
             navDrawer.getHitRect(mRect);
             if (!mRect.contains((int) x, (int) y)) {
                 playSoundEffect(SoundEffectConstants.CLICK);
-                toggleNavDrawer();
+                navDrawer.toggle();
             }
             return true;
         }
@@ -182,7 +182,7 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
                 ink();
                 break;
             case R.id.menu_navigation:
-                toggleNavDrawer();
+                navDrawer.toggle();
                 break;
         }
 
@@ -222,58 +222,6 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
     @Override
     public void onOptionsMenuAccept() {
         drawer.onOptionsMenuAccept();
-    }
-
-    private void toggleNavDrawer() {
-        if (!navDrawer.isAnimating()) {
-            if (navDrawer.getVisibility() == View.GONE) {
-                navDrawer.bringToFront();
-                int right = navDrawer.getRight();
-                navDrawer.setTranslationX(-right);
-                navDrawer.setVisibility(View.VISIBLE);
-
-                ObjectAnimator alpha = ObjectAnimator.ofInt(this, ALPHA, 128).setDuration(350);
-
-                ObjectAnimator visible = ObjectAnimator.ofFloat(navDrawer, View.TRANSLATION_X, 0);
-                visible.setDuration(350);
-                visible.setInterpolator(new DecelerateInterpolator());
-                visible.addListener(new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationStart(Animator animation) {
-                        alpha.start();
-                        navDrawer.setAnimating(true);
-                    }
-
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        navDrawer.setAnimating(false);
-                    }
-                });
-                visible.start();
-            } else {
-                int right = navDrawer.getRight();
-
-                ObjectAnimator alpha = ObjectAnimator.ofInt(this, ALPHA, 0).setDuration(350);
-
-                ObjectAnimator gone = ObjectAnimator.ofFloat(navDrawer, View.TRANSLATION_X, -right);
-                gone.setDuration(350);
-                gone.setInterpolator(new AccelerateInterpolator());
-                gone.addListener(new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationStart(Animator animation) {
-                        alpha.start();
-                        navDrawer.setAnimating(true);
-                    }
-
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        navDrawer.setAnimating(false);
-                        navDrawer.setVisibility(View.GONE);
-                    }
-                });
-                gone.start();
-            }
-        }
     }
 
     public void startSaveAnimation() {
