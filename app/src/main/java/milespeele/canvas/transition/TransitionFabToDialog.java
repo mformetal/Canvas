@@ -67,6 +67,7 @@ public class TransitionFabToDialog extends ChangeBounds {
         fabFrame.setScaleY(yRatio);
         fabFrame.setTranslationX(translationX);
         fabFrame.setTranslationY(translationY + yDiff);
+        fabFrame.setVisibility(View.VISIBLE);
 
         Animator corner = ObjectAnimator.ofFloat(fabFrame,
                 ViewRoundedFrameLayout.CORNERS, fabFrame.getWidth(), 0)
@@ -85,33 +86,26 @@ public class TransitionFabToDialog extends ChangeBounds {
             }
         });
 
-        Animator alpha = ObjectAnimator.ofInt(layout, ViewCanvasLayout.ALPHA, 128);
-        alpha.setInterpolator(new LinearInterpolator());
+        Animator alpha = ObjectAnimator.ofInt(layout, ViewCanvasLayout.ALPHA, 128).setDuration(350);
 
         Animator background = ObjectAnimator.ofArgb(fabFrame,
                 ViewUtils.BACKGROUND, startColor, endColor)
                 .setDuration(350);
 
-        ArcMotion arcMotion = new ArcMotion();
-        arcMotion.setMinimumVerticalAngle(70f);
-        arcMotion.setMinimumHorizontalAngle(15f);
-        Path motionPath = arcMotion.getPath(translationX, translationY, 0, 0);
-        Animator position = ObjectAnimator.ofFloat(fabFrame,
-                View.TRANSLATION_X, View.TRANSLATION_Y, motionPath)
-                .setDuration(350);
+        Animator position = ObjectAnimator.ofPropertyValuesHolder(fabFrame,
+                PropertyValuesHolder.ofFloat(View.TRANSLATION_X, 0),
+                PropertyValuesHolder.ofFloat(View.TRANSLATION_Y, 0)).setDuration(350);
 
         ObjectAnimator scale = ObjectAnimator.ofPropertyValuesHolder(fabFrame,
                 PropertyValuesHolder.ofFloat(View.SCALE_X, fabFrame.getScaleX(), 1f),
                 PropertyValuesHolder.ofFloat(View.SCALE_Y, fabFrame.getScaleX(), 1f))
                 .setDuration(350);
-        scale.setStartDelay(position.getDuration() / 2);
 
         AnimatorSet animatorSet = new AnimatorSet();
         animatorSet.playTogether(alpha, background, corner, position, scale);
         animatorSet.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationStart(Animator animation) {
-                fabFrame.setVisibility(View.VISIBLE);
                 fab.setVisibility(View.GONE);
 
                 for (int x = 0; x < layout.getChildCount(); x++) {
@@ -122,7 +116,6 @@ public class TransitionFabToDialog extends ChangeBounds {
                 }
             }
         });
-        animatorSet.setInterpolator(new AccelerateDecelerateInterpolator());
 
         return animatorSet;
     }

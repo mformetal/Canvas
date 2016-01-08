@@ -109,8 +109,6 @@ public class TransitionDialogToFab extends ChangeBounds {
                 }
             }
         });
-        animatorSet.setDuration(350);
-        animatorSet.setInterpolator(new AccelerateDecelerateInterpolator());
 
         return animatorSet;
     }

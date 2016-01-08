@@ -239,6 +239,10 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
 
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
+                if (y >= getHeight() - getResources().getDimension(R.dimen.status_bar_height)) {
+                    return false;
+                }
+
                 mClickedItem = getClickedItem(x, y);
 
                 if (isFlinging) {
@@ -250,18 +254,16 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
                 mStartY = y;
                 break;
             case MotionEvent.ACTION_MOVE:
-                if (mStartY <= getHeight() - 24) {
-                    double degrees = mCircle.angleInDegrees(x, y);
-                    double rotater = degrees - mLastAngle;
+                double degrees = mCircle.angleInDegrees(x, y);
+                double rotater = degrees - mLastAngle;
 
-                    if (isDragging) {
-                        updateItemPositions(rotater);
-                    }
-
-                    mLastAngle = degrees;
-
-                    isDragging = true;
+                if (isDragging) {
+                    updateItemPositions(rotater);
                 }
+
+                mLastAngle = degrees;
+
+                isDragging = true;
                 break;
             case MotionEvent.ACTION_UP:
                 isDragging = false;
@@ -552,7 +554,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
 
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            if (isVisible()) {
+            if (isVisible() && !startedFromBottom(e1) && !startedFromBottom(e2)) {
                 isDragging = false;
 
                 isFlinging = true;
@@ -565,6 +567,11 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
             }
 
             return false;
+        }
+
+        private boolean startedFromBottom(MotionEvent event) {
+            return event.getY() < getHeight() - getResources().getDimension(R.dimen.status_bar_height);
+
         }
     }
 
