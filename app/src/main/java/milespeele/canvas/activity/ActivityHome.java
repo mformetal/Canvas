@@ -401,9 +401,6 @@ public class ActivityHome extends ActivityBase {
             case R.id.menu_clear_canvas:
                 showClearCanvasDialog();
                 break;
-            case R.id.menu_navigation:
-
-                break;
         }
     }
 

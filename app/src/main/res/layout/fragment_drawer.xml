@@ -34,6 +34,16 @@
         app:layout_anchor="@id/fragment_drawer_coordinator" />
 
     <include
+        layout="@layout/view_nav_drawer"
+        android:id="@+id/fragment_drawer_navigation"
+        android:layout_width="@dimen/nav_drawer_width"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:visibility="gone"
+        app:layout_anchorGravity="start"
+        app:layout_anchor="@id/fragment_drawer_coordinator" />
+
+    <include
         layout="@layout/fragment_drawer_menu"
         android:id="@+id/fragment_drawer_menu"
         android:layout_width="match_parent"
