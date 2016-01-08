@@ -65,6 +65,7 @@ public class DrawingCurve {
     private Context mContext;
     private PointF mStartPoint, mMidPoint;
     private Uri mPhotoBitmapUri;
+    private Handler mHandler;
 
     private static float STROKE_WIDTH = 5f;
     private static final int INVALID_POINTER = -1;
@@ -131,6 +132,8 @@ public class DrawingCurve {
         mAllHistory = new Stack<>();
         mRedoneHistory = new Stack<>();
         mStroke = new Stroke(mPaint);
+
+        mHandler = new Handler(Looper.getMainLooper());
     }
 
     private void reset() {
@@ -363,7 +366,7 @@ public class DrawingCurve {
                 setPaintColor(mStrokeColor);
                 changeState(State.DRAW);
 
-                new Handler().postDelayed(() -> mListener.toggleFabMenuVisibility(true), 350);
+                mHandler.postDelayed(() -> mListener.toggleFabMenuVisibility(true), 350);
                 break;
         }
 
@@ -509,7 +512,7 @@ public class DrawingCurve {
 
                 changeState(State.TEXT);
 
-                new Handler().postDelayed(new Runnable() {
+                mHandler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
                         mListener.toggleOptionsMenuVisibilty(true, State.TEXT);
@@ -591,7 +594,7 @@ public class DrawingCurve {
             } finally {
                 if (inputStream != null) {
                     try {
-                        new Handler().postDelayed(new Runnable() {
+                        mHandler.postDelayed(new Runnable() {
                             @Override
                             public void run() {
                                 mListener.toggleOptionsMenuVisibilty(true, State.PICTURE);

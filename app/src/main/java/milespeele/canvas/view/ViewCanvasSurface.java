@@ -13,6 +13,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 
+import milespeele.canvas.R;
 import milespeele.canvas.drawing.DrawingCurve;
 import milespeele.canvas.util.Logg;
 import rx.Observable;
@@ -79,6 +80,12 @@ public class ViewCanvasSurface extends SurfaceView implements SurfaceHolder.Call
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            if (event.getY() <= getResources().getDimension(R.dimen.status_bar_height)) {
+                return false;
+            }
+        }
+
         return mDrawingCurve.onTouchEvent(event);
     }
 
