@@ -75,13 +75,11 @@ public class TransitionFabToDialog extends ChangeBounds {
         corner.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationStart(Animator animation) {
-                super.onAnimationStart(animation);
                 fabFrame.setAnimating(true);
             }
 
             @Override
             public void onAnimationEnd(Animator animation) {
-                super.onAnimationEnd(animation);
                 fabFrame.setAnimating(false);
             }
         });

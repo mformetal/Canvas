@@ -13,13 +13,16 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.view.View;
 import android.widget.FrameLayout;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.jar.Manifest;
 
 import javax.inject.Inject;
 
@@ -62,6 +65,7 @@ public class ActivityHome extends ActivityBase {
     private final static String TAG_FRAGMENT_TEXT = "text";
     private final static int REQUEST_IMPORT_CODE = 2001;
     private final static int REQUEST_CAMERA_CODE = 2002;
+    private final static int REQUEST_PERMISSION_CAMERA = 3001;
 
     @Inject ParseUtils parseUtils;
     @Inject EventBus bus;
@@ -149,6 +153,19 @@ public class ActivityHome extends ActivityBase {
                     Uri uri = FileUtils.addFileToGallery(this, filePath);
                     bus.post(new EventBitmapChosen(uri));
                     break;
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String permissions[],
+                                           @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_PERMISSION_CAMERA: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    showCamera();
+                }
             }
         }
     }
@@ -302,25 +319,28 @@ public class ActivityHome extends ActivityBase {
     }
 
     private void showCamera() {
-        if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
-            Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-                File photoFile = null;
-                try {
-                    photoFile = FileUtils.createPhotoFile();
-                    filePath = photoFile.getAbsolutePath();
-                } catch (IOException e) {
-                    Logg.log(e);
-                    showSnackBar(R.string.error_dialog_no_camera_body, Snackbar.LENGTH_SHORT);
-                }
+        String[] permissions = new String[] {android.Manifest.permission.CAMERA,
+            android.Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        if (checkPermissions(permissions)) {
+            if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
+                Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+                    File photoFile = null;
+                    try {
+                        photoFile = FileUtils.createPhotoFile();
+                        filePath = photoFile.getAbsolutePath();
+                    } catch (IOException e) {
+                        Logg.log(e);
+                    }
 
-                if (photoFile != null) {
-                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
-                    startActivityForResult(takePictureIntent, REQUEST_CAMERA_CODE);
+                    if (photoFile != null) {
+                        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
+                        startActivityForResult(takePictureIntent, REQUEST_CAMERA_CODE);
+                    }
                 }
             }
         } else {
-            showSnackBar(R.string.error_dialog_no_camera_body, Snackbar.LENGTH_SHORT);
+            ActivityCompat.requestPermissions(this, permissions, REQUEST_PERMISSION_CAMERA);
         }
     }
 

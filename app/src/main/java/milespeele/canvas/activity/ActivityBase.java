@@ -1,7 +1,11 @@
 package milespeele.canvas.activity;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 
 import com.facebook.FacebookSdk;
@@ -52,5 +56,20 @@ public abstract class ActivityBase extends Activity {
 
     public void removeSubscription(Subscription subscription) {
         mCompositeSubscription.remove(subscription);
+    }
+
+    public boolean checkPermission(String permission) {
+        int hasPermission = ContextCompat.checkSelfPermission(this, permission);
+        return hasPermission == PackageManager.PERMISSION_GRANTED;
+    }
+
+    public boolean checkPermissions(String[] permissions) {
+        for (String permission: permissions) {
+            if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

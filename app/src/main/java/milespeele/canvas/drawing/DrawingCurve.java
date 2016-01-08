@@ -508,7 +508,7 @@ public class DrawingCurve {
         switch (mState) {
             case DRAW:
                 TextUtils.adjustTextSize(mTextPaint, mText, height);
-                TextUtils.adjustTextScale(mTextPaint, mText, width, 0, 0);
+                TextUtils.adjustTextScale(mTextPaint, mText, width);
 
                 changeState(State.TEXT);
 
@@ -522,7 +522,7 @@ public class DrawingCurve {
                 break;
             case TEXT:
                 TextUtils.adjustTextSize(mTextPaint, mText, height);
-                TextUtils.adjustTextScale(mTextPaint, mText, width, 0, 0);
+                TextUtils.adjustTextScale(mTextPaint, mText, width);
                 break;
         }
     }

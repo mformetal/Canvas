@@ -50,14 +50,12 @@ public final class TextUtils {
         textPaint.setTextSize(size);
     }
 
-    public static  void adjustTextScale(Paint textPaint, String text, float width, int paddingLeft,
-                                         int paddingRight) {
+    public static  void adjustTextScale(Paint textPaint, String text, float width) {
         textPaint.setTextScaleX(1.0f);
-
         Rect bounds = new Rect();
         textPaint.getTextBounds(text, 0, text.length(), bounds);
         int w = bounds.width();
-        float xscale = (width - paddingLeft - paddingRight) / w;
+        float xscale = (width) / w;
         textPaint.setTextScaleX(xscale * .6f);
     }
 

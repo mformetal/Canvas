@@ -221,8 +221,7 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
         alpha.setInterpolator(new LinearInterpolator());
         alpha.setDuration(500);
 
-        ObjectAnimator yPosition = ObjectAnimator.ofFloat(saveAnimator,
-                View.TRANSLATION_Y, 0 - saveAnimator.getHeight() / 2);
+        ObjectAnimator yPosition = ObjectAnimator.ofFloat(saveAnimator, View.TRANSLATION_Y, 0);
         yPosition.setDuration(500);
         yPosition.setInterpolator(new DecelerateInterpolator());
         yPosition.addListener(new AnimatorListenerAdapter() {
