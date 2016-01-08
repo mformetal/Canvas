@@ -53,19 +53,16 @@ public class FragmentFilename extends FragmentBase implements View.OnClickListen
                         .translationYBy(-Math.abs(keyboardPos - viewBottom));
             }
         });
-        input.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    View view = (View) getView().getParent();
-                    if (view.getTranslationY() != 0) {
-                        view.animate()
-                                .setInterpolator(new AccelerateDecelerateInterpolator())
-                                .translationY(0);
-                    }
+        input.setOnEditorActionListener((v1, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                View view = (View) getView().getParent();
+                if (view.getTranslationY() != 0) {
+                    view.animate()
+                            .setInterpolator(new AccelerateDecelerateInterpolator())
+                            .translationY(0);
                 }
-                return false;
             }
+            return false;
         });
         return v;
     }

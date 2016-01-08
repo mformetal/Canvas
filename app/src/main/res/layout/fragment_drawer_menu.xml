@@ -19,7 +19,7 @@
         app:fabSize="mini" />
 
     <milespeele.canvas.view.ViewFab
-        android:id="@+id/menu_save"
+        android:id="@+id/menu_upload"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_upload_24dp"

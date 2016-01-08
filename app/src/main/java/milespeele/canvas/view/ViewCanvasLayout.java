@@ -16,6 +16,7 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.util.AttributeSet;
 import android.util.Property;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.SoundEffectConstants;
 import android.view.View;
@@ -32,6 +33,7 @@ import milespeele.canvas.R;
 import milespeele.canvas.activity.ActivityHome;
 import milespeele.canvas.drawing.DrawingCurve;
 import milespeele.canvas.fragment.FragmentDrawer;
+import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.ViewUtils;
 
 /**
@@ -48,6 +50,8 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
 
     private final Rect hitRect = new Rect();
     private Paint shadowPaint;
+    private float mStartX, mStartY;
+    private long mStartTime;
 
     public ViewCanvasLayout(Context context) {
         super(context);
@@ -105,22 +109,35 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         final float x = ev.getX(), y = ev.getY();
 
-        if (fabFrame.getVisibility() == View.VISIBLE && !fabFrame.isAnimating()) {
-            drawer.setEnabled(false);
-            fabMenu.setEnabled(false);
-            fabFrame.getHitRect(hitRect);
+        switch (ev.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                mStartX = x;
+                mStartY = y;
+                mStartTime = ev.getEventTime();
 
-            if (!hitRect.contains((int) x, (int) y)) {
-                if (getContext() instanceof Activity) {
-                    playSoundEffect(SoundEffectConstants.CLICK);
-                    ((Activity) getContext()).onBackPressed();
+                if (fabFrame.getVisibility() == View.VISIBLE && !fabFrame.isAnimating()) {
+                    drawer.setEnabled(false);
+                    fabMenu.setEnabled(false);
+                    fabFrame.getHitRect(hitRect);
+
+                    if (!hitRect.contains((int) x, (int) y)) {
+                        if (getContext() instanceof Activity) {
+                            playSoundEffect(SoundEffectConstants.CLICK);
+                            ((Activity) getContext()).onBackPressed();
+                        }
+                    }
+                    return false;
+                } else {
+                    drawer.setEnabled(true);
+                    fabMenu.setEnabled(true);
                 }
-            }
-            return false;
+                break;
+            case MotionEvent.ACTION_MOVE:
+                if (detectSwipe(ev)) {
+                    drawer.setEnabled(false);
+                }
+                break;
         }
-
-        drawer.setEnabled(true);
-        fabMenu.setEnabled(true);
 
         return false;
     }
@@ -283,4 +300,24 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
             return layout.getPaintAlpha();
         }
     };
+
+    private boolean detectSwipe(MotionEvent event) {
+        float swipeThreshold = ViewUtils.dpToPx(getResources().getDimension(R.dimen.status_bar_height), getContext());
+//        float swipeThreshold = 24;
+        final long elapsed = event.getEventTime() - mStartTime;
+
+        if (mStartY <= swipeThreshold
+                && event.getY() > mStartY + swipeThreshold
+                && elapsed < 500) {
+            return true;
+        }
+
+        if (mStartY >= getHeight() - swipeThreshold
+                && event.getY() < mStartY - swipeThreshold
+                && elapsed < 500) {
+            return true;
+        }
+
+        return false;
+    }
 }

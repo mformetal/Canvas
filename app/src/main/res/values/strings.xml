@@ -62,8 +62,8 @@
         pictures with. This feature requires that you have a hardware camera</string>
 
     <string name="alert_dialog_new_canvas_title">Clear Canvas?</string>
-    <string name="alert_dialog_new_canvas_body">Pressing "Got it" would delete any drawing
-        you currently have and the one saved on disk.</string>
+    <string name="alert_dialog_new_canvas_body">Pressing \"Got it\" deletes any drawing
+        you currently have.</string>
     <string name="alert_dialog_new_canvas_pos_button">Bet</string>
     <string name="alert_dialog_new_canvas_neg_button">Oh NO!</string>
 

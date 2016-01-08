@@ -24,6 +24,8 @@ public class ViewTypefaceTextView extends TextView {
 
     private Paint borderPaint;
 
+    private int borderColor;
+
     public ViewTypefaceTextView(Context context) {
         super(context);
         init(null);
@@ -55,7 +57,8 @@ public class ViewTypefaceTextView extends TextView {
         if (attrs != null) {
             TypedArray typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.ViewTypefaceTextView);
             if (typedArray.getBoolean(R.styleable.ViewTypefaceTextView_shouldDrawBorder, false)) {
-                borderPaint = PaintStyles.normal(typedArray.getColor(R.styleable.ViewTypefaceTextView_borderColor, Color.GRAY), 5f);
+                borderColor = typedArray.getColor(R.styleable.ViewTypefaceTextView_borderColor, Color.GRAY);
+                borderPaint = PaintStyles.normal(borderColor, 5f);
             }
             typedArray.recycle();
         }

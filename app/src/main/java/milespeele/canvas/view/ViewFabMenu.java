@@ -3,21 +3,12 @@ package milespeele.canvas.view;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
-import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
-import android.animation.ValueAnimator;
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.graphics.BlurMaskFilter;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Point;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
-import android.graphics.Rect;
-import android.graphics.RectF;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
@@ -57,9 +48,9 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
 
     @Bind(R.id.menu_toggle) ViewFab toggle;
     @Bind(R.id.menu_erase) ViewFab eraser;
-    @Bind(R.id.menu_save) ViewFab saver;
+    @Bind(R.id.menu_upload) ViewFab saver;
 
-    @Bind({R.id.menu_save, R.id.menu_text, R.id.menu_stroke_color, R.id.menu_canvas_color,
+    @Bind({R.id.menu_upload, R.id.menu_text, R.id.menu_stroke_color, R.id.menu_canvas_color,
             R.id.menu_ink, R.id.menu_brush, R.id.menu_undo, R.id.menu_redo, R.id.menu_erase,
             R.id.menu_import, R.id.menu_camera})
     List<ViewFab> buttonsList;
@@ -80,7 +71,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
     private float radius;
     private double mLastAngle;
     private float mMaxRadius;
-    private float mLastX, mLastY;
+    private float mStartX, mStartY;
     private final static int INITIAL_DELAY = 0;
     private final static int DURATION = 400;
     private final static int DELAY_INCREMENT = 15;
@@ -259,11 +250,11 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
 
                 mLastAngle = mCircle.angleInDegrees(x, y);
 
-                mLastX = x;
-                mLastY = y;
+                mStartX = x;
+                mStartY = y;
                 break;
             case MotionEvent.ACTION_MOVE:
-                if (Math.abs(mLastY - y) < 200) {
+                if (mStartY <= getHeight() - 24) {
                     double degrees = mCircle.angleInDegrees(x, y);
                     double rotater = degrees - mLastAngle;
 
@@ -559,11 +550,9 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
 
     private final class GestureListener extends GestureDetector.SimpleOnGestureListener {
 
-        private static final int SWIPE_MAX_OFF_PATH = 250;
-
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            if (isVisible() && !isUpFling(e1, e2)) {
+            if (isVisible()) {
                 isDragging = false;
 
                 isFlinging = true;
@@ -576,10 +565,6 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
             }
 
             return false;
-        }
-
-        private boolean isUpFling(MotionEvent e1, MotionEvent e2) {
-            return Math.abs(e1.getY() - e2.getY()) > SWIPE_MAX_OFF_PATH;
         }
     }
 

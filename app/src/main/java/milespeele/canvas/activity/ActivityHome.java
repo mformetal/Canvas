@@ -9,14 +9,12 @@ import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.provider.MediaStore;
 import android.support.annotation.StringRes;
 import android.support.design.widget.Snackbar;
-import android.view.KeyEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 
@@ -52,7 +50,6 @@ import milespeele.canvas.view.ViewFab;
 import milespeele.canvas.view.ViewRoundedFrameLayout;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
 public class ActivityHome extends ActivityBase {
@@ -174,14 +171,10 @@ public class ActivityHome extends ActivityBase {
             }
 
             @Override
-            public void onError(Throwable e) {
-
-            }
+            public void onError(Throwable e) {}
 
             @Override
-            public void onNext(byte[] bytes) {
-
-            }
+            public void onNext(byte[] bytes) {}
 
             @Override
             public void onStart() {
@@ -337,7 +330,7 @@ public class ActivityHome extends ActivityBase {
             case R.id.menu_text:
                 showTextFragment(view);
                 break;
-            case R.id.menu_save:
+            case R.id.menu_upload:
                 showFilenameFragment(view);
                 break;
             case R.id.menu_canvas_color:

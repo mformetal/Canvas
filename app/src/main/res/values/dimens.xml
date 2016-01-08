@@ -2,6 +2,9 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
 
+    <dimen name="status_bar_height">24dp</dimen>
+    <dimen name="nav_bar_height">48dp</dimen>
+
     <dimen name="view_save_animation_dimens">75dp</dimen>
 
     <dimen name="brush_recycler_spacing">10dp</dimen>

@@ -22,8 +22,7 @@ import rx.schedulers.Schedulers;
 /**
  * Created by Miles Peele on 10/2/2015.
  */
-public class ViewCanvasSurface extends SurfaceView
-        implements SurfaceHolder.Callback, View.OnTouchListener {
+public class ViewCanvasSurface extends SurfaceView implements SurfaceHolder.Callback {
 
     private DrawingCurve mDrawingCurve;
     private DrawingThread mDrawingThread;
@@ -56,7 +55,6 @@ public class ViewCanvasSurface extends SurfaceView
 
         setWillNotDraw(false);
         setSaveEnabled(true);
-        setOnTouchListener(this);
 
         getHolder().addCallback(this);
     }
@@ -80,7 +78,7 @@ public class ViewCanvasSurface extends SurfaceView
     }
 
     @Override
-    public boolean onTouch(View v, MotionEvent event) {
+    public boolean onTouchEvent(MotionEvent event) {
         return mDrawingCurve.onTouchEvent(event);
     }
 
