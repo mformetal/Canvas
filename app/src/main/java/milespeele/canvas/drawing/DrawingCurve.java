@@ -489,6 +489,71 @@ public class DrawingCurve {
         }
     }
 
+    public void onOptionsMenuCancel() {
+        mListener.toggleOptionsMenuVisibilty(false, null);
+        mListener.toggleFabMenuVisibility(true);
+
+        changeState(State.DRAW);
+
+        ViewUtils.identityMatrix(mMatrix);
+
+        switch (mState) {
+            case TEXT:
+                mTextLayout = null;
+                break;
+            case PICTURE:
+                mPhotoBitmap.recycle();
+                mPhotoBitmap = null;
+                break;
+        }
+    }
+
+    public void onOptionsMenuAccept() {
+        float[] values = new float[9];
+        switch (mState) {
+            case TEXT:
+                mListener.toggleOptionsMenuVisibilty(false, null);
+                mListener.toggleFabMenuVisibility(true);
+
+                mCanvas.save();
+                mCanvas.concat(mMatrix);
+                mTextLayout.draw(mCanvas);
+                mCanvas.restore();
+
+                changeState(State.DRAW);
+
+                mMatrix.getValues(values);
+                mAllHistory.push(new TextDrawHistory(mTextLayout.getText(), values, mTextPaint));
+
+                ViewUtils.identityMatrix(mMatrix);
+
+                mTextLayout = null;
+                break;
+            case PICTURE:
+                mListener.toggleOptionsMenuVisibilty(false, null);
+                mListener.toggleFabMenuVisibility(true);
+
+                mCanvas.save();
+                mCanvas.concat(mMatrix);
+                mCanvas.drawBitmap(mPhotoBitmap, 0, 0, null);
+                mCanvas.restore();
+
+                changeState(State.DRAW);
+
+                cache.add(mPhotoBitmapUri, mPhotoBitmap.copy(mPhotoBitmap.getConfig(), true));
+
+                mMatrix.getValues(values);
+                mAllHistory.push(new BitmapDrawHistory(mPhotoBitmapUri, values));
+
+                ViewUtils.identityMatrix(mMatrix);
+
+                mPhotoBitmapUri = null;
+                mPhotoBitmap.recycle();
+                mPhotoBitmap = null;
+                break;
+        }
+    }
+
     @SuppressWarnings("unused")
     public void onEvent(EventClearCanvas eventClearCanvas) {
         reset();
@@ -496,8 +561,7 @@ public class DrawingCurve {
 
     @SuppressWarnings("unused")
     public void onEvent(EventTextChosen eventTextChosen) {
-        String text = eventTextChosen.text;
-        mTextLayout = new StaticLayout(text, mTextPaint, mBitmap.getWidth(),
+        mTextLayout = new StaticLayout(eventTextChosen.text, mTextPaint, mBitmap.getWidth(),
                 Layout.Alignment.ALIGN_CENTER, 1, 1, false);
 
         switch (mState) {
@@ -600,71 +664,6 @@ public class DrawingCurve {
                     }
                 }
             }
-        }
-    }
-
-    public void onOptionsMenuCancel() {
-        mListener.toggleOptionsMenuVisibilty(false, null);
-        mListener.toggleFabMenuVisibility(true);
-
-        changeState(State.DRAW);
-
-        ViewUtils.identityMatrix(mMatrix);
-
-        switch (mState) {
-            case TEXT:
-                mTextLayout = null;
-                break;
-            case PICTURE:
-                mPhotoBitmap.recycle();
-                mPhotoBitmap = null;
-                break;
-        }
-    }
-
-    public void onOptionsMenuAccept() {
-        float[] values = new float[9];
-        switch (mState) {
-            case TEXT:
-                mListener.toggleOptionsMenuVisibilty(false, null);
-                mListener.toggleFabMenuVisibility(true);
-
-                mCanvas.save();
-                mCanvas.concat(mMatrix);
-                mTextLayout.draw(mCanvas);
-                mCanvas.restore();
-
-                changeState(State.DRAW);
-
-                mMatrix.getValues(values);
-                mAllHistory.push(new TextDrawHistory(mTextLayout.getText(), values, mTextPaint));
-
-                ViewUtils.identityMatrix(mMatrix);
-
-                mTextLayout = null;
-                break;
-            case PICTURE:
-                mListener.toggleOptionsMenuVisibilty(false, null);
-                mListener.toggleFabMenuVisibility(true);
-
-                mCanvas.save();
-                mCanvas.concat(mMatrix);
-                mCanvas.drawBitmap(mPhotoBitmap, 0, 0, null);
-                mCanvas.restore();
-
-                changeState(State.DRAW);
-
-                cache.add(mPhotoBitmapUri, mPhotoBitmap.copy(mPhotoBitmap.getConfig(), true));
-
-                mMatrix.getValues(values);
-                mAllHistory.push(new BitmapDrawHistory(mPhotoBitmapUri, values));
-
-                ViewUtils.identityMatrix(mMatrix);
-
-                mPhotoBitmapUri = null;
-                mPhotoBitmap.recycle();
-                mPhotoBitmap = null;
-                break;
         }
     }
 
