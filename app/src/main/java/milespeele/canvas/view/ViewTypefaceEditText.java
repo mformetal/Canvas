@@ -54,6 +54,10 @@ public class ViewTypefaceEditText extends EditText {
     }
 
     private void init() {
+        if (isInEditMode()) {
+            return;
+        }
+
         setTypeface(TextUtils.getStaticTypeFace(getContext(), "Roboto.ttf"));
     }
 

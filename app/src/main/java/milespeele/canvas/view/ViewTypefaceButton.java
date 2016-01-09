@@ -58,6 +58,10 @@ public class ViewTypefaceButton extends Button {
     }
 
     private void init(AttributeSet attributeSet) {
+        if (isInEditMode()) {
+            return;
+        }
+
         setTypeface(TextUtils.getStaticTypeFace(getContext(), "Roboto.ttf"));
 
         TypedArray typedArray = getResources().obtainAttributes(attributeSet, R.styleable.ViewTypefaceButton);

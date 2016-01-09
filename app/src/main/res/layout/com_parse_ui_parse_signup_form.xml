@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minWidth="@dimen/parse_login_ui_width"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <milespeele.canvas.view.ViewTypefaceTextView
+        android:id="@+id/parse_login"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/app_name"
+        android:gravity="center_horizontal"
+        android:textSize="@dimen/xlarge_text_size"
+        android:layout_margin="@dimen/parse_login_ui_signup_margin" />
+
+    <android.support.design.widget.TextInputLayout
+        android:padding="@dimen/parse_login_ui_signup_margin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <milespeele.canvas.view.ViewTypefaceEditText
+            android:id="@+id/signup_username_input"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:singleLine="true"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Username" />
+
+    </android.support.design.widget.TextInputLayout>
+
+    <android.support.design.widget.TextInputLayout
+        android:padding="@dimen/parse_login_ui_signup_margin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <milespeele.canvas.view.ViewTypefaceEditText
+            android:id="@+id/signup_password_input"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:singleLine="true"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Password" />
+
+    </android.support.design.widget.TextInputLayout>
+
+    <android.support.design.widget.TextInputLayout
+        android:padding="@dimen/parse_login_ui_signup_margin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <milespeele.canvas.view.ViewTypefaceEditText
+            android:id="@+id/signup_confirm_password_input"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:singleLine="true"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Confirm Password" />
+
+    </android.support.design.widget.TextInputLayout>
+
+    <android.support.design.widget.TextInputLayout
+        android:padding="@dimen/parse_login_ui_signup_margin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <milespeele.canvas.view.ViewTypefaceEditText
+            android:id="@+id/signup_email_input"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:singleLine="true"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Email" />
+
+    </android.support.design.widget.TextInputLayout>
+
+    <android.support.design.widget.TextInputLayout
+        android:padding="@dimen/parse_login_ui_signup_margin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <milespeele.canvas.view.ViewTypefaceEditText
+            android:id="@+id/signup_name_input"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:singleLine="true"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Name" />
+
+    </android.support.design.widget.TextInputLayout>
+
+    <milespeele.canvas.view.ViewTypefaceButton
+        android:id="@+id/create_account"
+        android:text="Create Account"
+        android:layout_margin="@dimen/parse_login_ui_signup_margin"
+        android:layout_gravity="center_horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+
+</LinearLayout>
