@@ -26,8 +26,7 @@
             android:layout_gravity="center"
             android:singleLine="true"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/com_parse_ui_username_input_hint" />
+            android:layout_height="wrap_content" />
 
     </android.support.design.widget.TextInputLayout>
 
@@ -64,7 +63,7 @@
     </android.support.design.widget.TextInputLayout>
 
     <android.support.design.widget.TextInputLayout
-        android:padding="@dimen/parse_login_ui_signup_margin"
+        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
 
@@ -80,7 +79,6 @@
     </android.support.design.widget.TextInputLayout>
 
     <android.support.design.widget.TextInputLayout
-        android:padding="@dimen/parse_login_ui_signup_margin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
 
@@ -97,11 +95,10 @@
 
     <milespeele.canvas.view.ViewTypefaceButton
         android:id="@+id/create_account"
-        android:text="@string/com_parse_ui_create_account_button_label"
         android:layout_margin="@dimen/parse_login_ui_signup_margin"
+        android:text="@string/com_parse_ui_create_account_button_label"
         android:layout_gravity="center_horizontal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
-
 
 </LinearLayout>

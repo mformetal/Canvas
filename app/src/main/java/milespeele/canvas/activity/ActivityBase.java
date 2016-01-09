@@ -101,7 +101,8 @@ public abstract class ActivityBase extends Activity {
     }
 
     public void showSnackbar(View view, @StringRes int res, int duration, View.OnClickListener onClickListener) {
-        Snackbar snackbar = Snackbar.make(view == null ? getWindow().getDecorView() : view, res, duration);
+        view = view == null ? getWindow().getDecorView() : view;
+        Snackbar snackbar = Snackbar.make(view, res, duration);
         if (onClickListener != null) {
             snackbar.setAction("Aight", onClickListener);
         }

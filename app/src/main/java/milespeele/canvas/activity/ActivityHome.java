@@ -206,6 +206,8 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
 
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
+        startLoginActivity();
+
         switch (item.getItemId()) {
             case R.id.menu_drawer_header_profile:
                 break;

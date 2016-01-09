@@ -381,6 +381,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
                 ObjectAnimator rotate = ObjectAnimator.ofFloat(view, View.ROTATION,
                         0f, 360f);
                 rotate.setDuration(DURATION);
+                rotate.setStartDelay(delay);
                 rotate.setInterpolator(new AccelerateDecelerateInterpolator());
 
                 delay += DELAY_INCREMENT;
@@ -456,6 +457,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
                 ObjectAnimator rotate = ObjectAnimator.ofFloat(view, View.ROTATION,
                         0f, 360f);
                 rotate.setDuration(DURATION);
+                rotate.setStartDelay(delay);
                 rotate.setInterpolator(new AccelerateDecelerateInterpolator());
 
                 delay += DELAY_INCREMENT;
