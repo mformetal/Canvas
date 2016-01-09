@@ -30,6 +30,7 @@
             android:name="com.parse.ui.ParseLoginActivity"
             android:label="@string/app_name"
             android:theme="@style/DialogActivity"
+            android:windowSoftInputMode="stateHidden|adjustResize"
             android:launchMode="singleTop">
             <meta-data
                 android:name="com.parse.ui.ParseLoginActivity.PARSE_LOGIN_ENABLED"

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <Button
+        android:id="@+id/facebook_login"
+        style="@style/ParseLoginUI.Button.ThirdPartyLogin"
+        android:layout_margin="@dimen/activity_vertical_margin"
+        android:background="@drawable/com_parse_ui_facebook_login_button_background_selector"
+        android:drawableStart="@drawable/com_parse_ui_facebook_login_logo"
+        android:text="@string/com_parse_ui_facebook_login_button_label"
+        android:visibility="gone" />
+
+    <Button
+        android:id="@+id/twitter_login"
+        style="@style/ParseLoginUI.Button.ThirdPartyLogin"
+        android:layout_margin="@dimen/activity_vertical_margin"
+        android:background="@drawable/com_parse_ui_twitter_login_button_background_selector"
+        android:drawableStart="@drawable/com_parse_ui_twitter_login_logo"
+        android:text="@string/com_parse_ui_twitter_login_button_label"
+        android:visibility="gone" />
+</merge>
