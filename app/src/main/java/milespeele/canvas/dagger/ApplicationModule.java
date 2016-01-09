@@ -49,7 +49,7 @@ public class ApplicationModule {
     @Provides
     @Singleton
     public ParseUtils getParseUtils(Application mApplication) {
-        return new ParseUtils(mApplication);
+        return new ParseUtils();
     }
 
     @Provides

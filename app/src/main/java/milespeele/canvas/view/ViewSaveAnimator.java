@@ -15,6 +15,7 @@ import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
+import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.animation.AnticipateOvershootInterpolator;
@@ -89,7 +90,7 @@ public class ViewSaveAnimator extends View {
         Rect bounds = canvas.getClipBounds();
         int prevColor = mPaint.getColor();
 
-        mPath.reset();
+        mPath.rewind();
         mPath.addRoundRect(bounds.left, bounds.top, bounds.right, bounds.bottom,
                 canvas.getWidth() * .1f, canvas.getHeight() * .1f, Path.Direction.CW);
         canvas.clipPath(mPath);
@@ -99,8 +100,9 @@ public class ViewSaveAnimator extends View {
 
         if (mDrawable != null) {
             canvas.save();
-            canvas.scale(getScaleX(), getScaleY(),
-                    canvas.getWidth() / 2f, canvas.getHeight() / 2f);
+            float sx = getScaleX(), sy = getScaleY();
+            float px = canvas.getWidth() / 2f, py = canvas.getHeight() / 2f;
+            canvas.scale(sx, sy, px, py);
             mDrawable.draw(canvas);
             canvas.restore();
         } else {
@@ -139,43 +141,50 @@ public class ViewSaveAnimator extends View {
                 @Override
                 public void onAnimationRepeat(Animator animation) {
                     super.onAnimationEnd(animation);
+                    animation.end();
+
                     for (Animator child: childAnimations) {
                         if (child instanceof ValueAnimator) {
                             ((ValueAnimator) child).setRepeatCount(0);
                             ((ValueAnimator) child).setRepeatMode(0);
                             child.removeAllListeners();
+                            child.end();
                         }
                     }
 
-                    ObjectAnimator scale = ObjectAnimator.ofPropertyValuesHolder(ViewSaveAnimator.this,
-                            PropertyValuesHolder.ofFloat(View.SCALE_X, .2f, 1f),
-                            PropertyValuesHolder.ofFloat(View.SCALE_Y, .2f, 1f));
-                    scale.setDuration(350);
-                    scale.setInterpolator(new AnticipateOvershootInterpolator());
-                    scale.addListener(new AnimatorListenerAdapter() {
-                        @Override
-                        public void onAnimationStart(Animator animation) {
-                            super.onAnimationStart(animation);
-                            mDrawable = getResources().getDrawable(R.drawable.ic_check_24dp);
-                            mDrawable.setColorFilter(ViewUtils.complementColor(mBackgroundColor),
-                                    PorterDuff.Mode.SRC_ATOP);
-                            mDrawable.setBounds(0, 0, getWidth(), getHeight());
-                        }
-
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-                            new Handler().postDelayed(() -> adapter.onAnimationEnd(animation), 750);
-                        }
-                    });
-
-                    scale.addUpdateListener(animation1 -> invalidate());
-
-                    scale.start();
+                    scaleAndFinish(adapter);
                 }
             });
         } else {
             adapter.onAnimationEnd(null);
         }
+    }
+
+    private void scaleAndFinish(AnimatorListenerAdapter adapter) {
+        ObjectAnimator scale = ObjectAnimator.ofPropertyValuesHolder(this,
+                PropertyValuesHolder.ofFloat(View.SCALE_X, .2f, 1f),
+                PropertyValuesHolder.ofFloat(View.SCALE_Y, .2f, 1f));
+        scale.setDuration(350);
+        scale.setInterpolator(new AnticipateOvershootInterpolator());
+        scale.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                super.onAnimationStart(animation);
+                mDrawable = ContextCompat.getDrawable(getContext(), R.drawable.ic_check_24dp);
+                mDrawable.setColorFilter(ViewUtils.complementColor(mBackgroundColor),
+                        PorterDuff.Mode.SRC_ATOP);
+                mDrawable.setBounds(0, 0, getWidth(), getHeight());
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                new Handler().postDelayed(() -> adapter.onAnimationEnd(animation), 750);
+            }
+        });
+
+        scale.addUpdateListener(animation1 -> invalidate());
+
+        scale.start();
     }
 
     private Animator createLineAnimation(int index) {

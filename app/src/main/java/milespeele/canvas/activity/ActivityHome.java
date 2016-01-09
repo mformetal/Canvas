@@ -25,15 +25,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
 
+import com.parse.ParseException;
+import com.parse.ParseUser;
+
 import java.io.File;
 import java.io.IOException;
 
-import javax.inject.Inject;
-
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import de.greenrobot.event.EventBus;
-import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
 import milespeele.canvas.drawing.DrawingCurve;
 import milespeele.canvas.event.EventBitmapChosen;
@@ -207,8 +206,6 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
 
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        checkUser();
-
         switch (item.getItemId()) {
             case R.id.menu_drawer_header_profile:
                 break;
@@ -286,7 +283,7 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
                 AnimatorListenerAdapter listenerAdapter = new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationEnd(Animator animation) {
-                        finishAffinity();
+                        finishAndRemoveTask();
                     }
                 };
 
@@ -306,39 +303,59 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
             }
         };
 
-        addSubscription(FileUtils.cacheAsObservable(fragmentDrawer.getDrawingBitmap(), this)
+        addSubscription(FileUtils.cache(fragmentDrawer.getDrawingBitmap(), this)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(subscriber));
     }
 
-    @SuppressWarnings("unused")
-    public void onEvent(EventParseError eventParseError) {
-        ErrorDialog.createDialogFromCode(this, eventParseError.getErrorCode()).show();
-    }
-
     @SuppressWarnings("unused, unchecked")
     public void onEvent(EventFilenameChosen eventFilenameChosen) {
         if (NetworkUtils.hasInternet(this)) {
-//            FragmentDrawer frag = (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
-//            if (frag != null) {
-//                parseUtils.saveImageToServer(this, eventFilenameChosen.filename, frag.getDrawingBitmap())
-//                        .subscribeOn(Schedulers.io())
-//                        .observeOn(AndroidSchedulers.mainThread())
-//                        .subscribe((Action1) o -> {
-//                            ((ViewFab) findViewById(R.id.menu_save)).stopSaveAnimation();
-//
-//                            FragmentDrawer fragmentDrawer =
-//                                    (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
-//
-//                            if (fragmentDrawer != null && fragmentDrawer.getRootView() != null) {
-//                                Snackbar.make(fragmentDrawer.getRootView(),
-//                                        R.string.snackbar_activity_home_image_saved_title,
-//                                        Snackbar.LENGTH_LONG)
-//                                        .show();
-//                            }
-//                        });
-//            }
+            FragmentDrawer frag = (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
+            if (frag != null) {
+                Subscriber<byte[]> subscriber = new Subscriber<byte[]>() {
+                    @Override
+                    public void onCompleted() {
+                        removeSubscription(this);
+
+                        ((ViewFab) findViewById(R.id.menu_upload)).stopSaveAnimation();
+
+                        FragmentDrawer fragmentDrawer =
+                                (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
+
+                        if (fragmentDrawer != null && fragmentDrawer.getRootView() != null) {
+                            Snackbar.make(fragmentDrawer.getRootView(),
+                                    R.string.snackbar_activity_home_image_saved_title,
+                                    Snackbar.LENGTH_LONG)
+                                    .show();
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        ((ViewFab) findViewById(R.id.menu_upload)).stopSaveAnimation();
+
+                        if (e instanceof ParseException) {
+                            ParseUtils.handleError((ParseException) e,
+                                    getFragmentDrawer().getRootView(),
+                                    ActivityHome.this);
+                        } else {
+                            Logg.log(e);
+                        }
+                    }
+
+                    @Override
+                    public void onNext(byte[] bytes) {
+
+                    }
+                };
+                addSubscription(
+                        parseUtils.saveImageToServer(eventFilenameChosen.filename, frag.getDrawingBitmap())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(subscriber));
+            }
         } else {
             showSnackBar(R.string.snackbar_no_internet, Snackbar.LENGTH_LONG);
         }

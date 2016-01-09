@@ -11,6 +11,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.Region;
 import android.os.Handler;
@@ -30,6 +32,7 @@ import butterknife.ButterKnife;
 import milespeele.canvas.R;
 import milespeele.canvas.drawing.DrawingCurve;
 import milespeele.canvas.fragment.FragmentDrawer;
+import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.ViewUtils;
 
 /**
@@ -44,7 +47,7 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
     @Bind(R.id.fragment_drawer_options_menu) ViewOptionsMenu optionsMenu;
     @Bind(R.id.fragment_drawer_save_animation) ViewSaveAnimator saveAnimator;
 
-    private final Rect mRect = new Rect();
+    private Rect mRect = new Rect();
     private final Path mPath = new Path();
     private Paint mShadowPaint;
     private float mStartX, mStartY;
@@ -89,26 +92,18 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
     }
 
     @Override
-    protected void dispatchDraw(Canvas canvas) {
-        super.dispatchDraw(canvas);
-
-        if (fabFrame.getVisibility() == View.VISIBLE) {
-            fabFrame.getGlobalVisibleRect(mRect);
-            mPath.rewind();
-            mPath.addRoundRect(mRect.left, mRect.top, mRect.right, mRect.bottom,
-                    fabFrame.getCorner(), fabFrame.getCorner(), Path.Direction.CCW);
-            canvas.clipPath(mPath, Region.Op.DIFFERENCE);
+    protected boolean drawChild(Canvas canvas, View child, long drawingTime) {
+        if (mShadowPaint.getAlpha() > 0) {
+            canvas.save();
             canvas.drawPaint(mShadowPaint);
-        }
+            canvas.restore();
 
-        if (saveAnimator.getVisibility() == View.VISIBLE) {
-            saveAnimator.getGlobalVisibleRect(mRect);
-            mPath.rewind();
-            mPath.addRoundRect(mRect.left, mRect.top, mRect.right, mRect.bottom,
-                    saveAnimator.getWidth() * .1f, saveAnimator.getHeight() * .1f, Path.Direction.CCW);
-            canvas.clipPath(mPath, Region.Op.DIFFERENCE);
-            canvas.drawPaint(mShadowPaint);
+            int alpha = mShadowPaint.getAlpha();
+            float viewAlpha = alpha / ViewUtils.MAX_ALPHA;
+            fabMenu.setAlpha(1.0f - viewAlpha);
+            optionsMenu.setAlpha(1.0f - viewAlpha);
         }
+        return super.drawChild(canvas, child, drawingTime);
     }
 
     @Override

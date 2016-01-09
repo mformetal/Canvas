@@ -87,4 +87,7 @@
     <string name="view_options_menu_edit_import">Import</string>
     <string name="view_options_menu_edit_camera">Camera</string>
 
+    <string name="parse_error_invalid_sesion_token">Need to log you in, sorry!</string>
+    <string name="parse_error_general">Something failed bih</string>
+
 </resources>

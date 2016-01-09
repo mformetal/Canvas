@@ -15,10 +15,6 @@ public class EventParseError {
         this.e = e;
     }
 
-    public EventParseError(Throwable throwable) {
-
-    }
-
     public int getErrorCode() {
         return (e != null) ? e.getCode() : NOT_PARSE_ERROR;
     }

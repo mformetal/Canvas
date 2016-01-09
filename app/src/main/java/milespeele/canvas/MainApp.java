@@ -41,7 +41,7 @@ public class MainApp extends Application {
                 .build();
 
 
-        Fabric.with(this, crashlyticsKit);
+        Fabric.with(this, crashlyticsKit, new Crashlytics());
 
         component = DaggerApplicationComponent.builder()
                 .applicationModule(new ApplicationModule(this))

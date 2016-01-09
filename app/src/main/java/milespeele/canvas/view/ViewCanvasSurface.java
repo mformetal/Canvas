@@ -164,6 +164,8 @@ public class ViewCanvasSurface extends SurfaceView implements SurfaceHolder.Call
                             }
                         }
                     }
+                } catch (IllegalArgumentException e) {
+                    throw e;
                 } finally {
                     if (c != null) {
                         mSurfaceHolder.unlockCanvasAndPost(c);
