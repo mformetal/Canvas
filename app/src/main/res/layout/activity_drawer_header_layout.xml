@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:paddingTop="?android:attr/actionBarSize"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content" >
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:src="@drawable/sea"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <milespeele.canvas.view.ViewTypefaceTextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="PROFILE NAME"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:textSize="@dimen/medium_text_size" />
+
+</LinearLayout>

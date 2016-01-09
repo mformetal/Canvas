@@ -48,6 +48,7 @@ dependencies {
     compile 'io.reactivex:rxandroid:1.1.0'
     compile 'io.reactivex:rxjava:1.0.14'
     compile 'com.infstory:rxparse:2.0.1'
+    compile 'de.hdodenhof:circleimageview:2.0.0'
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.facebook.android:facebook-android-sdk:4.0.1'
     compile 'de.greenrobot:eventbus:2.4.0'

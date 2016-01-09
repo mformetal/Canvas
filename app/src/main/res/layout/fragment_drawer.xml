@@ -4,8 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/fragment_drawer_coordinator"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fitsSystemWindows="false" >
+    android:layout_height="match_parent" >
 
     <milespeele.canvas.view.ViewCanvasSurface
         android:id="@+id/fragment_drawer_canvas"
@@ -31,15 +30,6 @@
         android:layout_height="@dimen/view_save_animation_dimens"
         android:visibility="gone"
         app:layout_anchorGravity="center"
-        app:layout_anchor="@id/fragment_drawer_coordinator" />
-
-    <include
-        layout="@layout/view_nav_drawer"
-        android:id='@+id/fragment_drawer_navigation'
-        android:layout_height="match_parent"
-        android:layout_width="@dimen/nav_drawer_width"
-        android:visibility="gone"
-        app:layout_anchorGravity="start"
         app:layout_anchor="@id/fragment_drawer_coordinator" />
 
     <include

@@ -16,8 +16,12 @@ import android.os.PersistableBundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
+import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
 
@@ -48,6 +52,7 @@ import milespeele.canvas.util.ErrorDialog;
 import milespeele.canvas.util.FileUtils;
 import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.NetworkUtils;
+import milespeele.canvas.util.SimpleDrawerLayoutListener;
 import milespeele.canvas.util.ViewUtils;
 import milespeele.canvas.view.ViewCanvasLayout;
 import milespeele.canvas.view.ViewFab;
@@ -56,7 +61,7 @@ import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
-public class ActivityHome extends ActivityBase {
+public class ActivityHome extends ActivityBase implements NavigationView.OnNavigationItemSelectedListener {
 
     private final static String TAG_FRAGMENT_DRAWER = "drawer";
     private final static String TAG_FRAGMENT_COLOR_PICKER = "color";
@@ -71,6 +76,8 @@ public class ActivityHome extends ActivityBase {
     @Inject EventBus bus;
 
     @Bind(R.id.activity_home_fragment_frame) FrameLayout frameLayout;
+    @Bind(R.id.activity_home_drawer_layout) DrawerLayout drawerLayout;
+    @Bind(R.id.activity_home_navigation_view) NavigationView navigationView;
 
     private ViewRoundedFrameLayout fabFrame;
     private FragmentManager manager;
@@ -89,6 +96,20 @@ public class ActivityHome extends ActivityBase {
         getWindow().setBackgroundDrawable(null);
 
         bus.register(this);
+
+        drawerLayout.setDrawerListener(new SimpleDrawerLayoutListener() {
+            @Override
+            public void onDrawerClosed(View drawerView) {
+                ViewUtils.systemUIGone(getWindow().getDecorView());
+            }
+
+            @Override
+            public void onDrawerOpened(View drawerView) {
+                ViewUtils.systemUIVisibile(getWindow().getDecorView());
+            }
+        });
+        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+        navigationView.setNavigationItemSelectedListener(this);
 
         manager = getFragmentManager();
 
@@ -179,6 +200,7 @@ public class ActivityHome extends ActivityBase {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        ButterKnife.unbind(this);
         FileUtils.deleteTemporaryFiles(this);
     }
 
@@ -374,6 +396,22 @@ public class ActivityHome extends ActivityBase {
         builder.show();
     }
 
+    private void showNavigationView() {
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            ViewUtils.systemUIGone(getWindow().getDecorView());
+            drawerLayout.closeDrawer(GravityCompat.START);
+        } else {
+            ViewUtils.systemUIVisibile(getWindow().getDecorView());
+            drawerLayout.openDrawer(GravityCompat.START);
+        }
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        showSnackBar(item.getTitle() + " PRESSED", Snackbar.LENGTH_SHORT);
+        return false;
+    }
+
     public void onFabMenuButtonClicked(View view) {
         if (fabFrame == null) {
             fabFrame = (ViewRoundedFrameLayout) findViewById(R.id.fragment_drawer_animator);
@@ -400,6 +438,9 @@ public class ActivityHome extends ActivityBase {
                 break;
             case R.id.menu_clear_canvas:
                 showClearCanvasDialog();
+                break;
+            case R.id.menu_navigation:
+                showNavigationView();
                 break;
         }
     }
@@ -429,6 +470,13 @@ public class ActivityHome extends ActivityBase {
         FragmentDrawer drawer = (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
         if (drawer != null && drawer.getRootView() != null) {
             Snackbar.make(drawer.getRootView(), id, duration).show();
+        }
+    }
+
+    private void showSnackBar(String string, int duration) {
+        FragmentDrawer drawer = (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
+        if (drawer != null && drawer.getRootView() != null) {
+            Snackbar.make(drawer.getRootView(), string, duration).show();
         }
     }
 

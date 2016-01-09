@@ -43,7 +43,6 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
     @Bind(R.id.fragment_drawer_animator) ViewRoundedFrameLayout fabFrame;
     @Bind(R.id.fragment_drawer_options_menu) ViewOptionsMenu optionsMenu;
     @Bind(R.id.fragment_drawer_save_animation) ViewSaveAnimator saveAnimator;
-    @Bind(R.id.fragment_drawer_navigation) ViewNavDrawer navDrawer;
 
     private final Rect mRect = new Rect();
     private final Path mPath = new Path();
@@ -90,11 +89,6 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
     protected void dispatchDraw(Canvas canvas) {
         super.dispatchDraw(canvas);
 
-        if (navDrawer.getVisibility() == View.VISIBLE) {
-            canvas.drawRect(navDrawer.getTranslationX() + navDrawer.getWidth(),
-                    0, canvas.getWidth(), canvas.getHeight(), mShadowPaint);
-        }
-
         if (fabFrame.getVisibility() == View.VISIBLE) {
             fabFrame.getGlobalVisibleRect(mRect);
             mPath.rewind();
@@ -103,20 +97,20 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
             canvas.clipPath(mPath, Region.Op.DIFFERENCE);
             canvas.drawPaint(mShadowPaint);
         }
+
+        if (saveAnimator.getVisibility() == View.VISIBLE) {
+            saveAnimator.getGlobalVisibleRect(mRect);
+            mPath.rewind();
+            mPath.addRoundRect(mRect.left, mRect.top, mRect.right, mRect.bottom,
+                    saveAnimator.getWidth() * .1f, saveAnimator.getHeight() * .1f, Path.Direction.CCW);
+            canvas.clipPath(mPath, Region.Op.DIFFERENCE);
+            canvas.drawPaint(mShadowPaint);
+        }
     }
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         final float x = ev.getX(), y = ev.getY();
-
-        if (navDrawer.getVisibility() == View.VISIBLE) {
-            navDrawer.getHitRect(mRect);
-            if (!mRect.contains((int) x, (int) y)) {
-                playSoundEffect(SoundEffectConstants.CLICK);
-                navDrawer.toggle();
-            }
-            return false;
-        }
 
         switch (ev.getAction()) {
             case MotionEvent.ACTION_DOWN:
@@ -175,9 +169,6 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
                 break;
             case R.id.menu_ink:
                 ink();
-                break;
-            case R.id.menu_navigation:
-                navDrawer.toggle();
                 break;
         }
 
