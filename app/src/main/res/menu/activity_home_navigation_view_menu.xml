@@ -2,22 +2,13 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <group
-        android:checkableBehavior="single">
+        android:checkableBehavior="single" >
 
         <item
-            android:id="@+id/drawer_home"
-            android:icon="@drawable/ic_photo_24dp"
-            android:title="TEST" />
+            android:id="@+id/drawer_header_gallery"
+            android:icon="@drawable/ic_camera_roll_24dp"
+            android:title="@string/activity_drawer_header_gallery" />
 
-        <item
-            android:id="@+id/drawer_favourite"
-            android:icon="@drawable/ic_menu_24dp"
-            android:title="TITLE" />
-
-        <item
-            android:id="@+id/drawer_settings"
-            android:icon="@drawable/ic_settings_24dp"
-            android:title="SETTINGS" />
     </group>
 
 </menu>

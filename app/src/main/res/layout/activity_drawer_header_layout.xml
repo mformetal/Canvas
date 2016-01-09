@@ -10,7 +10,8 @@
     <de.hdodenhof.circleimageview.CircleImageView
         android:src="@drawable/sea"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/activity_header_layout_margin" />
 
     <milespeele.canvas.view.ViewTypefaceTextView
         android:layout_width="match_parent"

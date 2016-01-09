@@ -105,7 +105,7 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
 
             @Override
             public void onDrawerOpened(View drawerView) {
-                ViewUtils.systemUIVisibile(getWindow().getDecorView());
+//                ViewUtils.systemUIVisibile(getWindow().getDecorView());
             }
         });
         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
@@ -136,16 +136,20 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
         // https://code.google.com/p/android/issues/detail?id=82832
 
         if (count == 0) {
-            Dialog builder = new Dialog(this);
-            builder.setContentView(R.layout.dialog_save);
-            builder.findViewById(R.id.dialog_save_drawing).setOnClickListener(v -> {
-                builder.dismiss();
-                saveAndExit();
-            });
-            builder.findViewById(R.id.dialog_exit_app).setOnClickListener(v -> {
-                super.onBackPressed();
-            });
-            builder.show();
+            if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                drawerLayout.closeDrawer(GravityCompat.START);
+            } else {
+                Dialog builder = new Dialog(this);
+                builder.setContentView(R.layout.dialog_save);
+                builder.findViewById(R.id.dialog_save_drawing).setOnClickListener(v -> {
+                    builder.dismiss();
+                    saveAndExit();
+                });
+                builder.findViewById(R.id.dialog_exit_app).setOnClickListener(v -> {
+                    super.onBackPressed();
+                });
+                builder.show();
+            }
         } else {
             FragmentBase fragment = (FragmentBase)
                     manager.findFragmentById(R.id.fragment_drawer_animator);

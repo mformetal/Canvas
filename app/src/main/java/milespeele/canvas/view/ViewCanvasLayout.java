@@ -49,6 +49,7 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
     private Paint mShadowPaint;
     private float mStartX, mStartY;
     private long mStartTime;
+    private Handler mHandler;
 
     public ViewCanvasLayout(Context context) {
         super(context);
@@ -66,6 +67,8 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
     }
 
     private void init() {
+        mHandler = new Handler();
+
         mShadowPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mShadowPaint.setColor(Color.BLACK);
         mShadowPaint.setAlpha(0);
@@ -143,7 +146,7 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
         }
 
         if (ev.getAction() == MotionEvent.ACTION_MOVE) {
-            new Handler().postDelayed(() -> ViewUtils.systemUIGone(getRootView()), 350);
+            mHandler.postDelayed(() -> ViewUtils.systemUIGone(getRootView()), 350);
         }
 
         return false;
@@ -169,6 +172,9 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
                 break;
             case R.id.menu_ink:
                 ink();
+                break;
+            case R.id.menu_navigation:
+                mHandler.removeCallbacksAndMessages(null);
                 break;
         }
 
