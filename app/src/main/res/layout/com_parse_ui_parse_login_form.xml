@@ -22,7 +22,7 @@
             android:singleLine="true"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Username" />
+            android:hint="@string/com_parse_ui_username_input_hint" />
 
     </android.support.design.widget.TextInputLayout>
 
@@ -39,7 +39,7 @@
             android:imeOptions="actionDone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Password" />
+            android:hint="@string/com_parse_ui_password_input_hint" />
 
     </android.support.design.widget.TextInputLayout>
 
@@ -55,7 +55,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
-            android:text="Login"
+            android:text="@string/com_parse_ui_parse_login_button_label"
             android:layout_weight="1" />
 
         <milespeele.canvas.view.ViewTypefaceButton
@@ -63,14 +63,14 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
-            android:text="Signup"
+            android:text="@string/com_parse_ui_parse_signup_button_label"
             android:layout_weight="1" />
 
     </LinearLayout>
 
     <milespeele.canvas.view.ViewTypefaceButton
         android:id="@+id/parse_login_help"
-        android:text="Forgot Password"
+        android:text="@string/com_parse_ui_forgot_password_button_label"
         android:layout_gravity="center_horizontal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
