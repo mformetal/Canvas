@@ -17,6 +17,8 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AccelerateInterpolator;
 import android.view.animation.AnticipateInterpolator;
 import android.view.animation.Interpolator;
 import android.view.animation.OvershootInterpolator;
@@ -375,9 +377,16 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
                 });
                 out.setDuration(DURATION);
                 out.setInterpolator(OVERSHOOT_INTERPOLATOR);
+
+                ObjectAnimator rotate = ObjectAnimator.ofFloat(view, View.ROTATION,
+                        0f, 360f);
+                rotate.setDuration(DURATION);
+                rotate.setInterpolator(new AccelerateDecelerateInterpolator());
+
                 delay += DELAY_INCREMENT;
 
                 anims.add(out);
+                anims.add(rotate);
             }
 
             AnimatorSet set = new AnimatorSet();
@@ -440,11 +449,19 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
                         view.setVisibility(View.GONE);
                     }
                 });
+                out.setStartDelay(delay);
                 out.setDuration(DURATION);
                 out.setInterpolator(ANTICIPATE_INTERPOLATOR);
+
+                ObjectAnimator rotate = ObjectAnimator.ofFloat(view, View.ROTATION,
+                        0f, 360f);
+                rotate.setDuration(DURATION);
+                rotate.setInterpolator(new AccelerateDecelerateInterpolator());
+
                 delay += DELAY_INCREMENT;
 
                 anims.add(out);
+                anims.add(rotate);
             }
 
             AnimatorSet set = new AnimatorSet();

@@ -92,13 +92,6 @@ public abstract class ActivityBase extends Activity {
         return true;
     }
 
-    public void checkUser() {
-        ParseUser user = ParseUser.getCurrentUser();
-        if (user == null || !user.isAuthenticated()) {
-            startLoginActivity();
-        }
-    }
-
     public void startLoginActivity() {
         startActivityForResult(new ParseLoginBuilder(this).build(), 0);
     }
