@@ -115,7 +115,7 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
                 playSoundEffect(SoundEffectConstants.CLICK);
                 navDrawer.toggle();
             }
-            return true;
+            return false;
         }
 
         switch (ev.getAction()) {
@@ -153,11 +153,6 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
         }
 
         return false;
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent ev) {
-        return navDrawer.onTouchEvent(ev);
     }
 
     @Override

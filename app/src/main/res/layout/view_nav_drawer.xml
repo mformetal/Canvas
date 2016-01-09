@@ -1,15 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merge
-    xmlns:android="http://schemas.android.com/apk/res/android" >
+<milespeele.canvas.view.ViewNavDrawer
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/primary_dark"
+    android:layout_height="match_parent"
+    android:layout_width="@dimen/nav_drawer_width"
+    android:fitsSystemWindows="false" >
 
-    <milespeele.canvas.view.ViewNavDrawer
-        android:id="@+id/fragment_drawer_navigation"
-        android:background="@color/primary_dark"
-        android:orientation="vertical"
-        android:visibility="gone"
-        android:layout_width="@dimen/nav_drawer_width"
-        android:layout_height="match_parent" >
+    <android.support.design.widget.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/app_bar_height"
+        android:minHeight="0dp"
+        android:fitsSystemWindows="false" >
 
-    </milespeele.canvas.view.ViewNavDrawer>
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:src="@drawable/sea"
+            android:minHeight="0dp"
+            app:layout_scrollFlags="scroll|enterAlwaysCollapsed|exitUntilCollapsed"
+            app:layout_collapseMode="parallax" />
 
-</merge>
+    </android.support.design.widget.AppBarLayout>
+
+    <android.support.v4.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <milespeele.canvas.view.ViewTypefaceTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/medium_text_size"
+            android:lineSpacingExtra="8dp"
+            android:text="@string/lorem"
+            android:padding="@dimen/activity_horizontal_margin" />
+
+    </android.support.v4.widget.NestedScrollView>
+
+</milespeele.canvas.view.ViewNavDrawer>

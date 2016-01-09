@@ -4,16 +4,18 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.content.Context;
+import android.support.design.widget.CoordinatorLayout;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
+import android.widget.LinearLayout;
 
 /**
  * Created by mbpeele on 1/8/16.
  */
-public class ViewNavDrawer extends ViewGroup {
+public class ViewNavDrawer extends CoordinatorLayout {
 
     private boolean isAnimating = false;
 
@@ -29,11 +31,6 @@ public class ViewNavDrawer extends ViewGroup {
 
     public ViewNavDrawer(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init();
-    }
-
-    public ViewNavDrawer(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
         init();
     }
 
@@ -93,10 +90,5 @@ public class ViewNavDrawer extends ViewGroup {
                 gone.start();
             }
         }
-    }
-
-    @Override
-    protected void onLayout(boolean changed, int l, int t, int r, int b) {
-
     }
 }
