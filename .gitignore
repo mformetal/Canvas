@@ -38,5 +38,6 @@ bin/
 *.swp
 build/
 
+fabric.properties
 gradle.properties
 captures/

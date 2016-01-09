@@ -7,6 +7,7 @@ import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.graphics.BlurMaskFilter;
 import android.graphics.Color;
+import android.graphics.ColorMatrix;
 import android.graphics.MaskFilter;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
@@ -62,7 +63,7 @@ public class ViewTypefaceButton extends Button {
         TypedArray typedArray = getResources().obtainAttributes(attributeSet, R.styleable.ViewTypefaceButton);
         int background = typedArray.getColor(R.styleable.ViewTypefaceButton_backgroundColor, Color.WHITE);
         if (background != Color.WHITE) {
-            getBackground().setColorFilter(background, PorterDuff.Mode.SRC_ATOP);
+            getBackground().setColorFilter(background, PorterDuff.Mode.DST_ATOP);
         }
         if (typedArray.getBoolean(R.styleable.ViewTypefaceButton_buttonAutofit, false)) {
             mAutofitHelper = AutofitHelper.create(this);

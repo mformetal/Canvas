@@ -9,6 +9,8 @@
     <dimen name="view_save_animation_dimens">100dp</dimen>
 
     <dimen name="brush_recycler_spacing">10dp</dimen>
+    
+    <dimen name="fragment_login_width">300dp</dimen>
 
     <dimen name="fragment_color_picker_title_padding_bottom">8dp</dimen>
     <dimen name="fragment_color_picker_vertical_margin">15dp</dimen>
@@ -33,4 +35,5 @@
     <dimen name="small_text_size">12sp</dimen>
     <dimen name="medium_text_size">18sp</dimen>
     <dimen name="large_text_size">22sp</dimen>
+    <dimen name="xlarge_text_size">40sp</dimen>
 </resources>

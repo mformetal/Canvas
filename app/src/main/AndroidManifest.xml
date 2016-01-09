@@ -19,12 +19,17 @@
         <activity
             android:name=".activity.ActivityHome"
             android:windowSoftInputMode="stateHidden|adjustNothing"
-            android:label="@string/app_name"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".activity.ActivityAuthenticate"
+            android:windowSoftInputMode="stateHidden|adjustResize"
+            android:theme="@style/DialogActivity">
         </activity>
 
         <activity
@@ -43,6 +48,9 @@
         <meta-data
             android:name="com.parse.CLIENT_KEY"
             android:value="@string/parse_key" />
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="a8993ecce733fbb6ed9eab0eadea21ecea038c13" />
     </application>
 
 </manifest>

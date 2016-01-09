@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/fragment_brush_picker_title"
         android:text="@string/fragment_brush_picker_title"
-        style="@style/DialogTitleText" />
+        style="@style/FabFrameTitleText" />
 
     <include
         layout="@layout/fragment_brush_picker_view"

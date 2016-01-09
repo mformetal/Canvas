@@ -67,6 +67,12 @@ public class ParseUtils {
         }
     }
 
+    public Observable<ParseUser> login(String username, String password) {
+        return ParseObservable.logIn(username, password)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
+    }
+
     public void handleError(Throwable throwable) {
         throwable.printStackTrace();
         if (throwable instanceof ParseException) {

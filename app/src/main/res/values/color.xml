@@ -10,4 +10,6 @@
     <color name="divider">#B6B6B6</color>
     <color name="gray">#FF888888</color>
     <color name="half_opacity_gray">#80888888</color>
+    <color name="facebook_blue">#3b5999</color>
+    <color name="twitter_blue">#55acee</color>
 </resources>

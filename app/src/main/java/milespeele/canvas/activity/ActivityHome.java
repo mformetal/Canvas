@@ -70,10 +70,7 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
     private final static String TAG_FRAGMENT_TEXT = "text";
     private final static int REQUEST_IMPORT_CODE = 2001;
     private final static int REQUEST_CAMERA_CODE = 2002;
-    private final static int REQUEST_PERMISSION_CAMERA = 3001;
-
-    @Inject ParseUtils parseUtils;
-    @Inject EventBus bus;
+    private final static int REQUEST_PERMISSION_CAMERA = 2003;
 
     @Bind(R.id.activity_home_fragment_frame) FrameLayout frameLayout;
     @Bind(R.id.activity_home_drawer_layout) DrawerLayout drawerLayout;
@@ -90,10 +87,6 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         ButterKnife.bind(this);
-
-        ((MainApp) getApplication()).getApplicationComponent().inject(this);
-
-        getWindow().setBackgroundDrawable(null);
 
         bus.register(this);
 
@@ -198,7 +191,11 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
     @Override
     protected void onResume() {
         super.onResume();
-        new Handler().postDelayed(() -> ViewUtils.systemUIGone(getWindow().getDecorView()), 750);
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            ViewUtils.systemUIVisibile(getWindow().getDecorView());
+        } else {
+            new Handler().postDelayed(() -> ViewUtils.systemUIGone(getWindow().getDecorView()), 350);
+        }
     }
 
     @Override
@@ -206,6 +203,75 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
         super.onDestroy();
         ButterKnife.unbind(this);
         FileUtils.deleteTemporaryFiles(this);
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        checkUser();
+
+        switch (item.getItemId()) {
+            case R.id.menu_drawer_header_profile:
+                break;
+            case R.id.menu_drawer_header_gallery:
+                break;
+            case R.id.menu_drawer_header_feed:
+                break;
+        }
+        return false;
+    }
+
+    public void onFabMenuButtonClicked(View view) {
+        if (fabFrame == null) {
+            fabFrame = (ViewRoundedFrameLayout) findViewById(R.id.fragment_drawer_animator);
+        }
+
+        switch (view.getId()) {
+            case R.id.menu_brush:
+                showBrushChooser(view);
+                break;
+            case R.id.menu_stroke_color:
+                showColorChooser(view, false);
+                break;
+            case R.id.menu_text:
+                showTextFragment(view);
+                break;
+            case R.id.menu_upload:
+                showFilenameFragment(view);
+                break;
+            case R.id.menu_canvas_color:
+                showColorChooser(view, true);
+                break;
+            case R.id.menu_image:
+                showImageChooser();
+                break;
+            case R.id.menu_clear_canvas:
+                showClearCanvasDialog();
+                break;
+            case R.id.menu_navigation:
+                showNavigationView();
+                break;
+        }
+    }
+
+    public void onOptionsMenuClicked(View view, DrawingCurve.State state) {
+        if (state != null) {
+            switch (state) {
+                case TEXT:
+                    if (view.getId() == R.id.view_options_menu_1) {
+                        showTextFragment(view);
+                    } else {
+                        showColorChooser(view, false);
+                    }
+                    break;
+                case PICTURE:
+                    if (view.getId() == R.id.view_options_menu_1) {
+                        showCamera();
+                    } else {
+                        showGallery();
+                    }
+                    break;
+            }
+        }
     }
 
     private void saveAndExit() {
@@ -220,8 +286,7 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
                 AnimatorListenerAdapter listenerAdapter = new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationEnd(Animator animation) {
-                        super.onAnimationEnd(animation);
-                        finish();
+                        finishAffinity();
                     }
                 };
 
@@ -410,77 +475,10 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
         }
     }
 
-    @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
-        showSnackBar(item.getTitle() + " PRESSED", Snackbar.LENGTH_SHORT);
-        return false;
-    }
-
-    public void onFabMenuButtonClicked(View view) {
-        if (fabFrame == null) {
-            fabFrame = (ViewRoundedFrameLayout) findViewById(R.id.fragment_drawer_animator);
-        }
-
-        switch (view.getId()) {
-            case R.id.menu_brush:
-                showBrushChooser(view);
-                break;
-            case R.id.menu_stroke_color:
-                showColorChooser(view, false);
-                break;
-            case R.id.menu_text:
-                showTextFragment(view);
-                break;
-            case R.id.menu_upload:
-                showFilenameFragment(view);
-                break;
-            case R.id.menu_canvas_color:
-                showColorChooser(view, true);
-                break;
-            case R.id.menu_image:
-                showImageChooser();
-                break;
-            case R.id.menu_clear_canvas:
-                showClearCanvasDialog();
-                break;
-            case R.id.menu_navigation:
-                showNavigationView();
-                break;
-        }
-    }
-
-    public void onOptionsMenuClicked(View view, DrawingCurve.State state) {
-        if (state != null) {
-            switch (state) {
-                case TEXT:
-                    if (view.getId() == R.id.view_options_menu_1) {
-                        showTextFragment(view);
-                    } else {
-                        showColorChooser(view, false);
-                    }
-                    break;
-                case PICTURE:
-                    if (view.getId() == R.id.view_options_menu_1) {
-                        showCamera();
-                    } else {
-                        showGallery();
-                    }
-                    break;
-            }
-        }
-    }
-
     private void showSnackBar(@StringRes int id, int duration) {
         FragmentDrawer drawer = (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
         if (drawer != null && drawer.getRootView() != null) {
             Snackbar.make(drawer.getRootView(), id, duration).show();
-        }
-    }
-
-    private void showSnackBar(String string, int duration) {
-        FragmentDrawer drawer = (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
-        if (drawer != null && drawer.getRootView() != null) {
-            Snackbar.make(drawer.getRootView(), string, duration).show();
         }
     }
 

@@ -1,13 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <item
+        android:title="My Canvas" >
+
+        <menu>
+            <item
+                android:id="@+id/menu_drawer_header_profile"
+                android:icon="@drawable/ic_account_circle_24dp"
+                android:title="Profile" />
+            <item
+                android:id="@+id/menu_drawer_header_gallery"
+                android:icon="@drawable/ic_camera_roll_24dp"
+                android:title="Masterpieces" />
+            <item
+                android:id="@+id/menu_drawer_header_feed"
+                android:icon="@drawable/ic_public_24dp"
+                android:title="Feed" />
+        </menu>
+
+    </item>
+
     <group
-        android:checkableBehavior="single" >
+        android:id="@+id/drawer_header_settings_group" >
 
         <item
-            android:id="@+id/drawer_header_gallery"
-            android:icon="@drawable/ic_camera_roll_24dp"
-            android:title="@string/activity_drawer_header_gallery" />
+            android:icon="@drawable/ic_settings_24dp"
+            android:title="Settings" />
 
     </group>
 

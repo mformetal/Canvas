@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/fragment_filename_title"
         android:text="@string/fragment_filename_title"
-        style="@style/DialogTitleText" />
+        style="@style/FabFrameTitleText" />
 
     <android.support.design.widget.TextInputLayout
         android:layout_below="@id/fragment_filename_title"
