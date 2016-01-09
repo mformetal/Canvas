@@ -65,6 +65,8 @@ dependencies {
     compile 'com.parse.bolts:bolts-android:1.1.4'
     compile 'com.parse:parse-android:1.10.3'
     compile 'com.parse:parseui-login-android:0.0.1'
+    compile 'com.parse:parsefacebookutils-v4-android:1.10.3@aar'
+    compile 'com.parse:parsetwitterutils-android:1.10.3'
     compile 'io.reactivex:rxandroid:1.1.0'
     compile 'io.reactivex:rxjava:1.0.14'
     compile 'com.infstory:rxparse:2.0.1'
@@ -73,17 +75,7 @@ dependencies {
     compile 'com.facebook.android:facebook-android-sdk:4.0.1'
     compile 'de.greenrobot:eventbus:2.4.0'
     compile 'me.grantland:autofittextview:0.2.1'
-    compile fileTree(dir: 'libs', include: '*.jar')
     compile('com.crashlytics.sdk.android:crashlytics:2.5.5@aar') {
-        transitive = true;
-    }
-    compile('com.digits.sdk.android:digits:1.9.2@aar') {
-        transitive = true;
-    }
-    compile('com.twitter.sdk.android:twitter:1.11.0@aar') {
-        transitive = true;
-    }
-    compile('com.twitter.sdk.android:twitter:1.11.0@aar') {
         transitive = true;
     }
 }

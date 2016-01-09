@@ -13,6 +13,7 @@ import android.support.v7.app.AppCompatActivity;
 import com.facebook.FacebookSdk;
 import com.facebook.appevents.AppEventsLogger;
 import com.parse.ParseUser;
+import com.parse.ui.ParseLoginBuilder;
 
 import javax.inject.Inject;
 
@@ -90,7 +91,8 @@ public abstract class ActivityBase extends Activity {
     }
 
     public void checkUser() {
-        startActivityForResult(ActivityAuthenticate.newIntent(this), REQUEST_AUTHENTICATION_CODE);
+        ParseLoginBuilder builder = new ParseLoginBuilder(this);
+        startActivityForResult(builder.build(), 0);
 
 //        if (ParseUser.getCurrentUser() == null) {
 //            startActivityForResult(ActivityAuthenticate.newIntent(this), REQUEST_AUTHENTICATION_CODE);
