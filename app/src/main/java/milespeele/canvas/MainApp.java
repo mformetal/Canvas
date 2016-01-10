@@ -5,9 +5,9 @@ import android.app.Application;
 import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.core.CrashlyticsCore;
 import com.parse.Parse;
-import com.parse.ParseFacebookUtils;
 import com.parse.ParseObject;
-import com.parse.ParseTwitterUtils;
+import com.twitter.sdk.android.core.TwitterAuthConfig;
+import com.twitter.sdk.android.core.TwitterCore;
 
 import io.fabric.sdk.android.Fabric;
 import milespeele.canvas.dagger.ApplicationComponent;
@@ -32,16 +32,15 @@ public class MainApp extends Application {
                 getResources().getString(R.string.parse_id),
                 getResources().getString(R.string.parse_key));
 
-        ParseFacebookUtils.initialize(this);
-        ParseTwitterUtils.initialize(getResources().getString(R.string.twitter_key),
-                getResources().getString(R.string.twitter_secret));
-
         Crashlytics crashlyticsKit = new Crashlytics.Builder()
                 .core(new CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build())
                 .build();
 
+        TwitterAuthConfig twitterAuthConfig =
+                new TwitterAuthConfig(getResources().getString(R.string.twitter_consumer_key),
+                        getResources().getString(R.string.twitter_consumer_secret));
 
-        Fabric.with(this, crashlyticsKit);
+        Fabric.with(this, crashlyticsKit, new TwitterCore(twitterAuthConfig));
 
         component = DaggerApplicationComponent.builder()
                 .applicationModule(new ApplicationModule(this))

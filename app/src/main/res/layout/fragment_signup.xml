@@ -21,13 +21,14 @@
         android:layout_height="wrap_content" >
 
         <milespeele.canvas.view.ViewTypefaceEditText
-            android:id="@+id/signup_username_input"
+            android:id="@+id/fragment_login_username_input"
             android:gravity="center"
             android:layout_gravity="center"
             android:singleLine="true"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/com_parse_ui_username_input_hint" />
+            android:hint="Email"
+            android:transitionName="email" />
 
     </android.support.design.widget.TextInputLayout>
 
@@ -37,13 +38,14 @@
         android:layout_height="wrap_content" >
 
         <milespeele.canvas.view.ViewTypefaceEditText
-            android:id="@+id/signup_password_input"
+            android:id="@+id/fragment_login_password_input"
             android:gravity="center"
             android:layout_gravity="center"
             android:singleLine="true"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/com_parse_ui_password_input_hint" />
+            android:hint="Password"
+            android:transitionName="password" />
 
     </android.support.design.widget.TextInputLayout>
 
@@ -53,13 +55,13 @@
         android:layout_height="wrap_content" >
 
         <milespeele.canvas.view.ViewTypefaceEditText
-            android:id="@+id/signup_confirm_password_input"
+            android:id="@+id/fragment_signup_password_confirm"
             android:gravity="center"
             android:layout_gravity="center"
             android:singleLine="true"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/com_parse_ui_confirm_password_input_hint" />
+            android:hint="Confirm Password" />
 
     </android.support.design.widget.TextInputLayout>
 
@@ -69,35 +71,19 @@
         android:layout_height="wrap_content" >
 
         <milespeele.canvas.view.ViewTypefaceEditText
-            android:id="@+id/signup_email_input"
+            android:id="@+id/fragment_signup_name"
             android:gravity="center"
             android:layout_gravity="center"
             android:singleLine="true"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/com_parse_ui_email_input_hint" />
-
-    </android.support.design.widget.TextInputLayout>
-
-    <android.support.design.widget.TextInputLayout
-        android:padding="@dimen/parse_login_ui_signup_margin"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
-
-        <milespeele.canvas.view.ViewTypefaceEditText
-            android:id="@+id/signup_name_input"
-            android:gravity="center"
-            android:layout_gravity="center"
-            android:singleLine="true"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/com_parse_ui_name_input_hint" />
+            android:hint="Profile Name" />
 
     </android.support.design.widget.TextInputLayout>
 
     <milespeele.canvas.view.ViewTypefaceButton
-        android:id="@+id/create_account"
-        android:text="@string/com_parse_ui_create_account_button_label"
+        android:id="@+id/fragment_signup_create_account"
+        android:text="Create Account"
         android:layout_margin="@dimen/parse_login_ui_signup_margin"
         android:layout_gravity="center_horizontal"
         android:layout_width="wrap_content"

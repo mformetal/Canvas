@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merge xmlns:android="http://schemas.android.com/apk/res/android" >
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:minWidth="@dimen/parse_login_ui_width"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
 
     <milespeele.canvas.view.ViewTypefaceTextView
         android:id="@+id/parse_login"
@@ -11,35 +16,37 @@
         android:layout_margin="@dimen/activity_vertical_margin" />
 
     <android.support.design.widget.TextInputLayout
-        android:padding="@dimen/activity_horizontal_margin"
+        android:padding="@dimen/parse_login_ui_signup_margin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
 
         <milespeele.canvas.view.ViewTypefaceEditText
-            android:id="@+id/login_username_input"
+            android:id="@+id/fragment_login_username_input"
             android:gravity="center"
             android:layout_gravity="center"
             android:singleLine="true"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/com_parse_ui_username_input_hint" />
+            android:hint="Email"
+            android:transitionName="email" />
 
     </android.support.design.widget.TextInputLayout>
 
     <android.support.design.widget.TextInputLayout
-        android:padding="@dimen/activity_horizontal_margin"
+        android:padding="@dimen/parse_login_ui_signup_margin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
 
         <milespeele.canvas.view.ViewTypefaceEditText
-            android:id="@+id/login_password_input"
+            android:id="@+id/fragment_login_password_input"
             android:gravity="center"
             android:layout_gravity="center"
             android:singleLine="true"
             android:imeOptions="actionDone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/com_parse_ui_password_input_hint" />
+            android:hint="Password"
+            android:transitionName="password" />
 
     </android.support.design.widget.TextInputLayout>
 
@@ -51,28 +58,52 @@
         android:weightSum="2" >
 
         <milespeele.canvas.view.ViewTypefaceButton
-            android:id="@+id/parse_login_button"
+            android:id="@+id/fragment_login_parse_login"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
-            android:text="@string/com_parse_ui_parse_login_button_label"
+            android:text="Login"
             android:layout_weight="1" />
 
         <milespeele.canvas.view.ViewTypefaceButton
-            android:id="@+id/parse_signup_button"
+            android:id="@+id/fragment_login_parse_signup"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
-            android:text="@string/com_parse_ui_parse_signup_button_label"
+            android:text="Signup"
             android:layout_weight="1" />
 
     </LinearLayout>
 
     <milespeele.canvas.view.ViewTypefaceButton
         android:id="@+id/parse_login_help"
-        android:text="@string/com_parse_ui_forgot_password_button_label"
+        android:text="Forgot Password?"
         android:layout_gravity="center_horizontal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
-</merge>
+    <milespeele.canvas.view.ViewTypefaceButton
+        android:layout_margin="@dimen/parse_login_ui_signup_margin"
+        android:id="@+id/fragment_login_fb_login"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        app:backgroundColor="@color/facebook_blue"
+        android:textAllCaps="false"
+        android:textSize="@dimen/medium_text_size"
+        android:text="Log In With Facebook"
+        android:textColor="@android:color/white" />
+
+    <milespeele.canvas.view.ViewTypefaceButton
+        android:layout_margin="@dimen/parse_login_ui_signup_margin"
+        android:id="@+id/fragment_login_twitter_login"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        app:backgroundColor="@color/twitter_blue"
+        android:textAllCaps="false"
+        android:textSize="@dimen/medium_text_size"
+        android:text="Log In With Twitter"
+        android:textColor="@android:color/white" />
+
+</LinearLayout>

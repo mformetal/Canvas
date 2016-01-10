@@ -5,15 +5,16 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.annotation.StringRes;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 
 import com.facebook.FacebookSdk;
 import com.facebook.appevents.AppEventsLogger;
 import com.parse.ParseUser;
-import com.parse.ui.ParseLoginBuilder;
 
 import javax.inject.Inject;
 
@@ -90,17 +91,19 @@ public abstract class ActivityBase extends Activity {
         return true;
     }
 
-    public void checkUser() {
-        ParseLoginBuilder builder = new ParseLoginBuilder(this);
-        startActivityForResult(builder.build(), 0);
-
-//        if (ParseUser.getCurrentUser() == null) {
-//            startActivityForResult(ActivityAuthenticate.newIntent(this), REQUEST_AUTHENTICATION_CODE);
-//        }
+    public void startLoginActivity() {
+        startActivity(ActivityAuthenticate.newIntent(this));
     }
 
-    public void showSnackbar(String string, int duration, Throwable e) {
-        Logg.log(getClass().getName(), e);
-        Snackbar.make(getWindow().getDecorView(), string, duration).show();
+    public void showSnackbar(@StringRes int res, int duration, View.OnClickListener onClickListener) {
+        showSnackbar(null, res, duration, onClickListener);
+    }
+
+    public void showSnackbar(View view, @StringRes int res, int duration, View.OnClickListener onClickListener) {
+        Snackbar snackbar = Snackbar.make(view == null ? getWindow().getDecorView() : view, res, duration);
+        if (onClickListener != null) {
+            snackbar.setAction("Aight", onClickListener);
+        }
+        snackbar.show();
     }
 }

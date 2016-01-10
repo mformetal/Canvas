@@ -87,4 +87,7 @@
     <string name="view_options_menu_edit_import">Import</string>
     <string name="view_options_menu_edit_camera">Camera</string>
 
+    <string name="parse_error_invalid_session">Need to log you in again, sorry!</string>
+    <string name="parse_error_unknown">Something horrible has happened</string>
+
 </resources>

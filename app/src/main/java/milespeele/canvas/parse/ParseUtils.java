@@ -3,6 +3,8 @@ package milespeele.canvas.parse;
 import android.app.Application;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.support.design.widget.Snackbar;
+import android.view.View;
 
 import com.parse.ParseException;
 import com.parse.ParseFile;
@@ -14,6 +16,8 @@ import javax.inject.Inject;
 
 import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
+import milespeele.canvas.R;
+import milespeele.canvas.activity.ActivityBase;
 import milespeele.canvas.activity.ActivityHome;
 import milespeele.canvas.event.EventParseError;
 import milespeele.canvas.util.FileUtils;
@@ -67,21 +71,28 @@ public class ParseUtils {
         }
     }
 
-    public Observable<ParseUser> login(String username, String password) {
-        return ParseObservable.logIn(username, password)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread());
+    public static void handleError(ParseException e, ActivityBase activityBase) {
+        handleError(null, activityBase);
     }
 
-    public void handleError(Throwable throwable) {
-        throwable.printStackTrace();
-        if (throwable instanceof ParseException) {
-            ParseException e = (ParseException) throwable;
-            Logg.log("PARSE ERROR CODE: " + e.getCode());
-            Logg.log("PARSE ERROR MESSAGE: " + e.getMessage());
-            bus.post(new EventParseError(e));
-        } else {
-            bus.post(new EventParseError(throwable));
+    public static void handleError(ParseException e, View view, ActivityBase activityBase) {
+        switch (e.getCode()) {
+            case ParseException.INVALID_SESSION_TOKEN:
+                activityBase.showSnackbar(view,
+                                R.string.parse_error_invalid_session,
+                                Snackbar.LENGTH_INDEFINITE,
+                                new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        activityBase.startLoginActivity();
+                                    }
+                                });
+                break;
+            default:
+                activityBase.showSnackbar(view, R.string.parse_error_unknown,
+                                Snackbar.LENGTH_SHORT,
+                                null);
+                break;
         }
     }
 }
