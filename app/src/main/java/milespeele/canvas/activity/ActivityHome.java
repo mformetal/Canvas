@@ -44,6 +44,7 @@ import milespeele.canvas.fragment.FragmentColorPicker;
 import milespeele.canvas.fragment.FragmentDrawer;
 import milespeele.canvas.fragment.FragmentFilename;
 import milespeele.canvas.fragment.FragmentText;
+import milespeele.canvas.parse.ParseSubscriber;
 import milespeele.canvas.parse.ParseUtils;
 import milespeele.canvas.transition.TransitionHelper;
 import milespeele.canvas.util.ErrorDialog;
@@ -57,7 +58,6 @@ import milespeele.canvas.view.ViewFab;
 import milespeele.canvas.view.ViewRoundedFrameLayout;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
 public class ActivityHome extends ActivityBase implements NavigationView.OnNavigationItemSelectedListener {
@@ -321,26 +321,10 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
         if (NetworkUtils.hasInternet(this)) {
             FragmentDrawer drawer = getFragmentDrawer();
 
-            Subscriber<byte[]> subscriber = new Subscriber<byte[]>() {
+            ParseSubscriber<byte[]> parseSubscriber = new ParseSubscriber<byte[]>(this, drawer.getView()) {
                 @Override
                 public void onCompleted() {
-                    ((ViewFab) findViewById(R.id.menu_upload)).stopSaveAnimation();
 
-                    if (drawer != null && drawer.getRootView() != null) {
-                        Snackbar.make(drawer.getRootView(),
-                                R.string.snackbar_activity_home_image_saved_title,
-                                Snackbar.LENGTH_LONG)
-                                .show();
-                    }
-                }
-
-                @Override
-                public void onError(Throwable e) {
-                    ((ViewFab) findViewById(R.id.menu_upload)).stopSaveAnimation();
-
-                    if (e instanceof ParseException) {
-                        ParseUtils.handleError((ParseException) e, drawer.getRootView(), ActivityHome.this);
-                    }
                 }
 
                 @Override
@@ -349,10 +333,10 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
                 }
             };
 
-            addSubscription(parseUtils.saveImageToServer(eventFilenameChosen.filename, drawer.getDrawingBitmap())
+            addSubscription(parseUtils.uploadMasterpiece(eventFilenameChosen.filename, drawer.getDrawingBitmap())
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(subscriber));
+                    .subscribe(parseSubscriber));
         } else {
             showSnackBar(R.string.snackbar_no_internet, Snackbar.LENGTH_LONG);
         }

@@ -18,8 +18,10 @@ import milespeele.canvas.R;
 import milespeele.canvas.activity.ActivityBase;
 import milespeele.canvas.util.FileUtils;
 import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
 import rx.parse.ParseObservable;
+import rx.schedulers.Schedulers;
 
 /**
  * Created by milespeele on 7/4/15.
@@ -34,18 +36,24 @@ public class ParseUtils {
         ((MainApp) mApplication).getApplicationComponent().inject(this);
     }
 
-    public Observable saveImageToServer(final String filename, final Bitmap bitmap) {
+    public Observable uploadMasterpiece(final String filename, final Bitmap bitmap) {
         return FileUtils.compress(bitmap)
-                .flatMap(bytes -> {
-                    final ParseFile photoFile = new ParseFile(
-                            ParseUser.getCurrentUser().getUsername(), bytes);
-                    return ParseObservable.save(photoFile);
+                .flatMap(new Func1<byte[], Observable<? extends ParseFile>>() {
+                    @Override
+                    public Observable<? extends ParseFile> call(byte[] bytes) {
+                        final ParseFile photoFile = new ParseFile(
+                                ParseUser.getCurrentUser().getUsername(), bytes);
+                        return ParseObservable.save(photoFile);
+                    }
                 })
-                .flatMap(parseFile -> {
-                    final Masterpiece art = new Masterpiece();
-                    art.setImage(parseFile);
-                    art.setTitle(filename);
-                    return ParseObservable.saveEventually(art);
+                .flatMap(new Func1<ParseFile, Observable<? extends Masterpiece>>() {
+                    @Override
+                    public Observable<? extends Masterpiece> call(ParseFile parseFile) {
+                        final Masterpiece art = new Masterpiece();
+                        art.setImage(parseFile);
+                        art.setTitle(filename);
+                        return ParseObservable.saveEventually(art);
+                    }
                 })
                 .flatMap(new Func1<Object, Observable<?>>() {
                     @Override
@@ -54,6 +62,12 @@ public class ParseUtils {
                         return ParseObservable.saveEventually(ParseUser.getCurrentUser());
                     }
                 });
+    }
+
+    public Observable<ParseUser> login(String username, String password) {
+        return ParseObservable.logIn(username, password)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
     }
 
     public static void handleError(ParseException e, ActivityBase activityBase) {

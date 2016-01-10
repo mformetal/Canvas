@@ -9,6 +9,7 @@ import android.transition.Transition;
 import android.transition.TransitionInflater;
 
 import com.facebook.login.widget.LoginButton;
+import com.parse.ParseException;
 import com.parse.ParseUser;
 import com.twitter.sdk.android.core.identity.TwitterLoginButton;
 
@@ -54,23 +55,25 @@ public class ActivityAuthenticate extends ActivityBase
 
     @Override
     public void onParseLoginClicked(String username, String password) {
-        ParseObservable.logIn(username, password)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Subscriber<ParseUser>() {
-                    @Override
-                    public void onCompleted() {
-                    }
+        Subscriber<ParseUser> subscriber = new Subscriber<ParseUser>() {
+            @Override
+            public void onCompleted() {
+            }
 
-                    @Override
-                    public void onError(Throwable e) {
-                    }
+            @Override
+            public void onError(Throwable e) {
+                if (e instanceof ParseException) {
 
-                    @Override
-                    public void onNext(ParseUser parseUser) {
+                }
+            }
 
-                    }
-                });
+            @Override
+            public void onNext(ParseUser o) {
+
+            }
+        };
+
+        addSubscription(parseUtils.login(username, password).subscribe(subscriber));
     }
 
     @Override
