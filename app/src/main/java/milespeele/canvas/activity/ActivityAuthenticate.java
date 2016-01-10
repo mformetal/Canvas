@@ -1,7 +1,6 @@
 package milespeele.canvas.activity;
 
 import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -9,10 +8,19 @@ import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.transition.Transition;
 import android.transition.TransitionInflater;
+import android.view.View;
 
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.parse.ParseException;
 import com.parse.ParseUser;
+import com.twitter.sdk.android.core.Callback;
+import com.twitter.sdk.android.core.Result;
+import com.twitter.sdk.android.core.TwitterException;
+import com.twitter.sdk.android.core.TwitterSession;
 import com.twitter.sdk.android.core.identity.TwitterLoginButton;
 
 import milespeele.canvas.R;
@@ -21,22 +29,24 @@ import milespeele.canvas.fragment.FragmentSignup;
 import milespeele.canvas.parse.ParseSubscriber;
 import milespeele.canvas.parse.ParseUtils;
 import milespeele.canvas.util.Logg;
-import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.parse.ParseObservable;
 import rx.schedulers.Schedulers;
 
 /**
  * Created by mbpeele on 1/9/16.
  */
 public class ActivityAuthenticate extends ActivityBase
-    implements FragmentLogin.FragmentLoginListener, FragmentSignup.FragmentSignupListener {
+    implements FragmentLogin.FragmentLoginListener, FragmentSignup.FragmentSignupListener,
+        View.OnClickListener {
 
     public static Intent newIntent(Context context) {
         return new Intent(context, ActivityAuthenticate.class);
     }
 
     private ProgressDialog mProgressDialog;
+    private CallbackManager mCallbackManager;
+    private TwitterLoginButton mTwitterLoginButton;
+    private LoginButton mFacebookLoginButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,10 +56,18 @@ public class ActivityAuthenticate extends ActivityBase
         mProgressDialog = new ProgressDialog(this);
         mProgressDialog.setMessage(getResources().getString(R.string.parse_login_loading_dialog));
 
+        mCallbackManager = CallbackManager.Factory.create();
+
         getFragmentManager()
                 .beginTransaction()
                 .add(R.id.activity_authenticate_fragment_frame, FragmentLogin.newInstance())
                 .commit();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        mCallbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
@@ -63,6 +81,9 @@ public class ActivityAuthenticate extends ActivityBase
     }
 
     @Override
+    public void onClick(View v) {}
+
+    @Override
     public void onParseLoginClicked(String username, String password) {
         if (hasInternet()) {
             if (!mProgressDialog.isShowing()) {
@@ -72,8 +93,7 @@ public class ActivityAuthenticate extends ActivityBase
                         super.onCompleted();
                         dismissLoading();
 
-                        setResult(RESULT_OK);
-                        finish();
+                        onActivitySuccess();
                     }
 
                     @Override
@@ -101,16 +121,6 @@ public class ActivityAuthenticate extends ActivityBase
         } else {
             showSnackbar(R.string.snackbar_no_internet, Snackbar.LENGTH_SHORT, null);
         }
-    }
-
-    @Override
-    public void onFacebookLoginClicked() {
-
-    }
-
-    @Override
-    public void onTwitterLoginClicked() {
-
     }
 
     @Override
@@ -149,8 +159,7 @@ public class ActivityAuthenticate extends ActivityBase
                         super.onCompleted();
                         dismissLoading();
 
-                        setResult(RESULT_OK);
-                        finish();
+                        onActivitySuccess();
                     }
 
                     @Override
@@ -180,6 +189,17 @@ public class ActivityAuthenticate extends ActivityBase
         }
     }
 
+    public void setCallbacks(LoginButton loginButton, TwitterLoginButton twitterLoginButton) {
+        mFacebookLoginButton = loginButton;
+        mTwitterLoginButton = twitterLoginButton;
+
+        mFacebookLoginButton.registerCallback(mCallbackManager, facebookCallback);
+        mFacebookLoginButton.setOnClickListener(this);
+
+        mTwitterLoginButton.setCallback(twitterCallback);
+        mTwitterLoginButton.setOnClickListener(this);
+    }
+
     private void showLoading() {
         if (!mProgressDialog.isShowing()) {
             mProgressDialog.show();
@@ -190,6 +210,11 @@ public class ActivityAuthenticate extends ActivityBase
         if (mProgressDialog.isShowing()) {
             mProgressDialog.dismiss();
         }
+    }
+
+    private void onActivitySuccess() {
+        setResult(RESULT_OK);
+        finish();
     }
 
     private void handleAuthenticationError(Throwable throwable) {
@@ -207,4 +232,33 @@ public class ActivityAuthenticate extends ActivityBase
             }
         }
     }
+
+    private final FacebookCallback<LoginResult> facebookCallback = new FacebookCallback<LoginResult>() {
+        @Override
+        public void onSuccess(LoginResult loginResult) {
+            onActivitySuccess();
+        }
+
+        @Override
+        public void onCancel() {
+            Logg.log("FACEBOOK CANCEL");
+        }
+
+        @Override
+        public void onError(FacebookException error) {
+            Logg.log("FACEBOOK ERROR", error);
+        }
+    };
+
+    private final Callback<TwitterSession> twitterCallback = new Callback<TwitterSession>() {
+        @Override
+        public void success(Result<TwitterSession> result) {
+            Logg.log("TWITTER SUCCESS");
+        }
+
+        @Override
+        public void failure(TwitterException e) {
+            Logg.log("TWITTER FAILURE", e);
+        }
+    };
 }

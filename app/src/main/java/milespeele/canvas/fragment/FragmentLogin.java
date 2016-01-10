@@ -14,6 +14,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import milespeele.canvas.R;
+import milespeele.canvas.activity.ActivityAuthenticate;
 import milespeele.canvas.util.Logg;
 import milespeele.canvas.view.ViewTypefaceButton;
 import milespeele.canvas.view.ViewTypefaceEditText;
@@ -25,8 +26,8 @@ public class FragmentLogin extends FragmentBase implements View.OnClickListener 
 
     public @Bind(R.id.fragment_login_username_input) ViewTypefaceEditText usernameInput;
     public @Bind(R.id.fragment_login_password_input) ViewTypefaceEditText passwordInput;
-    @Bind(R.id.fragment_login_fb_login) ViewTypefaceButton fbLoginButton;
-    @Bind(R.id.fragment_login_twitter_login) ViewTypefaceButton twitterLoginButton;
+    @Bind(R.id.fragment_login_fb_login) LoginButton loginButton;
+    @Bind(R.id.fragment_login_twitter_login) TwitterLoginButton twitterLoginButton;
 
     private FragmentLoginListener mListener;
 
@@ -51,8 +52,7 @@ public class FragmentLogin extends FragmentBase implements View.OnClickListener 
     }
 
     @Override
-    @OnClick({R.id.fragment_login_parse_login, R.id.fragment_login_parse_signup,
-            R.id.fragment_login_fb_login, R.id.fragment_login_twitter_login})
+    @OnClick({R.id.fragment_login_parse_login, R.id.fragment_login_parse_signup})
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.fragment_login_parse_login:
@@ -65,12 +65,14 @@ public class FragmentLogin extends FragmentBase implements View.OnClickListener 
             case R.id.fragment_login_parse_signup:
                 mListener.onSignupClicked();
                 break;
-            case R.id.fragment_login_fb_login:
-                mListener.onFacebookLoginClicked();
-                break;
-            case R.id.fragment_login_twitter_login:
-                mListener.onTwitterLoginClicked();
-                break;
+        }
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        if (getActivity() != null) {
+            ((ActivityAuthenticate) getActivity()).setCallbacks(loginButton, twitterLoginButton);
         }
     }
 
@@ -92,13 +94,11 @@ public class FragmentLogin extends FragmentBase implements View.OnClickListener 
         return true;
     }
 
+
+
     public interface FragmentLoginListener {
 
         void onParseLoginClicked(String username, String password);
-
-        void onFacebookLoginClicked();
-
-        void onTwitterLoginClicked();
 
         void onSignupClicked();
 

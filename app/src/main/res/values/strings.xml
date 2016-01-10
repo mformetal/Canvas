@@ -4,6 +4,7 @@
     <string name="parse_application_id">@string/parse_id</string>
     <string name="parse_client_key">@string/parse_key</string>
     <string name="facebook_app_id">@string/facebook_id</string>
+    <string name="facebook_app_secret">@string/facebook_secret</string>
     <string name="twitter_consumer_key">@string/twitter_key</string>
     <string name="twitter_consumer_secret">@string/twitter_secret</string>
 

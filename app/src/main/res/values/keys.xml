@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="facebook_id">839140002829673</string>
+    <string name="facebook_id">607824846022221</string>
+    <string name="facebook_secret">76fca45c9275290f89b0c764978e5b44</string>
     <string name="parse_id">QE5ZD9Q1OkUXhR3S7dRea1ubKIYA60LUrGUOgOfv</string>
     <string name="parse_key">mbBzw87p4hrBgtIOSsX3WTSSV4CkXHgG7bNU96aR</string>
     <string name="twitter_key">rV9zSspMD92DWkxHrNijzrff0</string>

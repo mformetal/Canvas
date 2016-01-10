@@ -69,7 +69,7 @@ dependencies {
     compile 'com.infstory:rxparse:2.0.1'
     compile 'de.hdodenhof:circleimageview:2.0.0'
     compile 'com.squareup.picasso:picasso:2.5.2'
-    compile 'com.facebook.android:facebook-android-sdk:4.0.1'
+    compile 'com.facebook.android:facebook-android-sdk:4.6.0'
     compile 'de.greenrobot:eventbus:2.4.0'
     compile 'me.grantland:autofittextview:0.2.1'
     compile('com.crashlytics.sdk.android:crashlytics:2.5.5@aar') {
