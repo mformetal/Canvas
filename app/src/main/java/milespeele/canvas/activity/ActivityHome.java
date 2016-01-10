@@ -169,7 +169,6 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
                     bus.post(new EventBitmapChosen(uri));
                     break;
                 case REQUEST_AUTHENTICATION_CODE:
-                    Logg.log("AUTHED!");
                     break;
             }
         }

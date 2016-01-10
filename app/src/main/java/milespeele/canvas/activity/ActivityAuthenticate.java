@@ -4,11 +4,14 @@ import android.app.FragmentManager;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.Snackbar;
 import android.transition.Transition;
 import android.transition.TransitionInflater;
 import android.view.View;
+import android.widget.Toast;
 
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -17,6 +20,7 @@ import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.parse.ParseException;
 import com.parse.ParseUser;
+import com.twitter.sdk.android.Twitter;
 import com.twitter.sdk.android.core.Callback;
 import com.twitter.sdk.android.core.Result;
 import com.twitter.sdk.android.core.TwitterException;
@@ -68,6 +72,7 @@ public class ActivityAuthenticate extends ActivityBase
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         mCallbackManager.onActivityResult(requestCode, resultCode, data);
+        mTwitterLoginButton.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
@@ -124,6 +129,38 @@ public class ActivityAuthenticate extends ActivityBase
     }
 
     @Override
+    public void onParseLogoutClicked() {
+        if (hasInternet()) {
+            ParseSubscriber<Void> parseSubscriber = new ParseSubscriber<Void>(this) {
+                @Override
+                public void onCompleted() {
+                    super.onCompleted();
+                    dismissLoading();
+                    onActivitySuccess();
+                }
+
+                @Override
+                public void onNext(Void aVoid) {
+
+                }
+
+                @Override
+                public void onStart() {
+                    super.onStart();
+                    showLoading();
+                }
+            };
+
+            parseUtils.logout()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(parseSubscriber);
+        } else {
+            showSnackbar(R.string.snackbar_no_internet, Snackbar.LENGTH_SHORT, null);
+        }
+    }
+
+    @Override
     public void onSignupClicked() {
         FragmentManager manager = getFragmentManager();
         FragmentLogin login = (FragmentLogin)
@@ -144,9 +181,76 @@ public class ActivityAuthenticate extends ActivityBase
         getFragmentManager().beginTransaction()
                 .replace(R.id.activity_authenticate_fragment_frame, signup)
                 .addToBackStack("transaction")
+                .addSharedElement(login.appLogo, "title")
                 .addSharedElement(login.usernameInput, "email")
                 .addSharedElement(login.passwordInput, "password")
                 .commit();
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public void onResetPasswordClicked(String email) {
+        if (hasInternet()) {
+            ParseSubscriber parseSubscriber = new ParseSubscriber(this) {
+                @Override
+                public void onCompleted() {
+                    super.onCompleted();
+                    dismissLoading();
+
+                    FragmentLogin fragmentLogin = (FragmentLogin) getFragmentManager()
+                            .findFragmentById(R.id.activity_authenticate_fragment_frame);
+                    if (fragmentLogin != null) {
+                        if (getActivity() != null) {
+                            showSnackbar(R.string.parse_login_forgot_password_sent,
+                                    Snackbar.LENGTH_INDEFINITE, new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            onActivitySuccess();
+                                        }
+                                    });
+                        }
+                    }
+                }
+
+                @Override
+                public void onNext(Object o) {
+
+                }
+
+                @Override
+                public void onStart() {
+                    super.onStart();
+                    showLoading();
+                }
+            };
+
+            parseUtils.resetPassword(email)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(parseSubscriber);
+        } else {
+            showSnackbar(R.string.snackbar_no_internet, Snackbar.LENGTH_SHORT, null);
+        }
+    }
+
+    @Override
+    public void onLoginAvailable(LoginButton loginButton, TwitterLoginButton twitterLoginButton) {
+        mFacebookLoginButton = loginButton;
+        mTwitterLoginButton = twitterLoginButton;
+
+        if (isApplicationInstalled("com.twitter.android")) {
+            mTwitterLoginButton.setCallback(twitterCallback);
+            mTwitterLoginButton.setOnClickListener(this);
+        } else {
+            mTwitterLoginButton.setVisibility(View.GONE);
+        }
+
+        if (isApplicationInstalled("com.facebook.katana")) {
+            mFacebookLoginButton.registerCallback(mCallbackManager, facebookCallback);
+            mFacebookLoginButton.setOnClickListener(this);
+        } else {
+            mFacebookLoginButton.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
@@ -187,17 +291,6 @@ public class ActivityAuthenticate extends ActivityBase
         } else {
             showSnackbar(R.string.snackbar_no_internet, Snackbar.LENGTH_SHORT, null);
         }
-    }
-
-    public void setCallbacks(LoginButton loginButton, TwitterLoginButton twitterLoginButton) {
-        mFacebookLoginButton = loginButton;
-        mTwitterLoginButton = twitterLoginButton;
-
-        mFacebookLoginButton.registerCallback(mCallbackManager, facebookCallback);
-        mFacebookLoginButton.setOnClickListener(this);
-
-        mTwitterLoginButton.setCallback(twitterCallback);
-        mTwitterLoginButton.setOnClickListener(this);
     }
 
     private void showLoading() {
@@ -258,7 +351,7 @@ public class ActivityAuthenticate extends ActivityBase
 
         @Override
         public void failure(TwitterException e) {
-            Logg.log("TWITTER FAILURE", e);
+            showSnackbar(R.string.pasre_login_twitter_error, Snackbar.LENGTH_SHORT, null);
         }
     };
 }

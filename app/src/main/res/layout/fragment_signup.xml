@@ -11,6 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/app_name"
+        android:transitionName="title"
         android:gravity="center_horizontal"
         android:textSize="@dimen/xlarge_text_size"
         android:layout_margin="@dimen/parse_login_ui_signup_margin" />
@@ -45,6 +46,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/parse_login_password_hint"
+            android:inputType="textPassword"
             android:transitionName="password" />
 
     </android.support.design.widget.TextInputLayout>

@@ -62,4 +62,8 @@ public abstract class ParseSubscriber<T> extends Subscriber<T> {
             activityBase.removeSubscription(this);
         }
     }
+
+    public ActivityBase getActivity() {
+        return activityBaseSoftReference.get();
+    }
 }

@@ -75,6 +75,10 @@ public class ViewTypefaceButton extends Button {
         typedArray.recycle();
     }
 
+    public String getTextAsString() {
+        return getText().toString();
+    }
+
     public void setPaint(Paint paint) {
         mPaint = paint;
     }

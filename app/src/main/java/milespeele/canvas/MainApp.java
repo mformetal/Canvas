@@ -9,6 +9,7 @@ import com.crashlytics.android.core.CrashlyticsCore;
 import com.facebook.FacebookSdk;
 import com.parse.Parse;
 import com.parse.ParseObject;
+import com.twitter.sdk.android.Twitter;
 import com.twitter.sdk.android.core.TwitterAuthConfig;
 import com.twitter.sdk.android.core.TwitterCore;
 
@@ -32,6 +33,17 @@ public class MainApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        Crashlytics crashlyticsKit = new Crashlytics.Builder()
+                .core(new CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build())
+                .build();
+
+        TwitterAuthConfig authConfig = new TwitterAuthConfig(
+                getResources().getString(R.string.twitter_key),
+                getResources().getString(R.string.twitter_key));
+
+        Fabric.with(this, crashlyticsKit, new Twitter(authConfig));
+
         ParseObject.registerSubclass(Masterpiece.class);
         Parse.enableLocalDatastore(this);
         Parse.initialize(this,
@@ -39,16 +51,6 @@ public class MainApp extends Application {
                 getResources().getString(R.string.parse_key));
 
         FacebookSdk.sdkInitialize(getApplicationContext());
-
-        Crashlytics crashlyticsKit = new Crashlytics.Builder()
-                .core(new CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build())
-                .build();
-
-        TwitterAuthConfig twitterAuthConfig =
-                new TwitterAuthConfig(getResources().getString(R.string.twitter_consumer_key),
-                        getResources().getString(R.string.twitter_consumer_secret));
-
-        Fabric.with(this, crashlyticsKit, new TwitterCore(twitterAuthConfig));
 
         component = DaggerApplicationComponent.builder()
                 .applicationModule(new ApplicationModule(this))

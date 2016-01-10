@@ -7,10 +7,11 @@
     android:layout_height="wrap_content">
 
     <milespeele.canvas.view.ViewTypefaceTextView
-        android:id="@+id/parse_login"
+        android:id="@+id/fragment_login_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/app_name"
+        android:transitionName="title"
         android:gravity="center_horizontal"
         android:textSize="@dimen/xlarge_text_size"
         android:layout_margin="@dimen/activity_vertical_margin" />
@@ -42,6 +43,7 @@
             android:gravity="center"
             android:layout_gravity="center"
             android:singleLine="true"
+            android:inputType="textPassword"
             android:imeOptions="actionDone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -76,24 +78,36 @@
     </LinearLayout>
 
     <milespeele.canvas.view.ViewTypefaceButton
-        android:id="@+id/parse_login_help"
+        android:id="@+id/fragment_login_help"
         android:text="@string/parse_login_forgot_password"
         android:layout_gravity="center_horizontal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
-    <com.facebook.login.widget.LoginButton
-        android:layout_margin="@dimen/parse_login_ui_signup_margin"
-        android:id="@+id/fragment_login_fb_login"
+    <android.support.v7.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center" />
+        android:layout_height="40dp"
+        android:layout_margin="@dimen/parse_login_ui_signup_margin"
+        app:cardBackgroundColor="@color/facebook_blue"
+        app:cardElevation="4dp" >
+
+        <com.facebook.login.widget.LoginButton
+            android:id="@+id/fragment_login_fb_login"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:drawablePadding="40dp"
+            android:textSize="@dimen/medium_text_size"
+            android:padding="20dp"
+            android:gravity="center" />
+
+    </android.support.v7.widget.CardView>
 
     <com.twitter.sdk.android.core.identity.TwitterLoginButton
         android:layout_margin="@dimen/parse_login_ui_signup_margin"
         android:id="@+id/fragment_login_twitter_login"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="40dp"
+        android:textSize="@dimen/medium_text_size"
         android:gravity="center" />
 
 </LinearLayout>

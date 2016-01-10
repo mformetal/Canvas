@@ -10,6 +10,7 @@ import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseUser;
+import com.parse.RequestPasswordResetCallback;
 import com.parse.SignUpCallback;
 
 import java.util.concurrent.Callable;
@@ -67,8 +68,26 @@ public class ParseUtils {
                 });
     }
 
+    public Observable resetPassword(String email) {
+        return Observable.create(subscriber -> {
+            subscriber.onStart();
+
+            ParseUser.requestPasswordResetInBackground(email, e -> {
+                if (e == null) {
+                    subscriber.onCompleted();
+                } else {
+                    subscriber.onError(e);
+                }
+            });
+        });
+    }
+
     public Observable<ParseUser> login(String username, String password) {
         return ParseObservable.logIn(username, password);
+    }
+
+    public Observable<Void> logout() {
+        return ParseObservable.logOut();
     }
 
     public Observable<ParseUser> signup(String username, String password, String name) {

@@ -107,4 +107,13 @@ public abstract class ActivityBase extends Activity {
         }
         snackbar.show();
     }
+
+    public boolean isApplicationInstalled(String name) {
+        try {
+            getPackageManager().getApplicationInfo("com.twitter.android", 0);
+            return true;
+        } catch (PackageManager.NameNotFoundException e) {
+            return false;
+        }
+    }
 }
