@@ -64,7 +64,9 @@ public class FragmentDrawer extends FragmentBase implements
     @Override
     public void onOptionsMenuAccept() {}
 
-    public ViewCanvasLayout getRootView() { return coordinatorLayout; }
+    public ViewCanvasLayout getRootView() {
+        return coordinatorLayout;
+    }
 
     public Bitmap getDrawingBitmap() {
         return coordinatorLayout.getDrawerBitmap();

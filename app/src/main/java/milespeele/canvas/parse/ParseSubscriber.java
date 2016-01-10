@@ -25,10 +25,20 @@ public abstract class ParseSubscriber<T> extends Subscriber<T> {
         super();
         activityBaseSoftReference = new SoftReference<>(activityBase);
         viewSoftReference = new SoftReference<>(view);
+        activityBase.addSubscription(this);
+    }
+
+    public ParseSubscriber(ActivityBase activityBase) {
+        super();
+        activityBaseSoftReference = new SoftReference<>(activityBase);
+        viewSoftReference = new SoftReference<>(activityBase.getWindow().getDecorView());
+        activityBase.addSubscription(this);
     }
 
     @Override
     public void onError(Throwable e) {
+        removeSelf();
+
         if (e instanceof ParseException) {
             ActivityBase activityBase = activityBaseSoftReference.get();
             View view = viewSoftReference.get();
@@ -38,6 +48,18 @@ public abstract class ParseSubscriber<T> extends Subscriber<T> {
             }
         } else {
             Logg.log("ERROR NOT FROM PARSE", e);
+        }
+    }
+
+    @Override
+    public void onCompleted() {
+        removeSelf();
+    }
+
+    private void removeSelf() {
+        ActivityBase activityBase = activityBaseSoftReference.get();
+        if (activityBase != null) {
+            activityBase.removeSubscription(this);
         }
     }
 }

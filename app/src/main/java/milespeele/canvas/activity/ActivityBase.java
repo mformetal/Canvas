@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.support.annotation.StringRes;
 import android.support.design.widget.Snackbar;
@@ -36,7 +37,7 @@ public abstract class ActivityBase extends Activity {
 
     private CompositeSubscription mCompositeSubscription;
 
-    public int REQUEST_AUTHENTICATION_CODE = 2004;
+    public final static int REQUEST_AUTHENTICATION_CODE = 2004;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,9 +77,9 @@ public abstract class ActivityBase extends Activity {
         mCompositeSubscription.remove(subscription);
     }
 
-    public boolean checkPermission(String permission) {
-        int hasPermission = ContextCompat.checkSelfPermission(this, permission);
-        return hasPermission == PackageManager.PERMISSION_GRANTED;
+    public boolean hasInternet() {
+        ConnectivityManager manager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        return manager.getActiveNetworkInfo() != null && manager.getActiveNetworkInfo().isConnectedOrConnecting();
     }
 
     public boolean checkPermissions(String[] permissions) {
@@ -91,8 +92,8 @@ public abstract class ActivityBase extends Activity {
         return true;
     }
 
-    public void startLoginActivity() {
-        startActivity(ActivityAuthenticate.newIntent(this));
+    public void startLoginActivity(int code) {
+        startActivityForResult(ActivityAuthenticate.newIntent(this), code);
     }
 
     public void showSnackbar(@StringRes int res, int duration, View.OnClickListener onClickListener) {

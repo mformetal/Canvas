@@ -7,10 +7,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.Objects;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import milespeele.canvas.R;
+import milespeele.canvas.util.TextUtils;
 import milespeele.canvas.view.ViewTypefaceButton;
 import milespeele.canvas.view.ViewTypefaceEditText;
 
@@ -44,6 +47,11 @@ public class FragmentSignup extends FragmentBase implements View.OnClickListener
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_signup, container, false);
         ButterKnife.bind(this, v);
+
+        usernameInput.setText("mbpeele@email.wm.edu");
+        passwordInput.setText("test");
+        confirmPasswordInput.setText("test");
+        profileNameInput.setText("name");
         return v;
     }
 
@@ -55,21 +63,34 @@ public class FragmentSignup extends FragmentBase implements View.OnClickListener
         String confirmPassword = confirmPasswordInput.getTextAsString();
         String name = profileNameInput.getTextAsString();
 
-        mListener.onSignupCreate();
+        if (validateUsername(email)
+                && validatePassword(password, confirmPassword)) {
+            mListener.onSignupCreate(email, password, name);
+        }
     }
 
     private boolean validateUsername(String string) {
         if (string.length() == 0) {
-            usernameInput.setError("Username must not be empty");
+            usernameInput.setError("Email must not be empty");
+            return false;
+        }
+
+        if (!TextUtils.validateEmail(string)) {
+            usernameInput.setError("Email must be valid");
             return false;
         }
 
         return true;
     }
 
-    private boolean validatePassword(String string) {
-        if (string.length() == 0) {
-            passwordInput.setError("Password must not be empty");
+    private boolean validatePassword(String string, String other) {
+        if (!Objects.equals(string, other)) {
+            passwordInput.setError("Passwords much match");
+            return false;
+        }
+
+        if (string.length() < 4) {
+            passwordInput.setError("Password must be greater than 4 characters");
             return false;
         }
 
@@ -78,7 +99,7 @@ public class FragmentSignup extends FragmentBase implements View.OnClickListener
 
     public interface FragmentSignupListener {
 
-        void onSignupCreate();
+        void onSignupCreate(String email, String password, String name);
 
     }
 }

@@ -27,7 +27,7 @@
             android:singleLine="true"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Email"
+            android:hint="@string/parse_login_username_hint"
             android:transitionName="email" />
 
     </android.support.design.widget.TextInputLayout>
@@ -44,7 +44,7 @@
             android:singleLine="true"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Password"
+            android:hint="@string/parse_login_password_hint"
             android:transitionName="password" />
 
     </android.support.design.widget.TextInputLayout>
@@ -61,7 +61,7 @@
             android:singleLine="true"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Confirm Password" />
+            android:hint="@string/parse_login_confirm_password_hint" />
 
     </android.support.design.widget.TextInputLayout>
 
@@ -77,17 +77,16 @@
             android:singleLine="true"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Profile Name" />
+            android:hint="@string/parse_login_profile_name" />
 
     </android.support.design.widget.TextInputLayout>
 
     <milespeele.canvas.view.ViewTypefaceButton
         android:id="@+id/fragment_signup_create_account"
-        android:text="Create Account"
+        android:text="@string/parse_login_create_account"
         android:layout_margin="@dimen/parse_login_ui_signup_margin"
         android:layout_gravity="center_horizontal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
-
 
 </LinearLayout>

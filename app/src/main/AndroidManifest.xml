@@ -28,7 +28,7 @@
 
         <activity
             android:name=".activity.ActivityAuthenticate"
-            android:windowSoftInputMode="stateHidden|adjustResize"
+            android:windowSoftInputMode="stateHidden|adjustPan"
             android:theme="@style/DialogActivity"
             android:screenOrientation="portrait" />
 

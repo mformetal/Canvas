@@ -25,8 +25,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
 
-import com.parse.ParseException;
-
 import java.io.File;
 import java.io.IOException;
 
@@ -45,7 +43,6 @@ import milespeele.canvas.fragment.FragmentDrawer;
 import milespeele.canvas.fragment.FragmentFilename;
 import milespeele.canvas.fragment.FragmentText;
 import milespeele.canvas.parse.ParseSubscriber;
-import milespeele.canvas.parse.ParseUtils;
 import milespeele.canvas.transition.TransitionHelper;
 import milespeele.canvas.util.ErrorDialog;
 import milespeele.canvas.util.FileUtils;
@@ -69,7 +66,8 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
     private final static String TAG_FRAGMENT_TEXT = "text";
     private final static int REQUEST_IMPORT_CODE = 2001;
     private final static int REQUEST_CAMERA_CODE = 2002;
-    private final static int REQUEST_PERMISSION_CAMERA = 2003;
+    private final static int REQUEST_PERMISSION_CAMERA_CODE = 2003;
+    private final static int REQUEST_LOGIN_CODE = 2004;
 
     @Bind(R.id.activity_home_fragment_frame) FrameLayout frameLayout;
     @Bind(R.id.activity_home_drawer_layout) DrawerLayout drawerLayout;
@@ -170,6 +168,9 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
                     Uri uri = FileUtils.addFileToGallery(this, filePath);
                     bus.post(new EventBitmapChosen(uri));
                     break;
+                case REQUEST_AUTHENTICATION_CODE:
+                    Logg.log("AUTHED!");
+                    break;
             }
         }
     }
@@ -179,7 +180,7 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
                                            @NonNull String permissions[],
                                            @NonNull int[] grantResults) {
         switch (requestCode) {
-            case REQUEST_PERMISSION_CAMERA: {
+            case REQUEST_PERMISSION_CAMERA_CODE: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     showCamera();
                 }
@@ -206,7 +207,7 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
 
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        startLoginActivity();
+        startLoginActivity(REQUEST_AUTHENTICATION_CODE);
 
         switch (item.getItemId()) {
             case R.id.menu_drawer_header_profile:
@@ -285,15 +286,19 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
                 AnimatorListenerAdapter listenerAdapter = new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationEnd(Animator animation) {
-                        finishAffinity();
+                        finishAndRemoveTask();
                     }
                 };
 
-                fragmentDrawer.getRootView().stopSaveAnimation(listenerAdapter);
+                if (fragmentDrawer != null) {
+                    fragmentDrawer.getRootView().stopSaveAnimation(listenerAdapter);
+                }
             }
 
             @Override
-            public void onError(Throwable e) {}
+            public void onError(Throwable e) {
+                removeSubscription(this);
+            }
 
             @Override
             public void onNext(byte[] bytes) {}
@@ -321,10 +326,17 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
         if (NetworkUtils.hasInternet(this)) {
             FragmentDrawer drawer = getFragmentDrawer();
 
-            ParseSubscriber<byte[]> parseSubscriber = new ParseSubscriber<byte[]>(this, drawer.getView()) {
+            ParseSubscriber<byte[]> parseSubscriber = new ParseSubscriber<byte[]>(this, drawer.getRootView()) {
                 @Override
                 public void onCompleted() {
+                    ((ViewFab) findViewById(R.id.menu_upload)).stopSaveAnimation();
 
+                    if (drawer.getRootView() != null) {
+                        Snackbar.make(drawer.getRootView(),
+                                R.string.snackbar_activity_home_image_saved_title,
+                                Snackbar.LENGTH_LONG)
+                                .show();
+                    }
                 }
 
                 @Override
@@ -333,10 +345,10 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
                 }
             };
 
-            addSubscription(parseUtils.uploadMasterpiece(eventFilenameChosen.filename, drawer.getDrawingBitmap())
+            parseUtils.uploadMasterpiece(eventFilenameChosen.filename, drawer.getDrawingBitmap())
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(parseSubscriber));
+                    .subscribe(parseSubscriber);
         } else {
             showSnackBar(R.string.snackbar_no_internet, Snackbar.LENGTH_LONG);
         }
@@ -432,7 +444,7 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
                 }
             }
         } else {
-            ActivityCompat.requestPermissions(this, permissions, REQUEST_PERMISSION_CAMERA);
+            ActivityCompat.requestPermissions(this, permissions, REQUEST_PERMISSION_CAMERA_CODE);
         }
     }
 

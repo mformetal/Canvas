@@ -8,6 +8,8 @@ import android.graphics.Typeface;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public final class TextUtils {
 
@@ -54,6 +56,12 @@ public final class TextUtils {
 
     public static boolean containsNewLine(String string) {
         return string.contains("\n");
+    }
+
+    public static boolean validateEmail(String emailStr) {
+        Matcher matcher = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$",
+                Pattern.CASE_INSENSITIVE).matcher(emailStr);
+        return matcher.find();
     }
 
 }
