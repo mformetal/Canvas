@@ -95,26 +95,18 @@ public class ActivityAuthenticate extends ActivityBase
         Transition explodeTransform = TransitionInflater.from(this).
                 inflateTransition(android.R.transition.explode);
 
-        // Setup exit transition on first fragment
         login.setSharedElementReturnTransition(changeBounds);
         login.setExitTransition(explodeTransform);
 
-        // Setup enter transition on second fragment
         signup.setSharedElementEnterTransition(changeBounds);
         signup.setEnterTransition(explodeTransform);
 
-        // Add second fragment by replacing first
         getFragmentManager().beginTransaction()
                 .replace(R.id.activity_authenticate_fragment_frame, signup)
                 .addToBackStack("transaction")
                 .addSharedElement(login.usernameInput, "email")
                 .addSharedElement(login.passwordInput, "password")
                 .commit();
-
-//        manager.beginTransaction()
-//                .replace(R.id.activity_authenticate_fragment_frame, FragmentSignup.newInstance())
-//                .addToBackStack(null)
-//                .commit();
     }
 
     @Override

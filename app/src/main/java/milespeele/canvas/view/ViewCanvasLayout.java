@@ -89,26 +89,16 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
     }
 
     @Override
-    protected void dispatchDraw(Canvas canvas) {
-        super.dispatchDraw(canvas);
-
-        if (fabFrame.getVisibility() == View.VISIBLE) {
-            fabFrame.getGlobalVisibleRect(mRect);
-            mPath.rewind();
-            mPath.addRoundRect(mRect.left, mRect.top, mRect.right, mRect.bottom,
-                    fabFrame.getCorner(), fabFrame.getCorner(), Path.Direction.CCW);
-            canvas.clipPath(mPath, Region.Op.DIFFERENCE);
+    protected boolean drawChild(Canvas canvas, View child, long drawingTime) {
+        if (mShadowPaint.getAlpha() != 0) {
             canvas.drawPaint(mShadowPaint);
-        }
 
-        if (saveAnimator.getVisibility() == View.VISIBLE) {
-            saveAnimator.getGlobalVisibleRect(mRect);
-            mPath.rewind();
-            mPath.addRoundRect(mRect.left, mRect.top, mRect.right, mRect.bottom,
-                    saveAnimator.getWidth() * .1f, saveAnimator.getHeight() * .1f, Path.Direction.CCW);
-            canvas.clipPath(mPath, Region.Op.DIFFERENCE);
-            canvas.drawPaint(mShadowPaint);
+            int paintAlpha = mShadowPaint.getAlpha();
+            float viewAlpha = paintAlpha / 255;
+            fabMenu.setAlpha(1 - viewAlpha);
+            optionsMenu.setAlpha(1 - viewAlpha);
         }
+        return super.drawChild(canvas, child, drawingTime);
     }
 
     @Override
