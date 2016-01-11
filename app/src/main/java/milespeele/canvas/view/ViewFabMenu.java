@@ -236,7 +236,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
 
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
-                if (y >= getHeight() - getResources().getDimension(R.dimen.status_bar_height) / 4) {
+                if (isFromBottom(event)) {
                     return false;
                 }
 
@@ -486,6 +486,10 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
 
     public float getCircleRadius() { return mCircle.getRadius(); }
 
+    private boolean isFromBottom(MotionEvent event) {
+        return event.getY() >= getHeight() - getResources().getDimension(R.dimen.status_bar_height);
+    }
+
     private final class ItemPosition {
 
         private Circle mItemCircle;
@@ -541,7 +545,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
 
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            if (isVisible() && !startedFromBottom(e1) && !startedFromBottom(e2)) {
+            if (isVisible() && !isFromBottom(e1) && !isFromBottom(e2)) {
                 isDragging = false;
 
                 isFlinging = true;
@@ -554,11 +558,6 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
             }
 
             return false;
-        }
-
-        private boolean startedFromBottom(MotionEvent event) {
-            return event.getY() >= getHeight() -
-                    getResources().getDimension(R.dimen.status_bar_height) / 4;
         }
     }
 

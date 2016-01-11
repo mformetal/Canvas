@@ -103,6 +103,8 @@ public class DrawingCurve {
         int w = size.x;
         int h = size.y;
 
+        Logg.log(w, h);
+
         mStrokeColor = ViewUtils.randomColor();
         mBackgroundColor = store.getLastBackgroundColor();
         mOppositeBackgroundColor = ViewUtils.complementColor(mBackgroundColor);

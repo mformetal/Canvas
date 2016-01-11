@@ -88,6 +88,8 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
         setContentView(R.layout.activity_home);
         ButterKnife.bind(this);
 
+        ViewUtils.systemUIGone(getWindow().getDecorView());
+
         bus.register(this);
 
         drawerLayout.setDrawerListener(new SimpleDrawerLayoutListener() {
@@ -192,8 +194,6 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
         super.onResume();
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             ViewUtils.systemUIVisibile(getWindow().getDecorView());
-        } else {
-            new Handler().postDelayed(() -> ViewUtils.systemUIGone(getWindow().getDecorView()), 350);
         }
     }
 

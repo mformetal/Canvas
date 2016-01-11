@@ -147,7 +147,7 @@ public class ViewUtils {
         goneAnimator(view).start();
     }
 
-    public static ObjectAnimator goneAnimator(View view) {
+    private static ObjectAnimator goneAnimator(View view) {
         ObjectAnimator gone = ObjectAnimator.ofFloat(view, View.ALPHA, 1f, 0f);
         gone.setDuration(DEFAULT_VISBILITY_DURATION);
         gone.addListener(new AnimatorListenerAdapter() {
@@ -181,21 +181,5 @@ public class ViewUtils {
             }
         });
         return visibility;
-    }
-
-    public static void setEnabled(boolean enabled, View v) {
-        v.setEnabled(enabled);
-
-        if (v instanceof ViewGroup) {
-            ViewGroup vg = (ViewGroup) v;
-            for (int i = 0; i < vg.getChildCount(); i++) {
-                View child = vg.getChildAt(i);
-                child.setEnabled(enabled);
-
-                if (child instanceof ViewGroup) {
-                    setEnabled(enabled, child);
-                }
-            }
-        }
     }
 }

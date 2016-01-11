@@ -4,7 +4,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/fragment_drawer_coordinator"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="false" >
 
     <milespeele.canvas.view.ViewCanvasSurface
         android:id="@+id/fragment_drawer_canvas"
