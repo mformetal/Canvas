@@ -12,6 +12,7 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.util.DisplayMetrics;
 import android.util.Property;
+import android.util.TypedValue;
 import android.view.Display;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,6 +33,7 @@ public class ViewUtils {
     public final static String ALPHA = "alpha";
     public final static float MAX_ALPHA = 255f;
     private final static int DEFAULT_VISBILITY_DURATION = 350;
+    private static int actionBarSize = -1;
 
     public static abstract class FloatProperty<T> extends Property<T, Float> {
         public FloatProperty(String name) {
@@ -181,5 +183,15 @@ public class ViewUtils {
             }
         });
         return visibility;
+    }
+
+    public static int actionBarSize(Context context) {
+        if (actionBarSize < 0) {
+            TypedValue value = new TypedValue();
+            context.getTheme().resolveAttribute(android.R.attr.actionBarSize, value, true);
+            actionBarSize = TypedValue.complexToDimensionPixelSize(value.data, context
+                    .getResources().getDisplayMetrics());
+        }
+        return actionBarSize;
     }
 }

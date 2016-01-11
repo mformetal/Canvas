@@ -30,14 +30,12 @@ public class AdapterMasterpieces extends RecyclerView.Adapter<AdapterMasterpiece
     private LayoutInflater mInflater;
     private ArrayList<Masterpiece> mMasterpieces;
     private Picasso mPicasso;
-    private int mDimens;
 
     public AdapterMasterpieces(Context context, Picasso picasso) {
         mContext = context;
         mPicasso = picasso;
         mInflater = LayoutInflater.from(mContext);
         mMasterpieces = new ArrayList<>();
-        mDimens = Math.round(mContext.getResources().getDimension(R.dimen.gallery_image_dimens));
     }
 
     @Override
