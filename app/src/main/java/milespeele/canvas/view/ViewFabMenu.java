@@ -6,11 +6,9 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.Point;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
@@ -35,10 +33,8 @@ import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
 import milespeele.canvas.event.EventBrushChosen;
 import milespeele.canvas.event.EventColorChosen;
-import milespeele.canvas.event.EventFilenameChosen;
 import milespeele.canvas.event.EventParseError;
 import milespeele.canvas.util.Circle;
-import milespeele.canvas.util.NetworkUtils;
 import milespeele.canvas.util.ViewUtils;
 
 
@@ -473,12 +469,6 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
 
     public void onEvent(EventParseError eventParseError) {
         saver.stopSaveAnimation();
-    }
-
-    public void onEvent(EventFilenameChosen eventFilenameChosen) {
-        if (NetworkUtils.hasInternet(getContext())) {
-            saver.startSaveAnimation();
-        }
     }
 
     public boolean isVisible() {

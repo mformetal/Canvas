@@ -49,7 +49,6 @@ import milespeele.canvas.parse.ParseUtils;
 import milespeele.canvas.transition.TransitionHelper;
 import milespeele.canvas.util.FileUtils;
 import milespeele.canvas.util.Logg;
-import milespeele.canvas.util.NetworkUtils;
 import milespeele.canvas.util.SimpleDrawerLayoutListener;
 import milespeele.canvas.util.ViewUtils;
 import milespeele.canvas.view.ViewCanvasLayout;
@@ -321,14 +320,24 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
 
     @SuppressWarnings("unused, unchecked")
     public void onEvent(EventFilenameChosen eventFilenameChosen) {
-        if (NetworkUtils.hasInternet(this)) {
+        if (hasInternet()) {
             FragmentDrawer drawer = getFragmentDrawer();
 
-            ParseSubscriber<ParseUser> parseSubscriber =
-                    new ParseSubscriber<ParseUser>(this, drawer.getRootView()) {
+            ParseSubscriber<ParseUser> parseSubscriber = new ParseSubscriber<ParseUser>(this, drawer.getRootView()) {
+
+                ViewFab saver = (ViewFab) findViewById(R.id.menu_upload);
+
+                @Override
+                public void onStart() {
+                    super.onStart();
+                    saver.startSaveAnimation();
+                }
+
                 @Override
                 public void onCompleted() {
-                    ((ViewFab) findViewById(R.id.menu_upload)).stopSaveAnimation();
+                    if (saver != null) {
+                        saver.stopSaveAnimation();
+                    }
 
                     if (drawer.getRootView() != null) {
                         Snackbar.make(drawer.getRootView(),
@@ -341,7 +350,9 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
                 @Override
                 public void onError(Throwable e) {
                     super.onError(e);
-                    ((ViewFab) findViewById(R.id.menu_upload)).stopSaveAnimation();
+                    if (saver != null) {
+                        saver.stopSaveAnimation();
+                    }
                 }
             };
 
