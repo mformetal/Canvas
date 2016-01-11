@@ -41,10 +41,14 @@ public class ActivityGallery extends ActivityBase {
         setContentView(R.layout.activity_gallery);
         ButterKnife.bind(this);
 
+        ViewUtils.systemUIVisibile(getWindow().getDecorView());
+
+        RecyclerView.LayoutManager manager = new GridLayoutManager(this, 5);
         mMasterpieceAdapter = new AdapterMasterpieces(this, picasso);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this,
-                LinearLayoutManager.HORIZONTAL, false));
+        recyclerView.setLayoutManager(manager);
         recyclerView.setAdapter(mMasterpieceAdapter);
+        recyclerView.addItemDecoration(new SpacingDecoration(20));
+        recyclerView.setHasFixedSize(true);
 
         loadImages();
     }

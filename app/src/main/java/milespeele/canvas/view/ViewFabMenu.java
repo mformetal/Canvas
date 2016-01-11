@@ -505,7 +505,8 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
     public float getCircleRadius() { return mCircle.getRadius(); }
 
     private boolean isFromBottom(MotionEvent event) {
-        return event.getY() >= (float) toggle.getBottom();
+        return event.getY() >= (float) toggle.getBottom() -
+                getResources().getDimension(R.dimen.status_bar_height) / 2;
     }
 
     private final class ItemPosition {

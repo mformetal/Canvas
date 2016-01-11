@@ -30,12 +30,14 @@ public class AdapterMasterpieces extends RecyclerView.Adapter<AdapterMasterpiece
     private LayoutInflater mInflater;
     private ArrayList<Masterpiece> mMasterpieces;
     private Picasso mPicasso;
+    private int mDimens;
 
     public AdapterMasterpieces(Context context, Picasso picasso) {
         mContext = context;
         mPicasso = picasso;
         mInflater = LayoutInflater.from(mContext);
         mMasterpieces = new ArrayList<>();
+        mDimens = Math.round(mContext.getResources().getDimension(R.dimen.gallery_image_dimens));
     }
 
     @Override
@@ -50,9 +52,9 @@ public class AdapterMasterpieces extends RecyclerView.Adapter<AdapterMasterpiece
 
         ParseFile file = masterpiece.getImage();
 
-        mPicasso.load(file.getUrl()).into(holder.imageView);
-
-        holder.textView.setText(masterpiece.getTitle());
+        mPicasso.load(file.getUrl())
+                .resize(mDimens, mDimens)
+                .into(holder.imageView);
     }
 
     @Override
@@ -68,7 +70,6 @@ public class AdapterMasterpieces extends RecyclerView.Adapter<AdapterMasterpiece
     final static class MasterpieceViewHolder extends RecyclerView.ViewHolder {
 
         @Bind(R.id.adapter_masterpieces_image) ImageView imageView;
-        @Bind(R.id.adapter_masterpiece_title) ViewTypefaceTextView textView;
 
         public MasterpieceViewHolder(View itemView) {
             super(itemView);
