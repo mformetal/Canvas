@@ -43,11 +43,17 @@ public class ActivityGallery extends ActivityBase {
 
         ViewUtils.systemUIVisibile(getWindow().getDecorView());
 
-        RecyclerView.LayoutManager manager = new GridLayoutManager(this, 5);
+        GridLayoutManager manager = new GridLayoutManager(this, 2);
+        manager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+            @Override
+            public int getSpanSize(int position) {
+                return position == mMasterpieceAdapter.getItemCount() ? 2 : 1;
+            }
+        });
         mMasterpieceAdapter = new AdapterMasterpieces(this, picasso);
         recyclerView.setLayoutManager(manager);
         recyclerView.setAdapter(mMasterpieceAdapter);
-        recyclerView.addItemDecoration(new SpacingDecoration(20));
+        recyclerView.addItemDecoration(new SpacingDecoration(10));
         recyclerView.setHasFixedSize(true);
 
         loadImages();

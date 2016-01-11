@@ -52,9 +52,7 @@ public class AdapterMasterpieces extends RecyclerView.Adapter<AdapterMasterpiece
 
         ParseFile file = masterpiece.getImage();
 
-        mPicasso.load(file.getUrl())
-                .resize(mDimens, mDimens)
-                .into(holder.imageView);
+        mPicasso.load(file.getUrl()).fit().into(holder.imageView);
     }
 
     @Override
