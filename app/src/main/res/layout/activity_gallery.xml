@@ -22,7 +22,7 @@
         android:layout_height="wrap_content"
         android:minHeight="?attr/actionBarSize"
         android:theme="@android:style/ThemeOverlay.Material.Dark.ActionBar"
-        android:background="?android:colorPrimary"
+        android:background="?android:colorPrimaryDark"
         android:elevation="@dimen/fab_elevation"
         android:titleTextAppearance="@android:style/TextAppearance.Material.Widget.ActionBar.Title" />
 

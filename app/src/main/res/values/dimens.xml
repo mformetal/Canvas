@@ -39,4 +39,5 @@
     <dimen name="medium_text_size">18sp</dimen>
     <dimen name="large_text_size">22sp</dimen>
     <dimen name="xlarge_text_size">40sp</dimen>
+    <item name="aspect_ratio" type="dimen" format="float">1.7888</item>
 </resources>

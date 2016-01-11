@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowInsets;
@@ -52,7 +53,9 @@ public class ActivityGallery extends ActivityBase {
         ViewUtils.systemUIVisibile(getWindow().getDecorView());
 
         mMasterpieceAdapter = new AdapterMasterpieces(this, picasso);
-        recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
+        StaggeredGridLayoutManager layoutManager =
+                new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+        recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(mMasterpieceAdapter);
         recyclerView.addItemDecoration(new SpacingDecoration(10));
         recyclerView.setHasFixedSize(true);
@@ -66,11 +69,12 @@ public class ActivityGallery extends ActivityBase {
                 lpToolbar.rightMargin += insets.getSystemWindowInsetRight();
                 toolbar.setLayoutParams(lpToolbar);
 
-                recyclerView.setPadding(0,
+                recyclerView.setPadding(
+                        recyclerView.getPaddingTop(),
                         insets.getSystemWindowInsetTop() +
-                                getResources().getDimensionPixelSize(R.dimen.status_bar_height) +
-                                ViewUtils.actionBarSize(ActivityGallery.this),
-                        0, 0);
+                                ViewUtils.actionBarSize(v.getContext()),
+                        recyclerView.getPaddingRight(),
+                        ViewUtils.actionBarSize(v.getContext()));
                 return insets.consumeSystemWindowInsets();
             }
         });

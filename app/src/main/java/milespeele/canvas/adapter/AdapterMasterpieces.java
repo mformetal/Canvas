@@ -2,14 +2,12 @@ package milespeele.canvas.adapter;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
 import com.parse.ParseFile;
-import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -18,8 +16,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import milespeele.canvas.R;
 import milespeele.canvas.parse.Masterpiece;
-import milespeele.canvas.util.Logg;
-import milespeele.canvas.view.ViewTypefaceTextView;
+import milespeele.canvas.view.ViewAspectRatioImage;
 
 /**
  * Created by mbpeele on 1/11/16.
@@ -50,7 +47,9 @@ public class AdapterMasterpieces extends RecyclerView.Adapter<AdapterMasterpiece
 
         ParseFile file = masterpiece.getImage();
 
-        mPicasso.load(file.getUrl()).fit().into(holder.imageView);
+        Glide.with(mContext)
+                .load(file.getUrl())
+                .into(holder.imageView);
     }
 
     @Override
@@ -65,7 +64,8 @@ public class AdapterMasterpieces extends RecyclerView.Adapter<AdapterMasterpiece
 
     final static class MasterpieceViewHolder extends RecyclerView.ViewHolder {
 
-        @Bind(R.id.adapter_masterpieces_image) ImageView imageView;
+        @Bind(R.id.adapter_masterpieces_image)
+        ViewAspectRatioImage imageView;
 
         public MasterpieceViewHolder(View itemView) {
             super(itemView);

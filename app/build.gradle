@@ -71,6 +71,8 @@ dependencies {
     compile 'com.infstory:rxparse:2.0.1'
     compile 'de.hdodenhof:circleimageview:2.0.0'
     compile 'com.squareup.picasso:picasso:2.5.2'
+    compile 'com.github.bumptech.glide:glide:3.6.1'
+    compile 'com.android.support:support-v4:19.1.0'
     compile 'com.facebook.android:facebook-android-sdk:4.6.0'
     compile 'de.greenrobot:eventbus:2.4.0'
     compile 'me.grantland:autofittextview:0.2.1'
