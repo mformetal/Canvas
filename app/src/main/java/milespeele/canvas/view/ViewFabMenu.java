@@ -16,6 +16,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnticipateInterpolator;
+import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.view.animation.OvershootInterpolator;
 
@@ -35,6 +36,7 @@ import milespeele.canvas.event.EventBrushChosen;
 import milespeele.canvas.event.EventColorChosen;
 import milespeele.canvas.event.EventParseError;
 import milespeele.canvas.util.Circle;
+import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.ViewUtils;
 
 
@@ -365,9 +367,17 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
                 });
                 out.setDuration(DURATION);
                 out.setInterpolator(OVERSHOOT_INTERPOLATOR);
+
+                ObjectAnimator rotate = ObjectAnimator.ofFloat(view,
+                        View.ROTATION, 0f, 360f);
+                rotate.setInterpolator(new DecelerateInterpolator());
+                rotate.setDuration(DURATION * 2);
+                rotate.setStartDelay(delay);
+
                 delay += DELAY_INCREMENT;
 
                 anims.add(out);
+                anims.add(rotate);
             }
 
             AnimatorSet set = new AnimatorSet();
@@ -432,9 +442,17 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
                 });
                 out.setDuration(DURATION);
                 out.setInterpolator(ANTICIPATE_INTERPOLATOR);
+
+                ObjectAnimator rotate = ObjectAnimator.ofFloat(view,
+                        View.ROTATION, 0f, 360f);
+                rotate.setInterpolator(new DecelerateInterpolator());
+                rotate.setDuration(DURATION * 4);
+                rotate.setStartDelay(delay);
+
                 delay += DELAY_INCREMENT;
 
                 anims.add(out);
+                anims.add(rotate);
             }
 
             AnimatorSet set = new AnimatorSet();
@@ -487,7 +505,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
     public float getCircleRadius() { return mCircle.getRadius(); }
 
     private boolean isFromBottom(MotionEvent event) {
-        return event.getY() >= getHeight() - getResources().getDimension(R.dimen.status_bar_height);
+        return event.getY() >= (float) toggle.getBottom();
     }
 
     private final class ItemPosition {

@@ -72,12 +72,7 @@ public class FragmentFilename extends FragmentBase implements View.OnClickListen
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.fragment_filename_pos_button:
-                String name = input.getTextAsString();
-                if (name.isEmpty()) {
-                    Toast.makeText(getActivity(),
-                            getResources().getString(R.string.fragment_filename_empty),
-                            Toast.LENGTH_SHORT).show();
-                } else {
+                if (validateFileName()) {
                     bus.post(new EventFilenameChosen(input.getTextAsString()));
                     getActivity().onBackPressed();
                 }
@@ -97,5 +92,15 @@ public class FragmentFilename extends FragmentBase implements View.OnClickListen
                     .setInterpolator(new AccelerateDecelerateInterpolator())
                     .translationY(0);
         }
+    }
+
+    private boolean validateFileName() {
+        String name = input.getTextAsString();
+        if (name.length() == 0) {
+            input.setError("Filename must not be empty");
+            return false;
+        }
+
+        return true;
     }
 }

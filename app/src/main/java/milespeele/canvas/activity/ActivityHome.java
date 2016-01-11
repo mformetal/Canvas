@@ -70,7 +70,6 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
     private final static int REQUEST_IMPORT_CODE = 2001;
     private final static int REQUEST_CAMERA_CODE = 2002;
     private final static int REQUEST_PERMISSION_CAMERA_CODE = 2003;
-    private final static int REQUEST_LOGIN_CODE = 2004;
 
     @Bind(R.id.activity_home_fragment_frame) FrameLayout frameLayout;
     @Bind(R.id.activity_home_drawer_layout) DrawerLayout drawerLayout;
@@ -86,7 +85,6 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-        ButterKnife.bind(this);
 
         ViewUtils.systemUIGone(getWindow().getDecorView());
 
@@ -536,7 +534,7 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
 
     private void setupHeaderView() {
         LinearLayout layout = (LinearLayout) navigationView.getHeaderView(0);
-        if (parseUtils.isParseUserAvailable()) {
+        if (ParseUtils.isParseUserAvailable()) {
             ((ViewTypefaceTextView) layout.getChildAt(1)).setText(ParseUtils.getParseName());
         }
     }

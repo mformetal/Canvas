@@ -22,6 +22,7 @@ import java.util.ArrayList;
 
 import javax.inject.Inject;
 
+import butterknife.ButterKnife;
 import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
@@ -47,6 +48,7 @@ public abstract class ActivityBase extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         ((MainApp) getApplication()).getApplicationComponent().inject(this);
 
         mRemovableSubscriptions = new ArrayList<>();
@@ -55,8 +57,15 @@ public abstract class ActivityBase extends Activity {
     }
 
     @Override
+    public void setContentView(int layoutResID) {
+        super.setContentView(layoutResID);
+        ButterKnife.bind(this);
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
+        ButterKnife.unbind(this);
         if (mCompositeSubscription.hasSubscriptions()) {
             mCompositeSubscription.unsubscribe();
         }
