@@ -45,8 +45,8 @@ import milespeele.canvas.fragment.FragmentDrawer;
 import milespeele.canvas.fragment.FragmentFilename;
 import milespeele.canvas.fragment.FragmentText;
 import milespeele.canvas.parse.ParseSubscriber;
+import milespeele.canvas.parse.ParseUtils;
 import milespeele.canvas.transition.TransitionHelper;
-import milespeele.canvas.util.ErrorDialog;
 import milespeele.canvas.util.FileUtils;
 import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.NetworkUtils;
@@ -316,7 +316,7 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
 
     @SuppressWarnings("unused")
     public void onEvent(EventParseError eventParseError) {
-        ErrorDialog.createDialogFromCode(this, eventParseError.getErrorCode()).show();
+        ParseUtils.handleError(eventParseError.e, getFragmentDrawer().getRootView(), this);
     }
 
     @SuppressWarnings("unused, unchecked")

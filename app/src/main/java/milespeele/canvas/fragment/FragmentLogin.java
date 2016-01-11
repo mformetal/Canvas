@@ -36,6 +36,8 @@ public class FragmentLogin extends FragmentBase implements View.OnClickListener 
     @Bind(R.id.fragment_login_fb_login) LoginButton loginButton;
     @Bind(R.id.fragment_login_twitter_login) TwitterLoginButton twitterLoginButton;
     @Bind(R.id.fragment_login_parse_login) ViewTypefaceButton parseLoginButton;
+    @Bind(R.id.fragment_login_parse_signup) ViewTypefaceButton parseSignupButton;
+    @Bind(R.id.fragment_login_help) ViewTypefaceButton parseResetButton;
 
     private FragmentLoginListener mListener;
 
@@ -56,9 +58,22 @@ public class FragmentLogin extends FragmentBase implements View.OnClickListener 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_login, container, false);
         ButterKnife.bind(this, v);
-        if (ParseUser.getCurrentUser() != null && ParseUser.getCurrentUser().isAuthenticated()) {
+
+        loginButton.setReadPermissions("public_profile");
+
+        if (isLoggedInWithParse()) {
             ((ViewTypefaceButton) v.findViewById(R.id.fragment_login_parse_login))
                     .setText(R.string.parse_login_logout_label);
+
+            loginButton.setVisibility(View.GONE);
+            twitterLoginButton.setVisibility(View.GONE);
+        } else if (isLoggedInWithFacebook()) {
+            usernameInput.setVisibility(View.GONE);
+            passwordInput.setVisibility(View.GONE);
+            twitterLoginButton.setVisibility(View.GONE);
+            parseLoginButton.setVisibility(View.GONE);
+            parseSignupButton.setVisibility(View.GONE);
+            parseResetButton.setVisibility(View.GONE);
         }
 
         usernameInput.setText("mbpeele@email.wm.edu");
@@ -117,6 +132,15 @@ public class FragmentLogin extends FragmentBase implements View.OnClickListener 
         }
 
         return true;
+    }
+
+    private boolean isLoggedInWithParse() {
+        return ParseUser.getCurrentUser() != null && ParseUser.getCurrentUser().isAuthenticated();
+    }
+
+    private boolean isLoggedInWithFacebook() {
+        AccessToken accessToken = AccessToken.getCurrentAccessToken();
+        return accessToken != null && !accessToken.isExpired();
     }
 
     public interface FragmentLoginListener {

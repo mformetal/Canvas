@@ -86,6 +86,7 @@ public class ActivityAuthenticate extends ActivityBase
 
             if (mCurrentSubscription != null) {
                 mCurrentSubscription.unsubscribe();
+                mCurrentSubscription = null;
             }
             return;
         }
@@ -253,18 +254,16 @@ public class ActivityAuthenticate extends ActivityBase
         mFacebookLoginButton = loginButton;
         mTwitterLoginButton = twitterLoginButton;
 
-        if (isApplicationInstalled("com.twitter.android")) {
+        if (isApplicationInstalled("com.twitter.android")
+                && mTwitterLoginButton.getVisibility() != View.GONE) {
             mTwitterLoginButton.setCallback(twitterCallback);
             mTwitterLoginButton.setOnClickListener(this);
-        } else {
-            mTwitterLoginButton.setVisibility(View.GONE);
         }
 
-        if (isApplicationInstalled("com.facebook.katana")) {
+        if (isApplicationInstalled("com.facebook.katana")
+                && mFacebookLoginButton.getVisibility() != View.GONE) {
             mFacebookLoginButton.registerCallback(mCallbackManager, facebookCallback);
             mFacebookLoginButton.setOnClickListener(this);
-        } else {
-            mFacebookLoginButton.setVisibility(View.VISIBLE);
         }
     }
 
