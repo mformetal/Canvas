@@ -14,6 +14,7 @@ import android.util.DisplayMetrics;
 import android.util.Property;
 import android.view.Display;
 import android.view.View;
+import android.view.ViewGroup;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -180,5 +181,21 @@ public class ViewUtils {
             }
         });
         return visibility;
+    }
+
+    public static void setEnabled(boolean enabled, View v) {
+        v.setEnabled(enabled);
+
+        if (v instanceof ViewGroup) {
+            ViewGroup vg = (ViewGroup) v;
+            for (int i = 0; i < vg.getChildCount(); i++) {
+                View child = vg.getChildAt(i);
+                child.setEnabled(enabled);
+
+                if (child instanceof ViewGroup) {
+                    setEnabled(enabled, child);
+                }
+            }
+        }
     }
 }

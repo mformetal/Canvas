@@ -206,7 +206,7 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
         drawer.onOptionsMenuAccept();
     }
 
-    public void startSaveAnimation() {
+    public void startSaveBitmapAnimation() {
         saveAnimator.setColors(drawer.getBackgroundColor());
         saveAnimator.setTranslationY(getHeight());
 

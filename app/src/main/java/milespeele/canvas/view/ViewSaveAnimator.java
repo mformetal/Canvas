@@ -39,6 +39,7 @@ public class ViewSaveAnimator extends View {
     private int mBackgroundColor;
     private float mStart, mEnd;
     private float[] mAnimatedEnds;
+    private boolean mShouldDrawLines = true;
 
     public ViewSaveAnimator(Context context) {
         super(context);
@@ -63,9 +64,9 @@ public class ViewSaveAnimator extends View {
     private void init() {
         mPath = new Path();
 
-        mBackgroundColor = Color.WHITE;
+        mBackgroundColor = Color.BLACK;
         mPaint = new Paint();
-        mPaint.setColor(Color.BLACK);
+        mPaint.setColor(Color.WHITE);
 
         mAnimatedEnds = new float[3];
 
@@ -80,6 +81,11 @@ public class ViewSaveAnimator extends View {
         Arrays.fill(mAnimatedEnds, mStart);
 
         mPaint.setStrokeWidth(20f);
+
+        mDrawable = getResources().getDrawable(R.drawable.ic_check_24dp);
+        mDrawable.setColorFilter(ViewUtils.complementColor(mBackgroundColor),
+                PorterDuff.Mode.SRC_ATOP);
+        mDrawable.setBounds(0, 0, w, h);
     }
 
     @Override
@@ -97,7 +103,7 @@ public class ViewSaveAnimator extends View {
         mPaint.setColor(mBackgroundColor);
         canvas.drawRect(bounds, mPaint);
 
-        if (mDrawable != null) {
+        if (!mShouldDrawLines) {
             canvas.save();
             canvas.scale(getScaleX(), getScaleY(),
                     canvas.getWidth() / 2f, canvas.getHeight() / 2f);
@@ -128,54 +134,54 @@ public class ViewSaveAnimator extends View {
 
         mAnimatorSet = new AnimatorSet();
         mAnimatorSet.playTogether(animators);
+        mAnimatorSet.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                mShouldDrawLines = true;
+            }
+        });
         mAnimatorSet.start();
     }
 
     public void stopAnimation(AnimatorListenerAdapter adapter) {
-        if (mAnimatorSet != null) {
-            ArrayList<Animator> childAnimations = mAnimatorSet.getChildAnimations();
-            Animator animator = childAnimations.get(childAnimations.size() - 1);
-            animator.addListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationRepeat(Animator animation) {
-                    super.onAnimationEnd(animation);
-                    for (Animator child: childAnimations) {
-                        if (child instanceof ValueAnimator) {
-                            ((ValueAnimator) child).setRepeatCount(0);
-                            ((ValueAnimator) child).setRepeatMode(0);
-                            child.removeAllListeners();
-                        }
+        ArrayList<Animator> childAnimations = mAnimatorSet.getChildAnimations();
+        Animator animator = childAnimations.get(childAnimations.size() - 1);
+        animator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+                super.onAnimationEnd(animation);
+                for (Animator child: childAnimations) {
+                    if (child instanceof ValueAnimator) {
+                        ((ValueAnimator) child).setRepeatCount(0);
+                        ((ValueAnimator) child).setRepeatMode(0);
+                        child.removeAllListeners();
+                    }
+                }
+
+                ObjectAnimator scale = ObjectAnimator.ofPropertyValuesHolder(ViewSaveAnimator.this,
+                        PropertyValuesHolder.ofFloat(View.SCALE_X, .2f, 1f),
+                        PropertyValuesHolder.ofFloat(View.SCALE_Y, .2f, 1f));
+                scale.setDuration(350);
+                scale.setInterpolator(new AnticipateOvershootInterpolator());
+                scale.addListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+                        mShouldDrawLines = false;
                     }
 
-                    ObjectAnimator scale = ObjectAnimator.ofPropertyValuesHolder(ViewSaveAnimator.this,
-                            PropertyValuesHolder.ofFloat(View.SCALE_X, .2f, 1f),
-                            PropertyValuesHolder.ofFloat(View.SCALE_Y, .2f, 1f));
-                    scale.setDuration(350);
-                    scale.setInterpolator(new AnticipateOvershootInterpolator());
-                    scale.addListener(new AnimatorListenerAdapter() {
-                        @Override
-                        public void onAnimationStart(Animator animation) {
-                            super.onAnimationStart(animation);
-                            mDrawable = getResources().getDrawable(R.drawable.ic_check_24dp);
-                            mDrawable.setColorFilter(ViewUtils.complementColor(mBackgroundColor),
-                                    PorterDuff.Mode.SRC_ATOP);
-                            mDrawable.setBounds(0, 0, getWidth(), getHeight());
-                        }
-
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        if (adapter != null) {
+                            Arrays.fill(mAnimatedEnds, mStart);
                             new Handler().postDelayed(() -> adapter.onAnimationEnd(animation), 750);
                         }
-                    });
+                    }
+                });
 
-                    scale.addUpdateListener(animation1 -> invalidate());
-
-                    scale.start();
-                }
-            });
-        } else {
-            adapter.onAnimationEnd(null);
-        }
+                scale.addUpdateListener(animation1 -> invalidate());
+                scale.start();
+            }
+        });
     }
 
     private Animator createLineAnimation(int index) {

@@ -52,6 +52,11 @@ public abstract class ParseSubscriber<T> extends Subscriber<T> {
     }
 
     @Override
+    public void onNext(T t) {
+
+    }
+
+    @Override
     public void onCompleted() {
         removeSelf();
     }

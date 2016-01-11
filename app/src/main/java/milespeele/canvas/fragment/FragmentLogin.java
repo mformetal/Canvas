@@ -60,6 +60,9 @@ public class FragmentLogin extends FragmentBase implements View.OnClickListener 
             ((ViewTypefaceButton) v.findViewById(R.id.fragment_login_parse_login))
                     .setText(R.string.parse_login_logout_label);
         }
+
+        usernameInput.setText("mbpeele@email.wm.edu");
+        passwordInput.setText("test");
         return v;
     }
 

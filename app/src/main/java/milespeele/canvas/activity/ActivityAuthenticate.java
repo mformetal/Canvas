@@ -1,17 +1,17 @@
 package milespeele.canvas.activity;
 
+import android.animation.ObjectAnimator;
 import android.app.FragmentManager;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.Snackbar;
 import android.transition.Transition;
 import android.transition.TransitionInflater;
 import android.view.View;
-import android.widget.Toast;
+import android.widget.LinearLayout;
 
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -20,7 +20,6 @@ import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.parse.ParseException;
 import com.parse.ParseUser;
-import com.twitter.sdk.android.Twitter;
 import com.twitter.sdk.android.core.Callback;
 import com.twitter.sdk.android.core.Result;
 import com.twitter.sdk.android.core.TwitterException;
@@ -28,11 +27,15 @@ import com.twitter.sdk.android.core.TwitterSession;
 import com.twitter.sdk.android.core.identity.TwitterLoginButton;
 
 import milespeele.canvas.R;
+import milespeele.canvas.fragment.FragmentBase;
 import milespeele.canvas.fragment.FragmentLogin;
 import milespeele.canvas.fragment.FragmentSignup;
 import milespeele.canvas.parse.ParseSubscriber;
 import milespeele.canvas.parse.ParseUtils;
 import milespeele.canvas.util.Logg;
+import milespeele.canvas.util.ViewUtils;
+import milespeele.canvas.view.ViewSaveAnimator;
+import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
@@ -51,16 +54,17 @@ public class ActivityAuthenticate extends ActivityBase
     private CallbackManager mCallbackManager;
     private TwitterLoginButton mTwitterLoginButton;
     private LoginButton mFacebookLoginButton;
+    private Subscription mCurrentSubscription;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_authenticate);
 
+        mCallbackManager = CallbackManager.Factory.create();
+
         mProgressDialog = new ProgressDialog(this);
         mProgressDialog.setMessage(getResources().getString(R.string.parse_login_loading_dialog));
-
-        mCallbackManager = CallbackManager.Factory.create();
 
         getFragmentManager()
                 .beginTransaction()
@@ -77,6 +81,15 @@ public class ActivityAuthenticate extends ActivityBase
 
     @Override
     public void onBackPressed() {
+        if (mProgressDialog.isShowing()) {
+            mProgressDialog.dismiss();
+
+            if (mCurrentSubscription != null) {
+                mCurrentSubscription.unsubscribe();
+            }
+            return;
+        }
+
         int count = getFragmentManager().getBackStackEntryCount();
         if (count == 0) {
             super.onBackPressed();
@@ -91,38 +104,34 @@ public class ActivityAuthenticate extends ActivityBase
     @Override
     public void onParseLoginClicked(String username, String password) {
         if (hasInternet()) {
-            if (!mProgressDialog.isShowing()) {
-                ParseSubscriber<ParseUser> subscriber = new ParseSubscriber<ParseUser>(this) {
-                    @Override
-                    public void onCompleted() {
-                        super.onCompleted();
-                        dismissLoading();
+            ParseSubscriber<ParseUser> subscriber = new ParseSubscriber<ParseUser>(this) {
+                @Override
+                public void onCompleted() {
+                    super.onCompleted();
+                    mCurrentSubscription = null;
 
-                        onActivitySuccess();
-                    }
+                    dismissLoading();
 
-                    @Override
-                    public void onError(Throwable e) {
-                        dismissLoading();
-                        handleAuthenticationError(e);
-                    }
+                    onActivitySuccess();
+                }
 
-                    @Override
-                    public void onNext(ParseUser o) {
+                @Override
+                public void onError(Throwable e) {
+                    mCurrentSubscription = null;
+                    dismissLoading();
+                    handleAuthenticationError(e);
+                }
 
-                    }
+                @Override
+                public void onStart() {
+                    showLoading();
+                }
+            };
 
-                    @Override
-                    public void onStart() {
-                        showLoading();
-                    }
-                };
-
-                parseUtils.login(username, password)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(subscriber);
-            }
+            mCurrentSubscription = parseUtils.login(username, password)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(subscriber);
         } else {
             showSnackbar(R.string.snackbar_no_internet, Snackbar.LENGTH_SHORT, null);
         }
@@ -135,13 +144,15 @@ public class ActivityAuthenticate extends ActivityBase
                 @Override
                 public void onCompleted() {
                     super.onCompleted();
+                    mCurrentSubscription = null;
                     dismissLoading();
                     onActivitySuccess();
                 }
 
                 @Override
-                public void onNext(Void aVoid) {
-
+                public void onError(Throwable e) {
+                    super.onError(e);
+                    mCurrentSubscription = null;
                 }
 
                 @Override
@@ -151,7 +162,7 @@ public class ActivityAuthenticate extends ActivityBase
                 }
             };
 
-            parseUtils.logout()
+            mCurrentSubscription = parseUtils.logout()
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(parseSubscriber);
@@ -195,6 +206,9 @@ public class ActivityAuthenticate extends ActivityBase
                 @Override
                 public void onCompleted() {
                     super.onCompleted();
+
+                    mCurrentSubscription = null;
+
                     dismissLoading();
 
                     FragmentLogin fragmentLogin = (FragmentLogin) getFragmentManager()
@@ -213,8 +227,9 @@ public class ActivityAuthenticate extends ActivityBase
                 }
 
                 @Override
-                public void onNext(Object o) {
-
+                public void onError(Throwable e) {
+                    super.onError(e);
+                    mCurrentSubscription = null;
                 }
 
                 @Override
@@ -224,7 +239,7 @@ public class ActivityAuthenticate extends ActivityBase
                 }
             };
 
-            parseUtils.resetPassword(email)
+            mCurrentSubscription = parseUtils.resetPassword(email)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(parseSubscriber);
@@ -256,53 +271,47 @@ public class ActivityAuthenticate extends ActivityBase
     @Override
     public void onSignupCreate(String email, String password, String name) {
         if (hasInternet()) {
-            if (!mProgressDialog.isShowing()) {
-                ParseSubscriber<ParseUser> parseSubscriber = new ParseSubscriber<ParseUser>(this) {
-                    @Override
-                    public void onCompleted() {
-                        super.onCompleted();
-                        dismissLoading();
+            ParseSubscriber<ParseUser> parseSubscriber = new ParseSubscriber<ParseUser>(this) {
+                @Override
+                public void onCompleted() {
+                    super.onCompleted();
+                    dismissLoading();
 
-                        onActivitySuccess();
-                    }
+                    mCurrentSubscription = null;
 
-                    @Override
-                    public void onNext(ParseUser parseUser) {
-                    }
+                    onActivitySuccess();
+                }
 
-                    @Override
-                    public void onError(Throwable e) {
-                        super.onError(e);
-                        dismissLoading();
-                    }
+                @Override
+                public void onError(Throwable e) {
+                    super.onError(e);
+                    dismissLoading();
 
-                    @Override
-                    public void onStart() {
-                        super.onStart();
-                        showLoading();
-                    }
-                };
+                    mCurrentSubscription = null;
+                }
 
-                parseUtils.signup(email, password, name)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(parseSubscriber);
-            }
+                @Override
+                public void onStart() {
+                    super.onStart();
+                    showLoading();
+                }
+            };
+
+            mCurrentSubscription = parseUtils.signup(email, password, name)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(parseSubscriber);
         } else {
             showSnackbar(R.string.snackbar_no_internet, Snackbar.LENGTH_SHORT, null);
         }
     }
 
     private void showLoading() {
-        if (!mProgressDialog.isShowing()) {
-            mProgressDialog.show();
-        }
+        mProgressDialog.show();
     }
 
     private void dismissLoading() {
-        if (mProgressDialog.isShowing()) {
-            mProgressDialog.dismiss();
-        }
+        mProgressDialog.dismiss();
     }
 
     private void onActivitySuccess() {

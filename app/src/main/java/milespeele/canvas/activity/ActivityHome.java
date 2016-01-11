@@ -25,6 +25,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
 
+import com.parse.ParseUser;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -91,11 +93,6 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
             @Override
             public void onDrawerClosed(View drawerView) {
                 ViewUtils.systemUIGone(getWindow().getDecorView());
-            }
-
-            @Override
-            public void onDrawerOpened(View drawerView) {
-//                ViewUtils.systemUIVisibile(getWindow().getDecorView());
             }
         });
         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
@@ -300,12 +297,14 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
             }
 
             @Override
-            public void onNext(byte[] bytes) {}
+            public void onNext(byte[] bytes) {
+
+            }
 
             @Override
             public void onStart() {
                 super.onStart();
-                fragmentDrawer.getRootView().startSaveAnimation();
+                fragmentDrawer.getRootView().startSaveBitmapAnimation();
             }
         };
 
@@ -325,7 +324,8 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
         if (NetworkUtils.hasInternet(this)) {
             FragmentDrawer drawer = getFragmentDrawer();
 
-            ParseSubscriber<byte[]> parseSubscriber = new ParseSubscriber<byte[]>(this, drawer.getRootView()) {
+            ParseSubscriber<ParseUser> parseSubscriber =
+                    new ParseSubscriber<ParseUser>(this, drawer.getRootView()) {
                 @Override
                 public void onCompleted() {
                     ((ViewFab) findViewById(R.id.menu_upload)).stopSaveAnimation();
@@ -339,8 +339,9 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
                 }
 
                 @Override
-                public void onNext(byte[] bytes) {
-
+                public void onError(Throwable e) {
+                    super.onError(e);
+                    ((ViewFab) findViewById(R.id.menu_upload)).stopSaveAnimation();
                 }
             };
 

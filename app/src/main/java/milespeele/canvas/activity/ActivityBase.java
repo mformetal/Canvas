@@ -17,6 +17,8 @@ import com.facebook.FacebookSdk;
 import com.facebook.appevents.AppEventsLogger;
 import com.parse.ParseUser;
 
+import java.util.ArrayList;
+
 import javax.inject.Inject;
 
 import de.greenrobot.event.EventBus;
@@ -36,6 +38,7 @@ public abstract class ActivityBase extends Activity {
     @Inject EventBus bus;
 
     private CompositeSubscription mCompositeSubscription;
+    private ArrayList<Subscription> mRemovableSubscriptions;
 
     public final static int REQUEST_AUTHENTICATION_CODE = 2004;
 
@@ -45,6 +48,8 @@ public abstract class ActivityBase extends Activity {
         ((MainApp) getApplication()).getApplicationComponent().inject(this);
 
         FacebookSdk.sdkInitialize(getApplicationContext());
+
+        mRemovableSubscriptions = new ArrayList<>();
 
         mCompositeSubscription = new CompositeSubscription();
     }
@@ -70,11 +75,13 @@ public abstract class ActivityBase extends Activity {
     }
 
     public void addSubscription(Subscription subscription) {
+        mRemovableSubscriptions.add(subscription);
         mCompositeSubscription.add(subscription);
     }
 
     public void removeSubscription(Subscription subscription) {
         mCompositeSubscription.remove(subscription);
+        mRemovableSubscriptions.remove(subscription);
     }
 
     public boolean hasInternet() {
