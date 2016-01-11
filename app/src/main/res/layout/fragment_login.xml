@@ -85,21 +85,28 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
-    <com.facebook.login.widget.LoginButton
+    <milespeele.canvas.view.ViewTypefaceButton
+        android:layout_margin="@dimen/parse_login_ui_signup_margin"
         android:id="@+id/fragment_login_fb_login"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_margin="@dimen/parse_login_ui_signup_margin"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        app:backgroundColor="@color/facebook_blue"
+        android:textAllCaps="false"
         android:textSize="@dimen/medium_text_size"
-        android:padding="20dp"
-        android:gravity="center" />
+        android:text="@string/parse_login_facebook_login"
+        android:textColor="@android:color/white" />
 
-    <com.twitter.sdk.android.core.identity.TwitterLoginButton
+    <milespeele.canvas.view.ViewTypefaceButton
         android:layout_margin="@dimen/parse_login_ui_signup_margin"
         android:id="@+id/fragment_login_twitter_login"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        app:backgroundColor="@color/twitter_blue"
+        android:textAllCaps="false"
         android:textSize="@dimen/medium_text_size"
-        android:gravity="center" />
+        android:text="@string/parse_login_twitter_login"
+        android:textColor="@android:color/white" />
 
 </LinearLayout>

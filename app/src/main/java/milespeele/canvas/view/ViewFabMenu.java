@@ -467,10 +467,6 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
         }
     }
 
-    public void onEvent(EventParseError eventParseError) {
-        saver.stopSaveAnimation();
-    }
-
     public boolean isVisible() {
         return isMenuShowing && getVisibility() == View.VISIBLE;
     }

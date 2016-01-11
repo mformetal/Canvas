@@ -1,17 +1,14 @@
 package milespeele.canvas.activity;
 
-import android.animation.ObjectAnimator;
 import android.app.FragmentManager;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.design.widget.Snackbar;
 import android.transition.Transition;
 import android.transition.TransitionInflater;
 import android.view.View;
-import android.widget.LinearLayout;
 
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -19,22 +16,23 @@ import com.facebook.FacebookException;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.parse.ParseException;
+import com.parse.ParseFacebookUtils;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 import com.twitter.sdk.android.core.Callback;
 import com.twitter.sdk.android.core.Result;
 import com.twitter.sdk.android.core.TwitterException;
 import com.twitter.sdk.android.core.TwitterSession;
 import com.twitter.sdk.android.core.identity.TwitterLoginButton;
 
+import java.util.Arrays;
+
 import milespeele.canvas.R;
-import milespeele.canvas.fragment.FragmentBase;
 import milespeele.canvas.fragment.FragmentLogin;
 import milespeele.canvas.fragment.FragmentSignup;
 import milespeele.canvas.parse.ParseSubscriber;
 import milespeele.canvas.parse.ParseUtils;
 import milespeele.canvas.util.Logg;
-import milespeele.canvas.util.ViewUtils;
-import milespeele.canvas.view.ViewSaveAnimator;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -51,17 +49,11 @@ public class ActivityAuthenticate extends ActivityBase
     }
 
     private ProgressDialog mProgressDialog;
-    private CallbackManager mCallbackManager;
-    private TwitterLoginButton mTwitterLoginButton;
-    private LoginButton mFacebookLoginButton;
-    private Subscription mCurrentSubscription;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_authenticate);
-
-        mCallbackManager = CallbackManager.Factory.create();
 
         mProgressDialog = new ProgressDialog(this);
         mProgressDialog.setMessage(getResources().getString(R.string.parse_login_loading_dialog));
@@ -75,19 +67,14 @@ public class ActivityAuthenticate extends ActivityBase
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        mCallbackManager.onActivityResult(requestCode, resultCode, data);
-        mTwitterLoginButton.onActivityResult(requestCode, resultCode, data);
+        ParseFacebookUtils.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
     public void onBackPressed() {
         if (mProgressDialog.isShowing()) {
             mProgressDialog.dismiss();
-
-            if (mCurrentSubscription != null) {
-                mCurrentSubscription.unsubscribe();
-                mCurrentSubscription = null;
-            }
+            removeLastSubscription();
             return;
         }
 
@@ -109,7 +96,6 @@ public class ActivityAuthenticate extends ActivityBase
                 @Override
                 public void onCompleted() {
                     super.onCompleted();
-                    mCurrentSubscription = null;
 
                     dismissLoading();
 
@@ -118,7 +104,6 @@ public class ActivityAuthenticate extends ActivityBase
 
                 @Override
                 public void onError(Throwable e) {
-                    mCurrentSubscription = null;
                     dismissLoading();
                     handleAuthenticationError(e);
                 }
@@ -129,7 +114,7 @@ public class ActivityAuthenticate extends ActivityBase
                 }
             };
 
-            mCurrentSubscription = parseUtils.login(username, password)
+             parseUtils.loginWithParse(username, password)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(subscriber);
@@ -145,7 +130,6 @@ public class ActivityAuthenticate extends ActivityBase
                 @Override
                 public void onCompleted() {
                     super.onCompleted();
-                    mCurrentSubscription = null;
                     dismissLoading();
                     onActivitySuccess();
                 }
@@ -153,7 +137,6 @@ public class ActivityAuthenticate extends ActivityBase
                 @Override
                 public void onError(Throwable e) {
                     super.onError(e);
-                    mCurrentSubscription = null;
                 }
 
                 @Override
@@ -163,7 +146,7 @@ public class ActivityAuthenticate extends ActivityBase
                 }
             };
 
-            mCurrentSubscription = parseUtils.logout()
+            parseUtils.logoutWithParse()
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(parseSubscriber);
@@ -208,8 +191,6 @@ public class ActivityAuthenticate extends ActivityBase
                 public void onCompleted() {
                     super.onCompleted();
 
-                    mCurrentSubscription = null;
-
                     dismissLoading();
 
                     FragmentLogin fragmentLogin = (FragmentLogin) getFragmentManager()
@@ -230,7 +211,6 @@ public class ActivityAuthenticate extends ActivityBase
                 @Override
                 public void onError(Throwable e) {
                     super.onError(e);
-                    mCurrentSubscription = null;
                 }
 
                 @Override
@@ -240,7 +220,7 @@ public class ActivityAuthenticate extends ActivityBase
                 }
             };
 
-            mCurrentSubscription = parseUtils.resetPassword(email)
+             parseUtils.resetParsePassword(email)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(parseSubscriber);
@@ -250,20 +230,63 @@ public class ActivityAuthenticate extends ActivityBase
     }
 
     @Override
-    public void onLoginAvailable(LoginButton loginButton, TwitterLoginButton twitterLoginButton) {
-        mFacebookLoginButton = loginButton;
-        mTwitterLoginButton = twitterLoginButton;
+    public void onFacebookClicked() {
+        if (hasInternet()) {
+            ParseSubscriber<ParseUser> subscriber = new ParseSubscriber<ParseUser>(this) {
+                @Override
+                public void onCompleted() {
+                    super.onCompleted();
+                    onActivitySuccess();
+                }
+            };
 
-        if (isApplicationInstalled("com.twitter.android")
-                && mTwitterLoginButton.getVisibility() != View.GONE) {
-            mTwitterLoginButton.setCallback(twitterCallback);
-            mTwitterLoginButton.setOnClickListener(this);
+            if (parseUtils.isParseUserAvailable()) {
+                parseUtils.linkToFacebook(this)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(subscriber);
+            } else {
+                parseUtils.loginWithFacebook(this)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(subscriber);
+            }
+        } else {
+            showSnackbar(R.string.snackbar_no_internet, Snackbar.LENGTH_SHORT, null);
         }
+    }
 
-        if (isApplicationInstalled("com.facebook.katana")
-                && mFacebookLoginButton.getVisibility() != View.GONE) {
-            mFacebookLoginButton.registerCallback(mCallbackManager, facebookCallback);
-            mFacebookLoginButton.setOnClickListener(this);
+    @Override
+    public void onTwitterClicked() {
+        if (hasInternet()) {
+            ParseSubscriber<ParseUser> subscriber = new ParseSubscriber<ParseUser>(this) {
+                @Override
+                public void onCompleted() {
+                    super.onCompleted();
+                    dismissLoading();
+                    onActivitySuccess();
+                }
+
+                @Override
+                public void onStart() {
+                    super.onStart();
+                    showLoading();
+                }
+            };
+
+            if (parseUtils.isParseUserAvailable()) {
+                parseUtils.linkToTwitter(this)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(subscriber);
+            } else {
+                parseUtils.loginWithTwitter(this)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(subscriber);
+            }
+        } else {
+            showSnackbar(R.string.snackbar_no_internet, Snackbar.LENGTH_SHORT, null);
         }
     }
 
@@ -276,8 +299,6 @@ public class ActivityAuthenticate extends ActivityBase
                     super.onCompleted();
                     dismissLoading();
 
-                    mCurrentSubscription = null;
-
                     onActivitySuccess();
                 }
 
@@ -285,8 +306,6 @@ public class ActivityAuthenticate extends ActivityBase
                 public void onError(Throwable e) {
                     super.onError(e);
                     dismissLoading();
-
-                    mCurrentSubscription = null;
                 }
 
                 @Override
@@ -296,7 +315,7 @@ public class ActivityAuthenticate extends ActivityBase
                 }
             };
 
-            mCurrentSubscription = parseUtils.signup(email, password, name)
+             parseUtils.signupWithParse(email, password, name)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(parseSubscriber);

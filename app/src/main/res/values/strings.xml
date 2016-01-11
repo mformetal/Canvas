@@ -93,9 +93,11 @@
     <string name="parse_login_logout_label">Logout</string>
     <string name="parse_login_signup_label">Signup</string>
     <string name="parse_login_facebook_login">Login with Facebook</string>
+    <string name="parse_login_facebook_link">Link with Facebook</string>
     <string name="parse_login_facebook_logout">Logout from Facebook</string>
     <string name="parse_login_twitter_login">Login with Twitter</string>
     <string name="parse_login_twitter_logout">Logout with Twitter</string>
+    <string name="parse_login_twitter_link">Link with Twitter</string>
     <string name="pasre_login_twitter_error">Error with Twitter Signin</string>
     <string name="parse_login_create_account">Create Account</string>
     <string name="parse_login_forgot_password">Forgot Password?</string>

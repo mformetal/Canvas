@@ -8,7 +8,9 @@ import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.core.CrashlyticsCore;
 import com.facebook.FacebookSdk;
 import com.parse.Parse;
+import com.parse.ParseFacebookUtils;
 import com.parse.ParseObject;
+import com.parse.ParseTwitterUtils;
 import com.twitter.sdk.android.Twitter;
 import com.twitter.sdk.android.core.TwitterAuthConfig;
 import com.twitter.sdk.android.core.TwitterCore;
@@ -49,6 +51,10 @@ public class MainApp extends Application {
         Parse.initialize(this,
                 getResources().getString(R.string.parse_id),
                 getResources().getString(R.string.parse_key));
+        ParseFacebookUtils.initialize(this);
+        ParseTwitterUtils.initialize(
+                getResources().getString(R.string.twitter_key),
+                getResources().getString(R.string.twitter_secret));
 
         FacebookSdk.sdkInitialize(getApplicationContext());
 

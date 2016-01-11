@@ -18,9 +18,6 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import milespeele.canvas.R;
-import milespeele.canvas.activity.ActivityAuthenticate;
-import milespeele.canvas.parse.ParseUtils;
-import milespeele.canvas.util.Logg;
 import milespeele.canvas.view.ViewTypefaceButton;
 import milespeele.canvas.view.ViewTypefaceEditText;
 import milespeele.canvas.view.ViewTypefaceTextView;
@@ -33,8 +30,8 @@ public class FragmentLogin extends FragmentBase implements View.OnClickListener 
     public @Bind(R.id.fragment_login_title) ViewTypefaceTextView appLogo;
     public @Bind(R.id.fragment_login_username_input) ViewTypefaceEditText usernameInput;
     public @Bind(R.id.fragment_login_password_input) ViewTypefaceEditText passwordInput;
-    @Bind(R.id.fragment_login_fb_login) LoginButton loginButton;
-    @Bind(R.id.fragment_login_twitter_login) TwitterLoginButton twitterLoginButton;
+    @Bind(R.id.fragment_login_fb_login) ViewTypefaceButton facebookButton;
+    @Bind(R.id.fragment_login_twitter_login) ViewTypefaceButton twitterButton;
     @Bind(R.id.fragment_login_parse_login) ViewTypefaceButton parseLoginButton;
     @Bind(R.id.fragment_login_parse_signup) ViewTypefaceButton parseSignupButton;
     @Bind(R.id.fragment_login_help) ViewTypefaceButton parseResetButton;
@@ -59,21 +56,13 @@ public class FragmentLogin extends FragmentBase implements View.OnClickListener 
         View v = inflater.inflate(R.layout.fragment_login, container, false);
         ButterKnife.bind(this, v);
 
-        loginButton.setReadPermissions("public_profile");
 
         if (isLoggedInWithParse()) {
             ((ViewTypefaceButton) v.findViewById(R.id.fragment_login_parse_login))
                     .setText(R.string.parse_login_logout_label);
 
-            loginButton.setVisibility(View.GONE);
-            twitterLoginButton.setVisibility(View.GONE);
-        } else if (isLoggedInWithFacebook()) {
-            usernameInput.setVisibility(View.GONE);
-            passwordInput.setVisibility(View.GONE);
-            twitterLoginButton.setVisibility(View.GONE);
-            parseLoginButton.setVisibility(View.GONE);
-            parseSignupButton.setVisibility(View.GONE);
-            parseResetButton.setVisibility(View.GONE);
+            facebookButton.setText(R.string.parse_login_facebook_link);
+            twitterButton.setText(R.string.parse_login_twitter_link);
         }
 
         usernameInput.setText("mbpeele@email.wm.edu");
@@ -84,12 +73,13 @@ public class FragmentLogin extends FragmentBase implements View.OnClickListener 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        mListener.onLoginAvailable(loginButton, twitterLoginButton);
+//        mListener.onLoginAvailable(facebookButton, twitterButton);
     }
 
     @Override
     @OnClick({R.id.fragment_login_parse_login, R.id.fragment_login_parse_signup,
-                R.id.fragment_login_help})
+                R.id.fragment_login_help, R.id.fragment_login_fb_login,
+            R.id.fragment_login_twitter_login})
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.fragment_login_parse_login:
@@ -112,6 +102,11 @@ public class FragmentLogin extends FragmentBase implements View.OnClickListener 
                 if (validateUsername(email)) {
                     mListener.onResetPasswordClicked(email);
                 }
+                break;
+            case R.id.fragment_login_fb_login:
+                mListener.onFacebookClicked();
+                break;
+            case R.id.fragment_login_twitter_login:
                 break;
         }
     }
@@ -153,6 +148,8 @@ public class FragmentLogin extends FragmentBase implements View.OnClickListener 
 
         void onResetPasswordClicked(String email);
 
-        void onLoginAvailable(LoginButton loginButton, TwitterLoginButton twitterLoginButton);
+        void onFacebookClicked();
+
+        void onTwitterClicked();
     }
 }

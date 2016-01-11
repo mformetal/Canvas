@@ -84,6 +84,13 @@ public abstract class ActivityBase extends Activity {
         mRemovableSubscriptions.remove(subscription);
     }
 
+    public void removeLastSubscription() {
+        if (!mRemovableSubscriptions.isEmpty()) {
+            Subscription subscription = mRemovableSubscriptions.get(mRemovableSubscriptions.size() - 1);
+            mCompositeSubscription.remove(subscription);
+        }
+    }
+
     public boolean hasInternet() {
         ConnectivityManager manager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         return manager.getActiveNetworkInfo() != null && manager.getActiveNetworkInfo().isConnectedOrConnecting();

@@ -24,6 +24,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 
 import com.parse.ParseUser;
 
@@ -54,6 +55,7 @@ import milespeele.canvas.util.ViewUtils;
 import milespeele.canvas.view.ViewCanvasLayout;
 import milespeele.canvas.view.ViewFab;
 import milespeele.canvas.view.ViewRoundedFrameLayout;
+import milespeele.canvas.view.ViewTypefaceTextView;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -102,6 +104,8 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
         manager.beginTransaction()
                 .add(R.id.activity_home_fragment_frame, FragmentDrawer.newInstance(), TAG_FRAGMENT_DRAWER)
                 .commit();
+
+        setupHeaderView();
     }
 
     @Override
@@ -505,5 +509,10 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
 
     private FragmentDrawer getFragmentDrawer() {
         return (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
+    }
+
+    private void setupHeaderView() {
+        LinearLayout layout = (LinearLayout) navigationView.getHeaderView(0);
+        ((ViewTypefaceTextView) layout.getChildAt(1)).setText(ParseUser.getCurrentUser().getUsername());
     }
 }

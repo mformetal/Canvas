@@ -61,6 +61,8 @@ public class FileUtils {
         return Observable.create(new Observable.OnSubscribe<byte[]>() {
             @Override
             public void call(Subscriber<? super byte[]> subscriber) {
+                subscriber.onStart();
+
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
                 byte[] bytes = stream.toByteArray();
@@ -73,18 +75,19 @@ public class FileUtils {
                     subscriber.onNext(bytes);
                 } catch (IOException e) {
                     Logg.log(e);
+                    subscriber.onError(e);
                 } finally {
                     if (output != null) {
                         try {
                             output.flush();
                             output.close();
+
+                            subscriber.onCompleted();
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
                     }
                 }
-
-                subscriber.onCompleted();
             }
         });
     }
@@ -96,9 +99,8 @@ public class FileUtils {
         return options;
     }
 
-    public static int calculateInSampleSize(
-            BitmapFactory.Options options, int reqWidth, int reqHeight) {
-        // Raw height and width of image
+    public static int calculateInSampleSize(BitmapFactory.Options options,
+                                            int reqWidth, int reqHeight) {
         final int height = options.outHeight;
         final int width = options.outWidth;
         int inSampleSize = 1;
@@ -108,8 +110,6 @@ public class FileUtils {
             final int halfHeight = height / 2;
             final int halfWidth = width / 2;
 
-            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
-            // height and width larger than the requested height and width.
             while ((halfHeight / inSampleSize) > reqHeight
                     && (halfWidth / inSampleSize) > reqWidth) {
                 inSampleSize *= 2;
@@ -122,11 +122,8 @@ public class FileUtils {
     public static Bitmap getCachedBitmap(Context context) {
         Point size = new Point();
         ((Activity) context).getWindowManager().getDefaultDisplay().getSize(size);
-        int w = size.x;
-        int h = size.y;
 
         Bitmap bitmap = null;
-
         try {
             InputStream test = context.openFileInput(DRAWING_BITMAP_FILENAME);
             bitmap = BitmapFactory.decodeStream(test, null, getBitmapOptions());

@@ -64,6 +64,8 @@ dependencies {
     compile 'com.jakewharton:butterknife:7.0.1'
     compile 'com.parse.bolts:bolts-android:1.1.4'
     compile 'com.parse:parse-android:1.10.3'
+    compile 'com.parse:parsefacebookutils-v4-android:1.10.3@aar'
+    compile 'com.parse:parsetwitterutils-android:1.10.3'
     compile 'io.reactivex:rxandroid:1.1.0'
     compile 'io.reactivex:rxjava:1.0.14'
     compile 'com.infstory:rxparse:2.0.1'

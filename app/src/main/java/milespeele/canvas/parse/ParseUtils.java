@@ -6,13 +6,18 @@ import android.graphics.Bitmap;
 import android.support.design.widget.Snackbar;
 import android.view.View;
 
+import com.parse.LogInCallback;
 import com.parse.Parse;
 import com.parse.ParseException;
+import com.parse.ParseFacebookUtils;
 import com.parse.ParseFile;
+import com.parse.ParseTwitterUtils;
 import com.parse.ParseUser;
 import com.parse.RequestPasswordResetCallback;
+import com.parse.SaveCallback;
 import com.parse.SignUpCallback;
 
+import java.util.Arrays;
 import java.util.concurrent.Callable;
 
 import javax.inject.Inject;
@@ -40,10 +45,25 @@ public class ParseUtils {
 
     @Inject EventBus bus;
 
-    public final static String MASTERPIECE_RELATION = "Masterpieces";
+    private final static String MASTERPIECE_RELATION = "Masterpieces";
+    private final static String USER_NAME_FIELD = "name";
 
     public ParseUtils(Application mApplication) {
         ((MainApp) mApplication).getApplicationComponent().inject(this);
+    }
+
+    public String getParseName() {
+        ParseUser user = ParseUser.getCurrentUser();
+        if (user != null && user.isAuthenticated()) {
+            return (String) user.get(USER_NAME_FIELD);
+        } else {
+            return "Sign In!";
+        }
+    }
+
+    public boolean isParseUserAvailable() {
+        ParseUser user = ParseUser.getCurrentUser();
+        return user != null && user.isAuthenticated();
     }
 
     public Observable uploadMasterpiece(final String filename, final Bitmap bitmap) {
@@ -68,7 +88,7 @@ public class ParseUtils {
                 });
     }
 
-    public Observable resetPassword(String email) {
+    public Observable resetParsePassword(String email) {
         return Observable.create(subscriber -> {
             subscriber.onStart();
 
@@ -82,19 +102,19 @@ public class ParseUtils {
         });
     }
 
-    public Observable<ParseUser> login(String username, String password) {
+    public Observable<ParseUser> loginWithParse(String username, String password) {
         return ParseObservable.logIn(username, password);
     }
 
-    public Observable<Void> logout() {
+    public Observable<Void> logoutWithParse() {
         return ParseObservable.logOut();
     }
 
-    public Observable<ParseUser> signup(String username, String password, String name) {
+    public Observable<ParseUser> signupWithParse(String username, String password, String name) {
         ParseUser user = new ParseUser();
         user.setUsername(username);
         user.setPassword(password);
-        user.put("name", name);
+        user.put(USER_NAME_FIELD, name);
 
         return Observable.create(subscriber -> {
             subscriber.onStart();
@@ -107,6 +127,88 @@ public class ParseUtils {
                     subscriber.onError(e);
                 }
             });
+        });
+    }
+
+    public Observable<ParseUser> linkToFacebook(ActivityBase activityBase) {
+        return Observable.create(new Observable.OnSubscribe<ParseUser>() {
+            @Override
+            public void call(Subscriber<? super ParseUser> subscriber) {
+                subscriber.onStart();
+
+                ParseFacebookUtils.linkWithReadPermissionsInBackground(
+                        ParseUser.getCurrentUser(),
+                        activityBase, Arrays.asList("public_profile"),
+                        new SaveCallback() {
+                            @Override
+                            public void done(ParseException e) {
+                                if (e == null) {
+                                    subscriber.onCompleted();
+                                } else {
+                                    subscriber.onError(e);
+                                }
+                            }
+                        });
+            }
+        });
+    }
+
+    public Observable<ParseUser> loginWithFacebook(ActivityBase activityBase) {
+        return Observable.create(new Observable.OnSubscribe<ParseUser>() {
+            @Override
+            public void call(Subscriber<? super ParseUser> subscriber) {
+                ParseFacebookUtils.logInWithReadPermissionsInBackground(
+                        activityBase,
+                        Arrays.asList("public_profile"),
+                        new LogInCallback() {
+                            @Override
+                            public void done(ParseUser user, ParseException e) {
+                                if (e == null) {
+                                    subscriber.onCompleted();
+                                } else {
+                                    subscriber.onError(e);
+                                }
+                            }
+                        });
+            }
+        });
+    }
+
+    public Observable<ParseUser> linkToTwitter(ActivityBase activityBase) {
+        return Observable.create(new Observable.OnSubscribe<ParseUser>() {
+            @Override
+            public void call(Subscriber<? super ParseUser> subscriber) {
+                ParseTwitterUtils.link(ParseUser.getCurrentUser(),
+                        activityBase,
+                        new SaveCallback() {
+                            @Override
+                            public void done(ParseException e) {
+                                if (e == null) {
+                                    subscriber.onCompleted();
+                                } else {
+                                    subscriber.onError(e);
+                                }
+                            }
+                        });
+            }
+        });
+    }
+
+    public Observable<ParseUser> loginWithTwitter(ActivityBase activityBase) {
+        return Observable.create(new Observable.OnSubscribe<ParseUser>() {
+            @Override
+            public void call(Subscriber<? super ParseUser> subscriber) {
+                ParseTwitterUtils.logIn(activityBase, new LogInCallback() {
+                    @Override
+                    public void done(ParseUser user, ParseException e) {
+                        if (e == null) {
+                            subscriber.onCompleted();
+                        } else {
+                            subscriber.onError(e);
+                        }
+                    }
+                });
+            }
         });
     }
 
