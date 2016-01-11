@@ -9,6 +9,8 @@ import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -338,6 +340,14 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
 
             if (ParseUtils.isParseUserAvailable()) {
 
+                Bitmap root = drawer.getDrawingBitmap();
+                Bitmap bitmap = Bitmap.createBitmap(root.getWidth(), root.getHeight(), Bitmap.Config.ARGB_8888);
+                Canvas canvas = new Canvas(bitmap);
+                canvas.drawColor(drawer.getRootView().getBackgroundColor());
+                canvas.drawBitmap(root, 0, 0, null);
+//                Bitmap bitmap = root.copy(Bitmap.Config.ARGB_8888, false);
+//                root.eraseColor(drawer.getRootView().getBackgroundColor());
+
                 ParseSubscriber<ParseUser> parseSubscriber = new ParseSubscriber<ParseUser>(this, drawer.getRootView()) {
 
                     ViewFab saver = (ViewFab) findViewById(R.id.menu_upload);
@@ -370,7 +380,7 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
                     }
                 };
 
-                parseUtils.uploadMasterpiece(eventFilenameChosen.filename, drawer.getDrawingBitmap())
+                parseUtils.uploadMasterpiece(eventFilenameChosen.filename, bitmap)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(parseSubscriber);

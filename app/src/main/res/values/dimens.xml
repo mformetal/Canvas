@@ -8,7 +8,7 @@
 
     <dimen name="view_save_animation_dimens">100dp</dimen>
 
-    <dimen name="gallery_image_dimens">200dp</dimen>
+    <dimen name="gallery_image_dimens">250dp</dimen>
 
     <dimen name="brush_recycler_spacing">10dp</dimen>
     
