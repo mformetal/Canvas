@@ -94,9 +94,9 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
             canvas.drawPaint(mShadowPaint);
 
             int paintAlpha = mShadowPaint.getAlpha();
-            float viewAlpha = paintAlpha / 255;
-            fabMenu.setAlpha(1 - viewAlpha);
-            optionsMenu.setAlpha(1 - viewAlpha);
+            float viewAlpha = paintAlpha / 255f;
+            fabMenu.setAlpha(1f - viewAlpha);
+            optionsMenu.setAlpha(1f - viewAlpha);
         }
         return super.drawChild(canvas, child, drawingTime);
     }
