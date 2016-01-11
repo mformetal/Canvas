@@ -18,6 +18,8 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import milespeele.canvas.R;
+import milespeele.canvas.parse.ParseUtils;
+import milespeele.canvas.util.Logg;
 import milespeele.canvas.view.ViewTypefaceButton;
 import milespeele.canvas.view.ViewTypefaceEditText;
 import milespeele.canvas.view.ViewTypefaceTextView;
@@ -57,13 +59,12 @@ public class FragmentLogin extends FragmentBase implements View.OnClickListener 
         ButterKnife.bind(this, v);
 
 
-        if (isLoggedInWithParse()) {
-            ((ViewTypefaceButton) v.findViewById(R.id.fragment_login_parse_login))
-                    .setText(R.string.parse_login_logout_label);
-
-            facebookButton.setText(R.string.parse_login_facebook_link);
-            twitterButton.setText(R.string.parse_login_twitter_link);
+        if (ParseUtils.isParseUserAvailable()) {
+            parseLoginButton.setText(R.string.parse_login_logout_label);
         }
+
+        facebookButton.setVisibility(View.GONE);
+        twitterButton.setVisibility(View.GONE);
 
         usernameInput.setText("mbpeele@email.wm.edu");
         passwordInput.setText("test");
@@ -83,15 +84,10 @@ public class FragmentLogin extends FragmentBase implements View.OnClickListener 
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.fragment_login_parse_login:
-                if (Objects.equals(parseLoginButton.getTextAsString(),
-                        getResources().getString(R.string.parse_login_login_label))) {
-                    String username = usernameInput.getTextAsString();
-                    String password = passwordInput.getTextAsString();
-                    if (validateUsername(username) && validatePassword(password)) {
-                        mListener.onParseLoginClicked(username, password);
-                    }
-                } else {
-                    mListener.onParseLogoutClicked();
+                String username = usernameInput.getTextAsString();
+                String password = passwordInput.getTextAsString();
+                if (validateUsername(username) && validatePassword(password)) {
+                    mListener.onParseLoginClicked(username, password);
                 }
                 break;
             case R.id.fragment_login_parse_signup:
@@ -107,6 +103,7 @@ public class FragmentLogin extends FragmentBase implements View.OnClickListener 
                 mListener.onFacebookClicked();
                 break;
             case R.id.fragment_login_twitter_login:
+                mListener.onTwitterClicked();
                 break;
         }
     }
@@ -129,20 +126,9 @@ public class FragmentLogin extends FragmentBase implements View.OnClickListener 
         return true;
     }
 
-    private boolean isLoggedInWithParse() {
-        return ParseUser.getCurrentUser() != null && ParseUser.getCurrentUser().isAuthenticated();
-    }
-
-    private boolean isLoggedInWithFacebook() {
-        AccessToken accessToken = AccessToken.getCurrentAccessToken();
-        return accessToken != null && !accessToken.isExpired();
-    }
-
     public interface FragmentLoginListener {
 
         void onParseLoginClicked(String username, String password);
-
-        void onParseLogoutClicked();
 
         void onSignupClicked();
 

@@ -15,6 +15,7 @@ import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
+import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseUser;
@@ -90,9 +91,10 @@ public class ActivityAuthenticate extends ActivityBase
     public void onClick(View v) {}
 
     @Override
+    @SuppressWarnings("unchecked")
     public void onParseLoginClicked(String username, String password) {
         if (hasInternet()) {
-            ParseSubscriber<ParseUser> subscriber = new ParseSubscriber<ParseUser>(this) {
+            ParseSubscriber subscriber = new ParseSubscriber(this) {
                 @Override
                 public void onCompleted() {
                     super.onCompleted();
@@ -114,42 +116,17 @@ public class ActivityAuthenticate extends ActivityBase
                 }
             };
 
-             parseUtils.loginWithParse(username, password)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(subscriber);
-        } else {
-            showSnackbar(R.string.snackbar_no_internet, Snackbar.LENGTH_SHORT, null);
-        }
-    }
-
-    @Override
-    public void onParseLogoutClicked() {
-        if (hasInternet()) {
-            ParseSubscriber<Void> parseSubscriber = new ParseSubscriber<Void>(this) {
-                @Override
-                public void onCompleted() {
-                    super.onCompleted();
-                    dismissLoading();
-                    onActivitySuccess();
-                }
-
-                @Override
-                public void onError(Throwable e) {
-                    super.onError(e);
-                }
-
-                @Override
-                public void onStart() {
-                    super.onStart();
-                    showLoading();
-                }
-            };
-
-            parseUtils.logoutWithParse()
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(parseSubscriber);
+            if (ParseUtils.isParseUserAvailable()) {
+                parseUtils.logoutWithParse()
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(subscriber);
+            } else {
+                parseUtils.loginWithParse(username, password)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(subscriber);
+            }
         } else {
             showSnackbar(R.string.snackbar_no_internet, Snackbar.LENGTH_SHORT, null);
         }
@@ -211,6 +188,7 @@ public class ActivityAuthenticate extends ActivityBase
                 @Override
                 public void onError(Throwable e) {
                     super.onError(e);
+                    dismissLoading();
                 }
 
                 @Override
@@ -240,17 +218,10 @@ public class ActivityAuthenticate extends ActivityBase
                 }
             };
 
-            if (parseUtils.isParseUserAvailable()) {
-                parseUtils.linkToFacebook(this)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(subscriber);
-            } else {
-                parseUtils.loginWithFacebook(this)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(subscriber);
-            }
+            parseUtils.loginWithFacebook(this)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(subscriber);
         } else {
             showSnackbar(R.string.snackbar_no_internet, Snackbar.LENGTH_SHORT, null);
         }
@@ -263,28 +234,13 @@ public class ActivityAuthenticate extends ActivityBase
                 @Override
                 public void onCompleted() {
                     super.onCompleted();
-                    dismissLoading();
                     onActivitySuccess();
-                }
-
-                @Override
-                public void onStart() {
-                    super.onStart();
-                    showLoading();
                 }
             };
 
-            if (parseUtils.isParseUserAvailable()) {
-                parseUtils.linkToTwitter(this)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(subscriber);
-            } else {
-                parseUtils.loginWithTwitter(this)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(subscriber);
-            }
+            parseUtils.loginWithTwitter(this)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(subscriber);
         } else {
             showSnackbar(R.string.snackbar_no_internet, Snackbar.LENGTH_SHORT, null);
         }
@@ -297,7 +253,6 @@ public class ActivityAuthenticate extends ActivityBase
                 @Override
                 public void onCompleted() {
                     super.onCompleted();
-                    dismissLoading();
 
                     onActivitySuccess();
                 }
@@ -333,6 +288,7 @@ public class ActivityAuthenticate extends ActivityBase
     }
 
     private void onActivitySuccess() {
+        Logg.log("SUCCESS");
         setResult(RESULT_OK);
         finish();
     }
@@ -352,33 +308,4 @@ public class ActivityAuthenticate extends ActivityBase
             }
         }
     }
-
-    private final FacebookCallback<LoginResult> facebookCallback = new FacebookCallback<LoginResult>() {
-        @Override
-        public void onSuccess(LoginResult loginResult) {
-            onActivitySuccess();
-        }
-
-        @Override
-        public void onCancel() {
-            Logg.log("FACEBOOK CANCEL");
-        }
-
-        @Override
-        public void onError(FacebookException error) {
-            Logg.log("FACEBOOK ERROR", error);
-        }
-    };
-
-    private final Callback<TwitterSession> twitterCallback = new Callback<TwitterSession>() {
-        @Override
-        public void success(Result<TwitterSession> result) {
-            Logg.log("TWITTER SUCCESS");
-        }
-
-        @Override
-        public void failure(TwitterException e) {
-            showSnackbar(R.string.pasre_login_twitter_error, Snackbar.LENGTH_SHORT, null);
-        }
-    };
 }

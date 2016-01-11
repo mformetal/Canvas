@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.support.design.widget.Snackbar;
 import android.view.View;
 
+import com.facebook.AccessToken;
 import com.parse.LogInCallback;
 import com.parse.Parse;
 import com.parse.ParseException;
@@ -52,7 +53,7 @@ public class ParseUtils {
         ((MainApp) mApplication).getApplicationComponent().inject(this);
     }
 
-    public String getParseName() {
+    public static String getParseName() {
         ParseUser user = ParseUser.getCurrentUser();
         if (user != null && user.isAuthenticated()) {
             return (String) user.get(USER_NAME_FIELD);
@@ -61,9 +62,24 @@ public class ParseUtils {
         }
     }
 
-    public boolean isParseUserAvailable() {
+    public static boolean isParseUserAvailable() {
         ParseUser user = ParseUser.getCurrentUser();
         return user != null && user.isAuthenticated();
+    }
+
+    public static boolean isLinkedWithFacebook() {
+        ParseUser user = ParseUser.getCurrentUser();
+        return isParseUserAvailable() && ParseFacebookUtils.isLinked(user);
+    }
+
+    public static boolean isLinkedWithTwitter() {
+        ParseUser user = ParseUser.getCurrentUser();
+        return isParseUserAvailable() && ParseTwitterUtils.isLinked(user);
+    }
+
+    public static boolean isLoggedInWithFacebook() {
+        AccessToken token = AccessToken.getCurrentAccessToken();
+        return token != null && !token.isExpired();
     }
 
     public Observable uploadMasterpiece(final String filename, final Bitmap bitmap) {
@@ -130,29 +146,6 @@ public class ParseUtils {
         });
     }
 
-    public Observable<ParseUser> linkToFacebook(ActivityBase activityBase) {
-        return Observable.create(new Observable.OnSubscribe<ParseUser>() {
-            @Override
-            public void call(Subscriber<? super ParseUser> subscriber) {
-                subscriber.onStart();
-
-                ParseFacebookUtils.linkWithReadPermissionsInBackground(
-                        ParseUser.getCurrentUser(),
-                        activityBase, Arrays.asList("public_profile"),
-                        new SaveCallback() {
-                            @Override
-                            public void done(ParseException e) {
-                                if (e == null) {
-                                    subscriber.onCompleted();
-                                } else {
-                                    subscriber.onError(e);
-                                }
-                            }
-                        });
-            }
-        });
-    }
-
     public Observable<ParseUser> loginWithFacebook(ActivityBase activityBase) {
         return Observable.create(new Observable.OnSubscribe<ParseUser>() {
             @Override
@@ -174,26 +167,6 @@ public class ParseUtils {
         });
     }
 
-    public Observable<ParseUser> linkToTwitter(ActivityBase activityBase) {
-        return Observable.create(new Observable.OnSubscribe<ParseUser>() {
-            @Override
-            public void call(Subscriber<? super ParseUser> subscriber) {
-                ParseTwitterUtils.link(ParseUser.getCurrentUser(),
-                        activityBase,
-                        new SaveCallback() {
-                            @Override
-                            public void done(ParseException e) {
-                                if (e == null) {
-                                    subscriber.onCompleted();
-                                } else {
-                                    subscriber.onError(e);
-                                }
-                            }
-                        });
-            }
-        });
-    }
-
     public Observable<ParseUser> loginWithTwitter(ActivityBase activityBase) {
         return Observable.create(new Observable.OnSubscribe<ParseUser>() {
             @Override
@@ -201,10 +174,11 @@ public class ParseUtils {
                 ParseTwitterUtils.logIn(activityBase, new LogInCallback() {
                     @Override
                     public void done(ParseUser user, ParseException e) {
-                        if (e == null) {
-                            subscriber.onCompleted();
-                        } else {
+                        Logg.log("DONE");
+                        if (user != null && e != null) {
                             subscriber.onError(e);
+                        } else {
+                            subscriber.onCompleted();
                         }
                     }
                 });

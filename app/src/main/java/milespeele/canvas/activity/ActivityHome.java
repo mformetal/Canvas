@@ -513,6 +513,8 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
 
     private void setupHeaderView() {
         LinearLayout layout = (LinearLayout) navigationView.getHeaderView(0);
-        ((ViewTypefaceTextView) layout.getChildAt(1)).setText(ParseUser.getCurrentUser().getUsername());
+        if (parseUtils.isParseUserAvailable()) {
+            ((ViewTypefaceTextView) layout.getChildAt(1)).setText(ParseUtils.getParseName());
+        }
     }
 }
