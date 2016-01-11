@@ -16,6 +16,7 @@ import android.view.View;
 import com.facebook.FacebookSdk;
 import com.facebook.appevents.AppEventsLogger;
 import com.parse.ParseUser;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -36,6 +37,7 @@ public abstract class ActivityBase extends Activity {
 
     @Inject ParseUtils parseUtils;
     @Inject EventBus bus;
+    @Inject Picasso picasso;
 
     private CompositeSubscription mCompositeSubscription;
     private ArrayList<Subscription> mRemovableSubscriptions;
@@ -47,23 +49,9 @@ public abstract class ActivityBase extends Activity {
         super.onCreate(savedInstanceState);
         ((MainApp) getApplication()).getApplicationComponent().inject(this);
 
-        FacebookSdk.sdkInitialize(getApplicationContext());
-
         mRemovableSubscriptions = new ArrayList<>();
 
         mCompositeSubscription = new CompositeSubscription();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        AppEventsLogger.activateApp(this, getResources().getString(R.string.facebook_id));
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        AppEventsLogger.deactivateApp(this, getResources().getString(R.string.facebook_id));
     }
 
     @Override
@@ -120,14 +108,5 @@ public abstract class ActivityBase extends Activity {
             snackbar.setAction("Aight", onClickListener);
         }
         snackbar.show();
-    }
-
-    public boolean isApplicationInstalled(String name) {
-        try {
-            getPackageManager().getApplicationInfo("com.twitter.android", 0);
-            return true;
-        } catch (PackageManager.NameNotFoundException e) {
-            return false;
-        }
     }
 }

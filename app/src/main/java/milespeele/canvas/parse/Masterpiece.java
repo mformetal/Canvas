@@ -24,4 +24,6 @@ public class Masterpiece extends ParseObject {
     }
 
     public void setTitle(String name) { put(TITLE_KEY, name); }
+
+    public String getTitle() { return getString(TITLE_KEY); }
 }

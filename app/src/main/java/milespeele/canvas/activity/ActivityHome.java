@@ -206,12 +206,23 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
 
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        startLoginActivity(REQUEST_AUTHENTICATION_CODE);
-
         switch (item.getItemId()) {
             case R.id.menu_drawer_header_profile:
                 break;
             case R.id.menu_drawer_header_gallery:
+                if (ParseUtils.isParseUserAvailable()) {
+                    startActivity(ActivityGallery.newIntent(this));
+                } else {
+                    showSnackbar(getFragmentDrawer().getRootView(),
+                            R.string.parse_error_invalid_session,
+                            Snackbar.LENGTH_INDEFINITE,
+                            new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    startLoginActivity(ActivityBase.REQUEST_AUTHENTICATION_CODE);
+                                }
+                            });
+                }
                 break;
             case R.id.menu_drawer_header_feed:
                 break;
@@ -327,43 +338,55 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
         if (hasInternet()) {
             FragmentDrawer drawer = getFragmentDrawer();
 
-            ParseSubscriber<ParseUser> parseSubscriber = new ParseSubscriber<ParseUser>(this, drawer.getRootView()) {
+            if (ParseUtils.isParseUserAvailable()) {
 
-                ViewFab saver = (ViewFab) findViewById(R.id.menu_upload);
+                ParseSubscriber<ParseUser> parseSubscriber = new ParseSubscriber<ParseUser>(this, drawer.getRootView()) {
 
-                @Override
-                public void onStart() {
-                    super.onStart();
-                    saver.startSaveAnimation();
-                }
+                    ViewFab saver = (ViewFab) findViewById(R.id.menu_upload);
 
-                @Override
-                public void onCompleted() {
-                    if (saver != null) {
-                        saver.stopSaveAnimation();
+                    @Override
+                    public void onStart() {
+                        super.onStart();
+                        saver.startSaveAnimation();
                     }
 
-                    if (drawer.getRootView() != null) {
-                        Snackbar.make(drawer.getRootView(),
-                                R.string.snackbar_activity_home_image_saved_title,
-                                Snackbar.LENGTH_LONG)
-                                .show();
-                    }
-                }
+                    @Override
+                    public void onCompleted() {
+                        if (saver != null) {
+                            saver.stopSaveAnimation();
+                        }
 
-                @Override
-                public void onError(Throwable e) {
-                    super.onError(e);
-                    if (saver != null) {
-                        saver.stopSaveAnimation();
+                        if (drawer.getRootView() != null) {
+                            showSnackbar(drawer.getRootView(),
+                                    R.string.snackbar_activity_home_image_saved_title,
+                                    Snackbar.LENGTH_LONG, null);
+                        }
                     }
-                }
-            };
 
-            parseUtils.uploadMasterpiece(eventFilenameChosen.filename, drawer.getDrawingBitmap())
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(parseSubscriber);
+                    @Override
+                    public void onError(Throwable e) {
+                        super.onError(e);
+                        if (saver != null) {
+                            saver.stopSaveAnimation();
+                        }
+                    }
+                };
+
+                parseUtils.uploadMasterpiece(eventFilenameChosen.filename, drawer.getDrawingBitmap())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(parseSubscriber);
+            } else {
+                showSnackbar(drawer.getRootView(),
+                        R.string.parse_error_invalid_session,
+                        Snackbar.LENGTH_INDEFINITE,
+                        new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                startLoginActivity(ActivityBase.REQUEST_AUTHENTICATION_CODE);
+                            }
+                        });
+            }
         } else {
             showSnackBar(R.string.snackbar_no_internet, Snackbar.LENGTH_LONG);
         }

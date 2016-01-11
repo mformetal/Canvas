@@ -7,11 +7,13 @@ import android.support.design.widget.Snackbar;
 import android.view.View;
 
 import com.facebook.AccessToken;
+import com.parse.FindCallback;
 import com.parse.LogInCallback;
 import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseFile;
+import com.parse.ParseRelation;
 import com.parse.ParseTwitterUtils;
 import com.parse.ParseUser;
 import com.parse.RequestPasswordResetCallback;
@@ -19,6 +21,7 @@ import com.parse.SaveCallback;
 import com.parse.SignUpCallback;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.Callable;
 
 import javax.inject.Inject;
@@ -102,6 +105,13 @@ public class ParseUtils {
                         return ParseObservable.saveEventually(ParseUser.getCurrentUser());
                     }
                 });
+    }
+
+    public Observable<Masterpiece> getMasterpieces() {
+        ParseRelation<Masterpiece> relation = ParseUser.getCurrentUser().getRelation(MASTERPIECE_RELATION);
+        return ParseObservable.all(relation.getQuery())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
     }
 
     public Observable resetParsePassword(String email) {

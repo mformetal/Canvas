@@ -27,6 +27,10 @@
         </activity>
 
         <activity
+            android:name=".activity.ActivityGallery"
+            android:windowSoftInputMode="stateHidden" />
+
+        <activity
             android:name=".activity.ActivityAuthenticate"
             android:windowSoftInputMode="stateHidden|adjustPan"
             android:theme="@style/DialogActivity"

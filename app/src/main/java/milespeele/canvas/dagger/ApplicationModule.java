@@ -3,6 +3,8 @@ package milespeele.canvas.dagger;
 import android.app.ActivityManager;
 import android.app.Application;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.os.Build;
 
 import com.squareup.picasso.Cache;
 import com.squareup.picasso.LruCache;
@@ -55,7 +57,10 @@ public class ApplicationModule {
     @Provides
     @Singleton
     public Picasso getPicasso(Application mApplication) {
-        return new Picasso.Builder(mApplication).build();
+        Picasso.Builder builder = new Picasso.Builder(mApplication);
+        builder.loggingEnabled(true);
+        builder.defaultBitmapConfig(Bitmap.Config.ARGB_8888);
+        return builder.build();
     }
 
     @Provides
@@ -64,4 +69,11 @@ public class ApplicationModule {
         return new EventBus();
     }
 
+    private boolean isLowMemoryDevice() {
+        if(Build.VERSION.SDK_INT >= 19) {
+            return ((ActivityManager) mApplication.getSystemService(ACTIVITY_SERVICE)).isLowRamDevice();
+        } else {
+            return false;
+        }
+    }
 }
