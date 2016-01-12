@@ -23,7 +23,7 @@ import milespeele.canvas.util.ViewUtils;
 import milespeele.canvas.view.ViewAspectRatioImage;
 import milespeele.canvas.view.ViewTypefaceTextView;
 
-public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.MasterpieceViewHolder> {
+public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.SketchViewHolder> {
 
     private Context mContext;
     private LayoutInflater mInflater;
@@ -36,13 +36,13 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.Masterpi
     }
 
     @Override
-    public MasterpieceViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public SketchViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = mInflater.inflate(R.layout.adapter_masterpieces_layout, parent, false);
-        return new MasterpieceViewHolder(view);
+        return new SketchViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(MasterpieceViewHolder holder, int position) {
+    public void onBindViewHolder(SketchViewHolder holder, int position) {
         Sketch sketch = mDataList.get(position);
 
         ViewAspectRatioImage imageView = holder.imageView;
@@ -92,15 +92,26 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.Masterpi
         notifyDataSetChanged();
     }
 
-    final static class MasterpieceViewHolder extends RecyclerView.ViewHolder {
+    public Sketch get(int pos) {
+        if (pos >= 0 && pos <= getItemCount() - 1) {
+            return mDataList.get(pos);
+        }
+
+        return null;
+    }
+
+    public final static class SketchViewHolder extends RecyclerView.ViewHolder {
 
         @Bind(R.id.adapter_masterpieces_image) ViewAspectRatioImage imageView;
         @Bind(R.id.adapter_masterpieces_title) ViewTypefaceTextView textView;
-        public boolean hasLoaded = false;
+        private boolean hasLoaded = false;
 
-        public MasterpieceViewHolder(View itemView) {
+        public SketchViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
         }
+
+        public View getImageView() { return imageView; }
+        public View getTextView() { return textView; }
     }
 }

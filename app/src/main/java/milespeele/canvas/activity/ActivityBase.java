@@ -27,6 +27,7 @@ import rx.subscriptions.CompositeSubscription;
 public abstract class ActivityBase extends Activity {
 
     @Inject EventBus bus;
+    Realm realm;
 
     private CompositeSubscription mCompositeSubscription;
     private ArrayList<Subscription> mRemovableSubscriptions;
@@ -36,6 +37,8 @@ public abstract class ActivityBase extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        realm = Realm.getDefaultInstance();
 
         ((MainApp) getApplication()).getApplicationComponent().inject(this);
 
@@ -54,6 +57,7 @@ public abstract class ActivityBase extends Activity {
     protected void onDestroy() {
         super.onDestroy();
         ButterKnife.unbind(this);
+        realm.close();
         if (mCompositeSubscription.hasSubscriptions()) {
             mCompositeSubscription.unsubscribe();
         }
@@ -89,9 +93,6 @@ public abstract class ActivityBase extends Activity {
         }
 
         return true;
-    }
-
-    public void startLoginActivity(int code) {
     }
 
     public void showSnackbar(@StringRes int res, int duration, View.OnClickListener onClickListener) {

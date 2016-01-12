@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <milespeele.canvas.view.ViewAspectRatioImage
+        android:id="@+id/activity_sketch_image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:aspectRatioEnabled="true"
+        app:aspectRatio="@dimen/aspect_ratio" />
+
+    <milespeele.canvas.view.ViewTypefaceTextView
+        android:id="@+id/activity_sketch_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_gravity="bottom|center_horizontal"
+        android:textColor="@android:color/white"
+        android:background="@android:color/black"
+        android:textSize="@dimen/large_text_size" />
+
+</LinearLayout>

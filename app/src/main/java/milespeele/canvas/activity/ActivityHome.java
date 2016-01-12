@@ -206,7 +206,7 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
             case R.id.menu_drawer_header_profile:
                 break;
             case R.id.menu_drawer_header_gallery:
-                startActivity(ActivityGallery.newIntent(this));
+                ActivityGallery.newIntent(this);
                 break;
             case R.id.menu_drawer_header_feed:
                 break;
@@ -302,7 +302,6 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
     @SuppressWarnings("unused, unchecked")
     public void onEvent(EventFilenameChosen eventFilenameChosen) {
         if (hasInternet()) {
-            Realm realm = Realm.getDefaultInstance();
             ViewFab saver = (ViewFab) findViewById(R.id.menu_upload);
             SafeSubscription<byte[]> safeSubscription = new SafeSubscription<byte[]>(this) {
                 @Override
@@ -320,8 +319,6 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
                             R.string.snackbar_activity_home_image_saved_title,
                             Snackbar.LENGTH_LONG,
                             null);
-
-                    realm.close();
                 }
 
                 @Override

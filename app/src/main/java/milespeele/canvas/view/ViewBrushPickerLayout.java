@@ -73,12 +73,12 @@ public class ViewBrushPickerLayout extends LinearLayout implements RecyclerClick
     }
 
     @Override
-    public void onItemClicked(RecyclerView recyclerView, int position, View v) {
-        ViewTypefaceButton example = (ViewTypefaceButton) v;
-
-        Paint paint = example.getExamplePaint();
-        lastSelectedPaint.set(paint);
-        mainExample.animatePaintChange(paint);
+    public void onItemClicked(RecyclerView recyclerView, RecyclerView.ViewHolder holder, View v) {
+//        ViewTypefaceButton example = (ViewTypefaceButton) v;
+//
+//        Paint paint = example.getExamplePaint();
+//        lastSelectedPaint.set(paint);
+//        mainExample.animatePaintChange(paint);
     }
 
     public void setPaint(Paint paint) {

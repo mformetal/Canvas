@@ -15,12 +15,12 @@ import milespeele.canvas.view.ViewTypefaceButton;
 /**
  * Created by Miles Peele on 9/17/2015.
  */
-public class AdapterBrushPicker extends RecyclerView.Adapter<AdapterBrushPicker.ViewHolder> {
+public class AdapterBrushPicker extends RecyclerView.Adapter<AdapterBrushPicker.BrushViewHolder> {
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    public final static class BrushViewHolder extends RecyclerView.ViewHolder {
         public ViewTypefaceButton button;
 
-        public ViewHolder(View itemView) {
+        public BrushViewHolder(View itemView) {
             super(itemView);
             button = (ViewTypefaceButton) itemView.findViewById(R.id.paint_example_layout_text);
         }
@@ -33,13 +33,13 @@ public class AdapterBrushPicker extends RecyclerView.Adapter<AdapterBrushPicker.
     }
 
     @Override
-    public AdapterBrushPicker.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
-        return new ViewHolder(LayoutInflater.from(viewGroup.getContext())
+    public BrushViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
+        return new BrushViewHolder(LayoutInflater.from(viewGroup.getContext())
                 .inflate(R.layout.adapter_paint_example_layout, viewGroup, false));
     }
 
     @Override
-    public void onBindViewHolder(AdapterBrushPicker.ViewHolder viewHolder, int i) {
+    public void onBindViewHolder(BrushViewHolder viewHolder, int i) {
         PaintExample example = dataList.get(i);
 
         ViewTypefaceButton textView = viewHolder.button;
