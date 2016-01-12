@@ -8,12 +8,8 @@ import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
 import android.animation.ValueAnimator;
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Rect;
-import android.graphics.RectF;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.MotionEventCompat;
 import android.util.AttributeSet;
@@ -23,7 +19,6 @@ import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 
 import milespeele.canvas.R;
-import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.ViewUtils;
 
 public class ViewFab extends FloatingActionButton {

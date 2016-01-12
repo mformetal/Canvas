@@ -6,7 +6,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.inputmethod.EditorInfo;
-import android.widget.Toast;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -66,12 +65,7 @@ public class FragmentText extends FragmentBase implements View.OnClickListener, 
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.fragment_text_pos_button:
-                String text = input.getTextAsString();
-                if (text.isEmpty()) {
-                    Toast.makeText(getActivity(),
-                            R.string.toast_fragment_filename_invalid,
-                            Toast.LENGTH_SHORT).show();
-                } else {
+                if (validateEnteredText()) {
                     bus.post(new EventTextChosen(input.getTextAsString()));
                     getActivity().onBackPressed();
                 }
@@ -90,5 +84,15 @@ public class FragmentText extends FragmentBase implements View.OnClickListener, 
                     .setInterpolator(new AccelerateDecelerateInterpolator())
                     .translationY(0);
         }
+    }
+
+    private boolean validateEnteredText() {
+        String text = input.getTextAsString();
+        if (text.length() == 0) {
+            input.setError("Text must not be empty!");
+            return false;
+        }
+
+        return true;
     }
 }

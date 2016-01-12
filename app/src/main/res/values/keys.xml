@@ -1,8 +1,3 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="facebook_id">839140002829673</string>
-    <string name="parse_id">QE5ZD9Q1OkUXhR3S7dRea1ubKIYA60LUrGUOgOfv</string>
-    <string name="parse_key">mbBzw87p4hrBgtIOSsX3WTSSV4CkXHgG7bNU96aR</string>
-    <string name="twitter_key">rV9zSspMD92DWkxHrNijzrff0</string>
-    <string name="twitter_secret">bVNZxVLt7LuDMPPEQa6TKR53u0H0BGM3TtgwAag3pvbPVJEx4g</string>
 </resources>

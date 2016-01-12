@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:paddingTop="?android:attr/actionBarSize"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content" >
+    android:layout_height="wrap_content">
 
     <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/activity_drawer_header_layout_image"
         android:src="@drawable/ic_face_24dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/activity_header_layout_margin" />
 
     <milespeele.canvas.view.ViewTypefaceTextView
+        android:id="@+id/activity_drawer_header_layout_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="PROFILE NAME"

@@ -14,7 +14,6 @@ import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
-import android.graphics.Region;
 import android.os.Handler;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
@@ -23,7 +22,6 @@ import android.util.Property;
 import android.view.MotionEvent;
 import android.view.SoundEffectConstants;
 import android.view.View;
-import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.LinearInterpolator;
 
@@ -93,6 +91,7 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
 
     @Override
     protected boolean drawChild(Canvas canvas, View child, long drawingTime) {
+<<<<<<< HEAD
         if (mShadowPaint.getAlpha() > 0) {
             canvas.save();
             canvas.drawPaint(mShadowPaint);
@@ -102,6 +101,15 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
             float viewAlpha = alpha / ViewUtils.MAX_ALPHA;
             fabMenu.setAlpha(1.0f - viewAlpha);
             optionsMenu.setAlpha(1.0f - viewAlpha);
+=======
+        if (mShadowPaint.getAlpha() != 0) {
+            canvas.drawPaint(mShadowPaint);
+
+            int paintAlpha = mShadowPaint.getAlpha();
+            float viewAlpha = paintAlpha / 255f;
+            fabMenu.setAlpha(1f - viewAlpha);
+            optionsMenu.setAlpha(1f - viewAlpha);
+>>>>>>> Realm
         }
         return super.drawChild(canvas, child, drawingTime);
     }
@@ -211,7 +219,7 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
         drawer.onOptionsMenuAccept();
     }
 
-    public void startSaveAnimation() {
+    public void startSaveBitmapAnimation() {
         saveAnimator.setColors(drawer.getBackgroundColor());
         saveAnimator.setTranslationY(getHeight());
 

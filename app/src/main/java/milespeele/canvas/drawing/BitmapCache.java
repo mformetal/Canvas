@@ -8,9 +8,8 @@ import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.net.Uri;
 
+import com.bumptech.glide.util.LruCache;
 import com.google.common.io.ByteStreams;
-import com.squareup.picasso.Cache;
-import com.squareup.picasso.LruCache;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -23,7 +22,6 @@ import java.util.Iterator;
 import java.util.Set;
 
 import milespeele.canvas.util.FileUtils;
-import milespeele.canvas.util.Logg;
 
 import static android.content.Context.ACTIVITY_SERVICE;
 import static android.content.pm.ApplicationInfo.FLAG_LARGE_HEAP;
@@ -61,16 +59,11 @@ class BitmapCache extends LruCache {
 
     public void add(Uri uri, Bitmap bitmap) {
         String key = uri.toString();
-        int evicts = evictionCount();
-        set(key, bitmap);
-        int newEvicts = evictionCount();
-        if (evicts != newEvicts) {
-            mReusableBitmaps.add(new SoftReference<>(bitmap));
-        }
     }
 
     public Bitmap retrieve(Uri uri) {
-        return get(uri.toString());
+//        return get(uri.toString());
+        return null;
     }
 
     public Bitmap decodeStream(InputStream inputStream) throws IOException {

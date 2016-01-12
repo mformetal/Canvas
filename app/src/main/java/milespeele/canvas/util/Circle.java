@@ -1,12 +1,6 @@
 package milespeele.canvas.util;
 
-import android.graphics.Canvas;
-import android.graphics.Rect;
 import android.graphics.RectF;
-import android.view.View;
-import android.view.ViewGroup;
-
-import java.util.ArrayList;
 
 /**
  * Created by mbpeele on 12/17/15.

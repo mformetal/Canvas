@@ -10,7 +10,7 @@ import android.graphics.Color;
  */
 public class Datastore {
 
-    private SharedPreferences encryptedSharedPreferences;
+    private SharedPreferences preferences;
 
     private final static String SHARED_PREFS_KEY = "prefs";
     private final static String BACKGROUND = "background";
@@ -18,16 +18,15 @@ public class Datastore {
     private final static String REVEAL_Y = "revealy";
 
     public Datastore(Application application) {
-        encryptedSharedPreferences = application.getSharedPreferences(SHARED_PREFS_KEY,
-                Context.MODE_PRIVATE);
+        preferences = application.getSharedPreferences(SHARED_PREFS_KEY, Context.MODE_PRIVATE);
     }
 
     private SharedPreferences.Editor getEditor() {
-        return encryptedSharedPreferences.edit();
+        return preferences.edit();
     }
 
     private SharedPreferences getPrefs() {
-        return encryptedSharedPreferences;
+        return preferences;
     }
 
     public void setLastBackgroundColor(int color) {

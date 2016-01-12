@@ -5,7 +5,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import milespeele.canvas.R;
-import milespeele.canvas.adapter.AdapterBrushPicker;
 
 public class RecyclerClickListener {
 

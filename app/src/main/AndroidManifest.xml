@@ -27,6 +27,7 @@
         </activity>
 
         <activity
+<<<<<<< HEAD
             android:name="com.parse.ui.ParseLoginActivity"
             android:label="@string/app_name"
             android:theme="@style/DialogActivity"
@@ -68,6 +69,10 @@
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="a8993ecce733fbb6ed9eab0eadea21ecea038c13" />
+=======
+            android:name=".activity.ActivityGallery"
+            android:windowSoftInputMode="stateHidden" />
+>>>>>>> Realm
     </application>
 
 </manifest>

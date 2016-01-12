@@ -1,9 +1,6 @@
 package milespeele.canvas.event;
 
-import android.content.Intent;
 import android.net.Uri;
-
-import java.io.InputStream;
 
 /**
  * Created by mbpeele on 12/25/15.

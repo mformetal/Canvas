@@ -1,12 +1,6 @@
 <resources>
     <string name="app_name">Canvas</string>
 
-    <string name="parse_application_id">@string/parse_id</string>
-    <string name="parse_client_key">@string/parse_key</string>
-    <string name="facebook_app_id">@string/facebook_id</string>
-    <string name="twitter_consumer_key">@string/twitter_key</string>
-    <string name="twitter_consumer_secret">@string/twitter_secret</string>
-
     <string name="activity_drawer_header_gallery">My Masterpieces</string>
 
     <string name="toast_fragment_text_empty">Input some text to be drawn!</string>
@@ -45,40 +39,17 @@
         <item>solidShadow</item>
     </string-array>
 
-    <string name="error_dialog_pos_button_text">Got it</string>
-    <string name="error_dialog_neg_button_text">Aight</string>
-    <string name="error_dialog_general_title">Something went wrong</string>
-    <string name="error_dialog_general_body">Don\'t look at me. It\'s not my fault.</string>
-
-    <string name="error_no_internet_title">The Internet Ran Away</string>
-    <string name="error_no_internet_body">Looks like you don\'t have an internet connection.
-        Try enabling data, or reconnect to some sweet WiFi..</string>
-
-    <string name="error_object_not_found_title">Where It At Tho?</string>
-    <string name="error_object_not_found_body">Looks like the thing you want doesn\'t
-        exist. Fuck if I know what happened to it. </string>
-
-    <string name="error_dialog_no_camera_title">No Camera :(</string>
-    <string name="error_dialog_no_camera_body">Looks like your device doesn\'t have a camera to take
-        pictures with. This feature requires that you have a hardware camera</string>
-
     <string name="alert_dialog_new_canvas_title">Clear Canvas?</string>
     <string name="alert_dialog_new_canvas_body">Pressing \"Got it\" deletes any drawing
         you currently have.</string>
     <string name="alert_dialog_new_canvas_pos_button">Bet</string>
     <string name="alert_dialog_new_canvas_neg_button">Oh NO!</string>
 
-    <string name="alert_dialog_exit">Exit</string>
-    <string name="alert_dialog_save_exit">Save And Exit</string>
-    <string name="alert_dialog_cancel">Cancel</string>
-
-    <string name="dialog_save_drawing">Save Drawing</string>
+    <string name="dialog_save_drawing">Cache Drawing</string>
     <string name="dialog_exit_canvas">Exit Canvas</string>
     
     <string name="dialog_from_gallery">Picture From Gallery</string>
     <string name="dialog_from_camera">Take a Picture</string>
-
-    <string name="alert_dialog_saving_in_progress">Saving...</string>
 
     <string name="view_options_menu_cancel">Cancel</string>
     <string name="view_options_menu_accept">Done</string>

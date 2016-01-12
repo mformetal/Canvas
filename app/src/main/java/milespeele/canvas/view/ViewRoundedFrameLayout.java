@@ -1,26 +1,13 @@
 package milespeele.canvas.view;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Outline;
-import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.Point;
 import android.graphics.Rect;
-import android.graphics.RectF;
 import android.graphics.Region;
-import android.support.design.widget.CoordinatorLayout;
 import android.util.AttributeSet;
-import android.util.Property;
-import android.view.View;
-import android.view.ViewOutlineProvider;
-import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 
-import milespeele.canvas.R;
-import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.ViewUtils;
 
 /**

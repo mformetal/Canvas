@@ -8,29 +8,18 @@ import android.animation.PropertyValuesHolder;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.Path;
 import android.graphics.Point;
-import android.support.v4.view.animation.FastOutSlowInInterpolator;
-import android.transition.ArcMotion;
 import android.transition.ChangeBounds;
 import android.transition.TransitionValues;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.AnimationUtils;
-import android.view.animation.AnticipateOvershootInterpolator;
-import android.view.animation.LinearInterpolator;
 
 import java.util.List;
 
 import milespeele.canvas.R;
-import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.ViewUtils;
 import milespeele.canvas.view.ViewCanvasLayout;
-import milespeele.canvas.view.ViewCanvasSurface;
-import milespeele.canvas.view.ViewFab;
 import milespeele.canvas.view.ViewRoundedFrameLayout;
-import milespeele.canvas.view.ViewTypefaceButton;
 
 /**
  * Created by mbpeele on 11/4/15.

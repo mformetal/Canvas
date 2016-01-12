@@ -9,9 +9,10 @@ import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.PersistableBundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
@@ -30,6 +31,10 @@ import com.parse.ParseUser;
 
 import java.io.File;
 import java.io.IOException;
+<<<<<<< HEAD
+=======
+import java.util.UUID;
+>>>>>>> Realm
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -38,19 +43,17 @@ import milespeele.canvas.drawing.DrawingCurve;
 import milespeele.canvas.event.EventBitmapChosen;
 import milespeele.canvas.event.EventClearCanvas;
 import milespeele.canvas.event.EventFilenameChosen;
-import milespeele.canvas.event.EventParseError;
 import milespeele.canvas.fragment.FragmentBase;
 import milespeele.canvas.fragment.FragmentBrushPicker;
 import milespeele.canvas.fragment.FragmentColorPicker;
 import milespeele.canvas.fragment.FragmentDrawer;
 import milespeele.canvas.fragment.FragmentFilename;
 import milespeele.canvas.fragment.FragmentText;
-import milespeele.canvas.parse.ParseUtils;
+import milespeele.canvas.model.Sketch;
 import milespeele.canvas.transition.TransitionHelper;
-import milespeele.canvas.util.ErrorDialog;
 import milespeele.canvas.util.FileUtils;
 import milespeele.canvas.util.Logg;
-import milespeele.canvas.util.NetworkUtils;
+import milespeele.canvas.util.SafeSubscription;
 import milespeele.canvas.util.SimpleDrawerLayoutListener;
 import milespeele.canvas.util.ViewUtils;
 import milespeele.canvas.view.ViewCanvasLayout;
@@ -69,7 +72,7 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
     private final static String TAG_FRAGMENT_TEXT = "text";
     private final static int REQUEST_IMPORT_CODE = 2001;
     private final static int REQUEST_CAMERA_CODE = 2002;
-    private final static int REQUEST_PERMISSION_CAMERA = 2003;
+    private final static int REQUEST_PERMISSION_CAMERA_CODE = 2003;
 
     @Bind(R.id.activity_home_fragment_frame) FrameLayout frameLayout;
     @Bind(R.id.activity_home_drawer_layout) DrawerLayout drawerLayout;
@@ -85,7 +88,8 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-        ButterKnife.bind(this);
+
+        ViewUtils.systemUIGone(getWindow().getDecorView());
 
         bus.register(this);
 
@@ -93,11 +97,6 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
             @Override
             public void onDrawerClosed(View drawerView) {
                 ViewUtils.systemUIGone(getWindow().getDecorView());
-            }
-
-            @Override
-            public void onDrawerOpened(View drawerView) {
-//                ViewUtils.systemUIVisibile(getWindow().getDecorView());
             }
         });
         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
@@ -108,6 +107,8 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
         manager.beginTransaction()
                 .add(R.id.activity_home_fragment_frame, FragmentDrawer.newInstance(), TAG_FRAGMENT_DRAWER)
                 .commit();
+
+        setupHeaderView();
     }
 
     @Override
@@ -170,6 +171,8 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
                     Uri uri = FileUtils.addFileToGallery(this, filePath);
                     bus.post(new EventBitmapChosen(uri));
                     break;
+                case REQUEST_AUTHENTICATION_CODE:
+                    break;
             }
         }
     }
@@ -179,7 +182,7 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
                                            @NonNull String permissions[],
                                            @NonNull int[] grantResults) {
         switch (requestCode) {
-            case REQUEST_PERMISSION_CAMERA: {
+            case REQUEST_PERMISSION_CAMERA_CODE: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     showCamera();
                 }
@@ -192,8 +195,6 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
         super.onResume();
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             ViewUtils.systemUIVisibile(getWindow().getDecorView());
-        } else {
-            new Handler().postDelayed(() -> ViewUtils.systemUIGone(getWindow().getDecorView()), 350);
         }
     }
 
@@ -206,12 +207,16 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
 
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
+<<<<<<< HEAD
         startLoginActivity();
 
+=======
+>>>>>>> Realm
         switch (item.getItemId()) {
             case R.id.menu_drawer_header_profile:
                 break;
             case R.id.menu_drawer_header_gallery:
+                startActivity(ActivityGallery.newIntent(this));
                 break;
             case R.id.menu_drawer_header_feed:
                 break;
@@ -276,12 +281,9 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
     private void saveAndExit() {
         FragmentDrawer fragmentDrawer = getFragmentDrawer();
 
-        Subscriber<byte[]> subscriber = new Subscriber<byte[]>() {
-
+        SafeSubscription<byte[]> subscriber = new SafeSubscription<byte[]>(this) {
             @Override
             public void onCompleted() {
-                removeSubscription(this);
-
                 AnimatorListenerAdapter listenerAdapter = new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationEnd(Animator animation) {
@@ -289,30 +291,34 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
                     }
                 };
 
-                fragmentDrawer.getRootView().stopSaveAnimation(listenerAdapter);
+                if (fragmentDrawer != null) {
+                    fragmentDrawer.getRootView().stopSaveAnimation(listenerAdapter);
+                }
             }
-
-            @Override
-            public void onError(Throwable e) {}
-
-            @Override
-            public void onNext(byte[] bytes) {}
 
             @Override
             public void onStart() {
                 super.onStart();
-                fragmentDrawer.getRootView().startSaveAnimation();
+                fragmentDrawer.getRootView().startSaveBitmapAnimation();
             }
         };
 
+<<<<<<< HEAD
         addSubscription(FileUtils.cache(fragmentDrawer.getDrawingBitmap(), this)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(subscriber));
+=======
+        FileUtils.cache(fragmentDrawer.getDrawingBitmap(), this)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(subscriber);
+>>>>>>> Realm
     }
 
     @SuppressWarnings("unused, unchecked")
     public void onEvent(EventFilenameChosen eventFilenameChosen) {
+<<<<<<< HEAD
         if (NetworkUtils.hasInternet(this)) {
             FragmentDrawer frag = (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
             if (frag != null) {
@@ -358,6 +364,57 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(subscriber));
             }
+=======
+        if (hasInternet()) {
+            ViewFab saver = (ViewFab) findViewById(R.id.menu_upload);
+            SafeSubscription<byte[]> safeSubscription = new SafeSubscription<byte[]>(this) {
+                @Override
+                public void onError(Throwable e) {
+                    super.onError(e);
+                    saver.stopSaveAnimation();
+                }
+
+                @Override
+                public void onCompleted() {
+                    super.onCompleted();
+                    saver.stopSaveAnimation();
+                    ViewCanvasLayout view = getFragmentDrawer().getRootView();
+                    showSnackbar(view,
+                            R.string.snackbar_activity_home_image_saved_title,
+                            Snackbar.LENGTH_LONG,
+                            null);
+                }
+
+                @Override
+                public void onNext(byte[] o) {
+                    super.onNext(o);
+                    realm.beginTransaction();
+                    Sketch sketch = realm.createObject(Sketch.class);
+                    sketch.setBytes(o);
+                    sketch.setTitle(eventFilenameChosen.filename);
+                    sketch.setId(UUID.randomUUID().toString());
+                    realm.commitTransaction();
+                }
+
+                @Override
+                public void onStart() {
+                    super.onStart();
+                    saver.startSaveAnimation();
+                }
+            };
+
+            FragmentDrawer drawer = getFragmentDrawer();
+            Bitmap root = drawer.getDrawingBitmap();
+            Bitmap bitmap = Bitmap.createBitmap(root.getWidth(), root.getHeight(), Bitmap.Config.ARGB_8888);
+            Canvas canvas = new Canvas(bitmap);
+            canvas.drawColor(drawer.getRootView().getBackgroundColor());
+            canvas.drawBitmap(root, 0, 0, null);
+
+            FileUtils.compress(root)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(safeSubscription);
+>>>>>>> Realm
         } else {
             showSnackBar(R.string.snackbar_no_internet, Snackbar.LENGTH_LONG);
         }
@@ -453,7 +510,7 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
                 }
             }
         } else {
-            ActivityCompat.requestPermissions(this, permissions, REQUEST_PERMISSION_CAMERA);
+            ActivityCompat.requestPermissions(this, permissions, REQUEST_PERMISSION_CAMERA_CODE);
         }
     }
 
@@ -503,5 +560,8 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
 
     private FragmentDrawer getFragmentDrawer() {
         return (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
+    }
+
+    private void setupHeaderView() {
     }
 }

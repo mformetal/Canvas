@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<milespeele.canvas.view.ViewAspectRatioImage
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/adapter_masterpieces_image"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:elevation="@dimen/fab_elevation"
+    app:aspectRatioEnabled="true"
+    app:aspectRatio="@dimen/aspect_ratio" />

@@ -5,25 +5,20 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Path;
-import android.graphics.Point;
 import android.transition.ArcMotion;
 import android.transition.ChangeBounds;
 import android.transition.TransitionValues;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AccelerateDecelerateInterpolator;
 
 import java.util.List;
 
 import milespeele.canvas.R;
 import milespeele.canvas.util.ViewUtils;
 import milespeele.canvas.view.ViewCanvasLayout;
-import milespeele.canvas.view.ViewCanvasSurface;
-import milespeele.canvas.view.ViewFab;
 import milespeele.canvas.view.ViewRoundedFrameLayout;
 
 /**

@@ -6,11 +6,9 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.Point;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
@@ -20,6 +18,7 @@ import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.AnticipateInterpolator;
+import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.view.animation.OvershootInterpolator;
 
@@ -37,10 +36,7 @@ import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
 import milespeele.canvas.event.EventBrushChosen;
 import milespeele.canvas.event.EventColorChosen;
-import milespeele.canvas.event.EventFilenameChosen;
-import milespeele.canvas.event.EventParseError;
 import milespeele.canvas.util.Circle;
-import milespeele.canvas.util.NetworkUtils;
 import milespeele.canvas.util.ViewUtils;
 
 
@@ -242,7 +238,11 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
 
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
+<<<<<<< HEAD
                 if (isSwipeFromBottom(event)) {
+=======
+                if (isFromBottom(event)) {
+>>>>>>> Realm
                     return false;
                 }
 
@@ -378,11 +378,19 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
                 out.setDuration(DURATION);
                 out.setInterpolator(OVERSHOOT_INTERPOLATOR);
 
+<<<<<<< HEAD
                 ObjectAnimator rotate = ObjectAnimator.ofFloat(view, View.ROTATION,
                         0f, 360f);
                 rotate.setDuration(DURATION);
                 rotate.setStartDelay(delay);
                 rotate.setInterpolator(new AccelerateDecelerateInterpolator());
+=======
+                ObjectAnimator rotate = ObjectAnimator.ofFloat(view,
+                        View.ROTATION, 0f, 360f);
+                rotate.setInterpolator(new DecelerateInterpolator());
+                rotate.setDuration(DURATION * 2);
+                rotate.setStartDelay(delay);
+>>>>>>> Realm
 
                 delay += DELAY_INCREMENT;
 
@@ -454,11 +462,19 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
                 out.setDuration(DURATION);
                 out.setInterpolator(ANTICIPATE_INTERPOLATOR);
 
+<<<<<<< HEAD
                 ObjectAnimator rotate = ObjectAnimator.ofFloat(view, View.ROTATION,
                         0f, 360f);
                 rotate.setDuration(DURATION);
                 rotate.setStartDelay(delay);
                 rotate.setInterpolator(new AccelerateDecelerateInterpolator());
+=======
+                ObjectAnimator rotate = ObjectAnimator.ofFloat(view,
+                        View.ROTATION, 0f, 360f);
+                rotate.setInterpolator(new DecelerateInterpolator());
+                rotate.setDuration(DURATION * 4);
+                rotate.setStartDelay(delay);
+>>>>>>> Realm
 
                 delay += DELAY_INCREMENT;
 
@@ -496,16 +512,6 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
         }
     }
 
-    public void onEvent(EventParseError eventParseError) {
-        saver.stopSaveAnimation();
-    }
-
-    public void onEvent(EventFilenameChosen eventFilenameChosen) {
-        if (NetworkUtils.hasInternet(getContext())) {
-            saver.startSaveAnimation();
-        }
-    }
-
     public boolean isVisible() {
         return isMenuShowing && getVisibility() == View.VISIBLE;
     }
@@ -524,6 +530,11 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
     public float getCenterY() { return mCircle.getCenterY(); }
 
     public float getCircleRadius() { return mCircle.getRadius(); }
+
+    private boolean isFromBottom(MotionEvent event) {
+        return event.getY() >= (float) toggle.getBottom() -
+                getResources().getDimension(R.dimen.status_bar_height) / 2;
+    }
 
     private final class ItemPosition {
 
@@ -580,7 +591,11 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
 
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+<<<<<<< HEAD
             if (isVisible() && !isSwipeFromBottom(e1) && !isSwipeFromBottom(e2)) {
+=======
+            if (isVisible() && !isFromBottom(e1) && !isFromBottom(e2)) {
+>>>>>>> Realm
                 isDragging = false;
 
                 isFlinging = true;

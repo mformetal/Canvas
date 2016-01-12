@@ -2,7 +2,6 @@ package milespeele.canvas.fragment;
 
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.support.design.widget.NavigationView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -64,7 +63,9 @@ public class FragmentDrawer extends FragmentBase implements
     @Override
     public void onOptionsMenuAccept() {}
 
-    public ViewCanvasLayout getRootView() { return coordinatorLayout; }
+    public ViewCanvasLayout getRootView() {
+        return coordinatorLayout;
+    }
 
     public Bitmap getDrawingBitmap() {
         return coordinatorLayout.getDrawerBitmap();
