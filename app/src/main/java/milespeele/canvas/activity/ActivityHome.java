@@ -345,7 +345,7 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
             canvas.drawColor(drawer.getRootView().getBackgroundColor());
             canvas.drawBitmap(root, 0, 0, null);
 
-            FileUtils.compress(root)
+            FileUtils.compress(bitmap)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(safeSubscription);

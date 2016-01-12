@@ -23,6 +23,7 @@ public abstract class SafeSubscription<T> extends Subscriber<T> {
     @Override
     public void onError(Throwable e) {
         removeSelf();
+        Logg.log(e);
     }
 
     @Override
