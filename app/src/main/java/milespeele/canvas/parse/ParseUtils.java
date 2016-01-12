@@ -13,6 +13,7 @@ import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseFile;
+import com.parse.ParseQuery;
 import com.parse.ParseRelation;
 import com.parse.ParseTwitterUtils;
 import com.parse.ParseUser;
@@ -33,10 +34,12 @@ import milespeele.canvas.R;
 import milespeele.canvas.activity.ActivityBase;
 import milespeele.canvas.util.FileUtils;
 import milespeele.canvas.util.Logg;
+import rx.Notification;
 import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.bolts.TaskObservable;
+import rx.functions.Action1;
 import rx.functions.Func0;
 import rx.functions.Func1;
 import rx.parse.ParseObservable;
@@ -51,6 +54,7 @@ public class ParseUtils {
 
     private final static String MASTERPIECE_RELATION = "Masterpieces";
     private final static String USER_NAME_FIELD = "name";
+    private final static String PINNED_MASTERPIECES = "pinned";
 
     public ParseUtils(Application mApplication) {
         ((MainApp) mApplication).getApplicationComponent().inject(this);
@@ -109,7 +113,9 @@ public class ParseUtils {
 
     public Observable<Masterpiece> getMasterpieces() {
         ParseRelation<Masterpiece> relation = ParseUser.getCurrentUser().getRelation(MASTERPIECE_RELATION);
-        return ParseObservable.all(relation.getQuery())
+        ParseQuery<Masterpiece> query = relation.getQuery();
+        query.fromPin(PINNED_MASTERPIECES);
+        return ParseObservable.all(query)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread());
     }

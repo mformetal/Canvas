@@ -16,6 +16,10 @@ import android.widget.ProgressBar;
 import android.widget.Toolbar;
 
 
+import com.parse.DeleteCallback;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+
 import butterknife.Bind;
 import milespeele.canvas.R;
 import milespeele.canvas.adapter.AdapterMasterpieces;
@@ -87,17 +91,13 @@ public class ActivityGallery extends ActivityBase {
             @Override
             public void onCompleted() {
                 super.onCompleted();
-                progressBar.setVisibility(View.GONE);
+                ViewUtils.gone(progressBar, 350);
             }
 
             @Override
             public void onNext(Masterpiece masterpiece) {
                 super.onNext(masterpiece);
                 mMasterpieceAdapter.addMasterpiece(masterpiece);
-
-                if (progressBar.getVisibility() == View.VISIBLE) {
-                    progressBar.setVisibility(View.GONE);
-                }
             }
         };
 

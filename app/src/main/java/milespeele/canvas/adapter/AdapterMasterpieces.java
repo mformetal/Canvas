@@ -17,6 +17,7 @@ import butterknife.ButterKnife;
 import milespeele.canvas.R;
 import milespeele.canvas.parse.Masterpiece;
 import milespeele.canvas.view.ViewAspectRatioImage;
+import milespeele.canvas.view.ViewTypefaceTextView;
 
 /**
  * Created by mbpeele on 1/11/16.
@@ -64,8 +65,7 @@ public class AdapterMasterpieces extends RecyclerView.Adapter<AdapterMasterpiece
 
     final static class MasterpieceViewHolder extends RecyclerView.ViewHolder {
 
-        @Bind(R.id.adapter_masterpieces_image)
-        ViewAspectRatioImage imageView;
+        @Bind(R.id.adapter_masterpieces_image) ViewAspectRatioImage imageView;
 
         public MasterpieceViewHolder(View itemView) {
             super(itemView);
