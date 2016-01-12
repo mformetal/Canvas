@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.PersistableBundle;
@@ -20,6 +21,7 @@ import android.support.annotation.StringRes;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.view.MenuItem;
@@ -38,6 +40,7 @@ import java.util.UUID;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import io.realm.Realm;
 import milespeele.canvas.R;
 import milespeele.canvas.drawing.DrawingCurve;
 import milespeele.canvas.event.EventBitmapChosen;
@@ -216,9 +219,7 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
             case R.id.menu_drawer_header_profile:
                 break;
             case R.id.menu_drawer_header_gallery:
-                startActivity(ActivityGallery.newIntent(this));
-                break;
-            case R.id.menu_drawer_header_feed:
+                ActivityGallery.newIntent(this);
                 break;
         }
         return false;
@@ -410,7 +411,7 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
             canvas.drawColor(drawer.getRootView().getBackgroundColor());
             canvas.drawBitmap(root, 0, 0, null);
 
-            FileUtils.compress(root)
+            FileUtils.compress(bitmap)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(safeSubscription);

@@ -50,15 +50,4 @@ public class ApplicationModule {
     public EventBus getEventBus() {
         return new EventBus();
     }
-
-    @Provides
-    @Singleton
-    public Realm getRealm(Application mApplication) {
-        RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(mApplication)
-                .name("examples.realm")
-                .build();
-
-        Realm.setDefaultConfiguration(realmConfiguration);
-        return Realm.getInstance(realmConfiguration);
-    }
 }

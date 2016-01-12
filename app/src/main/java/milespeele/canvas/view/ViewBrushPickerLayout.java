@@ -17,6 +17,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import milespeele.canvas.R;
 import milespeele.canvas.adapter.AdapterBrushPicker;
+import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.PaintStyles;
 import milespeele.canvas.util.RecyclerClickListener;
 import milespeele.canvas.util.SpacingDecoration;

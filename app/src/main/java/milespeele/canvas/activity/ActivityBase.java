@@ -31,7 +31,7 @@ import rx.subscriptions.CompositeSubscription;
 public abstract class ActivityBase extends Activity {
 
     @Inject EventBus bus;
-    @Inject Realm realm;
+    Realm realm;
 
     private CompositeSubscription mCompositeSubscription;
     private ArrayList<Subscription> mRemovableSubscriptions;
@@ -41,6 +41,8 @@ public abstract class ActivityBase extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        realm = Realm.getDefaultInstance();
 
         ((MainApp) getApplication()).getApplicationComponent().inject(this);
 
@@ -98,6 +100,7 @@ public abstract class ActivityBase extends Activity {
     }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     public void startLoginActivity() {
         startActivityForResult(new ParseLoginBuilder(this).build(), 0);
     }
@@ -113,6 +116,8 @@ public abstract class ActivityBase extends Activity {
     public void startLoginActivity(int code) {
     }
 
+=======
+>>>>>>> NewBranch
     public void showSnackbar(@StringRes int res, int duration, View.OnClickListener onClickListener) {
         showSnackbar(null, res, duration, onClickListener);
     }

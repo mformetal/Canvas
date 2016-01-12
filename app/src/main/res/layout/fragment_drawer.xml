@@ -7,10 +7,20 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="false" >
 
+    <ProgressBar
+        android:id="@+id/fragment_drawer_loading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:indeterminateTint="@color/facebook_blue"
+        android:indeterminateTintMode="src_in"
+        app:layout_anchorGravity="center"
+        app:layout_anchor="@id/fragment_drawer_coordinator" />
+
     <milespeele.canvas.view.ViewCanvasSurface
         android:id="@+id/fragment_drawer_canvas"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:visibility="gone"
         app:layout_anchorGravity="top"
         app:layout_anchor="@id/fragment_drawer_coordinator" />
 
@@ -39,6 +49,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center_horizontal"
+        android:visibility="gone"
         app:layout_behavior="milespeele.canvas.view.ViewMenuBehavior"
         app:layout_anchorGravity="bottom|center_horizontal"
         app:layout_anchor="@id/fragment_drawer_coordinator" />

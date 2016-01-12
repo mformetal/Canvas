@@ -1,10 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<milespeele.canvas.view.ViewAspectRatioImage
+<android.support.v7.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/adapter_masterpieces_image"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:elevation="@dimen/fab_elevation"
-    app:aspectRatioEnabled="true"
-    app:aspectRatio="@dimen/aspect_ratio" />
+    android:orientation="vertical"
+    app:cardBackgroundColor="@android:color/transparent"
+    app:cardCornerRadius="4dp"
+    app:cardElevation="4dp">
+
+    <milespeele.canvas.view.ViewAspectRatioImage
+        android:id="@+id/adapter_masterpieces_image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:aspectRatioEnabled="true"
+        app:aspectRatio="@dimen/aspect_ratio" />
+
+    <milespeele.canvas.view.ViewTypefaceTextView
+        android:id="@+id/adapter_masterpieces_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_gravity="bottom|center_horizontal"
+        android:textColor="@android:color/white"
+        android:background="@android:color/black"
+        android:textSize="@dimen/large_text_size" />
+
+</android.support.v7.widget.CardView>

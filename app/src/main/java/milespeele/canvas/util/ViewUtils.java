@@ -10,6 +10,7 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Point;
 import android.graphics.Rect;
+import android.graphics.drawable.ColorDrawable;
 import android.util.DisplayMetrics;
 import android.util.Property;
 import android.util.TypedValue;
@@ -108,6 +109,18 @@ public class ViewUtils {
         return point.y;
     }
 
+    public static int displayWidth(Context context) {
+        Point point = new Point();
+        ((Activity) context).getWindow().getWindowManager().getDefaultDisplay().getRealSize(point);
+        return point.x;
+    }
+
+    public static Point screenDimens(Context context) {
+        Point point = new Point();
+        ((Activity) context).getWindow().getWindowManager().getDefaultDisplay().getSize(point);
+        return point;
+    }
+
     public static float relativeCenterX(View view) {
         return (view.getLeft() + view.getRight()) / 2f;
     }
@@ -142,7 +155,7 @@ public class ViewUtils {
         goneAnimator(view).start();
     }
 
-    private static ObjectAnimator goneAnimator(View view) {
+    public static ObjectAnimator goneAnimator(View view) {
         ObjectAnimator gone = ObjectAnimator.ofFloat(view, View.ALPHA, 1f, 0f);
         gone.setDuration(DEFAULT_VISBILITY_DURATION);
         gone.addListener(new AnimatorListenerAdapter() {
@@ -166,7 +179,7 @@ public class ViewUtils {
         }
     }
 
-    private static ObjectAnimator visibleAnimator(View view) {
+    public static ObjectAnimator visibleAnimator(View view) {
         ObjectAnimator visibility = ObjectAnimator.ofFloat(view, View.ALPHA, 0f, 1f);
         visibility.setDuration(DEFAULT_VISBILITY_DURATION);
         visibility.addListener(new AnimatorListenerAdapter() {
@@ -187,4 +200,12 @@ public class ViewUtils {
         }
         return actionBarSize;
     }
+
+    public static ObjectAnimator animateBackground(View view, int dur, int... colors) {
+        ObjectAnimator background =
+                ObjectAnimator.ofArgb(view, ViewUtils.BACKGROUND, colors);
+        background.setDuration(dur);
+        return background;
+    }
+
 }

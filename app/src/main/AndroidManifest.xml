@@ -19,7 +19,8 @@
         <activity
             android:name=".activity.ActivityHome"
             android:windowSoftInputMode="stateHidden|adjustNothing"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:theme="@style/HomeActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -71,8 +72,16 @@
             android:value="a8993ecce733fbb6ed9eab0eadea21ecea038c13" />
 =======
             android:name=".activity.ActivityGallery"
+<<<<<<< HEAD
             android:windowSoftInputMode="stateHidden" />
 >>>>>>> Realm
+=======
+            android:theme="@style/GalleryActivity" />
+
+        <activity
+            android:name=".activity.ActivitySketch"
+            android:theme="@style/SketchActivity" />
+>>>>>>> NewBranch
     </application>
 
 </manifest>

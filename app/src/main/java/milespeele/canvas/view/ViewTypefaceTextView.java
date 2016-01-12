@@ -80,12 +80,11 @@ public class ViewTypefaceTextView extends TextView {
         return getText().toString();
     }
 
-    public void animateTextColor(int color, long duration, Animator.AnimatorListener listener) {
+    public ValueAnimator animateTextColor(int color, long duration) {
         ValueAnimator colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(),
                 getCurrentTextColor(), color);
         colorAnimation.addUpdateListener(animator -> setTextColor((Integer) animator.getAnimatedValue()));
-        colorAnimation.addListener(listener);
         colorAnimation.setDuration(duration);
-        colorAnimation.start();
+        return colorAnimation;
     }
 }

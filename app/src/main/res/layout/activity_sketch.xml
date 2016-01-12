@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/activity_sketch_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <milespeele.canvas.view.ViewAspectRatioImage
+        android:id="@+id/activity_sketch_image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:cropToPadding="false"
+        android:adjustViewBounds="true"
+        app:aspectRatioEnabled="true"
+        app:aspectRatio="@dimen/aspect_ratio" />
+
+    <milespeele.canvas.view.ViewFab
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_add_24dp"
+        android:id="@+id/activity_sketch_fab"
+        android:layout_margin="@dimen/activity_vertical_margin"
+        app:layout_anchor="@id/activity_sketch_root"
+        app:layout_anchorGravity="bottom|end"
+        app:backgroundTint="@android:color/white"
+        app:borderWidth="0dp"
+        app:elevation="@dimen/fab_elevation"
+        app:rippleColor="@color/primary_dark"
+        app:fabSize="normal" />
+
+</android.support.design.widget.CoordinatorLayout>

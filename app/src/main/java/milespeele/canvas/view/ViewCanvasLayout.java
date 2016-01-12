@@ -22,8 +22,12 @@ import android.util.Property;
 import android.view.MotionEvent;
 import android.view.SoundEffectConstants;
 import android.view.View;
+import android.view.ViewAnimationUtils;
+import android.view.Window;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.LinearInterpolator;
+import android.widget.ProgressBar;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -44,6 +48,7 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
     @Bind(R.id.fragment_drawer_animator) ViewRoundedFrameLayout fabFrame;
     @Bind(R.id.fragment_drawer_options_menu) ViewOptionsMenu optionsMenu;
     @Bind(R.id.fragment_drawer_save_animation) ViewSaveAnimator saveAnimator;
+    @Bind(R.id.fragment_drawer_loading) ProgressBar progressBar;
 
     private Rect mRect = new Rect();
     private final Path mPath = new Path();
@@ -204,6 +209,38 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
         } else {
             ViewUtils.gone(fabMenu);
         }
+    }
+
+    @Override
+    public void surfaceReady() {
+        ObjectAnimator animator = ViewUtils.goneAnimator(progressBar);
+        animator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                Animator reveal = ViewAnimationUtils.createCircularReveal(ViewCanvasLayout.this,
+                        getWidth() / 2, getHeight() / 2, 0, getHeight());
+                reveal.setDuration(600);
+                reveal.setInterpolator(new AccelerateDecelerateInterpolator());
+                reveal.addListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+                        drawer.setVisibility(View.VISIBLE);
+                        fabMenu.setVisibility(View.VISIBLE);
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        removeView(progressBar);
+                        Activity activity = (Activity) getContext();
+                        Window window = activity.getWindow();
+                        window.setBackgroundDrawable(null);
+                    }
+                });
+                reveal.start();
+            }
+        });
+        animator.setDuration(500);
+        animator.start();
     }
 
     @Override
