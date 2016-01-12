@@ -2,8 +2,6 @@ package milespeele.canvas.util;
 
 import android.content.Context;
 import android.content.res.AssetManager;
-import android.graphics.Paint;
-import android.graphics.Rect;
 import android.graphics.Typeface;
 
 import java.io.IOException;

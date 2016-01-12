@@ -3,17 +3,11 @@ package milespeele.canvas.view;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
-import android.support.design.widget.TextInputLayout;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewParent;
 import android.widget.EditText;
 
-import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.TextUtils;
-import milespeele.canvas.util.ViewUtils;
 
 /**
  * Created by mbpeele on 9/2/15.

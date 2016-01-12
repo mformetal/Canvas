@@ -9,7 +9,6 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.AttributeSet;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
 import java.util.ArrayList;
@@ -18,9 +17,8 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import milespeele.canvas.R;
 import milespeele.canvas.adapter.AdapterBrushPicker;
-import milespeele.canvas.util.RecyclerClickListener;
-import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.PaintStyles;
+import milespeele.canvas.util.RecyclerClickListener;
 import milespeele.canvas.util.SpacingDecoration;
 import milespeele.canvas.util.TextUtils;
 

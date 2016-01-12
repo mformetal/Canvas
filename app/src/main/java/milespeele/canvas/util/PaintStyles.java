@@ -5,9 +5,7 @@ import android.graphics.ComposePathEffect;
 import android.graphics.CornerPathEffect;
 import android.graphics.DashPathEffect;
 import android.graphics.EmbossMaskFilter;
-import android.graphics.LinearGradient;
 import android.graphics.Paint;
-import android.graphics.Shader;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

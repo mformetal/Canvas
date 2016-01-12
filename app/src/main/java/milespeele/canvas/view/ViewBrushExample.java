@@ -15,7 +15,6 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Interpolator;
 
 import milespeele.canvas.R;
-import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.PaintStyles;
 
 /**

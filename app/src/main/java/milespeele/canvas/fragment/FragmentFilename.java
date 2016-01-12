@@ -1,25 +1,18 @@
 package milespeele.canvas.fragment;
 
-import android.graphics.Rect;
 import android.os.Bundle;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.inputmethod.EditorInfo;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import milespeele.canvas.R;
 import milespeele.canvas.event.EventFilenameChosen;
-import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.ViewUtils;
-import milespeele.canvas.view.ViewRoundedFrameLayout;
 import milespeele.canvas.view.ViewTypefaceEditText;
 
 /**

@@ -6,7 +6,6 @@ import android.util.AttributeSet;
 import android.widget.ImageView;
 
 import milespeele.canvas.R;
-import milespeele.canvas.util.Logg;
 
 /**
  * Created by mbpeele on 1/11/16.

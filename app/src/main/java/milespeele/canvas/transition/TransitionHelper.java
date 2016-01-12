@@ -1,33 +1,10 @@
 package milespeele.canvas.transition;
 
-import android.animation.Animator;
-import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
-import android.animation.PropertyValuesHolder;
-import android.app.Activity;
 import android.app.Fragment;
-import android.app.FragmentManager;
 import android.content.Context;
-import android.graphics.Color;
 import android.support.design.widget.CoordinatorLayout;
-import android.transition.Transition;
-import android.transition.TransitionInflater;
-import android.transition.TransitionManager;
 import android.view.View;
 import android.widget.FrameLayout;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import milespeele.canvas.R;
-import milespeele.canvas.drawing.DrawingCurve;
-import milespeele.canvas.fragment.FragmentLogin;
-import milespeele.canvas.fragment.FragmentSignup;
-import milespeele.canvas.util.Circle;
-import milespeele.canvas.util.ViewUtils;
-import milespeele.canvas.view.ViewFab;
-import milespeele.canvas.view.ViewFabMenu;
-import milespeele.canvas.view.ViewOptionsMenu;
 
 /**
  * Created by mbpeele on 11/5/15.

@@ -1,22 +1,14 @@
 package milespeele.canvas.activity;
 
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.support.annotation.StringRes;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-
-import com.facebook.FacebookSdk;
-import com.facebook.appevents.AppEventsLogger;
-import com.parse.ParseUser;
-import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -25,9 +17,6 @@ import javax.inject.Inject;
 import butterknife.ButterKnife;
 import de.greenrobot.event.EventBus;
 import milespeele.canvas.MainApp;
-import milespeele.canvas.R;
-import milespeele.canvas.parse.ParseUtils;
-import milespeele.canvas.util.Logg;
 import rx.Subscription;
 import rx.subscriptions.CompositeSubscription;
 
@@ -36,9 +25,7 @@ import rx.subscriptions.CompositeSubscription;
  */
 public abstract class ActivityBase extends Activity {
 
-    @Inject ParseUtils parseUtils;
     @Inject EventBus bus;
-    @Inject Picasso picasso;
 
     private CompositeSubscription mCompositeSubscription;
     private ArrayList<Subscription> mRemovableSubscriptions;
@@ -104,7 +91,6 @@ public abstract class ActivityBase extends Activity {
     }
 
     public void startLoginActivity(int code) {
-        startActivityForResult(ActivityAuthenticate.newIntent(this), code);
     }
 
     public void showSnackbar(@StringRes int res, int duration, View.OnClickListener onClickListener) {

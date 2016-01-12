@@ -8,9 +8,7 @@ import android.view.ViewGroup;
 
 import java.util.List;
 
-import me.grantland.widget.AutofitTextView;
 import milespeele.canvas.R;
-import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.TextUtils;
 import milespeele.canvas.view.ViewTypefaceButton;
 

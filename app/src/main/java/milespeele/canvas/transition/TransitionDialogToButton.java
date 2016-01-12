@@ -21,7 +21,6 @@ import java.util.List;
 import milespeele.canvas.R;
 import milespeele.canvas.util.ViewUtils;
 import milespeele.canvas.view.ViewCanvasLayout;
-import milespeele.canvas.view.ViewCanvasSurface;
 import milespeele.canvas.view.ViewRoundedFrameLayout;
 
 /**

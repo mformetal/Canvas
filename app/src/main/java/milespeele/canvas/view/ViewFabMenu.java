@@ -34,9 +34,7 @@ import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
 import milespeele.canvas.event.EventBrushChosen;
 import milespeele.canvas.event.EventColorChosen;
-import milespeele.canvas.event.EventParseError;
 import milespeele.canvas.util.Circle;
-import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.ViewUtils;
 
 

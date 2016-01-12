@@ -4,10 +4,8 @@ import javax.inject.Singleton;
 
 import dagger.Component;
 import milespeele.canvas.activity.ActivityBase;
-import milespeele.canvas.activity.ActivityHome;
 import milespeele.canvas.drawing.DrawingCurve;
 import milespeele.canvas.fragment.FragmentBase;
-import milespeele.canvas.parse.ParseUtils;
 import milespeele.canvas.view.ViewFabMenu;
 
 /**
@@ -16,8 +14,6 @@ import milespeele.canvas.view.ViewFabMenu;
 @Singleton
 @Component(modules = {ApplicationModule.class})
 public interface ApplicationComponent {
-
-    void inject(ParseUtils utils);
 
     void inject(DrawingCurve drawingCurve);
 

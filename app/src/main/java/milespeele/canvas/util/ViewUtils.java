@@ -13,16 +13,9 @@ import android.graphics.Rect;
 import android.util.DisplayMetrics;
 import android.util.Property;
 import android.util.TypedValue;
-import android.view.Display;
 import android.view.View;
-import android.view.ViewGroup;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import java.util.Random;
-
-import milespeele.canvas.R;
 
 /**
  * Created by mbpeele on 11/4/15.

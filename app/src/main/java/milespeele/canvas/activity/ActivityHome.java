@@ -13,7 +13,6 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.PersistableBundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
@@ -26,9 +25,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
-
-import com.parse.ParseUser;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,15 +36,12 @@ import milespeele.canvas.drawing.DrawingCurve;
 import milespeele.canvas.event.EventBitmapChosen;
 import milespeele.canvas.event.EventClearCanvas;
 import milespeele.canvas.event.EventFilenameChosen;
-import milespeele.canvas.event.EventParseError;
 import milespeele.canvas.fragment.FragmentBase;
 import milespeele.canvas.fragment.FragmentBrushPicker;
 import milespeele.canvas.fragment.FragmentColorPicker;
 import milespeele.canvas.fragment.FragmentDrawer;
 import milespeele.canvas.fragment.FragmentFilename;
 import milespeele.canvas.fragment.FragmentText;
-import milespeele.canvas.parse.ParseSubscriber;
-import milespeele.canvas.parse.ParseUtils;
 import milespeele.canvas.transition.TransitionHelper;
 import milespeele.canvas.util.FileUtils;
 import milespeele.canvas.util.Logg;
@@ -57,7 +50,6 @@ import milespeele.canvas.util.ViewUtils;
 import milespeele.canvas.view.ViewCanvasLayout;
 import milespeele.canvas.view.ViewFab;
 import milespeele.canvas.view.ViewRoundedFrameLayout;
-import milespeele.canvas.view.ViewTypefaceTextView;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -210,19 +202,6 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
             case R.id.menu_drawer_header_profile:
                 break;
             case R.id.menu_drawer_header_gallery:
-                if (ParseUtils.isParseUserAvailable()) {
-                    startActivity(ActivityGallery.newIntent(this));
-                } else {
-                    showSnackbar(getFragmentDrawer().getRootView(),
-                            R.string.parse_error_invalid_session,
-                            Snackbar.LENGTH_INDEFINITE,
-                            new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    startLoginActivity(ActivityBase.REQUEST_AUTHENTICATION_CODE);
-                                }
-                            });
-                }
                 break;
             case R.id.menu_drawer_header_feed:
                 break;
@@ -328,17 +307,10 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
                 .subscribe(subscriber));
     }
 
-    @SuppressWarnings("unused")
-    public void onEvent(EventParseError eventParseError) {
-        ParseUtils.handleError(eventParseError.e, getFragmentDrawer().getRootView(), this);
-    }
-
     @SuppressWarnings("unused, unchecked")
     public void onEvent(EventFilenameChosen eventFilenameChosen) {
         if (hasInternet()) {
             FragmentDrawer drawer = getFragmentDrawer();
-
-            if (ParseUtils.isParseUserAvailable()) {
 
                 Bitmap root = drawer.getDrawingBitmap();
                 Bitmap bitmap = Bitmap.createBitmap(root.getWidth(), root.getHeight(), Bitmap.Config.ARGB_8888);
@@ -347,54 +319,6 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
                 canvas.drawBitmap(root, 0, 0, null);
 //                Bitmap bitmap = root.copy(Bitmap.Config.ARGB_8888, false);
 //                root.eraseColor(drawer.getRootView().getBackgroundColor());
-
-                ParseSubscriber<ParseUser> parseSubscriber = new ParseSubscriber<ParseUser>(this, drawer.getRootView()) {
-
-                    ViewFab saver = (ViewFab) findViewById(R.id.menu_upload);
-
-                    @Override
-                    public void onStart() {
-                        super.onStart();
-                        saver.startSaveAnimation();
-                    }
-
-                    @Override
-                    public void onCompleted() {
-                        if (saver != null) {
-                            saver.stopSaveAnimation();
-                        }
-
-                        if (drawer.getRootView() != null) {
-                            showSnackbar(drawer.getRootView(),
-                                    R.string.snackbar_activity_home_image_saved_title,
-                                    Snackbar.LENGTH_LONG, null);
-                        }
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        super.onError(e);
-                        if (saver != null) {
-                            saver.stopSaveAnimation();
-                        }
-                    }
-                };
-
-                parseUtils.uploadMasterpiece(eventFilenameChosen.filename, bitmap)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(parseSubscriber);
-            } else {
-                showSnackbar(drawer.getRootView(),
-                        R.string.parse_error_invalid_session,
-                        Snackbar.LENGTH_INDEFINITE,
-                        new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                startLoginActivity(ActivityBase.REQUEST_AUTHENTICATION_CODE);
-                            }
-                        });
-            }
         } else {
             showSnackBar(R.string.snackbar_no_internet, Snackbar.LENGTH_LONG);
         }
@@ -543,9 +467,5 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
     }
 
     private void setupHeaderView() {
-        LinearLayout layout = (LinearLayout) navigationView.getHeaderView(0);
-        if (ParseUtils.isParseUserAvailable()) {
-            ((ViewTypefaceTextView) layout.getChildAt(1)).setText(ParseUtils.getParseName());
-        }
     }
 }
