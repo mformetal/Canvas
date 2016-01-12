@@ -1,17 +1,25 @@
 package milespeele.canvas.activity;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.view.ViewCompat;
+import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.support.v7.graphics.Palette;
 import android.util.Pair;
 import android.view.View;
+import android.view.ViewAnimationUtils;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.Priority;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 
@@ -25,29 +33,30 @@ import milespeele.canvas.model.Sketch;
 import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.ViewUtils;
 import milespeele.canvas.view.ViewAspectRatioImage;
+import milespeele.canvas.view.ViewFab;
 import milespeele.canvas.view.ViewTypefaceTextView;
+import rx.functions.Action1;
 
 /**
  * Created by mbpeele on 1/11/16.
  */
 public class ActivitySketch extends ActivityBase {
 
-    public static void newIntent(Activity context, Sketch sketch, GalleryAdapter.SketchViewHolder holder) {
+    public static void newIntent(Activity context, Sketch sketch, View image) {
         Intent intent = new Intent(context, ActivitySketch.class);
         intent.putExtra(REALM_ID, sketch.getId());
 
         ActivityOptions activityOptions = ActivityOptions.makeSceneTransitionAnimation(context,
-                new Pair<View, String>(holder.getImageView(), IMAGE),
-                new Pair<View, String>(holder.getTextView(), TITLE));
+                new Pair<View, String>(image, IMAGE));
         context.startActivity(intent, activityOptions.toBundle());
     }
 
     private final static String REALM_ID = "canvas:id";
     private final static String IMAGE = "canvas:sketch:image";
-    private final static String TITLE = "canvas:sketch:title";
 
     @Bind(R.id.activity_sketch_image) ViewAspectRatioImage image;
-    @Bind(R.id.activity_sketch_title) ViewTypefaceTextView title;
+    @Bind(R.id.activity_sketch_fab) ViewFab fab;
+    @Bind(R.id.activity_sketch_root) CoordinatorLayout root;
 
     private Sketch sketch;
     private Realm realm;
@@ -57,37 +66,54 @@ public class ActivitySketch extends ActivityBase {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sketch);
 
+        if (savedInstanceState == null) {
+            animateReveal();
+        }
+
         realm = Realm.getDefaultInstance();
 
         Intent intent = getIntent();
 
-        RealmQuery<Sketch> realmResults = realm.where(Sketch.class).equalTo("id", intent.getExtras().getString(REALM_ID));
+        RealmQuery<Sketch> realmResults = realm.where(Sketch.class)
+                .equalTo("id", intent.getExtras().getString(REALM_ID));
         sketch = realmResults.findFirst();
 
-        ViewCompat.setTransitionName(image, IMAGE);
-        ViewCompat.setTransitionName(title, TITLE);
+        loadImage();
+    }
 
+    private void loadImage() {
         Glide.with(this)
                 .fromBytes()
                 .asBitmap()
-                .animate(android.R.anim.fade_in)
                 .load(sketch.getBytes())
+                .diskCacheStrategy(DiskCacheStrategy.SOURCE)
+                .priority(Priority.IMMEDIATE)
+                .dontAnimate()
                 .listener(new RequestListener<byte[], Bitmap>() {
                     @Override
                     public boolean onException(Exception e, byte[] model, Target<Bitmap> target, boolean isFirstResource) {
-                        Logg.log("GLIDE:", e);
                         return false;
                     }
 
                     @Override
-                    public boolean onResourceReady(Bitmap resource, byte[] model, Target<Bitmap> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                    public boolean onResourceReady(Bitmap resource, byte[] model,
+                                                   Target<Bitmap> target, boolean isFromMemoryCache, boolean isFirstResource) {
                         Palette.from(resource).generate(new Palette.PaletteAsyncListener() {
                             @Override
                             public void onGenerated(Palette palette) {
-                                Palette.Swatch vibrant = palette.getLightVibrantSwatch();
+                                Palette.Swatch vibrant = palette.getDarkMutedSwatch();
                                 if (vibrant != null) {
-                                    ViewUtils.animateBackground(title, 350, vibrant.getRgb()).start();
-                                    title.animateTextColor(vibrant.getTitleTextColor(), 350).start();
+                                    int statusBarColor = getWindow().getStatusBarColor();
+                                    ValueAnimator valueAnimator =
+                                            ValueAnimator.ofArgb(statusBarColor, vibrant.getRgb());
+                                    valueAnimator.setDuration(450);
+                                    valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                                        @Override
+                                        public void onAnimationUpdate(ValueAnimator animation) {
+                                            getWindow().setStatusBarColor((int) animation.getAnimatedValue());
+                                        }
+                                    });
+                                    valueAnimator.start();
                                 }
                             }
                         });
@@ -95,5 +121,8 @@ public class ActivitySketch extends ActivityBase {
                     }
                 })
                 .into(image);
+    }
+
+    private void animateReveal() {
     }
 }

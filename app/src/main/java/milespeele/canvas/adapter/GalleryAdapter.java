@@ -1,5 +1,6 @@
 package milespeele.canvas.adapter;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.support.v7.graphics.Palette;
@@ -17,6 +18,7 @@ import java.util.ArrayList;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import milespeele.canvas.R;
+import milespeele.canvas.activity.ActivitySketch;
 import milespeele.canvas.model.Sketch;
 import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.ViewUtils;
@@ -25,11 +27,11 @@ import milespeele.canvas.view.ViewTypefaceTextView;
 
 public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.SketchViewHolder> {
 
-    private Context mContext;
+    private Activity mContext;
     private LayoutInflater mInflater;
     private ArrayList<Sketch> mDataList;
 
-    public GalleryAdapter(Context context) {
+    public GalleryAdapter(Activity context) {
         mContext = context;
         mInflater = LayoutInflater.from(mContext);
         mDataList = new ArrayList<>();
@@ -47,6 +49,8 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.SketchVi
 
         ViewAspectRatioImage imageView = holder.imageView;
         ViewTypefaceTextView textView = holder.textView;
+
+        imageView.setOnClickListener(v -> ActivitySketch.newIntent(mContext, sketch, imageView));
 
         textView.setText(sketch.getTitle());
 
@@ -68,10 +72,11 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.SketchVi
                             Palette.from(resource).generate(new Palette.PaletteAsyncListener() {
                                 @Override
                                 public void onGenerated(Palette palette) {
-                                    Palette.Swatch vibrant = palette.getLightVibrantSwatch();
+                                    Palette.Swatch vibrant = palette.getDarkMutedSwatch();
                                     if (vibrant != null) {
                                         ViewUtils.animateBackground(textView, 350, vibrant.getRgb()).start();
                                         textView.animateTextColor(vibrant.getTitleTextColor(), 350).start();
+                                        holder.hasLoaded = true;
                                     }
                                 }
                             });

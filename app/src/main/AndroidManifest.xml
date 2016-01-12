@@ -19,7 +19,8 @@
         <activity
             android:name=".activity.ActivityHome"
             android:windowSoftInputMode="stateHidden|adjustNothing"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:theme="@style/HomeActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -31,7 +32,8 @@
             android:theme="@style/GalleryActivity" />
 
         <activity
-            android:name=".activity.ActivitySketch" />
+            android:name=".activity.ActivitySketch"
+            android:theme="@style/SketchActivity" />
     </application>
 
 </manifest>

@@ -3,6 +3,7 @@ package milespeele.canvas.activity;
 import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.ActivityOptionsCompat;
@@ -27,15 +28,13 @@ import rx.functions.Action1;
 /**
  * Created by mbpeele on 1/11/16.
  */
-public class ActivityGallery extends ActivityBase implements RecyclerClickListener.OnItemClickListener {
+public class ActivityGallery extends ActivityBase {
 
     public static void newIntent(Context context) {
         context.startActivity(new Intent(context, ActivityGallery.class));
     }
 
     @Bind(R.id.activity_gallery_masterpieces) RecyclerView recyclerView;
-    @Bind(R.id.activity_gallery_loading) ProgressBar progressBar;
-    @Bind(R.id.activity_gallery_root) CoordinatorLayout layout;
 
     private GalleryAdapter adapter;
 
@@ -43,8 +42,6 @@ public class ActivityGallery extends ActivityBase implements RecyclerClickListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gallery);
-
-        RecyclerClickListener.addTo(recyclerView).setOnItemClickListener(this);
 
         adapter = new GalleryAdapter(this);
         StaggeredGridLayoutManager layoutManager =
@@ -57,17 +54,6 @@ public class ActivityGallery extends ActivityBase implements RecyclerClickListen
         loadImages();
     }
 
-    @Override
-    public void onItemClicked(RecyclerView recyclerView, RecyclerView.ViewHolder holder, View v) {
-        GalleryAdapter.SketchViewHolder viewHolder =
-                (GalleryAdapter.SketchViewHolder) holder;
-
-        int pos = viewHolder.getAdapterPosition();
-        Sketch sketch = adapter.get(pos);
-
-       ActivitySketch.newIntent(this, sketch, viewHolder);
-    }
-
     private void loadImages() {
         realm.where(Sketch.class)
                 .findAllAsync()
@@ -78,8 +64,6 @@ public class ActivityGallery extends ActivityBase implements RecyclerClickListen
                         for (Sketch sketch : sketches) {
                             adapter.addMasterpiece(sketch);
                         }
-
-                        ViewUtils.gone(progressBar);
                     }
                 }, new Action1<Throwable>() {
                     @Override
