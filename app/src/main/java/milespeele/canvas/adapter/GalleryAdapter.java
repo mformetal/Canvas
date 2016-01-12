@@ -50,7 +50,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.SketchVi
         ViewAspectRatioImage imageView = holder.imageView;
         ViewTypefaceTextView textView = holder.textView;
 
-        imageView.setOnClickListener(v -> ActivitySketch.newIntent(mContext, sketch, imageView));
+//        imageView.setOnClickListener(v -> ActivitySketch.newIntent(mContext, sketch, imageView));
 
         textView.setText(sketch.getTitle());
 

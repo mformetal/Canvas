@@ -210,8 +210,6 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
             case R.id.menu_drawer_header_gallery:
                 ActivityGallery.newIntent(this);
                 break;
-            case R.id.menu_drawer_header_feed:
-                break;
         }
         return false;
     }
