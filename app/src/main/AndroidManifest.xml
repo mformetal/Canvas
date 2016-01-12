@@ -28,7 +28,10 @@
 
         <activity
             android:name=".activity.ActivityGallery"
-            android:windowSoftInputMode="stateHidden" />
+            android:theme="@style/GalleryActivity" />
+
+        <activity
+            android:name=".activity.ActivitySketch" />
     </application>
 
 </manifest>

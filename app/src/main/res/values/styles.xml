@@ -12,6 +12,10 @@
         <item name="dialogTheme">@style/DialogTheme</item>
     </style>
 
+    <style name="GalleryActivity" parent="AppTheme" >
+        <item name="android:windowBackground">@color/accent</item>
+    </style>
+
     <style name="DialogActivity" parent="AppTheme" >
         <item name="android:windowFullscreen">false</item>
         <item name="android:windowIsFloating">true</item>

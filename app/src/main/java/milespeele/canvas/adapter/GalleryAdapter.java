@@ -1,12 +1,16 @@
 package milespeele.canvas.adapter;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.support.v7.graphics.Palette;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 
 import java.util.ArrayList;
 
@@ -14,7 +18,10 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import milespeele.canvas.R;
 import milespeele.canvas.model.Sketch;
+import milespeele.canvas.util.Logg;
+import milespeele.canvas.util.ViewUtils;
 import milespeele.canvas.view.ViewAspectRatioImage;
+import milespeele.canvas.view.ViewTypefaceTextView;
 
 public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.MasterpieceViewHolder> {
 
@@ -38,9 +45,41 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.Masterpi
     public void onBindViewHolder(MasterpieceViewHolder holder, int position) {
         Sketch sketch = mDataList.get(position);
 
+        ViewAspectRatioImage imageView = holder.imageView;
+        ViewTypefaceTextView textView = holder.textView;
+
+        textView.setText(sketch.getTitle());
+
         Glide.with(mContext)
+                .fromBytes()
+                .asBitmap()
+                .animate(android.R.anim.fade_in)
                 .load(sketch.getBytes())
-                .into(holder.imageView);
+                .listener(new RequestListener<byte[], Bitmap>() {
+                    @Override
+                    public boolean onException(Exception e, byte[] model, Target<Bitmap> target, boolean isFirstResource) {
+                        Logg.log("GLIDE:", e);
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onResourceReady(Bitmap resource, byte[] model, Target<Bitmap> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                        if (!holder.hasLoaded) {
+                            Palette.from(resource).generate(new Palette.PaletteAsyncListener() {
+                                @Override
+                                public void onGenerated(Palette palette) {
+                                    Palette.Swatch vibrant = palette.getLightVibrantSwatch();
+                                    if (vibrant != null) {
+                                        ViewUtils.animateBackground(textView, 350, vibrant.getRgb()).start();
+                                        textView.animateTextColor(vibrant.getTitleTextColor(), 350).start();
+                                    }
+                                }
+                            });
+                        }
+                        return false;
+                    }
+                })
+                .into(imageView);
     }
 
     @Override
@@ -56,6 +95,8 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.Masterpi
     final static class MasterpieceViewHolder extends RecyclerView.ViewHolder {
 
         @Bind(R.id.adapter_masterpieces_image) ViewAspectRatioImage imageView;
+        @Bind(R.id.adapter_masterpieces_title) ViewTypefaceTextView textView;
+        public boolean hasLoaded = false;
 
         public MasterpieceViewHolder(View itemView) {
             super(itemView);

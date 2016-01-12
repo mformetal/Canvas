@@ -19,7 +19,8 @@ public class RecyclerClickListener {
                     RecyclerView.ViewHolder holder = mRecyclerView.getChildViewHolder(v);
                     mOnItemClickListener.onItemClicked(mRecyclerView, holder.getAdapterPosition(), v);
                 } catch (IllegalArgumentException e) {
-                    mOnItemClickListener.onItemClicked(mRecyclerView, -1, v);
+                    RecyclerView.ViewHolder holder = mRecyclerView.getChildViewHolder((View) v.getParent());
+                    mOnItemClickListener.onItemClicked(mRecyclerView, holder.getAdapterPosition(), v);
                 }
             }
         }
