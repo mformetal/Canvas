@@ -37,13 +37,17 @@ public class FileUtils {
             public void call(Subscriber<? super byte[]> subscriber) {
                 subscriber.onStart();
 
-                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-                byte[] bytes = stream.toByteArray();
+                try {
+                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+                    byte[] bytes = stream.toByteArray();
 
-                subscriber.onNext(bytes);
-
-                subscriber.onCompleted();
+                    subscriber.onNext(bytes);
+                } catch (Exception e) {
+                    subscriber.onError(e);
+                } finally {
+                    subscriber.onCompleted();
+                }
             }
         });
     }

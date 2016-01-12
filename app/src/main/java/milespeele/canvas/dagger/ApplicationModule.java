@@ -7,6 +7,8 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 import de.greenrobot.event.EventBus;
+import io.realm.Realm;
+import io.realm.RealmConfiguration;
 import milespeele.canvas.util.Datastore;
 
 /**
@@ -39,5 +41,16 @@ public class ApplicationModule {
     @Singleton
     public EventBus getEventBus() {
         return new EventBus();
+    }
+
+    @Provides
+    @Singleton
+    public Realm getRealm(Application mApplication) {
+        RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(mApplication)
+                .name("examples.realm")
+                .build();
+
+        Realm.setDefaultConfiguration(realmConfiguration);
+        return Realm.getInstance(realmConfiguration);
     }
 }

@@ -16,6 +16,7 @@ import javax.inject.Inject;
 
 import butterknife.ButterKnife;
 import de.greenrobot.event.EventBus;
+import io.realm.Realm;
 import milespeele.canvas.MainApp;
 import rx.Subscription;
 import rx.subscriptions.CompositeSubscription;
@@ -26,6 +27,7 @@ import rx.subscriptions.CompositeSubscription;
 public abstract class ActivityBase extends Activity {
 
     @Inject EventBus bus;
+    @Inject Realm realm;
 
     private CompositeSubscription mCompositeSubscription;
     private ArrayList<Subscription> mRemovableSubscriptions;
@@ -53,6 +55,7 @@ public abstract class ActivityBase extends Activity {
     protected void onDestroy() {
         super.onDestroy();
         ButterKnife.unbind(this);
+        realm.close();
         if (mCompositeSubscription.hasSubscriptions()) {
             mCompositeSubscription.unsubscribe();
         }

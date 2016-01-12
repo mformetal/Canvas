@@ -28,6 +28,7 @@ import android.widget.FrameLayout;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.UUID;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -42,9 +43,11 @@ import milespeele.canvas.fragment.FragmentColorPicker;
 import milespeele.canvas.fragment.FragmentDrawer;
 import milespeele.canvas.fragment.FragmentFilename;
 import milespeele.canvas.fragment.FragmentText;
+import milespeele.canvas.model.Sketch;
 import milespeele.canvas.transition.TransitionHelper;
 import milespeele.canvas.util.FileUtils;
 import milespeele.canvas.util.Logg;
+import milespeele.canvas.util.SafeSubscription;
 import milespeele.canvas.util.SimpleDrawerLayoutListener;
 import milespeele.canvas.util.ViewUtils;
 import milespeele.canvas.view.ViewCanvasLayout;
@@ -266,12 +269,9 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
     private void saveAndExit() {
         FragmentDrawer fragmentDrawer = getFragmentDrawer();
 
-        Subscriber<byte[]> subscriber = new Subscriber<byte[]>() {
-
+        SafeSubscription<byte[]> subscriber = new SafeSubscription<byte[]>(this) {
             @Override
             public void onCompleted() {
-                removeSubscription(this);
-
                 AnimatorListenerAdapter listenerAdapter = new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationEnd(Animator animation) {
@@ -285,40 +285,69 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
             }
 
             @Override
-            public void onError(Throwable e) {
-                removeSubscription(this);
-            }
-
-            @Override
-            public void onNext(byte[] bytes) {
-
-            }
-
-            @Override
             public void onStart() {
                 super.onStart();
                 fragmentDrawer.getRootView().startSaveBitmapAnimation();
             }
         };
 
-        addSubscription(FileUtils.cache(fragmentDrawer.getDrawingBitmap(), this)
+        FileUtils.cache(fragmentDrawer.getDrawingBitmap(), this)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(subscriber));
+                .subscribe(subscriber);
     }
 
     @SuppressWarnings("unused, unchecked")
     public void onEvent(EventFilenameChosen eventFilenameChosen) {
         if (hasInternet()) {
-            FragmentDrawer drawer = getFragmentDrawer();
+            ViewFab saver = (ViewFab) findViewById(R.id.menu_upload);
+            SafeSubscription<byte[]> safeSubscription = new SafeSubscription<byte[]>(this) {
+                @Override
+                public void onError(Throwable e) {
+                    super.onError(e);
+                    saver.stopSaveAnimation();
+                }
 
-                Bitmap root = drawer.getDrawingBitmap();
-                Bitmap bitmap = Bitmap.createBitmap(root.getWidth(), root.getHeight(), Bitmap.Config.ARGB_8888);
-                Canvas canvas = new Canvas(bitmap);
-                canvas.drawColor(drawer.getRootView().getBackgroundColor());
-                canvas.drawBitmap(root, 0, 0, null);
-//                Bitmap bitmap = root.copy(Bitmap.Config.ARGB_8888, false);
-//                root.eraseColor(drawer.getRootView().getBackgroundColor());
+                @Override
+                public void onCompleted() {
+                    super.onCompleted();
+                    saver.stopSaveAnimation();
+                    ViewCanvasLayout view = getFragmentDrawer().getRootView();
+                    showSnackbar(view,
+                            R.string.snackbar_activity_home_image_saved_title,
+                            Snackbar.LENGTH_LONG,
+                            null);
+                }
+
+                @Override
+                public void onNext(byte[] o) {
+                    super.onNext(o);
+                    realm.beginTransaction();
+                    Sketch sketch = realm.createObject(Sketch.class);
+                    sketch.setBytes(o);
+                    sketch.setTitle(eventFilenameChosen.filename);
+                    sketch.setId(UUID.randomUUID().toString());
+                    realm.commitTransaction();
+                }
+
+                @Override
+                public void onStart() {
+                    super.onStart();
+                    saver.startSaveAnimation();
+                }
+            };
+
+            FragmentDrawer drawer = getFragmentDrawer();
+            Bitmap root = drawer.getDrawingBitmap();
+            Bitmap bitmap = Bitmap.createBitmap(root.getWidth(), root.getHeight(), Bitmap.Config.ARGB_8888);
+            Canvas canvas = new Canvas(bitmap);
+            canvas.drawColor(drawer.getRootView().getBackgroundColor());
+            canvas.drawBitmap(root, 0, 0, null);
+
+            FileUtils.compress(root)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(safeSubscription);
         } else {
             showSnackBar(R.string.snackbar_no_internet, Snackbar.LENGTH_LONG);
         }
