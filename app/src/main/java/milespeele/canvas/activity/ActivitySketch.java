@@ -1,21 +1,15 @@
 package milespeele.canvas.activity;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.app.ActivityOptions;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
-import android.support.v4.view.ViewCompat;
-import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.support.v7.graphics.Palette;
 import android.util.Pair;
 import android.view.View;
-import android.view.ViewAnimationUtils;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.Priority;
@@ -26,16 +20,10 @@ import com.bumptech.glide.request.target.Target;
 import butterknife.Bind;
 import io.realm.Realm;
 import io.realm.RealmQuery;
-import io.realm.RealmResults;
 import milespeele.canvas.R;
-import milespeele.canvas.adapter.GalleryAdapter;
 import milespeele.canvas.model.Sketch;
-import milespeele.canvas.util.Logg;
-import milespeele.canvas.util.ViewUtils;
 import milespeele.canvas.view.ViewAspectRatioImage;
 import milespeele.canvas.view.ViewFab;
-import milespeele.canvas.view.ViewTypefaceTextView;
-import rx.functions.Action1;
 
 /**
  * Created by mbpeele on 1/11/16.

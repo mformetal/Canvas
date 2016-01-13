@@ -1,30 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.CardView
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    app:cardBackgroundColor="@android:color/transparent"
-    app:cardCornerRadius="4dp"
-    app:cardElevation="4dp">
+    android:layout_height="match_parent" >
 
     <milespeele.canvas.view.ViewAspectRatioImage
-        android:id="@+id/adapter_masterpieces_image"
+        android:id="@+id/adapter_gallery_image"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:aspectRatioEnabled="true"
+        android:layout_height="wrap_content"
+        android:scaleType="fitXY"
+        android:adjustViewBounds="true"
+        app:aspectRatioEnabled="false"
         app:aspectRatio="@dimen/aspect_ratio" />
 
     <milespeele.canvas.view.ViewTypefaceTextView
-        android:id="@+id/adapter_masterpieces_title"
+        android:id="@+id/adapter_gallery_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:layout_gravity="bottom|center_horizontal"
-        android:textColor="@android:color/white"
-        android:background="@android:color/black"
-        android:textSize="@dimen/large_text_size" />
+        android:textColor="@android:color/black"
+        android:textSize="@dimen/xlarge_text_size"
+        android:layout_margin="@dimen/activity_vertical_margin"
+        tools:text="SHIT" />
 
-</android.support.v7.widget.CardView>
+</FrameLayout>
