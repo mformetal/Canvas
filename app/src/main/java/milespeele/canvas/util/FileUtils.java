@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -59,6 +60,10 @@ public class FileUtils {
                     ByteArrayOutputStream stream = new ByteArrayOutputStream();
                     bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
                     byte[] bytes = stream.toByteArray();
+
+                    OutputStream outputStream
+                            = context.openFileOutput(DRAWING_BITMAP_FILENAME, Context.MODE_PRIVATE);
+                    outputStream.write(bytes);
 
                     subscriber.onNext(bytes);
                 } catch (Exception e) {
