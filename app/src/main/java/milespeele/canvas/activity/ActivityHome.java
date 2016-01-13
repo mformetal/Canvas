@@ -27,6 +27,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ProgressBar;
 
 import java.io.File;
 import java.io.IOException;
@@ -72,8 +73,7 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
     private final static int REQUEST_PERMISSION_CAMERA_CODE = 2003;
 
     @Bind(R.id.activity_home_fragment_frame) FrameLayout frameLayout;
-    @Bind(R.id.activity_home_drawer_layout) DrawerLayout drawerLayout;
-    @Bind(R.id.activity_home_navigation_view) NavigationView navigationView;
+    @Bind(R.id.activity_home_progress_bar) ProgressBar progressBar;
 
     private ViewRoundedFrameLayout fabFrame;
     private FragmentManager manager;
@@ -89,15 +89,6 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
         ViewUtils.systemUIGone(getWindow().getDecorView());
 
         bus.register(this);
-
-        drawerLayout.setDrawerListener(new SimpleDrawerLayoutListener() {
-            @Override
-            public void onDrawerClosed(View drawerView) {
-                ViewUtils.systemUIGone(getWindow().getDecorView());
-            }
-        });
-        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-        navigationView.setNavigationItemSelectedListener(this);
 
         manager = getFragmentManager();
 
@@ -126,20 +117,16 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
         // https://code.google.com/p/android/issues/detail?id=82832
 
         if (count == 0) {
-            if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-                drawerLayout.closeDrawer(GravityCompat.START);
-            } else {
-                Dialog builder = new Dialog(this);
-                builder.setContentView(R.layout.dialog_save);
-                builder.findViewById(R.id.dialog_save_drawing).setOnClickListener(v -> {
-                    builder.dismiss();
-                    saveAndExit();
-                });
-                builder.findViewById(R.id.dialog_exit_app).setOnClickListener(v -> {
-                    super.onBackPressed();
-                });
-                builder.show();
-            }
+            Dialog builder = new Dialog(this);
+            builder.setContentView(R.layout.dialog_save);
+            builder.findViewById(R.id.dialog_save_drawing).setOnClickListener(v -> {
+                builder.dismiss();
+                saveAndExit();
+            });
+            builder.findViewById(R.id.dialog_exit_app).setOnClickListener(v -> {
+                super.onBackPressed();
+            });
+            builder.show();
         } else {
             FragmentBase fragment = (FragmentBase)
                     manager.findFragmentById(R.id.fragment_drawer_animator);
@@ -188,14 +175,6 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            ViewUtils.systemUIVisibile(getWindow().getDecorView());
-        }
-    }
-
-    @Override
     protected void onDestroy() {
         super.onDestroy();
         ButterKnife.unbind(this);
@@ -212,6 +191,10 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
                 break;
         }
         return false;
+    }
+
+    public void onLoadFinished() {
+        frameLayout.removeView(progressBar);
     }
 
     public void onFabMenuButtonClicked(View view) {
@@ -242,7 +225,7 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
                 showClearCanvasDialog();
                 break;
             case R.id.menu_navigation:
-                showNavigationView();
+                ActivityGallery.newIntent(this);
                 break;
         }
     }
@@ -474,16 +457,6 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
             showGallery();
         });
         builder.show();
-    }
-
-    private void showNavigationView() {
-        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            ViewUtils.systemUIGone(getWindow().getDecorView());
-            drawerLayout.closeDrawer(GravityCompat.START);
-        } else {
-            ViewUtils.systemUIVisibile(getWindow().getDecorView());
-            drawerLayout.openDrawer(GravityCompat.START);
-        }
     }
 
     private void showSnackBar(@StringRes int id, int duration) {

@@ -562,7 +562,8 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
 
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            if (isVisible() && !isFromBottom(e1) && !isFromBottom(e2)) {
+            if (isVisible() && !isFromBottom(e1) && !isFromBottom(e2) &&
+                    isMinXDist(e1, e2)) {
                 isDragging = false;
 
                 isFlinging = true;
@@ -575,6 +576,10 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
             }
 
             return false;
+        }
+
+        private boolean isMinXDist(MotionEvent e1, MotionEvent e2) {
+            return Math.abs(e1.getX() - e2.getX()) > 50;
         }
     }
 
