@@ -13,6 +13,7 @@ import io.realm.RealmResults;
 import milespeele.canvas.R;
 import milespeele.canvas.adapter.GalleryPagerAdapter;
 import milespeele.canvas.model.Sketch;
+import milespeele.canvas.util.DepthPageTransformer;
 import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.ZoomOutPageTransformer;
 import rx.functions.Action1;
@@ -26,8 +27,7 @@ public class ActivityGallery extends ActivityBase implements GalleryPagerAdapter
         context.startActivity(new Intent(context, ActivityGallery.class));
     }
 
-    @Bind(R.id.activity_gallery_pager)
-    ViewPager pager;
+    @Bind(R.id.activity_gallery_pager) ViewPager pager;
 
     private GalleryPagerAdapter adapter;
 
@@ -38,7 +38,8 @@ public class ActivityGallery extends ActivityBase implements GalleryPagerAdapter
 
         adapter = new GalleryPagerAdapter(this);
         pager.setAdapter(adapter);
-        pager.setPageTransformer(false, new ZoomOutPageTransformer());
+//        pager.setPageTransformer(false, new ZoomOutPageTransformer());
+        pager.setPageTransformer(false, new DepthPageTransformer());
 
         loadImages();
     }
