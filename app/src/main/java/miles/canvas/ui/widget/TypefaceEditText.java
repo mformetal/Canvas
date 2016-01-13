@@ -53,7 +53,7 @@ public class TypefaceEditText extends EditText {
             return;
         }
 
-        setTypeface(TextUtils.getStaticTypeFace(getContext(), "Roboto.ttf"));
+        setTypeface(TextUtils.getStaticTypeFace(getContext()));
     }
 
     public String getTextAsString() { return getText().toString(); }

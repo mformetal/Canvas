@@ -48,7 +48,7 @@ public class TypefaceButton extends Button {
             return;
         }
 
-        setTypeface(TextUtils.getStaticTypeFace(getContext(), "Roboto.ttf"));
+        setTypeface(TextUtils.getStaticTypeFace(getContext()));
 
         TypedArray typedArray = getResources().obtainAttributes(attributeSet, R.styleable.TypefaceButton);
         int background = typedArray.getColor(R.styleable.TypefaceButton_backgroundColor, Color.WHITE);

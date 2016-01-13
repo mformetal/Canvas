@@ -51,7 +51,7 @@ public class TypefaceTextView extends TextView {
             return;
         }
 
-        setTypeface(TextUtils.getStaticTypeFace(getContext(), "Roboto.ttf"));
+        setTypeface(TextUtils.getStaticTypeFace(getContext()));
 
         if (attrs != null) {
             TypedArray typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.TypefaceTextView);

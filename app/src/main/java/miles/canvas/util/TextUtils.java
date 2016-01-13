@@ -3,6 +3,7 @@ package miles.canvas.util;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.graphics.Typeface;
+import android.support.annotation.StringRes;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -12,6 +13,7 @@ import java.util.regex.Pattern;
 public final class TextUtils {
 
     private static HashMap<String, Typeface> mFontMap;
+    private final static String DEFAULT_FONT_NAME = "Roboto-Regular.ttf";
 
     private static void initializeFontMap(Context context) {
         mFontMap = new HashMap<>();
@@ -27,14 +29,14 @@ public final class TextUtils {
         }
     }
 
-    public static Typeface getStaticTypeFace(Context context, String fontFileName) {
+    public static Typeface getStaticTypeFace(Context context) {
         if (mFontMap == null) {
             initializeFontMap(context);
         }
-        Typeface typeface = mFontMap.get(fontFileName);
+        Typeface typeface = mFontMap.get(DEFAULT_FONT_NAME);
         if (typeface == null) {
             throw new IllegalArgumentException(
-                    "Font name must match file name in assets/fonts/ directory: " + fontFileName);
+                    "Font name must match file name in assets/fonts/ directory: " + DEFAULT_FONT_NAME);
         }
         return typeface;
     }
