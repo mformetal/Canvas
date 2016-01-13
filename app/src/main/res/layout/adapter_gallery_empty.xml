@@ -11,7 +11,7 @@
         android:scaleType="fitXY"
         android:adjustViewBounds="true" />
 
-    <milespeele.canvas.view.ViewTypefaceTextView
+    <miles.canvas.view.ViewTypefaceTextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="No saved images. Draw, save and view here!"

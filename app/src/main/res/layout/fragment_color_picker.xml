@@ -7,7 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-    <milespeele.canvas.view.ViewTypefaceTextView
+    <miles.canvas.view.ViewTypefaceTextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
@@ -41,7 +41,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
-    <milespeele.canvas.view.ViewTypefaceButton
+    <miles.canvas.view.ViewTypefaceButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/fragment_color_picker_choose"
@@ -52,7 +52,7 @@
         style="?android:attr/borderlessButtonStyle"
         android:background="?android:attr/selectableItemBackground" />
 
-    <milespeele.canvas.view.ViewTypefaceButton
+    <miles.canvas.view.ViewTypefaceButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/fragment_color_picker_nah"

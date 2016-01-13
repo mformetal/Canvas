@@ -17,7 +17,7 @@ android {
     buildToolsVersion "23.0.2"
 
     defaultConfig {
-        applicationId "milespeele.canvas"
+        applicationId "miles.canvas"
         minSdkVersion 21
         targetSdkVersion 23
         versionCode 1

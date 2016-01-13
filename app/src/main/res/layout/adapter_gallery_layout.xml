@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-    <milespeele.canvas.view.ViewAspectRatioImage
+    <miles.canvas.view.ViewAspectRatioImage
         android:id="@+id/adapter_gallery_image"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -15,7 +15,7 @@
         app:aspectRatioEnabled="false"
         app:aspectRatio="@dimen/aspect_ratio" />
 
-    <milespeele.canvas.view.ViewTypefaceTextView
+    <miles.canvas.view.ViewTypefaceTextView
         android:id="@+id/adapter_gallery_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
