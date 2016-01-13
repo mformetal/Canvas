@@ -67,6 +67,7 @@ public class FragmentText extends FragmentBase implements View.OnClickListener, 
             case R.id.fragment_text_pos_button:
                 if (validateEnteredText()) {
                     bus.post(new EventTextChosen(input.getTextAsString()));
+                    input.closeKeyboard();
                     getActivity().onBackPressed();
                 }
                 break;

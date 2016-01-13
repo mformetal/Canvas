@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
 import milespeele.canvas.util.TextUtils;
@@ -59,6 +60,12 @@ public class ViewTypefaceEditText extends EditText {
 
     public void setBackPressedListener(BackPressedListener listener) {
         mOnImeBack = listener;
+    }
+
+    public void closeKeyboard() {
+        InputMethodManager imm
+                = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(getWindowToken(), 0);
     }
 
     public interface BackPressedListener {

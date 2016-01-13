@@ -67,6 +67,7 @@ public class FragmentFilename extends FragmentBase implements View.OnClickListen
             case R.id.fragment_filename_pos_button:
                 if (validateFileName()) {
                     bus.post(new EventFilenameChosen(input.getTextAsString()));
+                    input.closeKeyboard();
                     getActivity().onBackPressed();
                 }
                 break;

@@ -20,6 +20,8 @@ import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 
+import java.util.Iterator;
+
 import butterknife.Bind;
 import io.realm.RealmResults;
 import milespeele.canvas.R;
