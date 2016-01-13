@@ -171,6 +171,12 @@ public class ActivityHome extends ActivityBase {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        ViewUtils.systemUIGone(getWindow().getDecorView());
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         ButterKnife.unbind(this);
