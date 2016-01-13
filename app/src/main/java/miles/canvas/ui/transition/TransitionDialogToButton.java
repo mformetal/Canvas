@@ -53,8 +53,6 @@ public class TransitionDialogToButton extends ChangeBounds {
         float translationX = fab.getX() - fabFrame.getWidth() / 2 + fab.getWidth() * .1f;
         float translationY = fab.getY() + fab.getHeight() * 3.25f + yDiff;
 
-        Animator alpha = ObjectAnimator.ofArgb(layout, CanvasLayout.ALPHA, 0);
-
         Animator background = ObjectAnimator.ofArgb(fabFrame,
                 ViewUtils.BACKGROUND, startColor, endColor)
                 .setDuration(450);
@@ -73,7 +71,7 @@ public class TransitionDialogToButton extends ChangeBounds {
                 .setDuration(350);
 
         AnimatorSet animatorSet = new AnimatorSet();
-        animatorSet.playTogether(alpha, background, scale, position);
+        animatorSet.playTogether(background, scale, position);
         animatorSet.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {

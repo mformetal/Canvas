@@ -59,9 +59,6 @@ public class TransitionButtonToDialog extends ChangeBounds {
         fabFrame.setTranslationY(translationY + yDiff);
         fabFrame.setCorner(0);
 
-        Animator alpha = ObjectAnimator.ofInt(layout, CanvasLayout.ALPHA, 128);
-        alpha.setInterpolator(new LinearInterpolator());
-
         Animator background = ObjectAnimator.ofArgb(fabFrame,
                 ViewUtils.BACKGROUND, startColor, endColor)
                 .setDuration(350);
@@ -78,7 +75,7 @@ public class TransitionButtonToDialog extends ChangeBounds {
                 .setDuration(350);
 
         AnimatorSet animatorSet = new AnimatorSet();
-        animatorSet.playTogether(alpha, background, position, scale);
+        animatorSet.playTogether(background, position, scale);
         animatorSet.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationStart(Animator animation) {

@@ -680,6 +680,8 @@ public class DrawingCurve {
 
     public Paint getPaint() { return mPaint; }
 
+    public State getState() { return mState; }
+
     private void setPaintColor(int color) {
         mTextPaint.setColor(color);
         mPaint.setColor(color);
