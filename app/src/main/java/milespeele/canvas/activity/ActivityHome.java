@@ -2,6 +2,7 @@ package milespeele.canvas.activity;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.animation.ObjectAnimator;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.Fragment;
@@ -66,7 +67,7 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
     private final static int REQUEST_PERMISSION_CAMERA_CODE = 2003;
 
     @Bind(R.id.activity_home_fragment_frame) FrameLayout frameLayout;
-    @Bind(R.id.activity_home_progress_bar) ProgressBar progressBar;
+    @Bind(R.id.adapter_gallery_progress) ProgressBar progressBar;
 
     private ViewRoundedFrameLayout fabFrame;
     private FragmentManager manager;
@@ -187,7 +188,14 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
     }
 
     public void onLoadFinished() {
-        frameLayout.removeView(progressBar);
+        ObjectAnimator gone = ViewUtils.goneAnimator(progressBar);
+        gone.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                frameLayout.removeView(progressBar);
+            }
+        });
+        gone.start();
     }
 
     public void onFabMenuButtonClicked(View view) {

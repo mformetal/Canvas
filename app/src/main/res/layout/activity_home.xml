@@ -8,11 +8,11 @@
     tools:ignore="RtlSymmetry" >
 
     <ProgressBar
-        android:id="@+id/activity_home_progress_bar"
+        android:id="@+id/adapter_gallery_progress"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:indeterminateTint="@android:color/white"
+        android:indeterminateTint="@color/primary_light"
         android:indeterminateTintMode="src_in" />
 
 </FrameLayout>

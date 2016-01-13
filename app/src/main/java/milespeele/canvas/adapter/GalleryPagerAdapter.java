@@ -1,15 +1,24 @@
 package milespeele.canvas.adapter;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.graphics.Bitmap;
+import android.graphics.ColorMatrixColorFilter;
 import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.support.v7.graphics.Palette;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
+import android.view.animation.DecelerateInterpolator;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.animation.ViewPropertyAnimation;
 import com.bumptech.glide.request.target.Target;
 
 import java.util.ArrayList;
@@ -17,6 +26,7 @@ import java.util.ArrayList;
 import milespeele.canvas.R;
 import milespeele.canvas.model.Sketch;
 import milespeele.canvas.util.Logg;
+import milespeele.canvas.util.ViewUtils;
 import milespeele.canvas.view.ViewAspectRatioImage;
 import milespeele.canvas.view.ViewTypefaceTextView;
 
@@ -50,8 +60,6 @@ public class GalleryPagerAdapter extends PagerAdapter {
 
         Sketch sketch = mDataList.get(position);
 
-        textView.setText(sketch.getTitle());
-
         Glide.with(mActivity)
                 .fromBytes()
                 .asBitmap()
@@ -66,15 +74,13 @@ public class GalleryPagerAdapter extends PagerAdapter {
 
                     @Override
                     public boolean onResourceReady(Bitmap resource, byte[] model, Target<Bitmap> target, boolean isFromMemoryCache, boolean isFirstResource) {
-                        Palette.from(resource).generate(new Palette.PaletteAsyncListener() {
-                            @Override
-                            public void onGenerated(Palette palette) {
-                                mListener.onPaletteReady(palette);
+                        Palette.from(resource).generate(palette -> {
+                            mListener.onPaletteReady(palette);
 
-                                Palette.Swatch swatch = palette.getVibrantSwatch();
-                                if (swatch != null) {
-                                    textView.animateTextColor(swatch.getTitleTextColor(), 350).start();
-                                }
+                            Palette.Swatch swatch = palette.getVibrantSwatch();
+                            if (swatch != null) {
+                                textView.animateTextColor(swatch.getTitleTextColor(), 350).start();
+                                textView.setText(sketch.getTitle());
                             }
                         });
                         return false;
