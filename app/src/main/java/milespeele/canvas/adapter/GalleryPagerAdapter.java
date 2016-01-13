@@ -80,8 +80,8 @@ public class GalleryPagerAdapter extends PagerAdapter {
                             Palette.Swatch swatch = palette.getVibrantSwatch();
                             if (swatch != null) {
                                 textView.animateTextColor(swatch.getTitleTextColor(), 350).start();
-                                textView.setText(sketch.getTitle());
                             }
+                            textView.setText(sketch.getTitle());
                         });
                         return false;
                     }

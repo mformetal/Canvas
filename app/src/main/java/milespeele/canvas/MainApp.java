@@ -3,6 +3,9 @@ package milespeele.canvas;
 import android.app.Application;
 
 import com.crashlytics.android.Crashlytics;
+
+import java.util.UUID;
+
 import io.fabric.sdk.android.Fabric;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
