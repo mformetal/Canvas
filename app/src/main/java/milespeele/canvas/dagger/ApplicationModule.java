@@ -36,15 +36,6 @@ public class ApplicationModule {
         return new Datastore(mApplication);
     }
 
-<<<<<<< HEAD
-    @Provides
-    @Singleton
-    public ParseUtils getParseUtils(Application mApplication) {
-        return new ParseUtils();
-    }
-=======
->>>>>>> Realm
-
     @Provides
     @Singleton
     public EventBus getEventBus() {

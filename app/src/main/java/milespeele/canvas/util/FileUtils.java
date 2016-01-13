@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
+import io.realm.Realm;
 import rx.Observable;
 import rx.Subscriber;
 
@@ -32,7 +33,6 @@ public class FileUtils {
     private static ArrayList<String> mFilenames;
 
     public static Observable<byte[]> compress(Bitmap bitmap) {
-<<<<<<< HEAD
         return Observable.create(new Observable.OnSubscribe<byte[]>() {
             @Override
             public void call(Subscriber<? super byte[]> subscriber) {
@@ -50,8 +50,6 @@ public class FileUtils {
     }
 
     public static Observable<byte[]> cache(Bitmap bitmap, Context context) {
-=======
->>>>>>> Realm
         return Observable.create(new Observable.OnSubscribe<byte[]>() {
             @Override
             public void call(Subscriber<? super byte[]> subscriber) {
@@ -67,41 +65,6 @@ public class FileUtils {
                     subscriber.onError(e);
                 } finally {
                     subscriber.onCompleted();
-                }
-            }
-        });
-    }
-
-    public static Observable<byte[]> cache(Bitmap bitmap, Context context) {
-        return Observable.create(new Observable.OnSubscribe<byte[]>() {
-            @Override
-            public void call(Subscriber<? super byte[]> subscriber) {
-                subscriber.onStart();
-
-                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                byte[] bytes = stream.toByteArray();
-
-                FileOutputStream output = null;
-                try {
-                    output = context.openFileOutput(DRAWING_BITMAP_FILENAME, Context.MODE_PRIVATE);
-                    output.write(bytes);
-
-                    subscriber.onNext(bytes);
-                } catch (IOException e) {
-                    Logg.log(e);
-                    subscriber.onError(e);
-                } finally {
-                    if (output != null) {
-                        try {
-                            output.flush();
-                            output.close();
-
-                            subscriber.onCompleted();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
                 }
             }
         });

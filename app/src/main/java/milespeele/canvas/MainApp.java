@@ -23,11 +23,7 @@ public class MainApp extends Application {
                 .name("examples.realm")
                 .build();
 
-<<<<<<< HEAD
-        Fabric.with(this, crashlyticsKit, new Crashlytics());
-=======
         Realm.setDefaultConfiguration(realmConfiguration);
->>>>>>> Realm
 
         component = DaggerApplicationComponent.builder()
                 .applicationModule(new ApplicationModule(this))

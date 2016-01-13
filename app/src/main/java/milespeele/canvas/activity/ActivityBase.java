@@ -8,10 +8,6 @@ import android.os.Bundle;
 import android.support.annotation.StringRes;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
-<<<<<<< HEAD
-import android.support.v7.app.AppCompatActivity;
-=======
->>>>>>> Realm
 import android.view.View;
 
 import java.util.ArrayList;
@@ -99,32 +95,12 @@ public abstract class ActivityBase extends Activity {
         return true;
     }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-    public void startLoginActivity() {
-        startActivityForResult(new ParseLoginBuilder(this).build(), 0);
-    }
-
-    public void showSnackbar(@StringRes int res, int duration, View.OnClickListener onClickListener) {
-       showSnackbar(null, res, duration, onClickListener);
-    }
-
-    public void showSnackbar(View view, @StringRes int res, int duration, View.OnClickListener onClickListener) {
-        view = view == null ? getWindow().getDecorView() : view;
-        Snackbar snackbar = Snackbar.make(view, res, duration);
-=======
-    public void startLoginActivity(int code) {
-    }
-
-=======
->>>>>>> NewBranch
     public void showSnackbar(@StringRes int res, int duration, View.OnClickListener onClickListener) {
         showSnackbar(null, res, duration, onClickListener);
     }
 
     public void showSnackbar(View view, @StringRes int res, int duration, View.OnClickListener onClickListener) {
         Snackbar snackbar = Snackbar.make(view == null ? getWindow().getDecorView() : view, res, duration);
->>>>>>> Realm
         if (onClickListener != null) {
             snackbar.setAction("Aight", onClickListener);
         }

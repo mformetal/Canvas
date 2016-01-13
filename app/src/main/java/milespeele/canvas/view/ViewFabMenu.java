@@ -21,6 +21,7 @@ import android.view.animation.AnticipateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.view.animation.OvershootInterpolator;
+import android.widget.Gallery;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,6 +33,7 @@ import javax.inject.Inject;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import de.greenrobot.event.EventBus;
+import io.realm.Realm;
 import milespeele.canvas.MainApp;
 import milespeele.canvas.R;
 import milespeele.canvas.event.EventBrushChosen;
@@ -238,11 +240,7 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
 
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
-<<<<<<< HEAD
-                if (isSwipeFromBottom(event)) {
-=======
                 if (isFromBottom(event)) {
->>>>>>> Realm
                     return false;
                 }
 
@@ -378,19 +376,11 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
                 out.setDuration(DURATION);
                 out.setInterpolator(OVERSHOOT_INTERPOLATOR);
 
-<<<<<<< HEAD
-                ObjectAnimator rotate = ObjectAnimator.ofFloat(view, View.ROTATION,
-                        0f, 360f);
-                rotate.setDuration(DURATION);
-                rotate.setStartDelay(delay);
-                rotate.setInterpolator(new AccelerateDecelerateInterpolator());
-=======
                 ObjectAnimator rotate = ObjectAnimator.ofFloat(view,
                         View.ROTATION, 0f, 360f);
                 rotate.setInterpolator(new DecelerateInterpolator());
                 rotate.setDuration(DURATION * 2);
                 rotate.setStartDelay(delay);
->>>>>>> Realm
 
                 delay += DELAY_INCREMENT;
 
@@ -462,19 +452,11 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
                 out.setDuration(DURATION);
                 out.setInterpolator(ANTICIPATE_INTERPOLATOR);
 
-<<<<<<< HEAD
-                ObjectAnimator rotate = ObjectAnimator.ofFloat(view, View.ROTATION,
-                        0f, 360f);
-                rotate.setDuration(DURATION);
-                rotate.setStartDelay(delay);
-                rotate.setInterpolator(new AccelerateDecelerateInterpolator());
-=======
                 ObjectAnimator rotate = ObjectAnimator.ofFloat(view,
                         View.ROTATION, 0f, 360f);
                 rotate.setInterpolator(new DecelerateInterpolator());
                 rotate.setDuration(DURATION * 4);
                 rotate.setStartDelay(delay);
->>>>>>> Realm
 
                 delay += DELAY_INCREMENT;
 
@@ -591,11 +573,8 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
 
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-<<<<<<< HEAD
-            if (isVisible() && !isSwipeFromBottom(e1) && !isSwipeFromBottom(e2)) {
-=======
-            if (isVisible() && !isFromBottom(e1) && !isFromBottom(e2)) {
->>>>>>> Realm
+               if (isVisible() && !isFromBottom(e1) && !isFromBottom(e2) &&
+                    isMinXDist(e1, e2)) {
                 isDragging = false;
 
                 isFlinging = true;
@@ -608,6 +587,10 @@ public class ViewFabMenu extends ViewGroup implements View.OnClickListener {
             }
 
             return false;
+        }
+
+        private boolean isMinXDist(MotionEvent e1, MotionEvent e2) {
+            return Math.abs(e1.getX() - e2.getX()) > 50;
         }
     }
 

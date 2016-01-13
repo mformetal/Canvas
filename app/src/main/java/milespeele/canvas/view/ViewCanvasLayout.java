@@ -31,7 +31,9 @@ import android.widget.ProgressBar;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import io.realm.Realm;
 import milespeele.canvas.R;
+import milespeele.canvas.activity.ActivityHome;
 import milespeele.canvas.drawing.DrawingCurve;
 import milespeele.canvas.fragment.FragmentDrawer;
 import milespeele.canvas.util.Logg;
@@ -48,7 +50,6 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
     @Bind(R.id.fragment_drawer_animator) ViewRoundedFrameLayout fabFrame;
     @Bind(R.id.fragment_drawer_options_menu) ViewOptionsMenu optionsMenu;
     @Bind(R.id.fragment_drawer_save_animation) ViewSaveAnimator saveAnimator;
-    @Bind(R.id.fragment_drawer_loading) ProgressBar progressBar;
 
     private Rect mRect = new Rect();
     private final Path mPath = new Path();
@@ -96,17 +97,6 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
 
     @Override
     protected boolean drawChild(Canvas canvas, View child, long drawingTime) {
-<<<<<<< HEAD
-        if (mShadowPaint.getAlpha() > 0) {
-            canvas.save();
-            canvas.drawPaint(mShadowPaint);
-            canvas.restore();
-
-            int alpha = mShadowPaint.getAlpha();
-            float viewAlpha = alpha / ViewUtils.MAX_ALPHA;
-            fabMenu.setAlpha(1.0f - viewAlpha);
-            optionsMenu.setAlpha(1.0f - viewAlpha);
-=======
         if (mShadowPaint.getAlpha() != 0) {
             canvas.drawPaint(mShadowPaint);
 
@@ -114,7 +104,6 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
             float viewAlpha = paintAlpha / 255f;
             fabMenu.setAlpha(1f - viewAlpha);
             optionsMenu.setAlpha(1f - viewAlpha);
->>>>>>> Realm
         }
         return super.drawChild(canvas, child, drawingTime);
     }
@@ -213,34 +202,26 @@ public class ViewCanvasLayout extends CoordinatorLayout implements
 
     @Override
     public void surfaceReady() {
-        ObjectAnimator animator = ViewUtils.goneAnimator(progressBar);
-        animator.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                Animator reveal = ViewAnimationUtils.createCircularReveal(ViewCanvasLayout.this,
-                        getWidth() / 2, getHeight() / 2, 0, getHeight());
-                reveal.setDuration(600);
-                reveal.setInterpolator(new AccelerateDecelerateInterpolator());
-                reveal.addListener(new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationStart(Animator animation) {
-                        drawer.setVisibility(View.VISIBLE);
-                        fabMenu.setVisibility(View.VISIBLE);
-                    }
+            Animator reveal = ViewAnimationUtils.createCircularReveal(ViewCanvasLayout.this,
+                    getWidth() / 2, getHeight() / 2, 0, getHeight());
+            reveal.setDuration(600);
+            reveal.setInterpolator(new AccelerateDecelerateInterpolator());
+            reveal.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationStart(Animator animation) {
+                    drawer.setVisibility(View.VISIBLE);
+                    fabMenu.setVisibility(View.VISIBLE);
+                }
 
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        removeView(progressBar);
-                        Activity activity = (Activity) getContext();
-                        Window window = activity.getWindow();
-                        window.setBackgroundDrawable(null);
-                    }
-                });
-                reveal.start();
-            }
-        });
-        animator.setDuration(500);
-        animator.start();
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    ActivityHome activity = (ActivityHome) getContext();
+                    Window window = activity.getWindow();
+                    window.setBackgroundDrawable(null);
+                    activity.onLoadFinished();
+                }
+            });
+            reveal.start();
     }
 
     @Override

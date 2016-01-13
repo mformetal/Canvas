@@ -2,6 +2,7 @@ package milespeele.canvas.activity;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.animation.ObjectAnimator;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.Fragment;
@@ -11,7 +12,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.PersistableBundle;
@@ -21,22 +21,14 @@ import android.support.annotation.StringRes;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
-
-import com.parse.ParseException;
-import com.parse.ParseUser;
+import android.widget.ProgressBar;
 
 import java.io.File;
 import java.io.IOException;
-<<<<<<< HEAD
-=======
 import java.util.UUID;
->>>>>>> Realm
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -57,7 +49,6 @@ import milespeele.canvas.transition.TransitionHelper;
 import milespeele.canvas.util.FileUtils;
 import milespeele.canvas.util.Logg;
 import milespeele.canvas.util.SafeSubscription;
-import milespeele.canvas.util.SimpleDrawerLayoutListener;
 import milespeele.canvas.util.ViewUtils;
 import milespeele.canvas.view.ViewCanvasLayout;
 import milespeele.canvas.view.ViewFab;
@@ -66,7 +57,7 @@ import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
-public class ActivityHome extends ActivityBase implements NavigationView.OnNavigationItemSelectedListener {
+public class ActivityHome extends ActivityBase {
 
     private final static String TAG_FRAGMENT_DRAWER = "drawer";
     private final static String TAG_FRAGMENT_COLOR_PICKER = "color";
@@ -78,8 +69,7 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
     private final static int REQUEST_PERMISSION_CAMERA_CODE = 2003;
 
     @Bind(R.id.activity_home_fragment_frame) FrameLayout frameLayout;
-    @Bind(R.id.activity_home_drawer_layout) DrawerLayout drawerLayout;
-    @Bind(R.id.activity_home_navigation_view) NavigationView navigationView;
+    @Bind(R.id.adapter_gallery_progress) ProgressBar progressBar;
 
     private ViewRoundedFrameLayout fabFrame;
     private FragmentManager manager;
@@ -95,15 +85,6 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
         ViewUtils.systemUIGone(getWindow().getDecorView());
 
         bus.register(this);
-
-        drawerLayout.setDrawerListener(new SimpleDrawerLayoutListener() {
-            @Override
-            public void onDrawerClosed(View drawerView) {
-                ViewUtils.systemUIGone(getWindow().getDecorView());
-            }
-        });
-        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-        navigationView.setNavigationItemSelectedListener(this);
 
         manager = getFragmentManager();
 
@@ -132,20 +113,16 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
         // https://code.google.com/p/android/issues/detail?id=82832
 
         if (count == 0) {
-            if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-                drawerLayout.closeDrawer(GravityCompat.START);
-            } else {
-                Dialog builder = new Dialog(this);
-                builder.setContentView(R.layout.dialog_save);
-                builder.findViewById(R.id.dialog_save_drawing).setOnClickListener(v -> {
-                    builder.dismiss();
-                    saveAndExit();
-                });
-                builder.findViewById(R.id.dialog_exit_app).setOnClickListener(v -> {
-                    super.onBackPressed();
-                });
-                builder.show();
-            }
+            Dialog builder = new Dialog(this);
+            builder.setContentView(R.layout.dialog_save);
+            builder.findViewById(R.id.dialog_save_drawing).setOnClickListener(v -> {
+                builder.dismiss();
+                saveAndExit();
+            });
+            builder.findViewById(R.id.dialog_exit_app).setOnClickListener(v -> {
+                super.onBackPressed();
+            });
+            builder.show();
         } else {
             FragmentBase fragment = (FragmentBase)
                     manager.findFragmentById(R.id.fragment_drawer_animator);
@@ -194,35 +171,21 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            ViewUtils.systemUIVisibile(getWindow().getDecorView());
-        }
-    }
-
-    @Override
     protected void onDestroy() {
         super.onDestroy();
         ButterKnife.unbind(this);
         FileUtils.deleteTemporaryFiles(this);
     }
 
-    @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
-<<<<<<< HEAD
-        startLoginActivity();
-
-=======
->>>>>>> Realm
-        switch (item.getItemId()) {
-            case R.id.menu_drawer_header_profile:
-                break;
-            case R.id.menu_drawer_header_gallery:
-                ActivityGallery.newIntent(this);
-                break;
-        }
-        return false;
+    public void onLoadFinished() {
+        ObjectAnimator gone = ViewUtils.goneAnimator(progressBar);
+        gone.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                frameLayout.removeView(progressBar);
+            }
+        });
+        gone.start();
     }
 
     public void onFabMenuButtonClicked(View view) {
@@ -253,7 +216,7 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
                 showClearCanvasDialog();
                 break;
             case R.id.menu_navigation:
-                showNavigationView();
+                ActivityGallery.newIntent(this);
                 break;
         }
     }
@@ -304,68 +267,14 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
             }
         };
 
-<<<<<<< HEAD
-        addSubscription(FileUtils.cache(fragmentDrawer.getDrawingBitmap(), this)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(subscriber));
-=======
         FileUtils.cache(fragmentDrawer.getDrawingBitmap(), this)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(subscriber);
->>>>>>> Realm
     }
 
     @SuppressWarnings("unused, unchecked")
     public void onEvent(EventFilenameChosen eventFilenameChosen) {
-<<<<<<< HEAD
-        if (NetworkUtils.hasInternet(this)) {
-            FragmentDrawer frag = (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
-            if (frag != null) {
-                Subscriber<byte[]> subscriber = new Subscriber<byte[]>() {
-                    @Override
-                    public void onCompleted() {
-                        removeSubscription(this);
-
-                        ((ViewFab) findViewById(R.id.menu_upload)).stopSaveAnimation();
-
-                        FragmentDrawer fragmentDrawer =
-                                (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
-
-                        if (fragmentDrawer != null && fragmentDrawer.getRootView() != null) {
-                            Snackbar.make(fragmentDrawer.getRootView(),
-                                    R.string.snackbar_activity_home_image_saved_title,
-                                    Snackbar.LENGTH_LONG)
-                                    .show();
-                        }
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        ((ViewFab) findViewById(R.id.menu_upload)).stopSaveAnimation();
-
-                        if (e instanceof ParseException) {
-                            ParseUtils.handleError((ParseException) e,
-                                    getFragmentDrawer().getRootView(),
-                                    ActivityHome.this);
-                        } else {
-                            Logg.log(e);
-                        }
-                    }
-
-                    @Override
-                    public void onNext(byte[] bytes) {
-
-                    }
-                };
-                addSubscription(
-                        parseUtils.saveImageToServer(eventFilenameChosen.filename, frag.getDrawingBitmap())
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(subscriber));
-            }
-=======
         if (hasInternet()) {
             ViewFab saver = (ViewFab) findViewById(R.id.menu_upload);
             SafeSubscription<byte[]> safeSubscription = new SafeSubscription<byte[]>(this) {
@@ -415,7 +324,6 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(safeSubscription);
->>>>>>> Realm
         } else {
             showSnackBar(R.string.snackbar_no_internet, Snackbar.LENGTH_LONG);
         }
@@ -540,16 +448,6 @@ public class ActivityHome extends ActivityBase implements NavigationView.OnNavig
             showGallery();
         });
         builder.show();
-    }
-
-    private void showNavigationView() {
-        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            ViewUtils.systemUIGone(getWindow().getDecorView());
-            drawerLayout.closeDrawer(GravityCompat.START);
-        } else {
-            ViewUtils.systemUIVisibile(getWindow().getDecorView());
-            drawerLayout.openDrawer(GravityCompat.START);
-        }
     }
 
     private void showSnackBar(@StringRes int id, int duration) {

@@ -24,6 +24,7 @@ import android.view.animation.DecelerateInterpolator;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import io.realm.Realm;
 import milespeele.canvas.R;
 import milespeele.canvas.util.ViewUtils;
 
@@ -146,24 +147,6 @@ public class ViewSaveAnimator extends View {
     }
 
     public void stopAnimation(AnimatorListenerAdapter adapter) {
-<<<<<<< HEAD
-        if (mAnimatorSet != null) {
-            ArrayList<Animator> childAnimations = mAnimatorSet.getChildAnimations();
-            Animator animator = childAnimations.get(childAnimations.size() - 1);
-            animator.addListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationRepeat(Animator animation) {
-                    super.onAnimationEnd(animation);
-                    animation.end();
-
-                    for (Animator child: childAnimations) {
-                        if (child instanceof ValueAnimator) {
-                            ((ValueAnimator) child).setRepeatCount(0);
-                            ((ValueAnimator) child).setRepeatMode(0);
-                            child.removeAllListeners();
-                            child.end();
-                        }
-=======
         ArrayList<Animator> childAnimations = mAnimatorSet.getChildAnimations();
         Animator animator = childAnimations.get(childAnimations.size() - 1);
         animator.addListener(new AnimatorListenerAdapter() {
@@ -175,18 +158,9 @@ public class ViewSaveAnimator extends View {
                         ((ValueAnimator) child).setRepeatCount(0);
                         ((ValueAnimator) child).setRepeatMode(0);
                         child.removeAllListeners();
->>>>>>> Realm
                     }
                 }
 
-<<<<<<< HEAD
-                    scaleAndFinish(adapter);
-                }
-            });
-        } else {
-            adapter.onAnimationEnd(null);
-        }
-=======
                 ObjectAnimator scale = ObjectAnimator.ofPropertyValuesHolder(ViewSaveAnimator.this,
                         PropertyValuesHolder.ofFloat(View.SCALE_X, .2f, 1f),
                         PropertyValuesHolder.ofFloat(View.SCALE_Y, .2f, 1f));
@@ -211,7 +185,6 @@ public class ViewSaveAnimator extends View {
                 scale.start();
             }
         });
->>>>>>> Realm
     }
 
     private void scaleAndFinish(AnimatorListenerAdapter adapter) {
