@@ -2,6 +2,8 @@ package milespeele.canvas;
 
 import android.app.Application;
 
+import com.crashlytics.android.Crashlytics;
+import io.fabric.sdk.android.Fabric;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 import milespeele.canvas.dagger.ApplicationComponent;
@@ -18,6 +20,7 @@ public class MainApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        Fabric.with(this, new Crashlytics());
 
         RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(this)
                 .name("examples.realm")

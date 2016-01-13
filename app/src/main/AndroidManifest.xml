@@ -32,6 +32,9 @@
             android:windowSoftInputMode="stateHidden"
             android:theme="@style/GalleryActivity" />
 
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="a8993ecce733fbb6ed9eab0eadea21ecea038c13" />
     </application>
 
 </manifest>

@@ -92,8 +92,6 @@ public class ActivityHome extends ActivityBase {
         manager.beginTransaction()
                 .add(R.id.activity_home_fragment_frame, FragmentDrawer.newInstance(), TAG_FRAGMENT_DRAWER)
                 .commit();
-
-        setupHeaderView();
     }
 
     @Override
@@ -471,8 +469,5 @@ public class ActivityHome extends ActivityBase {
 
     private FragmentDrawer getFragmentDrawer() {
         return (FragmentDrawer) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
-    }
-
-    private void setupHeaderView() {
     }
 }

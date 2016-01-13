@@ -79,6 +79,7 @@ public class FileUtils {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inPreferredConfig = Bitmap.Config.ARGB_8888;
         options.inMutable = true;
+        options.inPreferQualityOverSpeed = true;
         return options;
     }
 
