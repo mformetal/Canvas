@@ -1,20 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<milespeele.canvas.view.ViewCanvasLayout
+<miles.canvas.ui.widget.CanvasLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:card_view="http://schemas.android.com/apk/res-auto"
     android:id="@+id/fragment_drawer_coordinator"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="false" >
 
-    <milespeele.canvas.view.ViewCanvasSurface
+    <miles.canvas.ui.widget.CanvasSurface
         android:id="@+id/fragment_drawer_canvas"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:visibility="gone"
         app:layout_anchorGravity="top"
         app:layout_anchor="@id/fragment_drawer_coordinator" />
 
-    <milespeele.canvas.view.ViewRoundedFrameLayout
+    <miles.canvas.ui.widget.RoundedFrameLayout
         android:id="@+id/fragment_drawer_animator"
         android:elevation="24dp"
         android:visibility="gone"
@@ -24,8 +25,7 @@
         app:layout_anchorGravity="center"
         app:layout_anchor="@id/fragment_drawer_coordinator" />
 
-    <include
-        layout="@layout/view_save_animator"
+    <miles.canvas.ui.widget.LoadingAnimator
         android:id="@+id/fragment_drawer_save_animation"
         android:layout_gravity="center"
         android:layout_width="@dimen/view_save_animation_dimens"
@@ -40,7 +40,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center_horizontal"
-        app:layout_behavior="milespeele.canvas.view.ViewMenuBehavior"
+        android:visibility="gone"
+        app:layout_behavior="miles.canvas.ui.widget.FabMenuBehavior"
         app:layout_anchorGravity="bottom|center_horizontal"
         app:layout_anchor="@id/fragment_drawer_coordinator" />
 
@@ -51,8 +52,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center_horizontal"
-        app:layout_behavior="milespeele.canvas.view.ViewMenuBehavior"
+        app:layout_behavior="miles.canvas.ui.widget.FabMenuBehavior"
         app:layout_anchorGravity="bottom|center_horizontal"
         app:layout_anchor="@id/fragment_drawer_coordinator" />
 
-</milespeele.canvas.view.ViewCanvasLayout>
+</miles.canvas.ui.widget.CanvasLayout>

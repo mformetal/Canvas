@@ -7,7 +7,9 @@
     <color name="primary_text">#212121</color>
     <color name="secondary_text">#727272</color>
     <color name="icons">#212121</color>
-    <color name="divider">#B6B6B6</color>
+    <color name="divider">#000000</color>
     <color name="gray">#FF888888</color>
     <color name="half_opacity_gray">#80888888</color>
+    <color name="facebook_blue">#3b5999</color>
+    <color name="twitter_blue">#55acee</color>
 </resources>

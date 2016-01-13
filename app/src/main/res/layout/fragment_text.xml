@@ -5,12 +5,12 @@
     android:layout_height="wrap_content"
     android:id="@+id/fragment_text_root">
 
-    <milespeele.canvas.view.ViewTypefaceTextView
+    <miles.canvas.ui.widget.TypefaceTextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/fragment_text_title"
         android:text="@string/fragment_text_title"
-        style="@style/DialogTitleText" />
+        style="@style/FabFrameTitleText" />
 
     <android.support.design.widget.TextInputLayout
         android:layout_below="@id/fragment_text_title"
@@ -19,7 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
 
-        <milespeele.canvas.view.ViewTypefaceEditText
+        <miles.canvas.ui.widget.TypefaceEditText
             android:id="@+id/fragment_text_input"
             android:gravity="center"
             android:layout_gravity="center"
@@ -32,7 +32,7 @@
 
     </android.support.design.widget.TextInputLayout>
 
-    <milespeele.canvas.view.ViewTypefaceButton
+    <miles.canvas.ui.widget.TypefaceButton
         android:id="@+id/fragment_text_pos_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -43,7 +43,7 @@
         android:paddingBottom="@dimen/activity_horizontal_margin"
         style="?android:attr/borderlessButtonStyle" />
 
-    <milespeele.canvas.view.ViewTypefaceButton
+    <miles.canvas.ui.widget.TypefaceButton
         android:id="@+id/fragment_text_neg_button"
         android:layout_width="wrap_content"
         android:layout_below="@id/fragment_text_input_layout"

@@ -6,12 +6,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-    <milespeele.canvas.view.ViewTypefaceTextView
+    <miles.canvas.ui.widget.TypefaceTextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/fragment_brush_picker_title"
         android:text="@string/fragment_brush_picker_title"
-        style="@style/DialogTitleText" />
+        style="@style/FabFrameTitleText" />
 
     <include
         layout="@layout/fragment_brush_picker_view"
@@ -20,7 +20,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/fragment_brush_picker_view" />
 
-    <milespeele.canvas.view.ViewTypefaceButton
+    <miles.canvas.ui.widget.TypefaceButton
         android:textColor="@android:color/white"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -32,7 +32,7 @@
         style="?android:attr/borderlessButtonStyle"
         android:background="?android:attr/selectableItemBackground" />
 
-    <milespeele.canvas.view.ViewTypefaceButton
+    <miles.canvas.ui.widget.TypefaceButton
         android:textColor="@android:color/white"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

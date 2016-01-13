@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <miles.canvas.ui.widget.TypefaceTextView
+        android:id="@+id/dialog_from_gallery"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/dialog_from_gallery"
+        android:textSize="@dimen/medium_text_size"
+        android:drawablePadding="5dp"
+        android:layout_margin="15dp"
+        android:gravity="center"
+        android:drawableStart="@drawable/ic_photo_24dp" />
+
+    <miles.canvas.ui.widget.TypefaceTextView
+        android:id="@+id/dialog_from_camera"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/dialog_from_camera"
+        android:textSize="@dimen/medium_text_size"
+        android:drawablePadding="5dp"
+        android:layout_margin="15dp"
+        android:gravity="center"
+        android:drawableStart="@drawable/ic_camera_alt_24dp" />
+
+</LinearLayout>

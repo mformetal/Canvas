@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="milespeele.canvas" >
+    package="miles.canvas" >
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -10,18 +10,17 @@
     <uses-feature android:name="android.hardware.camera.autofocus" />
 
     <application
-        android:allowBackup="true"
         android:largeHeap="true"
         android:icon="@mipmap/ic_launcher"
-        android:name=".MainApp"
+        android:name="miles.canvas.MainApp"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
 
         <activity
-            android:name=".activity.ActivityHome"
-            android:windowSoftInputMode="stateHidden|adjustResize"
-            android:label="@string/app_name"
-            android:screenOrientation="nosensor" >
+            android:name="miles.canvas.ui.activity.HomeActivity"
+            android:windowSoftInputMode="stateHidden|adjustNothing"
+            android:screenOrientation="portrait"
+            android:theme="@style/HomeActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -29,21 +28,14 @@
         </activity>
 
         <activity
-            android:name="com.facebook.FacebookActivity"
-            android:configChanges=
-                "keyboard|keyboardHidden|screenLayout|screenSize|orientation"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"
-            android:label="@string/app_name" />
+            android:name="miles.canvas.ui.activity.GalleryActivity"
+            android:windowSoftInputMode="stateHidden"
+            android:theme="@style/GalleryActivity" />
 
         <meta-data
-            android:name="com.facebook.sdk.ApplicationId"
-            android:value="@string/facebook_id"/>
-        <meta-data
-            android:name="com.parse.APPLICATION_ID"
-            android:value="@string/parse_id" />
-        <meta-data
-            android:name="com.parse.CLIENT_KEY"
-            android:value="@string/parse_key" />
+            android:name="io.fabric.ApiKey"
+            android:value="a8993ecce733fbb6ed9eab0eadea21ecea038c13" />
+
     </application>
 
 </manifest>

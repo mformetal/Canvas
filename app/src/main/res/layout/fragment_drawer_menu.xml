@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<milespeele.canvas.view.ViewFabMenu
+<miles.canvas.ui.widget.FabMenu
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content" >
 
-    <milespeele.canvas.view.ViewFab
+    <miles.canvas.ui.widget.Fab
         android:id="@+id/menu_toggle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -18,8 +18,8 @@
         app:rippleColor="@color/primary_dark"
         app:fabSize="mini" />
 
-    <milespeele.canvas.view.ViewFab
-        android:id="@+id/menu_save"
+    <miles.canvas.ui.widget.Fab
+        android:id="@+id/menu_upload"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_upload_24dp"
@@ -29,7 +29,7 @@
         app:rippleColor="@color/primary_dark"
         app:fabSize="mini" />
 
-    <milespeele.canvas.view.ViewFab
+    <miles.canvas.ui.widget.Fab
         android:id="@+id/menu_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -40,18 +40,18 @@
         app:rippleColor="@color/primary_dark"
         app:fabSize="mini" />
 
-    <milespeele.canvas.view.ViewFab
+    <miles.canvas.ui.widget.Fab
         android:id="@+id/menu_stroke_color"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_format_paint_24dp"
+        android:src="@drawable/ic_palette_24dp"
         app:backgroundTint="@android:color/white"
         app:borderWidth="0dp"
         app:elevation="@dimen/fab_elevation"
         app:rippleColor="@color/primary_dark"
         app:fabSize="mini" />
 
-    <milespeele.canvas.view.ViewFab
+    <miles.canvas.ui.widget.Fab
         android:id="@+id/menu_canvas_color"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -62,7 +62,7 @@
         app:rippleColor="@color/primary_dark"
         app:fabSize="mini" />
 
-    <milespeele.canvas.view.ViewFab
+    <miles.canvas.ui.widget.Fab
         android:id="@+id/menu_ink"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -73,7 +73,7 @@
         app:rippleColor="@color/primary_dark"
         app:fabSize="mini" />
 
-    <milespeele.canvas.view.ViewFab
+    <miles.canvas.ui.widget.Fab
         android:id="@+id/menu_brush"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -84,7 +84,7 @@
         app:rippleColor="@color/primary_dark"
         app:fabSize="mini" />
 
-    <milespeele.canvas.view.ViewFab
+    <miles.canvas.ui.widget.Fab
         android:id="@+id/menu_undo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -95,7 +95,7 @@
         app:rippleColor="@color/primary_dark"
         app:fabSize="mini" />
 
-    <milespeele.canvas.view.ViewFab
+    <miles.canvas.ui.widget.Fab
         android:id="@+id/menu_redo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -106,7 +106,7 @@
         app:rippleColor="@color/primary_dark"
         app:fabSize="mini" />
 
-    <milespeele.canvas.view.ViewFab
+    <miles.canvas.ui.widget.Fab
         android:id="@+id/menu_erase"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -117,8 +117,19 @@
         app:rippleColor="@color/primary_dark"
         app:fabSize="mini" />
 
-    <milespeele.canvas.view.ViewFab
-        android:id="@+id/menu_import"
+    <miles.canvas.ui.widget.Fab
+        android:id="@+id/menu_clear_canvas"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_clear_canvas_24dp"
+        app:backgroundTint="@android:color/white"
+        app:borderWidth="0dp"
+        app:elevation="@dimen/fab_elevation"
+        app:rippleColor="@color/primary_dark"
+        app:fabSize="mini" />
+
+    <miles.canvas.ui.widget.Fab
+        android:id="@+id/menu_image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_photo_24dp"
@@ -128,15 +139,15 @@
         app:rippleColor="@color/primary_dark"
         app:fabSize="mini" />
 
-    <milespeele.canvas.view.ViewFab
-        android:id="@+id/menu_camera"
+    <miles.canvas.ui.widget.Fab
+        android:id="@+id/menu_navigation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_camera_alt_24dp"
+        android:src="@drawable/ic_camera_roll_24dp"
         app:backgroundTint="@android:color/white"
         app:borderWidth="0dp"
         app:elevation="@dimen/fab_elevation"
         app:rippleColor="@color/primary_dark"
         app:fabSize="mini" />
 
-</milespeele.canvas.view.ViewFabMenu>
+</miles.canvas.ui.widget.FabMenu>
