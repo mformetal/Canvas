@@ -201,11 +201,4 @@ public class ViewUtils {
         return actionBarSize;
     }
 
-    public static ObjectAnimator animateBackground(View view, int dur, int... colors) {
-        ObjectAnimator background =
-                ObjectAnimator.ofArgb(view, ViewUtils.BACKGROUND, colors);
-        background.setDuration(dur);
-        return background;
-    }
-
 }

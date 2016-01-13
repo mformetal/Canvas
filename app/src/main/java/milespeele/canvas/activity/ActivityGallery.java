@@ -82,14 +82,15 @@ public class ActivityGallery extends ActivityBase implements GalleryPagerAdapter
                 .subscribe(new Action1<RealmResults<Sketch>>() {
                     @Override
                     public void call(RealmResults<Sketch> sketches) {
-                        setEmptyView();
-//                        if (sketches.isEmpty()) {
-//
-//                        } else {
-//                            for (Sketch sketch : sketches) {
-//                                adapter.add(sketch);
-//                            }
-//                        }
+                        if (sketches.isLoaded()) {
+                            if (sketches.isEmpty()) {
+                                setEmptyView();
+                            } else {
+                                for (Sketch sketch : sketches) {
+                                    adapter.add(sketch);
+                                }
+                            }
+                        }
                     }
                 }, new Action1<Throwable>() {
                     @Override
@@ -108,7 +109,6 @@ public class ActivityGallery extends ActivityBase implements GalleryPagerAdapter
         Glide.with(this)
                 .load(R.drawable.painting)
                 .asGif()
-                .fitCenter()
                 .into((ImageView) layout.getChildAt(0));
 
         setContentView(layout);

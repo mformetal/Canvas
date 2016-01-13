@@ -14,6 +14,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.PersistableBundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
@@ -173,7 +174,12 @@ public class ActivityHome extends ActivityBase {
     @Override
     protected void onResume() {
         super.onResume();
-        ViewUtils.systemUIGone(getWindow().getDecorView());
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                ViewUtils.systemUIGone(getWindow().getDecorView());
+            }
+        }, 350);
     }
 
     @Override
