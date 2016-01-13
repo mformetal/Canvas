@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <declare-styleable name="ViewTypefaceTextView">
+    <declare-styleable name="TypefaceTextView">
         <attr name="shouldDrawBorder" format="boolean" />
         <attr name="borderColor" format="color" />
         <attr name="textViewAutofit" format="boolean" />
     </declare-styleable>
 
-    <declare-styleable name="ViewTypefaceButton">
+    <declare-styleable name="TypefaceButton">
         <attr name="backgroundColor" format="color" />
         <attr name="buttonAutofit" format="boolean" />
     </declare-styleable>
 
-    <declare-styleable name="ViewAspectRatioImage" >
+    <declare-styleable name="AspectRatioImageView" >
         <attr name="aspectRatio" format="float" />
         <attr name="aspectRatioEnabled" format="boolean" />
         <attr name="dominantMeasurement">

@@ -3,10 +3,11 @@ package miles.canvas.dagger;
 import javax.inject.Singleton;
 
 import dagger.Component;
-import miles.canvas.activity.ActivityBase;
-import miles.canvas.drawing.DrawingCurve;
-import miles.canvas.fragment.FragmentBase;
-import miles.canvas.view.ViewFabMenu;
+import miles.canvas.ui.activity.BaseActivity;
+import miles.canvas.ui.drawing.DrawingCurve;
+import miles.canvas.ui.fragment.BaseFragment;
+import miles.canvas.ui.widget.FabMenu;
+
 
 /**
  * Created by milespeele on 7/5/15.
@@ -17,9 +18,9 @@ public interface ApplicationComponent {
 
     void inject(DrawingCurve drawingCurve);
 
-    void inject(ActivityBase activityBase);
+    void inject(BaseActivity baseActivity);
 
-    void inject(ViewFabMenu viewFabMenu);
+    void inject(FabMenu viewFabMenu);
 
-    void inject(FragmentBase fragment);
+    void inject(BaseFragment fragment);
 }

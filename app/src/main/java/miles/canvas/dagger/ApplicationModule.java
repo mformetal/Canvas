@@ -7,7 +7,7 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 import de.greenrobot.event.EventBus;
-import miles.canvas.util.Datastore;
+import miles.canvas.data.Datastore;
 
 /**
  * Created by milespeele on 7/5/15.

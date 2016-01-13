@@ -17,7 +17,7 @@
         android:theme="@style/AppTheme" >
 
         <activity
-            android:name="miles.canvas.activity.ActivityHome"
+            android:name="miles.canvas.ui.activity.HomeActivity"
             android:windowSoftInputMode="stateHidden|adjustNothing"
             android:screenOrientation="portrait"
             android:theme="@style/HomeActivity" >
@@ -28,7 +28,7 @@
         </activity>
 
         <activity
-            android:name="miles.canvas.activity.ActivityGallery"
+            android:name="miles.canvas.ui.activity.GalleryActivity"
             android:windowSoftInputMode="stateHidden"
             android:theme="@style/GalleryActivity" />
 

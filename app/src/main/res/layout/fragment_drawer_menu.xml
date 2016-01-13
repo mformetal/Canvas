@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<miles.canvas.view.ViewFabMenu
+<miles.canvas.ui.widget.FabMenu
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content" >
 
-    <miles.canvas.view.ViewFab
+    <miles.canvas.ui.widget.Fab
         android:id="@+id/menu_toggle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -18,7 +18,7 @@
         app:rippleColor="@color/primary_dark"
         app:fabSize="mini" />
 
-    <miles.canvas.view.ViewFab
+    <miles.canvas.ui.widget.Fab
         android:id="@+id/menu_upload"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -29,7 +29,7 @@
         app:rippleColor="@color/primary_dark"
         app:fabSize="mini" />
 
-    <miles.canvas.view.ViewFab
+    <miles.canvas.ui.widget.Fab
         android:id="@+id/menu_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -40,7 +40,7 @@
         app:rippleColor="@color/primary_dark"
         app:fabSize="mini" />
 
-    <miles.canvas.view.ViewFab
+    <miles.canvas.ui.widget.Fab
         android:id="@+id/menu_stroke_color"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -51,7 +51,7 @@
         app:rippleColor="@color/primary_dark"
         app:fabSize="mini" />
 
-    <miles.canvas.view.ViewFab
+    <miles.canvas.ui.widget.Fab
         android:id="@+id/menu_canvas_color"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -62,7 +62,7 @@
         app:rippleColor="@color/primary_dark"
         app:fabSize="mini" />
 
-    <miles.canvas.view.ViewFab
+    <miles.canvas.ui.widget.Fab
         android:id="@+id/menu_ink"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -73,7 +73,7 @@
         app:rippleColor="@color/primary_dark"
         app:fabSize="mini" />
 
-    <miles.canvas.view.ViewFab
+    <miles.canvas.ui.widget.Fab
         android:id="@+id/menu_brush"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -84,7 +84,7 @@
         app:rippleColor="@color/primary_dark"
         app:fabSize="mini" />
 
-    <miles.canvas.view.ViewFab
+    <miles.canvas.ui.widget.Fab
         android:id="@+id/menu_undo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -95,7 +95,7 @@
         app:rippleColor="@color/primary_dark"
         app:fabSize="mini" />
 
-    <miles.canvas.view.ViewFab
+    <miles.canvas.ui.widget.Fab
         android:id="@+id/menu_redo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -106,7 +106,7 @@
         app:rippleColor="@color/primary_dark"
         app:fabSize="mini" />
 
-    <miles.canvas.view.ViewFab
+    <miles.canvas.ui.widget.Fab
         android:id="@+id/menu_erase"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -117,7 +117,7 @@
         app:rippleColor="@color/primary_dark"
         app:fabSize="mini" />
 
-    <miles.canvas.view.ViewFab
+    <miles.canvas.ui.widget.Fab
         android:id="@+id/menu_clear_canvas"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -128,7 +128,7 @@
         app:rippleColor="@color/primary_dark"
         app:fabSize="mini" />
 
-    <miles.canvas.view.ViewFab
+    <miles.canvas.ui.widget.Fab
         android:id="@+id/menu_image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -139,7 +139,7 @@
         app:rippleColor="@color/primary_dark"
         app:fabSize="mini" />
 
-    <miles.canvas.view.ViewFab
+    <miles.canvas.ui.widget.Fab
         android:id="@+id/menu_navigation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -150,4 +150,4 @@
         app:rippleColor="@color/primary_dark"
         app:fabSize="mini" />
 
-</miles.canvas.view.ViewFabMenu>
+</miles.canvas.ui.widget.FabMenu>

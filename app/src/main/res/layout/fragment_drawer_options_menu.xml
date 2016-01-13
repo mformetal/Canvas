@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<miles.canvas.view.ViewOptionsMenu
+<miles.canvas.ui.widget.OptionsMenu
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="horizontal"
@@ -7,7 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <miles.canvas.view.ViewTypefaceButton
+    <miles.canvas.ui.widget.TypefaceButton
         android:id="@+id/view_options_menu_cancel"
         android:maxLines="1"
         android:text="@string/view_options_menu_cancel"
@@ -19,7 +19,7 @@
         app:buttonAutofit="true"
         app:backgroundColor="@color/half_opacity_gray" />
 
-    <miles.canvas.view.ViewTypefaceButton
+    <miles.canvas.ui.widget.TypefaceButton
         android:id="@+id/view_options_menu_1"
         android:maxLines="1"
         android:layout_weight="1"
@@ -29,7 +29,7 @@
         app:buttonAutofit="true"
         app:backgroundColor="@color/half_opacity_gray" />
 
-    <miles.canvas.view.ViewTypefaceButton
+    <miles.canvas.ui.widget.TypefaceButton
         android:id="@+id/view_options_menu_2"
         android:maxLines="1"
         android:layout_weight="1"
@@ -39,7 +39,7 @@
         app:buttonAutofit="true"
         app:backgroundColor="@color/half_opacity_gray" />
 
-    <miles.canvas.view.ViewTypefaceButton
+    <miles.canvas.ui.widget.TypefaceButton
         android:id="@+id/view_options_menu_accept"
         android:maxLines="1"
         android:text="@string/view_options_menu_accept"
@@ -51,4 +51,4 @@
         app:buttonAutofit="true"
         app:backgroundColor="@color/half_opacity_gray" />
 
-</miles.canvas.view.ViewOptionsMenu>
+</miles.canvas.ui.widget.OptionsMenu>
