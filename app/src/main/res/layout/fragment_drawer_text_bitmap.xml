@@ -7,7 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <miles.canvas.ui.widget.TypefaceButton
+    <miles.scribble.ui.widget.TypefaceButton
         android:id="@+id/view_options_menu_cancel"
         android:maxLines="1"
         android:text="@string/view_options_menu_cancel"
@@ -19,7 +19,7 @@
         app:buttonAutofit="true"
         app:backgroundColor="@color/half_opacity_gray" />
 
-    <miles.canvas.ui.widget.TypefaceButton
+    <miles.scribble.ui.widget.TypefaceButton
         android:id="@+id/view_options_menu_1"
         android:maxLines="1"
         android:layout_weight="1"
@@ -29,7 +29,7 @@
         app:buttonAutofit="true"
         app:backgroundColor="@color/half_opacity_gray" />
 
-    <miles.canvas.ui.widget.TypefaceButton
+    <miles.scribble.ui.widget.TypefaceButton
         android:id="@+id/view_options_menu_2"
         android:maxLines="1"
         android:layout_weight="1"
@@ -39,7 +39,7 @@
         app:buttonAutofit="true"
         app:backgroundColor="@color/half_opacity_gray" />
 
-    <miles.canvas.ui.widget.TypefaceButton
+    <miles.scribble.ui.widget.TypefaceButton
         android:id="@+id/view_options_menu_accept"
         android:maxLines="1"
         android:text="@string/view_options_menu_accept"

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<miles.canvas.ui.widget.LinearFabMenu
+<miles.scribble.ui.widget.LinearFabMenu
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
@@ -7,7 +7,7 @@
     android:layout_width="wrap_content"
     android:layout_height="match_parent">
 
-    <miles.canvas.ui.widget.Fab
+    <miles.scribble.ui.widget.Fab
         android:id="@+id/activity_gallery_options_menu_set"
         android:src="@drawable/ic_photo_24dp"
         android:layout_width="wrap_content"
@@ -19,7 +19,7 @@
         app:rippleColor="@color/primary_dark"
         app:fabSize="mini" />
 
-    <miles.canvas.ui.widget.Fab
+    <miles.scribble.ui.widget.Fab
         android:id="@+id/activity_gallery_options_menu_cut"
         android:src="@drawable/ic_content_cut_24dp"
         android:layout_width="wrap_content"
@@ -31,7 +31,7 @@
         app:rippleColor="@color/primary_dark"
         app:fabSize="mini" />
 
-    <miles.canvas.ui.widget.Fab
+    <miles.scribble.ui.widget.Fab
         android:id="@+id/activity_gallery_options_menu_toggle"
         android:src="@drawable/ic_add_48dp"
         android:layout_width="wrap_content"
@@ -43,4 +43,4 @@
         app:rippleColor="@color/primary_dark"
         app:fabSize="normal" />
 
-</miles.canvas.ui.widget.LinearFabMenu>
+</miles.scribble.ui.widget.LinearFabMenu>

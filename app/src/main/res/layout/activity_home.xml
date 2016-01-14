@@ -12,7 +12,7 @@
         android:layout_height="match_parent"
         tools:ignore="RtlSymmetry" >
 
-        <miles.canvas.ui.widget.LoadingAnimator
+        <miles.scribble.ui.widget.LoadingAnimator
             android:id="@+id/activity_home_loading_animator"
             android:layout_gravity="center"
             android:layout_width="@dimen/view_save_animation_dimens"

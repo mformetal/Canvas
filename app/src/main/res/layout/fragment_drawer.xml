@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<miles.canvas.ui.widget.CanvasLayout
+<miles.scribble.ui.widget.CanvasLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/fragment_drawer_coordinator"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fitsSystemWindows="false" >
+    android:layout_height="match_parent" >
 
     <Toolbar
         android:id="@+id/fragment_drawer_toolbar"
@@ -17,13 +16,13 @@
         android:theme="@style/Canvas.Widget.DrawerToolbar"
         android:visibility="gone" />
 
-    <miles.canvas.ui.widget.CanvasSurface
+    <miles.scribble.ui.widget.CanvasSurface
         android:id="@+id/fragment_drawer_canvas"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone" />
 
-    <miles.canvas.ui.widget.RoundedFrameLayout
+    <miles.scribble.ui.widget.RoundedFrameLayout
         android:id="@+id/fragment_drawer_animator"
         android:elevation="24dp"
         android:visibility="gone"
@@ -40,7 +39,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center_horizontal"
         android:visibility="gone"
-        app:layout_behavior="miles.canvas.ui.widget.FabMenuBehavior"
+        app:layout_behavior="miles.scribble.ui.widget.FabMenuBehavior"
         app:layout_anchorGravity="bottom|center_horizontal"
         app:layout_anchor="@id/fragment_drawer_coordinator" />
 
@@ -55,4 +54,4 @@
         app:layout_anchorGravity="bottom|center_horizontal"
         app:layout_anchor="@id/fragment_drawer_coordinator" />
 
-</miles.canvas.ui.widget.CanvasLayout>
+</miles.scribble.ui.widget.CanvasLayout>

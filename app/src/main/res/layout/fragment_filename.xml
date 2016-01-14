@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:id="@+id/fragment_filename_root">
 
-    <miles.canvas.ui.widget.TypefaceTextView
+    <miles.scribble.ui.widget.TypefaceTextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/fragment_filename_title"
@@ -19,7 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
 
-        <miles.canvas.ui.widget.TypefaceEditText
+        <miles.scribble.ui.widget.TypefaceEditText
             android:id="@+id/fragment_filename_input"
             android:gravity="center"
             android:layout_gravity="center"
@@ -32,7 +32,7 @@
 
     </android.support.design.widget.TextInputLayout>
 
-    <miles.canvas.ui.widget.TypefaceButton
+    <miles.scribble.ui.widget.TypefaceButton
         android:id="@+id/fragment_filename_pos_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -43,7 +43,7 @@
         android:paddingBottom="@dimen/activity_horizontal_margin"
         style="?android:attr/borderlessButtonStyle" />
 
-    <miles.canvas.ui.widget.TypefaceButton
+    <miles.scribble.ui.widget.TypefaceButton
         android:id="@+id/fragment_filename_neg_button"
         android:layout_width="wrap_content"
         android:layout_below="@id/fragment_filename_input_layout"

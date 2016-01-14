@@ -8,7 +8,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-    <miles.canvas.ui.widget.AspectRatioImageView
+    <miles.scribble.ui.widget.AspectRatioImageView
         android:id="@+id/adapter_gallery_image"
         android:layout_marginTop="@dimen/nav_bar_height"
         android:layout_width="match_parent"
@@ -19,7 +19,7 @@
         app:aspectRatio="@dimen/aspect_ratio"
         tools:src="@drawable/facebook_logo"/>
 
-    <miles.canvas.ui.widget.TypefaceTextView
+    <miles.scribble.ui.widget.TypefaceTextView
         android:id="@+id/adapter_gallery_title"
         android:layout_gravity="bottom|center_horizontal"
         android:layout_width="wrap_content"
