@@ -1,5 +1,6 @@
 package miles.canvas.ui.activity;
 
+import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.Intent;
@@ -20,7 +21,9 @@ import miles.canvas.R;
 import miles.canvas.data.adapter.DepthPageTransformer;
 import miles.canvas.data.adapter.GalleryPagerAdapter;
 import miles.canvas.data.Sketch;
+import miles.canvas.data.adapter.ZoomOutPageTransformer;
 import miles.canvas.util.Logg;
+import miles.canvas.util.ViewUtils;
 import rx.functions.Action1;
 
 /**
@@ -42,9 +45,10 @@ public class GalleryActivity extends BaseActivity implements GalleryPagerAdapter
         setContentView(R.layout.activity_gallery);
 
         adapter = new GalleryPagerAdapter(this);
+        ObjectAnimator.ofInt(pager, ViewUtils.ALPHA, 64).setDuration(350).start();
         pager.setAdapter(adapter);
 //        pager.setPageTransformer(false, new ZoomOutPageTransformer());
-        pager.setPageTransformer(false, new DepthPageTransformer());
+//        pager.setPageTransformer(false, new DepthPageTransformer());
 
         loadImages();
     }
@@ -64,7 +68,7 @@ public class GalleryActivity extends BaseActivity implements GalleryPagerAdapter
                 }
             });
             background.setInterpolator(new FastOutSlowInInterpolator());
-            background.start();
+//            background.start();
         }
     }
 

@@ -20,7 +20,7 @@
     </style>
 
     <style name="Canvas.GalleryActivity" parent="Canvas" >
-        <item name="android:windowBackground">@color/accent</item>
+        <item name="android:windowBackground">@color/gallery_activity_background</item>
         <item name="android:fitsSystemWindows">true</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
     </style>

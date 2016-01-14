@@ -3,6 +3,7 @@ package miles.canvas.util;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
@@ -10,6 +11,7 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Point;
 import android.graphics.Rect;
+import android.graphics.drawable.ColorDrawable;
 import android.util.DisplayMetrics;
 import android.util.Property;
 import android.util.TypedValue;
@@ -192,6 +194,12 @@ public class ViewUtils {
             }
         });
         return visibility;
+    }
+
+    public static ObjectAnimator backgroundAnimator(View view, int color, int dur) {
+        ObjectAnimator background = ObjectAnimator.ofArgb(view, ViewUtils.BACKGROUND, color);
+        background.setDuration(dur);
+        return background;
     }
 
     public static int actionBarSize(Context context) {

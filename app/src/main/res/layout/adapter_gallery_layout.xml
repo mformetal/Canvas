@@ -1,29 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:gravity="center"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
     <miles.canvas.ui.widget.AspectRatioImageView
         android:id="@+id/adapter_gallery_image"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:scaleType="fitXY"
-        android:adjustViewBounds="true"
-        app:aspectRatioEnabled="false"
-        app:aspectRatio="@dimen/aspect_ratio" />
+        android:layout_height="match_parent"
+        android:layout_gravity="center_vertical|center_horizontal"
+        android:elevation="@dimen/fab_elevation"
+        app:aspectRatioEnabled="true"
+        app:aspectRatio="@dimen/aspect_ratio"
+        tools:src="@drawable/facebook_logo"/>
 
     <miles.canvas.ui.widget.TypefaceTextView
         android:id="@+id/adapter_gallery_title"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
         android:layout_gravity="bottom|center_horizontal"
-        android:textColor="@android:color/black"
-        android:textSize="@dimen/xlarge_text_size"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_margin="@dimen/activity_vertical_margin"
-        tools:text="SHIT" />
+        android:textSize="@dimen/large_text_size"
+        android:textColor="@color/primary_light"
+        tools:textColor="@android:color/black"
+        tools:text="TITLE" />
 
-</FrameLayout>
+</LinearLayout>
