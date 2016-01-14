@@ -1,7 +1,7 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar" >
+    <style name="Canvas" parent="Theme.AppCompat.Light.NoActionBar" >
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>
         <item name="colorAccent">@color/accent</item>
@@ -12,36 +12,21 @@
         <item name="dialogTheme">@style/DialogTheme</item>
     </style>
 
-    <style name="HomeActivity" parent="AppTheme" >
+    <style name="Canvas.Widget" parent="android:Widget" />
+
+    <style name="Canvas.HomeActivity" parent="Canvas" >
         <item name="android:windowBackground">@color/accent</item>
         <item name="android:listDivider">@color/divider</item>
     </style>
 
-    <style name="GalleryActivity" parent="AppTheme" >
-        <item name="android:windowBackground">@color/accent</item>
-        <item name="android:fitsSystemWindows">true</item>
-        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+    <style name="Canvas.GalleryActivity" parent="Canvas" >
+        <item name="android:windowBackground">@color/gallery_activity_background</item>
     </style>
 
-    <style name="SketchActivity" parent="AppTheme">
-        <item name="android:windowBackground">@color/accent</item>
-        <item name="android:windowContentTransitions">true</item>
-        <item name="android:windowAllowEnterTransitionOverlap">true</item>
-        <item name="android:windowAllowReturnTransitionOverlap">true</item>
-        <item name="android:fitsSystemWindows">true</item>
-        <item name="android:colorBackgroundCacheHint">@null</item>
-        <item name="android:windowContentOverlay">@null</item>
-        <item name="android:windowAnimationStyle">@null</item>
-        <item name="android:windowIsFloating">false</item>
-        <item name="android:windowIsTranslucent">true</item>
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
-    </style>
-
-    <style name="DialogActivity" parent="AppTheme" >
-        <item name="android:windowFullscreen">false</item>
-        <item name="android:windowIsFloating">true</item>
-        <item name="android:windowCloseOnTouchOutside">true</item>
+    <style name="Canvas.Widget.DrawerToolbar" parent="@android:style/ThemeOverlay.Material.Dark.ActionBar">
+        <item name="android:titleTextAppearance">@android:style/TextAppearance.Material.Widget.ActionBar.Title</item>
+        <item name="android:elevation">@dimen/fab_elevation</item>
+        <item name="android:textSize">40sp</item>
     </style>
 
     <style name="DialogTheme" parent="Theme.AppCompat.Light" >

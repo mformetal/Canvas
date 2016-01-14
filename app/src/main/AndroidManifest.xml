@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="miles.canvas" >
+    package="miles.scribble" >
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -12,15 +12,15 @@
     <application
         android:largeHeap="true"
         android:icon="@mipmap/ic_launcher"
-        android:name="miles.canvas.MainApp"
+        android:name="miles.scribble.MainApp"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/Canvas" >
 
         <activity
-            android:name="miles.canvas.ui.activity.HomeActivity"
+            android:name="miles.scribble.ui.activity.HomeActivity"
             android:windowSoftInputMode="stateHidden|adjustNothing"
             android:screenOrientation="portrait"
-            android:theme="@style/HomeActivity" >
+            android:theme="@style/Canvas.HomeActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -28,9 +28,9 @@
         </activity>
 
         <activity
-            android:name="miles.canvas.ui.activity.GalleryActivity"
+            android:name="miles.scribble.ui.activity.GalleryActivity"
             android:windowSoftInputMode="stateHidden"
-            android:theme="@style/GalleryActivity" />
+            android:theme="@style/Canvas.GalleryActivity" />
 
         <meta-data
             android:name="io.fabric.ApiKey"

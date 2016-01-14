@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Canvas</string>
+    <string name="app_name">Scribble</string>
 
     <string name="activity_drawer_header_gallery">My Masterpieces</string>
 
@@ -39,11 +39,11 @@
         <item>solidShadow</item>
     </string-array>
 
-    <string name="alert_dialog_new_canvas_title">Clear Canvas?</string>
-    <string name="alert_dialog_new_canvas_body">Pressing \"Got it\" deletes any drawing
-        you currently have.</string>
-    <string name="alert_dialog_new_canvas_pos_button">Bet</string>
-    <string name="alert_dialog_new_canvas_neg_button">Oh NO!</string>
+    <string name="alert_dialog_delete_sketch_title">Delete Sketch?</string>
+    <string name="alert_dialog_delete_sketch_body">Pressing \"Word\" permanently deletes this
+        sketch. Like, real forever.</string>
+    <string name="alert_dialog_delete_sketch_pos_button">Aight</string>
+    <string name="alert_dialog_delete_sketch_neg_button">Nah</string>
 
     <string name="dialog_save_drawing">Cache Drawing</string>
     <string name="dialog_exit_canvas">Exit Canvas</string>

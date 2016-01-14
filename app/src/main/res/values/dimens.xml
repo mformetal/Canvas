@@ -3,6 +3,7 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="activity_header_layout_margin">20dp</dimen>
 
+    <dimen name="system_ui_scrim">12dp</dimen>
     <dimen name="status_bar_height">24dp</dimen>
     <dimen name="nav_bar_height">48dp</dimen>
 
@@ -39,5 +40,5 @@
     <dimen name="medium_text_size">18sp</dimen>
     <dimen name="large_text_size">22sp</dimen>
     <dimen name="xlarge_text_size">40sp</dimen>
-    <item name="aspect_ratio" type="dimen" format="float">1.7888</item>
+    <item name="aspect_ratio" type="dimen" format="float">1.777777778</item>
 </resources>

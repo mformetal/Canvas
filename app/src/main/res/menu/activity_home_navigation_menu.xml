@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group
+        android:id="@+id/activity_home_menu_group1" >
+
+        <item
+            android:id="@+id/activity_home_menu_gallery"
+            android:icon="@drawable/ic_camera_roll_24dp"
+            android:title="Gallery" />
+
+    </group>
+
+</menu>
