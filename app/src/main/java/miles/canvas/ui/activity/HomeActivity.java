@@ -220,7 +220,7 @@ public class HomeActivity extends BaseActivity implements CanvasLayoutListener {
                 showClearCanvasDialog();
                 break;
             case R.id.menu_navigation:
-                GalleryActivity.newIntent(this);
+                startActivity(new Intent(this, GalleryActivity.class));
                 break;
         }
     }

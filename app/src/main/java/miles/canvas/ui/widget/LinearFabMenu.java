@@ -126,6 +126,8 @@ public class LinearFabMenu extends ViewGroup implements View.OnClickListener {
                         curBottom - child.getMeasuredHeight(),
                         cx + child.getMeasuredWidth() / 2,
                         curBottom);
+
+                curBottom -= child.getMeasuredHeight();
             }
         }
     }

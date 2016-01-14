@@ -3,6 +3,7 @@ package miles.canvas.ui.drawing;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
@@ -24,14 +25,18 @@ import java.util.Stack;
 import javax.inject.Inject;
 
 import de.greenrobot.event.EventBus;
+import io.realm.Realm;
 import miles.canvas.MainApp;
 import miles.canvas.R;
+import miles.canvas.data.Sketch;
 import miles.canvas.data.event.EventBitmapChosen;
 import miles.canvas.data.event.EventBrushChosen;
 import miles.canvas.data.event.EventClearCanvas;
 import miles.canvas.data.event.EventColorChosen;
 import miles.canvas.data.event.EventTextChosen;
 import miles.canvas.data.Datastore;
+import miles.canvas.data.event.EventUpdateDrawingCurve;
+import miles.canvas.ui.fragment.DrawingFragment;
 import miles.canvas.util.FileUtils;
 import miles.canvas.util.Logg;
 import miles.canvas.util.PaintStyles;
@@ -154,8 +159,10 @@ public class DrawingCurve {
         mAllHistory.clear();
         mRedoneHistory.clear();
 
-        mCachedBitmap.recycle();
-        mCachedBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        if (mCachedBitmap != null) {
+            mCachedBitmap.recycle();
+            mCachedBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        }
 
         mBitmap.recycle();
         mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
@@ -465,7 +472,9 @@ public class DrawingCurve {
 
                             isSafeToDraw = false;
 
-                            workerCanvas.drawBitmap(mCachedBitmap, 0, 0, null);
+                            if (mCachedBitmap != null) {
+                                workerCanvas.drawBitmap(mCachedBitmap, 0, 0, null);
+                            }
                         }
                     });
         }
@@ -556,6 +565,21 @@ public class DrawingCurve {
                 mPhotoBitmap.recycle();
                 mPhotoBitmap = null;
                 break;
+        }
+    }
+
+    @SuppressWarnings("unused")
+    public void onEvent(EventUpdateDrawingCurve eventUpdateDrawingCurve) {
+        Realm realm = Realm.getDefaultInstance();
+        Sketch sketch = realm.where(Sketch.class).equalTo("id", eventUpdateDrawingCurve.id).findFirst();
+        BitmapFactory.Options options = FileUtils.getBitmapOptions();
+
+        mBitmap = BitmapFactory.decodeByteArray(sketch.getBytes(), 0, sketch.getBytes().length, options);
+        mCanvas = new Canvas(mBitmap);
+
+        if (mCachedBitmap != null) {
+            mCachedBitmap.recycle();
+            mCachedBitmap = null;
         }
     }
 

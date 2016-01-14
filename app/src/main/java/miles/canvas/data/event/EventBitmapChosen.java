@@ -8,7 +8,6 @@ import android.net.Uri;
 public class EventBitmapChosen {
 
     public Uri data;
-    public String path;
 
     public EventBitmapChosen(Uri data) {
         this.data = data;

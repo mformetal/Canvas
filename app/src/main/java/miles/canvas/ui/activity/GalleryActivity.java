@@ -29,6 +29,7 @@ import miles.canvas.data.adapter.GalleryPagerAdapter;
 import miles.canvas.data.Sketch;
 import miles.canvas.data.adapter.ZoomOutPageTransformer;
 import miles.canvas.data.event.EventClearCanvas;
+import miles.canvas.data.event.EventUpdateDrawingCurve;
 import miles.canvas.util.Logg;
 import miles.canvas.util.ViewUtils;
 import rx.functions.Action1;
@@ -36,12 +37,7 @@ import rx.functions.Action1;
 /**
  * Created by mbpeele on 1/11/16.
  */
-public class GalleryActivity extends BaseActivity
-        implements OnClickListener {
-
-    public static void newIntent(Context context) {
-        context.startActivity(new Intent(context, GalleryActivity.class));
-    }
+public class GalleryActivity extends BaseActivity implements OnClickListener {
 
     @Bind(R.id.activity_gallery_pager) ViewPager pager;
 
@@ -53,7 +49,6 @@ public class GalleryActivity extends BaseActivity
         setContentView(R.layout.activity_gallery);
 
         adapter = new GalleryPagerAdapter(this);
-        ObjectAnimator.ofInt(pager, ViewUtils.ALPHA, 64).setDuration(350).start();
         pager.setAdapter(adapter);
 //        pager.setPageTransformer(false, new ZoomOutPageTransformer());
 //        pager.setPageTransformer(false, new DepthPageTransformer());
@@ -62,7 +57,7 @@ public class GalleryActivity extends BaseActivity
     }
 
     @Override
-    @OnClick({R.id.activity_gallery_options_menu_cut})
+    @OnClick({R.id.activity_gallery_options_menu_cut, R.id.activity_gallery_options_menu_set})
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.activity_gallery_options_menu_cut:
@@ -76,6 +71,12 @@ public class GalleryActivity extends BaseActivity
                             dialog.dismiss();
                         });
                 builder.create().show();
+                break;
+            case R.id.activity_gallery_options_menu_set:
+                int curItem = pager.getCurrentItem();
+                Sketch sketch = adapter.get(curItem);
+                bus.post(new EventUpdateDrawingCurve(sketch.getId()));
+                finish();
                 break;
         }
     }
