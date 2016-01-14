@@ -2,7 +2,6 @@ package miles.canvas.ui.activity;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -36,9 +35,8 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import miles.canvas.R;
 import miles.canvas.data.event.EventBitmapChosen;
-import miles.canvas.data.event.EventClearCanvas;
 import miles.canvas.data.event.EventFilenameChosen;
-import miles.canvas.data.Sketch;
+import miles.canvas.data.model.Sketch;
 import miles.canvas.ui.drawing.DrawingCurve;
 import miles.canvas.ui.fragment.BaseFragment;
 import miles.canvas.ui.fragment.BrushPickerFragment;
@@ -276,12 +274,13 @@ public class HomeActivity extends BaseActivity implements CanvasLayoutListener, 
         switch (item.getItemId()) {
             case R.id.activity_home_menu_gallery:
                 startActivity(new Intent(this, GalleryActivity.class));
-                drawerLayout.closeDrawer(GravityCompat.START);
                 break;
             case R.id.activity_home_menu_profile:
-                // start Profile activity
+                startActivity(new Intent(this, ProfileActivity.class));
                 break;
         }
+
+        drawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }
 

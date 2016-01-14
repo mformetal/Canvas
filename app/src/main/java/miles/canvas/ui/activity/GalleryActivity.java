@@ -1,14 +1,8 @@
 package miles.canvas.ui.activity;
 
-import android.animation.ObjectAnimator;
-import android.animation.ValueAnimator;
 import android.app.AlertDialog;
-import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
-import android.support.v4.view.animation.FastOutSlowInInterpolator;
-import android.support.v7.graphics.Palette;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -18,20 +12,14 @@ import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 
-import java.util.UUID;
-
 import butterknife.Bind;
 import butterknife.OnClick;
 import io.realm.RealmResults;
 import miles.canvas.R;
-import miles.canvas.data.adapter.DepthPageTransformer;
 import miles.canvas.data.adapter.GalleryPagerAdapter;
-import miles.canvas.data.Sketch;
-import miles.canvas.data.adapter.ZoomOutPageTransformer;
-import miles.canvas.data.event.EventClearCanvas;
+import miles.canvas.data.model.Sketch;
 import miles.canvas.data.event.EventUpdateDrawingCurve;
 import miles.canvas.util.Logg;
-import miles.canvas.util.ViewUtils;
 import rx.functions.Action1;
 
 /**

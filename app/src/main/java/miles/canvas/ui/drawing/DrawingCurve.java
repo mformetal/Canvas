@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Point;
@@ -18,10 +19,6 @@ import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.view.MotionEvent;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Stack;
@@ -32,7 +29,7 @@ import de.greenrobot.event.EventBus;
 import io.realm.Realm;
 import miles.canvas.MainApp;
 import miles.canvas.R;
-import miles.canvas.data.Sketch;
+import miles.canvas.data.model.Sketch;
 import miles.canvas.data.event.EventBitmapChosen;
 import miles.canvas.data.event.EventBrushChosen;
 import miles.canvas.data.event.EventClearCanvas;
@@ -40,7 +37,6 @@ import miles.canvas.data.event.EventColorChosen;
 import miles.canvas.data.event.EventTextChosen;
 import miles.canvas.data.Datastore;
 import miles.canvas.data.event.EventUpdateDrawingCurve;
-import miles.canvas.ui.fragment.DrawingFragment;
 import miles.canvas.util.FileUtils;
 import miles.canvas.util.Logg;
 import miles.canvas.util.PaintStyles;
@@ -126,6 +122,7 @@ public class DrawingCurve {
         mCachedBitmap = FileUtils.getCachedBitmap(mContext);
         if (mCachedBitmap == null) {
             mCachedBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+            mCachedBitmap.eraseColor(Color.WHITE);
         }
 
         mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);

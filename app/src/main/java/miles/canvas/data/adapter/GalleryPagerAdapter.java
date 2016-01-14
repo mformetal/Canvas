@@ -1,27 +1,19 @@
 package miles.canvas.data.adapter;
 
-import android.animation.ObjectAnimator;
 import android.app.Activity;
-import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.support.v4.view.PagerAdapter;
-import android.support.v7.graphics.Palette;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
 
 import java.util.ArrayList;
 
 import miles.canvas.R;
-import miles.canvas.data.Sketch;
+import miles.canvas.data.model.Sketch;
 import miles.canvas.ui.widget.AspectRatioImageView;
 import miles.canvas.ui.widget.TypefaceTextView;
-import miles.canvas.util.Logg;
-import miles.canvas.util.ViewUtils;
 
 /**
  * Created by mbpeele on 1/12/16.

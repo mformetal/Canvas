@@ -10,6 +10,7 @@ import io.realm.RealmConfiguration;
 import miles.canvas.dagger.ApplicationComponent;
 import miles.canvas.dagger.ApplicationModule;
 import miles.canvas.dagger.DaggerApplicationComponent;
+import miles.canvas.data.model.Migration;
 
 /**
  * Created by milespeele on 7/3/15.
@@ -24,7 +25,7 @@ public class MainApp extends Application {
         Fabric.with(this, new Crashlytics());
 
         RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(this)
-                .name("examples.realm")
+                .name("version0")
                 .build();
 
         Realm.setDefaultConfiguration(realmConfiguration);

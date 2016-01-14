@@ -81,11 +81,11 @@ public class CanvasSurface extends SurfaceView implements SurfaceHolder.Callback
 
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
             float y = event.getY();
-            if (y <= getResources().getDimension(R.dimen.status_bar_height)) {
+            if (y <= getResources().getDimension(R.dimen.system_ui_scrim)) {
                 return false;
             }
 
-            if (y >= getHeight() - getResources().getDimension(R.dimen.status_bar_height)) {
+            if (y >= getHeight() - getResources().getDimension(R.dimen.system_ui_scrim)) {
                 return false;
             }
         }

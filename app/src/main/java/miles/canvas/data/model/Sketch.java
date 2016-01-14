@@ -1,4 +1,4 @@
-package miles.canvas.data;
+package miles.canvas.data.model;
 
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;

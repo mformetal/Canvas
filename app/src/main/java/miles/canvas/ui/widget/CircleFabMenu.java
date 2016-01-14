@@ -472,7 +472,7 @@ public class CircleFabMenu extends ViewGroup implements View.OnClickListener {
 
     private boolean isSystemUISwipe(MotionEvent event) {
         return event.getY() >= (float) toggle.getBottom() -
-                getResources().getDimension(R.dimen.status_bar_height) / 2;
+                getResources().getDimension(R.dimen.system_ui_scrim);
     }
 
     private final class ItemPosition {

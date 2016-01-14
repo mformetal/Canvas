@@ -15,6 +15,7 @@ import android.graphics.Rect;
 import android.os.Handler;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.util.Property;
 import android.view.MotionEvent;
@@ -217,19 +218,19 @@ public class CanvasLayout extends CoordinatorLayout implements
             if (state == DrawingCurve.State.TEXT) {
                 option1.setText(R.string.view_options_menu_edit_text);
                 option1.setCompoundDrawablesWithIntrinsicBounds(null, null, null,
-                        getResources().getDrawable(R.drawable.ic_text_format_24dp));
+                        ContextCompat.getDrawable(getContext(), R.drawable.ic_text_format_24dp));
 
                 option2.setText(R.string.view_options_menu_edit_color);
-                option2.setCompoundDrawablesWithIntrinsicBounds(null, null, null,
-                        getResources().getDrawable(R.drawable.ic_palette_24dp));
+                option1.setCompoundDrawablesWithIntrinsicBounds(null, null, null,
+                        ContextCompat.getDrawable(getContext(), R.drawable.ic_palette_24dp));
             } else {
                 option1.setText(R.string.view_options_menu_edit_camera);
                 option1.setCompoundDrawablesWithIntrinsicBounds(null, null, null,
-                        getResources().getDrawable(R.drawable.ic_camera_alt_24dp));
+                        ContextCompat.getDrawable(getContext(), R.drawable.ic_camera_alt_24dp));
 
                 option2.setText(R.string.view_options_menu_edit_import);
-                option2.setCompoundDrawablesWithIntrinsicBounds(null, null, null,
-                        getResources().getDrawable(R.drawable.ic_photo_24dp));
+                option1.setCompoundDrawablesWithIntrinsicBounds(null, null, null,
+                        ContextCompat.getDrawable(getContext(), R.drawable.ic_photo_24dp));
             }
 
             ViewUtils.visible(textAndBitmapOptions);
@@ -425,11 +426,12 @@ public class CanvasLayout extends CoordinatorLayout implements
     }
 
     private boolean isSystemUISwipe(MotionEvent event) {
-        if (event.getY() <= getResources().getDimension(R.dimen.status_bar_height)) {
+        if (event.getY() <= getResources().getDimension(R.dimen.system_ui_scrim)) {
             return true;
         }
 
-        if (event.getY() >= getHeight() - getResources().getDimension(R.dimen.status_bar_height)) {
+        if (event.getY() >=
+                getHeight() - getResources().getDimension(R.dimen.system_ui_scrim)) {
             return true;
         }
 
