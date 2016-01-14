@@ -142,8 +142,11 @@ public class CanvasLayout extends CoordinatorLayout implements
                     }
                     return false;
                 } else {
-                    if (mShadowPaint.getAlpha() == 0) {
-                        drawer.setEnabled(true);
+                    if (mShadowPaint.getAlpha() != 0) {
+                        drawer.setEnabled(false);
+                    }
+
+                    if (!fabMenu.isEnabled()) {
                         fabMenu.setEnabled(true);
                     }
                 }
@@ -311,9 +314,14 @@ public class CanvasLayout extends CoordinatorLayout implements
     }
 
     private void makeDrawingVisible() {
-        drawer.setEnabled(true);
-        hideBackground();
-        fabMenu.toggleMenu();
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                drawer.setEnabled(true);
+                hideBackground();
+                fabMenu.toggleMenu();
+            }
+        }, 200);
     }
 
     public void showBackground() {
