@@ -275,9 +275,6 @@ public class HomeActivity extends BaseActivity implements CanvasLayoutListener, 
             case R.id.activity_home_menu_gallery:
                 startActivity(new Intent(this, GalleryActivity.class));
                 break;
-            case R.id.activity_home_menu_profile:
-                startActivity(new Intent(this, ProfileActivity.class));
-                break;
         }
 
         drawerLayout.closeDrawer(GravityCompat.START);

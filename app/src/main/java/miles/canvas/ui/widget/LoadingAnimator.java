@@ -20,6 +20,7 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.animation.AnticipateOvershootInterpolator;
 import android.view.animation.DecelerateInterpolator;
+import android.view.animation.OvershootInterpolator;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -168,7 +169,16 @@ public class LoadingAnimator extends View {
                             public void onAnimationEnd(Animator animation) {
                                 Arrays.fill(mAnimatedEnds, mStart);
                                 mAnimatorSet = null;
-                                new Handler().postDelayed(() -> adapter.onAnimationEnd(animation), 750);
+                                animate().scaleY(0f).scaleX(0f)
+                                        .setInterpolator(new DecelerateInterpolator())
+                                        .setStartDelay(300)
+                                        .setDuration(100);
+                                new Handler().postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        adapter.onAnimationEnd(animation);
+                                    }
+                                }, 500);
                             }
                         });
                         scale.start();

@@ -30,6 +30,7 @@
         android:background="@color/accent"
         app:itemTextColor="@color/primary_light"
         app:itemIconTint="@color/primary_light"
+        app:headerLayout="@layout/activity_home_header_layout"
         app:menu="@menu/activity_home_navigation_menu" />
 
 </android.support.v4.widget.DrawerLayout>

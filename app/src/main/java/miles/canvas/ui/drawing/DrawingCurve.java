@@ -145,9 +145,11 @@ public class DrawingCurve {
         mHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                mListener.surfaceReady();
+                if (mListener != null) {
+                    mListener.surfaceReady();
+                }
             }
-        }, 1000);
+        }, 2000);
     }
 
     public void setListener(DrawingCurveListener listener) {

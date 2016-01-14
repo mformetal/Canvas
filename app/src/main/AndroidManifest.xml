@@ -32,10 +32,6 @@
             android:windowSoftInputMode="stateHidden"
             android:theme="@style/Canvas.GalleryActivity" />
 
-        <activity
-            android:name="miles.canvas.ui.activity.ProfileActivity"
-            android:windowSoftInputMode="stateHidden" />
-
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="a8993ecce733fbb6ed9eab0eadea21ecea038c13" />
