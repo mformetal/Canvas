@@ -26,7 +26,7 @@ class BitmapDrawHistory {
         float[] prevMatrixValues = new float[9];
         matrix.getValues(prevMatrixValues);
 
-        Bitmap bitmap = cache.retrieve(uri);
+        Bitmap bitmap = cache.get(uri);
         if (bitmap == null) {
             InputStream inputStream;
             try {

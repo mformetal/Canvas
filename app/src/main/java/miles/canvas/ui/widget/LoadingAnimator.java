@@ -38,7 +38,7 @@ public class LoadingAnimator extends View {
     private Drawable mDrawable;
     private Path mPath;
 
-    private int mBackgroundColor;
+    private int mBackgroundColor, mStrokeColor;
     private float mStart, mEnd;
     private float[] mAnimatedEnds;
     private boolean mShouldDrawLines = true;
@@ -66,9 +66,10 @@ public class LoadingAnimator extends View {
     private void init() {
         mPath = new Path();
 
-        mBackgroundColor = Color.BLACK;
-        mPaint = new Paint();
-        mPaint.setColor(Color.WHITE);
+        mBackgroundColor = ContextCompat.getColor(getContext(), R.color.primary);
+        mStrokeColor = ContextCompat.getColor(getContext(), R.color.primary_light);
+        mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mPaint.setColor(mStrokeColor);
 
         mAnimatedEnds = new float[3];
 
@@ -85,7 +86,8 @@ public class LoadingAnimator extends View {
         mPaint.setStrokeWidth(20f);
 
         mDrawable = ContextCompat.getDrawable(getContext(), R.drawable.ic_check_24dp);
-        mDrawable.setColorFilter(ViewUtils.complementColor(mBackgroundColor), PorterDuff.Mode.SRC_ATOP);
+        mDrawable.mutate();
+        mDrawable.setColorFilter(mPaint.getColor(), PorterDuff.Mode.SRC_ATOP);
         mDrawable.setBounds(0, 0, w, h);
     }
 
@@ -94,7 +96,6 @@ public class LoadingAnimator extends View {
         super.onDraw(canvas);
 
         Rect bounds = canvas.getClipBounds();
-        int prevColor = mPaint.getColor();
 
         mPath.rewind();
         mPath.addRoundRect(bounds.left, bounds.top, bounds.right, bounds.bottom,
@@ -110,17 +111,12 @@ public class LoadingAnimator extends View {
             float px = canvas.getWidth() / 2f, py = canvas.getHeight() / 2f;
             canvas.scale(sx, sy, px, py);
         } else {
-            mPaint.setColor(prevColor);
+            mPaint.setColor(mStrokeColor);
             int height = canvas.getHeight();
             canvas.drawLine(mStart, height * .25f, mAnimatedEnds[0], height * .25f, mPaint);
             canvas.drawLine(mStart, height * .5f, mAnimatedEnds[1], height * .5f, mPaint);
             canvas.drawLine(mStart, height * .75f, mAnimatedEnds[2], height * .75f, mPaint);
         }
-    }
-
-    public void setColors(int backgroundOfCanvas) {
-        mBackgroundColor = ViewUtils.complementColor(backgroundOfCanvas);
-        mPaint.setColor(ViewUtils.complementColor(mBackgroundColor));
     }
 
     public void startAnimation() {

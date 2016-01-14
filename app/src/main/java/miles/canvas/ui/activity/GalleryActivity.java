@@ -76,7 +76,7 @@ public class GalleryActivity extends BaseActivity implements OnClickListener {
                 int curItem = pager.getCurrentItem();
                 Sketch sketch = adapter.get(curItem);
                 bus.post(new EventUpdateDrawingCurve(sketch.getId()));
-                finish();
+                onBackPressed();
                 break;
         }
     }

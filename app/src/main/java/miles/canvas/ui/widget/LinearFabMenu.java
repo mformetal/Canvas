@@ -120,16 +120,20 @@ public class LinearFabMenu extends ViewGroup implements View.OnClickListener {
             if (child.getId() != R.id.activity_gallery_options_menu_toggle) {
                 MarginLayoutParams params = (MarginLayoutParams) child.getLayoutParams();
 
-                curBottom -= (params.bottomMargin + params.topMargin);
+                curBottom -= (params.bottomMargin);
 
                 child.layout(cx - child.getMeasuredWidth() / 2,
                         curBottom - child.getMeasuredHeight(),
                         cx + child.getMeasuredWidth() / 2,
                         curBottom);
 
-                curBottom -= child.getMeasuredHeight();
+                child.setVisibility(View.GONE);
+
+                curBottom -= child.getMeasuredHeight() + params.topMargin;
             }
         }
+
+        hideMenu();
     }
 
     @Override

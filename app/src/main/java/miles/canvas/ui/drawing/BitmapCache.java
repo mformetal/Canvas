@@ -29,14 +29,14 @@ import static android.content.pm.ApplicationInfo.FLAG_LARGE_HEAP;
 /**
  * Created by mbpeele on 1/5/16.
  */
-class BitmapCache extends LruCache {
+class BitmapCache extends LruCache<Uri, Bitmap> {
 
     final Set<SoftReference<Bitmap>> mReusableBitmaps;
     final Context mContext;
     final int mViewWidth, mViewHeight;
 
-    public BitmapCache(Context context, int max) {
-        super(max);
+    public BitmapCache(Context context) {
+        super(getMaxSize(context));
 
         mReusableBitmaps = Collections.synchronizedSet(new HashSet<>());
 
@@ -57,13 +57,10 @@ class BitmapCache extends LruCache {
         return 1024 * 1024 * memoryClass / 5;
     }
 
-    public void add(Uri uri, Bitmap bitmap) {
-        String key = uri.toString();
-    }
-
-    public Bitmap retrieve(Uri uri) {
-//        return get(uri.toString());
-        return null;
+    @Override
+    protected void onItemEvicted(Uri key, Bitmap item) {
+        super.onItemEvicted(key, item);
+        mReusableBitmaps.add(new SoftReference<>(item));
     }
 
     public Bitmap decodeStream(InputStream inputStream) throws IOException {

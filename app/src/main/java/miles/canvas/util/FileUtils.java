@@ -102,9 +102,6 @@ public class FileUtils {
     }
 
     public static Bitmap getCachedBitmap(Context context) {
-        Point size = new Point();
-        ((Activity) context).getWindowManager().getDefaultDisplay().getSize(size);
-
         Bitmap bitmap = null;
         try {
             InputStream test = context.openFileInput(DRAWING_BITMAP_FILENAME);

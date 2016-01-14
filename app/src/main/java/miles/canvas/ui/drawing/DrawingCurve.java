@@ -18,6 +18,10 @@ import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.view.MotionEvent;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Stack;
@@ -83,6 +87,7 @@ public class DrawingCurve {
     private boolean isSafeToDraw = true;
     private double mOldDist = 1f;
     private float mLastRotation = 0f;
+    private boolean shouldUpdate;
 
     @Inject Datastore store;
     @Inject EventBus bus;
@@ -101,7 +106,7 @@ public class DrawingCurve {
 
         mContext = context;
 
-        cache = new BitmapCache(mContext, BitmapCache.getMaxSize(mContext));
+        cache = new BitmapCache(mContext);
 
         Point size = new Point();
         ((Activity) context).getWindowManager().getDefaultDisplay().getRealSize(size);
@@ -148,37 +153,12 @@ public class DrawingCurve {
         }, 1000);
     }
 
-    private void reset() {
-        isSafeToDraw = false;
-
-        int width = mBitmap.getWidth(), height = mBitmap.getHeight();
-
-        FileUtils.deleteBitmapFile(mContext, FileUtils.DRAWING_BITMAP_FILENAME);
-
-        mStroke.clear();
-        mAllHistory.clear();
-        mRedoneHistory.clear();
-
-        if (mCachedBitmap != null) {
-            mCachedBitmap.recycle();
-            mCachedBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        }
-
-        mBitmap.recycle();
-        mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        mCanvas = new Canvas(mBitmap);
-
-        isSafeToDraw = true;
-    }
-
     public void setListener(DrawingCurveListener listener) {
         mListener = listener;
     }
 
     public void drawToSurfaceView(Canvas canvas) {
         if (canvas != null && isSafeToDraw) {
-            canvas.drawColor(mBackgroundColor);
-
             canvas.drawBitmap(mBitmap, 0, 0, null);
 
             switch (mState) {
@@ -472,9 +452,7 @@ public class DrawingCurve {
 
                             isSafeToDraw = false;
 
-                            if (mCachedBitmap != null) {
-                                workerCanvas.drawBitmap(mCachedBitmap, 0, 0, null);
-                            }
+                            workerCanvas.drawBitmap(mCachedBitmap, 0, 0, null);
                         }
                     });
         }
@@ -554,7 +532,7 @@ public class DrawingCurve {
 
                 changeState(State.DRAW);
 
-                cache.add(mPhotoBitmapUri, mPhotoBitmap.copy(mPhotoBitmap.getConfig(), true));
+                cache.put(mPhotoBitmapUri, mPhotoBitmap.copy(mPhotoBitmap.getConfig(), true));
 
                 mMatrix.getValues(values);
                 mAllHistory.push(new BitmapDrawHistory(mPhotoBitmapUri, values));
@@ -570,22 +548,45 @@ public class DrawingCurve {
 
     @SuppressWarnings("unused")
     public void onEvent(EventUpdateDrawingCurve eventUpdateDrawingCurve) {
+        isSafeToDraw = false;
+
         Realm realm = Realm.getDefaultInstance();
         Sketch sketch = realm.where(Sketch.class).equalTo("id", eventUpdateDrawingCurve.id).findFirst();
-        BitmapFactory.Options options = FileUtils.getBitmapOptions();
+        realm.close();
 
-        mBitmap = BitmapFactory.decodeByteArray(sketch.getBytes(), 0, sketch.getBytes().length, options);
+        mAllHistory.clear();
+        mRedoneHistory.clear();
+        mStroke.clear();
+
+        mCachedBitmap = BitmapFactory.decodeByteArray(sketch.getBytes(), 0,
+                sketch.getBytes().length, FileUtils.getBitmapOptions());
+        mBitmap = Bitmap.createBitmap(mCachedBitmap.getWidth(), mCachedBitmap.getHeight(), Bitmap.Config.ARGB_8888);
         mCanvas = new Canvas(mBitmap);
+        mCanvas.drawBitmap(mCachedBitmap, 0, 0, null);
 
-        if (mCachedBitmap != null) {
-            mCachedBitmap.recycle();
-            mCachedBitmap = null;
-        }
+        isSafeToDraw = true;
     }
 
     @SuppressWarnings("unused")
     public void onEvent(EventClearCanvas eventClearCanvas) {
-        reset();
+        isSafeToDraw = false;
+
+        int width = mBitmap.getWidth(), height = mBitmap.getHeight();
+
+        FileUtils.deleteBitmapFile(mContext, FileUtils.DRAWING_BITMAP_FILENAME);
+
+        mStroke.clear();
+        mAllHistory.clear();
+        mRedoneHistory.clear();
+
+        mCachedBitmap.recycle();
+        mCachedBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+
+        mBitmap.recycle();
+        mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        mCanvas = new Canvas(mBitmap);
+
+        isSafeToDraw = true;
     }
 
     @SuppressWarnings("unused")
@@ -617,9 +618,17 @@ public class DrawingCurve {
         switch (mState) {
             case DRAW:
                 if (eventColorChosen.fill) {
-                    store.setLastBackgroundColor(color);
-
                     mBackgroundColor = color;
+
+                    store.setLastBackgroundColor(mBackgroundColor);
+
+                    mStroke.clear();
+                    mAllHistory.clear();
+                    mRedoneHistory.clear();
+
+
+                    mCachedBitmap.eraseColor(mBackgroundColor);
+                    mBitmap.eraseColor(mBackgroundColor);
 
                     mOppositeBackgroundColor = ViewUtils.complementColor(mBackgroundColor);
                 } else {

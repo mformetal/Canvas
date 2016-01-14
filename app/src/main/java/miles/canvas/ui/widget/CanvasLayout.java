@@ -48,8 +48,7 @@ public class CanvasLayout extends CoordinatorLayout implements
         CircleFabMenu.ViewFabMenuListener, DrawingCurve.DrawingCurveListener, View.OnClickListener {
 
     @Bind(R.id.fragment_drawer_canvas) CanvasSurface drawer;
-    @Bind(R.id.fragment_drawer_menu)
-    CircleFabMenu fabMenu;
+    @Bind(R.id.fragment_drawer_menu) CircleFabMenu fabMenu;
     @Bind(R.id.fragment_drawer_animator) RoundedFrameLayout fabFrame;
     @Bind(R.id.fragment_drawer_text_bitmap) LinearLayout textAndBitmapOptions;
 
@@ -334,7 +333,7 @@ public class CanvasLayout extends CoordinatorLayout implements
     }
 
     public void dim() {
-        Animator alpha = ObjectAnimator.ofInt(this, ALPHA, 128).setDuration(200);
+        Animator alpha = ObjectAnimator.ofInt(this, ALPHA, 64).setDuration(200);
 
         Animator radius = ObjectAnimator.ofFloat(this, RADIUS, getHeight()).setDuration(200);
 

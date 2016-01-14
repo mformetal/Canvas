@@ -216,9 +216,6 @@ public class HomeActivity extends BaseActivity implements CanvasLayoutListener {
             case R.id.menu_image:
                 showImageChooser();
                 break;
-            case R.id.menu_clear_canvas:
-                showClearCanvasDialog();
-                break;
             case R.id.menu_navigation:
                 startActivity(new Intent(this, GalleryActivity.class));
                 break;
@@ -262,7 +259,6 @@ public class HomeActivity extends BaseActivity implements CanvasLayoutListener {
         DrawingFragment drawingFragment = getDrawingFragment();
 
         frameLayout.bringChildToFront(loadingAnimator);
-        loadingAnimator.setColors(drawingFragment.getRootView().getBackgroundColor());
         ViewUtils.visible(loadingAnimator, 500);
 
         drawingFragment.getRootView().unreveal().addListener(new AnimatorListenerAdapter() {
@@ -451,19 +447,6 @@ public class HomeActivity extends BaseActivity implements CanvasLayoutListener {
         } else {
             ActivityCompat.requestPermissions(this, permissions, REQUEST_PERMISSION_CAMERA_CODE);
         }
-    }
-
-    private void showClearCanvasDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this)
-                .setTitle(R.string.alert_dialog_new_canvas_title)
-                .setMessage(R.string.alert_dialog_new_canvas_body)
-                .setPositiveButton(R.string.alert_dialog_new_canvas_pos_button, (dialog, which) -> {
-                    bus.post(new EventClearCanvas());
-                })
-                .setNegativeButton(R.string.alert_dialog_new_canvas_neg_button, (dialog, which) -> {
-                    dialog.dismiss();
-                });
-        builder.create().show();
     }
 
     private void showImageChooser() {
