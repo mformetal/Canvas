@@ -81,30 +81,11 @@ public class TransitionButtonToDialog extends ChangeBounds {
             public void onAnimationStart(Animator animation) {
                 fab.setVisibility(View.INVISIBLE);
                 fabFrame.setVisibility(View.VISIBLE);
-
-                for (int x = 0; x < layout.getChildCount(); x++) {
-                    View v = layout.getChildAt(x);
-                    if (!(v instanceof RoundedFrameLayout)) {
-                        disableView(v);
-                    }
-                }
             }
         });
         animatorSet.setDuration(350);
         animatorSet.setInterpolator(new AccelerateDecelerateInterpolator());
 
         return animatorSet;
-    }
-
-    private void disableView(View v) {
-        v.setEnabled(false);
-
-        if (v instanceof ViewGroup) {
-            ViewGroup vg = (ViewGroup) v;
-            for (int i = 0; i < vg.getChildCount(); i++) {
-                View child = vg.getChildAt(i);
-                disableView(child);
-            }
-        }
     }
 }

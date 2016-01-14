@@ -7,12 +7,10 @@
     android:layout_height="match_parent"
     tools:ignore="RtlSymmetry" >
 
-    <ProgressBar
-        android:id="@+id/adapter_gallery_progress"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    <miles.canvas.ui.widget.LoadingAnimator
+        android:id="@+id/activity_home_loading_animator"
         android:layout_gravity="center"
-        android:indeterminateTint="@color/primary_light"
-        android:indeterminateTintMode="src_in" />
+        android:layout_width="@dimen/view_save_animation_dimens"
+        android:layout_height="@dimen/view_save_animation_dimens" />
 
 </FrameLayout>

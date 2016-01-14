@@ -7,8 +7,6 @@ import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.graphics.Canvas;
-import android.graphics.Paint;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
@@ -36,7 +34,6 @@ import miles.canvas.data.event.EventBrushChosen;
 import miles.canvas.data.event.EventColorChosen;
 import miles.canvas.util.Circle;
 import miles.canvas.util.ViewUtils;
-import miles.canvas.ui.widget.Fab;
 
 /**
  * Created by milespeele on 8/7/15.
@@ -229,7 +226,7 @@ public class FabMenu extends ViewGroup implements View.OnClickListener {
 
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
-                if (isFromBottom(event)) {
+                if (isSystemUISwipe(event)) {
                     return false;
                 }
 
@@ -265,12 +262,6 @@ public class FabMenu extends ViewGroup implements View.OnClickListener {
         }
 
         return true;
-    }
-
-    private boolean isSwipeFromBottom(MotionEvent event) {
-        return event.getAction() == MotionEvent.ACTION_DOWN
-                && event.getY() >= getHeight() - getResources().getDimension(R.dimen.status_bar_height);
-
     }
 
     public void addListener(ViewFabMenuListener listener) {
@@ -478,7 +469,7 @@ public class FabMenu extends ViewGroup implements View.OnClickListener {
 
     public float getCircleRadius() { return mCircle.getRadius(); }
 
-    private boolean isFromBottom(MotionEvent event) {
+    private boolean isSystemUISwipe(MotionEvent event) {
         return event.getY() >= (float) toggle.getBottom() -
                 getResources().getDimension(R.dimen.status_bar_height) / 2;
     }
@@ -538,7 +529,7 @@ public class FabMenu extends ViewGroup implements View.OnClickListener {
 
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-               if (isVisible() && !isFromBottom(e1) && !isFromBottom(e2) &&
+               if (isVisible() && !isSystemUISwipe(e1) && !isSystemUISwipe(e2) &&
                     isMinXDist(e1, e2)) {
                 isDragging = false;
 

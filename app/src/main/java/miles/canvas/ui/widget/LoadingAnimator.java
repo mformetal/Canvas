@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import miles.canvas.R;
+import miles.canvas.util.Logg;
 import miles.canvas.util.ViewUtils;
 
 /**
@@ -83,9 +84,8 @@ public class LoadingAnimator extends View {
 
         mPaint.setStrokeWidth(20f);
 
-        mDrawable = getResources().getDrawable(R.drawable.ic_check_24dp);
-        mDrawable.setColorFilter(ViewUtils.complementColor(mBackgroundColor),
-                PorterDuff.Mode.SRC_ATOP);
+        mDrawable = ContextCompat.getDrawable(getContext(), R.drawable.ic_check_24dp);
+        mDrawable.setColorFilter(ViewUtils.complementColor(mBackgroundColor), PorterDuff.Mode.SRC_ATOP);
         mDrawable.setBounds(0, 0, w, h);
     }
 
@@ -105,12 +105,10 @@ public class LoadingAnimator extends View {
         canvas.drawRect(bounds, mPaint);
 
         if (!mShouldDrawLines) {
-            canvas.save();
+            mDrawable.draw(canvas);
             float sx = getScaleX(), sy = getScaleY();
             float px = canvas.getWidth() / 2f, py = canvas.getHeight() / 2f;
             canvas.scale(sx, sy, px, py);
-            mDrawable.draw(canvas);
-            canvas.restore();
         } else {
             mPaint.setColor(prevColor);
             int height = canvas.getHeight();
@@ -122,95 +120,66 @@ public class LoadingAnimator extends View {
 
     public void setColors(int backgroundOfCanvas) {
         mBackgroundColor = ViewUtils.complementColor(backgroundOfCanvas);
-
         mPaint.setColor(ViewUtils.complementColor(mBackgroundColor));
     }
 
     public void startAnimation() {
-        ArrayList<Animator> animators = new ArrayList<>();
-        for (int i = 0; i < 3; i ++) {
-            Animator animator = createLineAnimation(i);
-            animator.setStartDelay(100 * i);
-            animators.add(animator);
-        }
-
-        mAnimatorSet = new AnimatorSet();
-        mAnimatorSet.playTogether(animators);
-        mAnimatorSet.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-                mShouldDrawLines = true;
+        if (mAnimatorSet == null) {
+            ArrayList<Animator> animators = new ArrayList<>();
+            for (int i = 0; i < 3; i ++) {
+                Animator animator = createLineAnimation(i);
+                animator.setStartDelay(100 * i);
+                animators.add(animator);
             }
-        });
-        mAnimatorSet.start();
+
+            mAnimatorSet = new AnimatorSet();
+            mAnimatorSet.playTogether(animators);
+            mAnimatorSet.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationStart(Animator animation) {
+                    mShouldDrawLines = true;
+                }
+            });
+            mAnimatorSet.start();
+        }
     }
 
     public void stopAnimation(AnimatorListenerAdapter adapter) {
         ArrayList<Animator> childAnimations = mAnimatorSet.getChildAnimations();
-        Animator animator = childAnimations.get(childAnimations.size() - 1);
-        animator.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationRepeat(Animator animation) {
-                super.onAnimationEnd(animation);
-                for (Animator child: childAnimations) {
-                    if (child instanceof ValueAnimator) {
-                        ((ValueAnimator) child).setRepeatCount(0);
-                        ((ValueAnimator) child).setRepeatMode(0);
-                        child.removeAllListeners();
-                    }
-                }
+        for (Animator child: childAnimations) {
+            ValueAnimator valueAnimator = (ValueAnimator) child;
+            valueAnimator.setRepeatCount(0);
+            valueAnimator.setRepeatMode(0);
 
-                ObjectAnimator scale = ObjectAnimator.ofPropertyValuesHolder(LoadingAnimator.this,
-                        PropertyValuesHolder.ofFloat(View.SCALE_X, .2f, 1f),
-                        PropertyValuesHolder.ofFloat(View.SCALE_Y, .2f, 1f));
-                scale.setDuration(350);
-                scale.setInterpolator(new AnticipateOvershootInterpolator());
-                scale.addListener(new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationStart(Animator animation) {
-                        mShouldDrawLines = false;
-                    }
-
+            if (child == childAnimations.get(childAnimations.size() - 1)) {
+                child.addListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationEnd(Animator animation) {
-                        if (adapter != null) {
-                            Arrays.fill(mAnimatedEnds, mStart);
-                            new Handler().postDelayed(() -> adapter.onAnimationEnd(animation), 750);
-                        }
+                        super.onAnimationEnd(animation);
+                        ObjectAnimator scale = ObjectAnimator.ofPropertyValuesHolder(
+                                LoadingAnimator.this,
+                                PropertyValuesHolder.ofFloat(View.SCALE_X, .2f, 1f),
+                                PropertyValuesHolder.ofFloat(View.SCALE_Y, .2f, 1f));
+                        scale.setDuration(350);
+                        scale.setInterpolator(new AnticipateOvershootInterpolator());
+                        scale.addListener(new AnimatorListenerAdapter() {
+                            @Override
+                            public void onAnimationStart(Animator animation) {
+                                mShouldDrawLines = false;
+                            }
+
+                            @Override
+                            public void onAnimationEnd(Animator animation) {
+                                Arrays.fill(mAnimatedEnds, mStart);
+                                mAnimatorSet = null;
+                                new Handler().postDelayed(() -> adapter.onAnimationEnd(animation), 750);
+                            }
+                        });
+                        scale.start();
                     }
                 });
-
-                scale.addUpdateListener(animation1 -> invalidate());
-                scale.start();
             }
-        });
-    }
-
-    private void scaleAndFinish(AnimatorListenerAdapter adapter) {
-        ObjectAnimator scale = ObjectAnimator.ofPropertyValuesHolder(this,
-                PropertyValuesHolder.ofFloat(View.SCALE_X, .2f, 1f),
-                PropertyValuesHolder.ofFloat(View.SCALE_Y, .2f, 1f));
-        scale.setDuration(350);
-        scale.setInterpolator(new AnticipateOvershootInterpolator());
-        scale.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-                super.onAnimationStart(animation);
-                mDrawable = ContextCompat.getDrawable(getContext(), R.drawable.ic_check_24dp);
-                mDrawable.setColorFilter(ViewUtils.complementColor(mBackgroundColor),
-                        PorterDuff.Mode.SRC_ATOP);
-                mDrawable.setBounds(0, 0, getWidth(), getHeight());
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                new Handler().postDelayed(() -> adapter.onAnimationEnd(animation), 750);
-            }
-        });
-
-        scale.addUpdateListener(animation1 -> invalidate());
-
-        scale.start();
+        }
     }
 
     private Animator createLineAnimation(int index) {
@@ -220,12 +189,6 @@ public class LoadingAnimator extends View {
         line.addUpdateListener(animation -> {
             mAnimatedEnds[index] = (Float) animation.getAnimatedValue();
             invalidate();
-        });
-        line.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                mAnimatedEnds[index] = mStart;
-            }
         });
         line.setRepeatCount(ValueAnimator.INFINITE);
         line.setRepeatMode(ValueAnimator.REVERSE);

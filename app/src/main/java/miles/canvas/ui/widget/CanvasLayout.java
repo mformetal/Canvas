@@ -11,7 +11,6 @@ import android.graphics.BlurMaskFilter;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.graphics.Rect;
 import android.os.Handler;
 import android.support.design.widget.CoordinatorLayout;
@@ -22,13 +21,8 @@ import android.view.MotionEvent;
 import android.view.SoundEffectConstants;
 import android.view.View;
 import android.view.ViewAnimationUtils;
-import android.view.Window;
 import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.DecelerateInterpolator;
-import android.view.animation.LinearInterpolator;
 import android.widget.LinearLayout;
-
-import java.lang.reflect.Type;
 
 import javax.inject.Inject;
 
@@ -44,15 +38,10 @@ import miles.canvas.data.event.EventColorChosen;
 import miles.canvas.data.event.EventFilenameChosen;
 import miles.canvas.data.event.EventTextChosen;
 import miles.canvas.ui.activity.HomeActivity;
-import miles.canvas.ui.activity.HomeActivity;
 import miles.canvas.ui.drawing.DrawingCurve;
-import miles.canvas.ui.fragment.DrawingFragment;
 import miles.canvas.ui.fragment.DrawingFragment;
 import miles.canvas.util.Logg;
 import miles.canvas.util.ViewUtils;
-import miles.canvas.ui.widget.CanvasSurface;
-import miles.canvas.ui.widget.Fab;
-import miles.canvas.ui.widget.RoundedFrameLayout;
 
 /**
  * Created by milespeele on 8/7/15.
@@ -63,8 +52,7 @@ public class CanvasLayout extends CoordinatorLayout implements
     @Bind(R.id.fragment_drawer_canvas) CanvasSurface drawer;
     @Bind(R.id.fragment_drawer_menu) FabMenu fabMenu;
     @Bind(R.id.fragment_drawer_animator) RoundedFrameLayout fabFrame;
-    @Bind(R.id.fragment_drawer_options_menu) LinearLayout optionsMenu;
-    @Bind(R.id.fragment_drawer_save_animation) LoadingAnimator loadingAnimator;
+    @Bind(R.id.fragment_drawer_text_bitmap) LinearLayout linearLayout;
 
     @Inject EventBus bus;
 
@@ -118,7 +106,7 @@ public class CanvasLayout extends CoordinatorLayout implements
     @Override
     protected boolean drawChild(Canvas canvas, View child, long drawingTime) {
         if (mShadowPaint.getAlpha() != 0) {
-            if (child == fabMenu || child == loadingAnimator) {
+            if (child == fabMenu) {
                 canvas.drawCircle(fabMenu.getCenterX(),
                         fabMenu.getCenterY() + (getHeight() - fabMenu.getHeight()),
                         mRadius, mShadowPaint);
@@ -133,6 +121,10 @@ public class CanvasLayout extends CoordinatorLayout implements
 
         switch (ev.getAction()) {
             case MotionEvent.ACTION_DOWN:
+                if (isSystemUISwipe(ev)) {
+                    return true;
+                }
+
                 mStartX = x;
                 mStartY = y;
                 mStartTime = ev.getEventTime();
@@ -157,14 +149,8 @@ public class CanvasLayout extends CoordinatorLayout implements
                 }
                 break;
             case MotionEvent.ACTION_MOVE:
-                if (detectSwipe(ev)) {
-                    drawer.setEnabled(false);
-                }
+                mHandler.postDelayed(() -> ViewUtils.systemUIGone(getRootView()), 350);
                 break;
-        }
-
-        if (ev.getAction() == MotionEvent.ACTION_MOVE) {
-            mHandler.postDelayed(() -> ViewUtils.systemUIGone(getRootView()), 350);
         }
 
         return false;
@@ -212,8 +198,8 @@ public class CanvasLayout extends CoordinatorLayout implements
     @Override
     public void toggleOptionsMenuVisibilty(boolean setVisible, DrawingCurve.State state) {
         if (setVisible) {
-            TypefaceButton option1 = (TypefaceButton) optionsMenu.getChildAt(1);
-            TypefaceButton option2 = (TypefaceButton) optionsMenu.getChildAt(2);
+            TypefaceButton option1 = (TypefaceButton) linearLayout.getChildAt(1);
+            TypefaceButton option2 = (TypefaceButton) linearLayout.getChildAt(2);
             if (state == DrawingCurve.State.TEXT) {
                 option1.setText(R.string.view_options_menu_edit_text);
                 option1.setCompoundDrawablesWithIntrinsicBounds(null, null, null,
@@ -232,9 +218,9 @@ public class CanvasLayout extends CoordinatorLayout implements
                         getResources().getDrawable(R.drawable.ic_photo_24dp));
             }
 
-            ViewUtils.visible(optionsMenu);
+            ViewUtils.visible(linearLayout);
         } else {
-            ViewUtils.gone(optionsMenu);
+            ViewUtils.gone(linearLayout);
         }
     }
 
@@ -249,6 +235,11 @@ public class CanvasLayout extends CoordinatorLayout implements
 
     @Override
     public void surfaceReady() {
+        HomeActivity activity = (HomeActivity) getContext();
+        activity.dismissLoading();
+    }
+
+    public void reveal() {
         Animator reveal = ViewAnimationUtils.createCircularReveal(this,
                 getWidth() / 2, getHeight() / 2, 0, getHeight());
         reveal.setDuration(600);
@@ -259,16 +250,24 @@ public class CanvasLayout extends CoordinatorLayout implements
                 drawer.setVisibility(View.VISIBLE);
                 fabMenu.setVisibility(View.VISIBLE);
             }
+        });
+        reveal.start();
+    }
 
+    public Animator unreveal() {
+        Animator reveal = ViewAnimationUtils.createCircularReveal(this,
+                getWidth() / 2, getHeight() / 2, getHeight(), 0);
+        reveal.setDuration(600);
+        reveal.setInterpolator(new AccelerateDecelerateInterpolator());
+        reveal.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
-                HomeActivity activity = (HomeActivity) getContext();
-                Window window = activity.getWindow();
-                window.setBackgroundDrawable(null);
-                activity.onLoadFinished();
+                setVisibility(View.GONE);
             }
         });
         reveal.start();
+
+        return reveal;
     }
 
     @Override
@@ -315,39 +314,6 @@ public class CanvasLayout extends CoordinatorLayout implements
         drawer.setEnabled(true);
         hideBackground();
         fabMenu.toggleMenu();
-    }
-
-    public void startSaveBitmapAnimation() {
-        loadingAnimator.setColors(drawer.getBackgroundColor());
-        loadingAnimator.setTranslationY(getHeight());
-
-        AnimatorSet animatorSet = new AnimatorSet();
-
-        Animator alpha = ObjectAnimator.ofInt(this, CanvasLayout.ALPHA, 128);
-        alpha.setInterpolator(new LinearInterpolator());
-        alpha.setDuration(500);
-
-        ObjectAnimator yPosition = ObjectAnimator.ofFloat(loadingAnimator, View.TRANSLATION_Y, 0);
-        yPosition.setDuration(500);
-        yPosition.setInterpolator(new DecelerateInterpolator());
-        yPosition.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-                loadingAnimator.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                loadingAnimator.startAnimation();
-            }
-        });
-
-        animatorSet.playTogether(alpha, yPosition);
-        animatorSet.start();
-    }
-
-    public void stopSaveAnimation(AnimatorListenerAdapter adapter) {
-        loadingAnimator.stopAnimation(adapter);
     }
 
     public void showBackground() {
@@ -440,19 +406,12 @@ public class CanvasLayout extends CoordinatorLayout implements
         return mRadius;
     }
 
-    private boolean detectSwipe(MotionEvent event) {
-        float swipeThreshold = ViewUtils.dpToPx(getResources().getDimension(R.dimen.status_bar_height), getContext());
-        final long elapsed = event.getEventTime() - mStartTime;
-
-        if (mStartY <= swipeThreshold
-                && event.getY() > mStartY + swipeThreshold
-                && elapsed < 500) {
+    private boolean isSystemUISwipe(MotionEvent event) {
+        if (event.getY() <= getResources().getDimension(R.dimen.status_bar_height)) {
             return true;
         }
 
-        if (mStartY >= getHeight() - swipeThreshold
-                && event.getY() < mStartY - swipeThreshold
-                && elapsed < 500) {
+        if (event.getY() >= getHeight() - getResources().getDimension(R.dimen.status_bar_height)) {
             return true;
         }
 
