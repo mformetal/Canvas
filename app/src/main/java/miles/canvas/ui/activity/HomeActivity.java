@@ -18,8 +18,12 @@ import android.os.PersistableBundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
+import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
@@ -55,7 +59,8 @@ import miles.canvas.util.ViewUtils;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
-public class HomeActivity extends BaseActivity implements CanvasLayoutListener {
+
+public class HomeActivity extends BaseActivity implements CanvasLayoutListener, NavigationView.OnNavigationItemSelectedListener {
 
     private final static String TAG_FRAGMENT_DRAWER = "drawer";
     private final static String TAG_FRAGMENT_COLOR_PICKER = "color";
@@ -66,7 +71,9 @@ public class HomeActivity extends BaseActivity implements CanvasLayoutListener {
     private final static int REQUEST_CAMERA_CODE = 2002;
     private final static int REQUEST_PERMISSION_CAMERA_CODE = 2003;
 
+    @Bind(R.id.activity_home_drawer_layout) DrawerLayout drawerLayout;
     @Bind(R.id.activity_home_fragment_frame) FrameLayout frameLayout;
+    @Bind(R.id.activity_home_navigation) NavigationView navigationView;
     @Bind(R.id.activity_home_loading_animator) LoadingAnimator loadingAnimator;
 
     private RoundedFrameLayout fabFrame;
@@ -82,7 +89,22 @@ public class HomeActivity extends BaseActivity implements CanvasLayoutListener {
 
         ViewUtils.systemUIGone(getWindow().getDecorView());
 
-        ViewTreeObserver observer = frameLayout.getViewTreeObserver();
+        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+        navigationView.setNavigationItemSelectedListener(this);
+
+        drawerLayout.setDrawerListener(new DrawerLayout.SimpleDrawerListener() {
+            @Override
+            public void onDrawerOpened(View drawerView) {
+                ViewUtils.systemUIVisibile(getWindow().getDecorView());
+            }
+
+            @Override
+            public void onDrawerClosed(View drawerView) {
+                ViewUtils.systemUIGone(getWindow().getDecorView());
+            }
+        });
+
+        final ViewTreeObserver observer = drawerLayout.getViewTreeObserver();
         observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
@@ -121,6 +143,11 @@ public class HomeActivity extends BaseActivity implements CanvasLayoutListener {
         // https://code.google.com/p/android/issues/detail?id=82832
 
         if (count == 0) {
+            if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                drawerLayout.closeDrawer(GravityCompat.START);
+                return;
+            }
+
             Dialog builder = new Dialog(this);
             builder.setContentView(R.layout.dialog_save);
             builder.findViewById(R.id.dialog_save_drawing).setOnClickListener(v -> {
@@ -216,9 +243,6 @@ public class HomeActivity extends BaseActivity implements CanvasLayoutListener {
             case R.id.menu_image:
                 showImageChooser();
                 break;
-            case R.id.menu_navigation:
-                startActivity(new Intent(this, GalleryActivity.class));
-                break;
         }
     }
 
@@ -240,6 +264,25 @@ public class HomeActivity extends BaseActivity implements CanvasLayoutListener {
                 }
                 break;
         }
+    }
+
+    @Override
+    public void onNavigationIconClicked() {
+        drawerLayout.openDrawer(GravityCompat.START);
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.activity_home_menu_gallery:
+                startActivity(new Intent(this, GalleryActivity.class));
+                drawerLayout.closeDrawer(GravityCompat.START);
+                break;
+            case R.id.activity_home_menu_profile:
+                // start Profile activity
+                break;
+        }
+        return true;
     }
 
     public void dismissLoading() {

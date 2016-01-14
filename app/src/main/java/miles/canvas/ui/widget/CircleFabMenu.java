@@ -47,7 +47,7 @@ public class CircleFabMenu extends ViewGroup implements View.OnClickListener {
 
     @Bind({R.id.menu_upload, R.id.menu_text, R.id.menu_stroke_color, R.id.menu_canvas_color,
             R.id.menu_ink, R.id.menu_brush, R.id.menu_undo, R.id.menu_redo, R.id.menu_erase,
-            R.id.menu_image, R.id.menu_navigation})
+            R.id.menu_image})
     List<Fab> buttonsList;
 
     @Inject EventBus bus;

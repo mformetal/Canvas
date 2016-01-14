@@ -23,6 +23,7 @@ import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.LinearLayout;
+import android.widget.Toolbar;
 
 import javax.inject.Inject;
 
@@ -51,6 +52,7 @@ public class CanvasLayout extends CoordinatorLayout implements
     @Bind(R.id.fragment_drawer_menu) CircleFabMenu fabMenu;
     @Bind(R.id.fragment_drawer_animator) RoundedFrameLayout fabFrame;
     @Bind(R.id.fragment_drawer_text_bitmap) LinearLayout textAndBitmapOptions;
+    @Bind(R.id.fragment_drawer_toolbar) Toolbar toolbar;
 
     @Inject EventBus bus;
 
@@ -65,7 +67,7 @@ public class CanvasLayout extends CoordinatorLayout implements
     public interface CanvasLayoutListener {
         void onFabMenuButtonClicked(View view);
         void onOptionsMenuButtonClicked(View view, DrawingCurve.State state);
-
+        void onNavigationIconClicked();
     }
 
     public CanvasLayout(Context context) {
@@ -106,6 +108,11 @@ public class CanvasLayout extends CoordinatorLayout implements
 
         fabMenu.addListener(this);
         drawer.setListener(this);
+        toolbar.setNavigationOnClickListener(v -> {
+            if (mListener != null) {
+                mListener.onNavigationIconClicked();
+            }
+        });
     }
 
     @Override
@@ -192,9 +199,6 @@ public class CanvasLayout extends CoordinatorLayout implements
                 ink();
 
                 makeDrawingVisible();
-                break;
-            case R.id.menu_navigation:
-                mHandler.removeCallbacksAndMessages(null);
                 break;
         }
 
@@ -337,8 +341,10 @@ public class CanvasLayout extends CoordinatorLayout implements
 
         Animator radius = ObjectAnimator.ofFloat(this, RADIUS, getHeight()).setDuration(200);
 
+        Animator visibility = ViewUtils.visibleAnimator(toolbar);
+
         AnimatorSet set = new AnimatorSet();
-        set.playTogether(alpha, radius);
+        set.playTogether(alpha, radius, visibility);
         set.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationStart(Animator animation) {
@@ -353,8 +359,10 @@ public class CanvasLayout extends CoordinatorLayout implements
 
         Animator radius = ObjectAnimator.ofFloat(this, RADIUS, 0).setDuration(400);
 
+        Animator visibility = ViewUtils.goneAnimator(toolbar);
+
         AnimatorSet set = new AnimatorSet();
-        set.playTogether(alpha, radius);
+        set.playTogether(alpha, radius, visibility);
         set.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
