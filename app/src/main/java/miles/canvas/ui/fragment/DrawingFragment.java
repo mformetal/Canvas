@@ -15,11 +15,9 @@ import miles.canvas.ui.widget.CanvasLayout;
 import miles.canvas.ui.widget.Fab;
 import miles.canvas.ui.widget.FabMenu;
 
-public class DrawingFragment extends BaseFragment implements
-        FabMenu.ViewFabMenuListener {
+public class DrawingFragment extends BaseFragment {
 
-    @Bind(R.id.fragment_drawer_coordinator)
-    CanvasLayout coordinatorLayout;
+    @Bind(R.id.fragment_drawer_coordinator) CanvasLayout coordinatorLayout;
 
     public DrawingFragment() {}
 
@@ -37,16 +35,13 @@ public class DrawingFragment extends BaseFragment implements
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_drawer, container, false);
         ButterKnife.bind(this, v);
-        coordinatorLayout.setListeners(this);
         return v;
     }
 
     @Override
-    public void onFabMenuButtonClicked(Fab v) {
-        HomeActivity activityHome = (HomeActivity) getActivity();
-        if (activityHome != null) {
-            activityHome.onFabMenuButtonClicked(v);
-        }
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        coordinatorLayout.setActivityListener((HomeActivity) getActivity());
     }
 
     public CanvasLayout getRootView() {

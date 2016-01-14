@@ -362,7 +362,7 @@ public class FabMenu extends ViewGroup implements View.OnClickListener {
             set.addListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationStart(Animator animation) {
-                    ((CanvasLayout) getParent()).showBackground();
+                    ((CanvasLayout) getParent()).dim();
                     isAnimating = true;
                     isMenuShowing = true;
                 }
@@ -434,7 +434,7 @@ public class FabMenu extends ViewGroup implements View.OnClickListener {
                 @Override
                 public void onAnimationStart(Animator animation) {
                     isAnimating = true;
-                    ((CanvasLayout) getParent()).hideBackground();
+                    ((CanvasLayout) getParent()).undim();
                 }
 
                 @Override

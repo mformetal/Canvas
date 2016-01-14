@@ -23,6 +23,7 @@ import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.LinearLayout;
+import android.widget.Toolbar;
 
 import javax.inject.Inject;
 
@@ -39,8 +40,6 @@ import miles.canvas.data.event.EventFilenameChosen;
 import miles.canvas.data.event.EventTextChosen;
 import miles.canvas.ui.activity.HomeActivity;
 import miles.canvas.ui.drawing.DrawingCurve;
-import miles.canvas.ui.fragment.DrawingFragment;
-import miles.canvas.util.Logg;
 import miles.canvas.util.ViewUtils;
 
 /**
@@ -52,7 +51,7 @@ public class CanvasLayout extends CoordinatorLayout implements
     @Bind(R.id.fragment_drawer_canvas) CanvasSurface drawer;
     @Bind(R.id.fragment_drawer_menu) FabMenu fabMenu;
     @Bind(R.id.fragment_drawer_animator) RoundedFrameLayout fabFrame;
-    @Bind(R.id.fragment_drawer_text_bitmap) LinearLayout linearLayout;
+    @Bind(R.id.fragment_drawer_text_bitmap) LinearLayout textAndBitmapOptions;
 
     @Inject EventBus bus;
 
@@ -62,6 +61,13 @@ public class CanvasLayout extends CoordinatorLayout implements
     private long mStartTime;
     private Handler mHandler;
     private float mRadius;
+
+    private CanvasLayoutListener mListener;
+    public interface CanvasLayoutListener {
+        void onFabMenuButtonClicked(View view);
+        void onOptionsMenuButtonClicked(View view, DrawingCurve.State state);
+
+    }
 
     public CanvasLayout(Context context) {
         super(context);
@@ -161,6 +167,8 @@ public class CanvasLayout extends CoordinatorLayout implements
 
     @Override
     public void onFabMenuButtonClicked(Fab v) {
+        mListener.onFabMenuButtonClicked(v);
+
         v.performClick();
 
         Fab eraser = fabMenu.eraser;
@@ -201,8 +209,8 @@ public class CanvasLayout extends CoordinatorLayout implements
     @Override
     public void toggleOptionsMenuVisibilty(boolean setVisible, DrawingCurve.State state) {
         if (setVisible) {
-            TypefaceButton option1 = (TypefaceButton) linearLayout.getChildAt(1);
-            TypefaceButton option2 = (TypefaceButton) linearLayout.getChildAt(2);
+            TypefaceButton option1 = (TypefaceButton) textAndBitmapOptions.getChildAt(1);
+            TypefaceButton option2 = (TypefaceButton) textAndBitmapOptions.getChildAt(2);
             if (state == DrawingCurve.State.TEXT) {
                 option1.setText(R.string.view_options_menu_edit_text);
                 option1.setCompoundDrawablesWithIntrinsicBounds(null, null, null,
@@ -221,9 +229,9 @@ public class CanvasLayout extends CoordinatorLayout implements
                         getResources().getDrawable(R.drawable.ic_photo_24dp));
             }
 
-            ViewUtils.visible(linearLayout);
+            ViewUtils.visible(textAndBitmapOptions);
         } else {
-            ViewUtils.gone(linearLayout);
+            ViewUtils.gone(textAndBitmapOptions);
         }
     }
 
@@ -285,12 +293,14 @@ public class CanvasLayout extends CoordinatorLayout implements
                 drawer.onOptionsMenuCancel();
                 break;
             default:
-                HomeActivity activityHome = (HomeActivity) getContext();
-                if (activityHome != null) {
-                    activityHome.onOptionsMenuClicked(v, drawer.getState());
-                }
+                mListener.onOptionsMenuButtonClicked(v, drawer.getState());
                 break;
         }
+    }
+
+    public void setActivityListener(HomeActivity activityListener) {
+        mListener = activityListener;
+        fabMenu.addListener(this);
     }
 
     public void onEvent(EventTextChosen eventTextChosen) {
@@ -318,18 +328,16 @@ public class CanvasLayout extends CoordinatorLayout implements
             @Override
             public void run() {
                 drawer.setEnabled(true);
-                hideBackground();
+                undim();
                 fabMenu.toggleMenu();
             }
         }, 200);
     }
 
-    public void showBackground() {
-        Animator alpha = ObjectAnimator.ofInt(this, ALPHA, 128);
-        alpha.setDuration(400);
+    public void dim() {
+        Animator alpha = ObjectAnimator.ofInt(this, ALPHA, 128).setDuration(200);
 
-        Animator radius = ObjectAnimator.ofFloat(this, RADIUS, getHeight());
-        radius.setDuration(400);
+        Animator radius = ObjectAnimator.ofFloat(this, RADIUS, getHeight()).setDuration(200);
 
         AnimatorSet set = new AnimatorSet();
         set.playTogether(alpha, radius);
@@ -342,12 +350,10 @@ public class CanvasLayout extends CoordinatorLayout implements
         set.start();
     }
 
-    public void hideBackground() {
-        Animator alpha = ObjectAnimator.ofInt(this, ALPHA, 0);
-        alpha.setDuration(400);
+    public void undim() {
+        Animator alpha = ObjectAnimator.ofInt(this, ALPHA, 0).setDuration(400);
 
-        Animator radius = ObjectAnimator.ofFloat(this, RADIUS, 0);
-        radius.setDuration(400);
+        Animator radius = ObjectAnimator.ofFloat(this, RADIUS, 0).setDuration(400);
 
         AnimatorSet set = new AnimatorSet();
         set.playTogether(alpha, radius);
@@ -358,10 +364,6 @@ public class CanvasLayout extends CoordinatorLayout implements
             }
         });
         set.start();
-    }
-
-    public void setListeners(DrawingFragment fragmentDrawer) {
-        fabMenu.addListener(fragmentDrawer);
     }
 
     public int getBrushColor() {
@@ -381,6 +383,8 @@ public class CanvasLayout extends CoordinatorLayout implements
             Snackbar.make(this, R.string.snackbar_no_more_redo, Snackbar.LENGTH_SHORT).show();
         }
     }
+
+    public DrawingCurve.State getDrawingCurveState() { return drawer.getState(); }
 
     private void undo() {
         if (!drawer.undo()) {

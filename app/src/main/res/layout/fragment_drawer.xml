@@ -11,9 +11,7 @@
         android:id="@+id/fragment_drawer_canvas"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone"
-        app:layout_anchorGravity="top"
-        app:layout_anchor="@id/fragment_drawer_coordinator" />
+        android:visibility="gone" />
 
     <miles.canvas.ui.widget.RoundedFrameLayout
         android:id="@+id/fragment_drawer_animator"

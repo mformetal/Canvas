@@ -22,8 +22,10 @@ import android.support.annotation.StringRes;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
+import android.widget.Toolbar;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,6 +33,7 @@ import java.util.UUID;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import miles.canvas.R;
 import miles.canvas.data.event.EventBitmapChosen;
 import miles.canvas.data.event.EventClearCanvas;
@@ -45,7 +48,9 @@ import miles.canvas.ui.fragment.FilenameFragment;
 import miles.canvas.ui.fragment.TextFragment;
 import miles.canvas.ui.transition.TransitionHelper;
 import miles.canvas.ui.widget.CanvasLayout;
+import miles.canvas.ui.widget.CanvasLayout.CanvasLayoutListener;
 import miles.canvas.ui.widget.Fab;
+import miles.canvas.ui.widget.FabMenu;
 import miles.canvas.ui.widget.LoadingAnimator;
 import miles.canvas.ui.widget.RoundedFrameLayout;
 import miles.canvas.util.FileUtils;
@@ -55,7 +60,7 @@ import miles.canvas.util.ViewUtils;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
-public class HomeActivity extends BaseActivity {
+public class HomeActivity extends BaseActivity implements CanvasLayoutListener {
 
     private final static String TAG_FRAGMENT_DRAWER = "drawer";
     private final static String TAG_FRAGMENT_COLOR_PICKER = "color";
@@ -191,19 +196,7 @@ public class HomeActivity extends BaseActivity {
         FileUtils.deleteTemporaryFiles(this);
     }
 
-    public void dismissLoading() {
-        AnimatorListenerAdapter adapter = new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                super.onAnimationEnd(animation);
-                getDrawingFragment().getRootView().reveal();
-                ViewUtils.gone(loadingAnimator);
-            }
-        };
-
-        loadingAnimator.stopAnimation(adapter);
-    }
-
+    @Override
     public void onFabMenuButtonClicked(View view) {
         if (fabFrame == null) {
             fabFrame = (RoundedFrameLayout) findViewById(R.id.fragment_drawer_animator);
@@ -237,25 +230,37 @@ public class HomeActivity extends BaseActivity {
         }
     }
 
-    public void onOptionsMenuClicked(View view, DrawingCurve.State state) {
-        if (state != null) {
-            switch (state) {
-                case TEXT:
-                    if (view.getId() == R.id.view_options_menu_1) {
-                        showTextFragment(view);
-                    } else {
-                        showColorChooser(view, false);
-                    }
-                    break;
-                case PICTURE:
-                    if (view.getId() == R.id.view_options_menu_1) {
-                        showCamera();
-                    } else {
-                        showGallery();
-                    }
-                    break;
-            }
+    @Override
+    public void onOptionsMenuButtonClicked(View view, DrawingCurve.State state) {
+        switch (state) {
+            case TEXT:
+                if (view.getId() == R.id.view_options_menu_1) {
+                    showTextFragment(view);
+                } else {
+                    showColorChooser(view, false);
+                }
+                break;
+            case PICTURE:
+                if (view.getId() == R.id.view_options_menu_1) {
+                    showCamera();
+                } else {
+                    showGallery();
+                }
+                break;
         }
+    }
+
+    public void dismissLoading() {
+        AnimatorListenerAdapter adapter = new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationEnd(animation);
+                getDrawingFragment().getRootView().reveal();
+                ViewUtils.gone(loadingAnimator);
+            }
+        };
+
+        loadingAnimator.stopAnimation(adapter);
     }
 
     private void saveAndExit() {
