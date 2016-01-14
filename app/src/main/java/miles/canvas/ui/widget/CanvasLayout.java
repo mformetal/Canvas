@@ -23,7 +23,6 @@ import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.LinearLayout;
-import android.widget.Toolbar;
 
 import javax.inject.Inject;
 
@@ -46,10 +45,11 @@ import miles.canvas.util.ViewUtils;
  * Created by milespeele on 8/7/15.
  */
 public class CanvasLayout extends CoordinatorLayout implements
-        FabMenu.ViewFabMenuListener, DrawingCurve.DrawingCurveListener, View.OnClickListener {
+        CircleFabMenu.ViewFabMenuListener, DrawingCurve.DrawingCurveListener, View.OnClickListener {
 
     @Bind(R.id.fragment_drawer_canvas) CanvasSurface drawer;
-    @Bind(R.id.fragment_drawer_menu) FabMenu fabMenu;
+    @Bind(R.id.fragment_drawer_menu)
+    CircleFabMenu fabMenu;
     @Bind(R.id.fragment_drawer_animator) RoundedFrameLayout fabFrame;
     @Bind(R.id.fragment_drawer_text_bitmap) LinearLayout textAndBitmapOptions;
 
@@ -300,7 +300,6 @@ public class CanvasLayout extends CoordinatorLayout implements
 
     public void setActivityListener(HomeActivity activityListener) {
         mListener = activityListener;
-        fabMenu.addListener(this);
     }
 
     public void onEvent(EventTextChosen eventTextChosen) {

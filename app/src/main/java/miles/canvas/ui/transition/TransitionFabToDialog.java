@@ -17,8 +17,6 @@ import android.view.ViewGroup;
 import java.util.List;
 
 import miles.canvas.R;
-import miles.canvas.ui.widget.FabMenu;
-import miles.canvas.util.Logg;
 import miles.canvas.util.ViewUtils;
 import miles.canvas.ui.widget.CanvasLayout;
 import miles.canvas.ui.widget.RoundedFrameLayout;

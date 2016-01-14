@@ -2,7 +2,6 @@ package miles.canvas.ui.activity;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.animation.ObjectAnimator;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.Fragment;
@@ -22,10 +21,8 @@ import android.support.annotation.StringRes;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
-import android.widget.Toolbar;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,7 +30,6 @@ import java.util.UUID;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 import miles.canvas.R;
 import miles.canvas.data.event.EventBitmapChosen;
 import miles.canvas.data.event.EventClearCanvas;
@@ -50,7 +46,6 @@ import miles.canvas.ui.transition.TransitionHelper;
 import miles.canvas.ui.widget.CanvasLayout;
 import miles.canvas.ui.widget.CanvasLayout.CanvasLayoutListener;
 import miles.canvas.ui.widget.Fab;
-import miles.canvas.ui.widget.FabMenu;
 import miles.canvas.ui.widget.LoadingAnimator;
 import miles.canvas.ui.widget.RoundedFrameLayout;
 import miles.canvas.util.FileUtils;

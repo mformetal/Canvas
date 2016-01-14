@@ -10,9 +10,10 @@
 
     <miles.canvas.ui.widget.AspectRatioImageView
         android:id="@+id/adapter_gallery_image"
+        android:layout_marginTop="@dimen/nav_bar_height"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_gravity="center_vertical|center_horizontal"
+        android:layout_gravity="center"
         android:elevation="@dimen/fab_elevation"
         app:aspectRatioEnabled="true"
         app:aspectRatio="@dimen/aspect_ratio"

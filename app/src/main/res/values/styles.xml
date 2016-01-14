@@ -21,8 +21,6 @@
 
     <style name="Canvas.GalleryActivity" parent="Canvas" >
         <item name="android:windowBackground">@color/gallery_activity_background</item>
-        <item name="android:fitsSystemWindows">true</item>
-        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
     </style>
 
     <style name="Canvas.Widget.DrawerToolbar" parent="@android:style/ThemeOverlay.Material.Dark.ActionBar">

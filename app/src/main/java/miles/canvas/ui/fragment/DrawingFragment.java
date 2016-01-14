@@ -10,10 +10,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import miles.canvas.R;
 import miles.canvas.ui.activity.HomeActivity;
-import miles.canvas.ui.drawing.DrawingCurve;
 import miles.canvas.ui.widget.CanvasLayout;
-import miles.canvas.ui.widget.Fab;
-import miles.canvas.ui.widget.FabMenu;
 
 public class DrawingFragment extends BaseFragment {
 

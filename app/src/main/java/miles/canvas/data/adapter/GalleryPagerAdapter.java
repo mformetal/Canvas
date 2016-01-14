@@ -31,19 +31,18 @@ public class GalleryPagerAdapter extends PagerAdapter {
     private Activity mActivity;
     private LayoutInflater mInflater;
     private ArrayList<Sketch> mDataList;
-    private PagerListener mListener;
 
     public GalleryPagerAdapter(Activity activity) {
         super();
         mActivity = activity;
         mInflater = LayoutInflater.from(activity);
         mDataList = new ArrayList<>();
-        mListener = (PagerListener) activity;
     }
 
     @Override
     public Object instantiateItem(ViewGroup collection, int position) {
-        ViewGroup viewGroup = (ViewGroup) mInflater.inflate(R.layout.adapter_gallery_layout, collection, false);
+        ViewGroup viewGroup =
+                (ViewGroup) mInflater.inflate(R.layout.adapter_gallery_layout, collection, false);
         collection.addView(viewGroup);
 
         Sketch sketch = mDataList.get(position);
@@ -60,19 +59,6 @@ public class GalleryPagerAdapter extends PagerAdapter {
                 .asBitmap()
                 .animate(android.R.anim.fade_in)
                 .load(sketch.getBytes())
-                .listener(new RequestListener<byte[], Bitmap>() {
-                    @Override
-                    public boolean onException(Exception e, byte[] model, Target<Bitmap> target, boolean isFirstResource) {
-                        Logg.log("GLIDE:", e);
-                        return false;
-                    }
-
-                    @Override
-                    public boolean onResourceReady(Bitmap resource, byte[] model, Target<Bitmap> target, boolean isFromMemoryCache, boolean isFirstResource) {
-                        Palette.from(resource).generate(mListener::onPaletteReady);
-                        return false;
-                    }
-                })
                 .into(imageView);
 
         return viewGroup;
@@ -103,8 +89,15 @@ public class GalleryPagerAdapter extends PagerAdapter {
         notifyDataSetChanged();
     }
 
-    public interface PagerListener {
+    public Sketch get(int pos) {
+        return mDataList.get(pos);
+    }
 
-        void onPaletteReady(Palette palette);
+    public void remove(Sketch sketch) {
+        mDataList.remove(sketch);
+    }
+
+    public Sketch remove(int pos) {
+        return mDataList.remove(pos);
     }
 }

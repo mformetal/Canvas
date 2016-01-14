@@ -33,12 +33,13 @@ import miles.canvas.R;
 import miles.canvas.data.event.EventBrushChosen;
 import miles.canvas.data.event.EventColorChosen;
 import miles.canvas.util.Circle;
+import miles.canvas.util.Logg;
 import miles.canvas.util.ViewUtils;
 
 /**
  * Created by milespeele on 8/7/15.
  */
-public class FabMenu extends ViewGroup implements View.OnClickListener {
+public class CircleFabMenu extends ViewGroup implements View.OnClickListener {
 
     @Bind(R.id.menu_toggle) Fab toggle;
     @Bind(R.id.menu_erase) Fab eraser;
@@ -74,23 +75,23 @@ public class FabMenu extends ViewGroup implements View.OnClickListener {
         void onFabMenuButtonClicked(Fab v);
     }
 
-    public FabMenu(Context context) {
+    public CircleFabMenu(Context context) {
         super(context);
         init();
     }
 
-    public FabMenu(Context context, AttributeSet attrs) {
+    public CircleFabMenu(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
     }
 
-    public FabMenu(Context context, AttributeSet attrs, int defStyleAttr) {
+    public CircleFabMenu(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init();
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public FabMenu(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public CircleFabMenu(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         init();
     }
