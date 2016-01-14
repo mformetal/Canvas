@@ -50,7 +50,7 @@ public class TransitionDialogToFab extends ChangeBounds {
         float translationX = fabCenterX - fabFrame.getWidth() / 2 - fab.getWidth() * .75f;
         float translationY = fabCenterY + fab.getHeight() * 3.5f;
 
-        Animator alpha = ObjectAnimator.ofArgb(layout, CanvasLayout.ALPHA, 0);
+        Animator alpha = ObjectAnimator.ofFloat(layout.getChildAt(3), View.ALPHA, 1f).setDuration(350);
 
         Animator corner = ObjectAnimator.ofFloat(fabFrame,
                 RoundedFrameLayout.CORNERS, 0, fabFrame.getWidth())
@@ -95,28 +95,9 @@ public class TransitionDialogToFab extends ChangeBounds {
             public void onAnimationEnd(Animator animation) {
                 fabFrame.setVisibility(View.GONE);
                 fab.setVisibility(View.VISIBLE);
-
-                for (int x = 0; x < layout.getChildCount(); x++) {
-                    View v = layout.getChildAt(x);
-                    if (!(v instanceof RoundedFrameLayout)) {
-                        enableView(v);
-                    }
-                }
             }
         });
 
         return animatorSet;
-    }
-
-    private void enableView(View v) {
-        v.setEnabled(true);
-
-        if (v instanceof ViewGroup) {
-            ViewGroup vg = (ViewGroup) v;
-            for (int i = 0; i < vg.getChildCount(); i++) {
-                View child = vg.getChildAt(i);
-                enableView(child);
-            }
-        }
     }
 }

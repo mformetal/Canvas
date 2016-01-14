@@ -7,10 +7,10 @@ import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BlurMaskFilter;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.graphics.Rect;
 import android.os.Handler;
 import android.support.design.widget.CoordinatorLayout;
@@ -21,47 +21,47 @@ import android.view.MotionEvent;
 import android.view.SoundEffectConstants;
 import android.view.View;
 import android.view.ViewAnimationUtils;
-import android.view.Window;
 import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.DecelerateInterpolator;
-import android.view.animation.LinearInterpolator;
+import android.widget.LinearLayout;
+
+import javax.inject.Inject;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
+import de.greenrobot.event.EventBus;
+import miles.canvas.MainApp;
 import miles.canvas.R;
-import miles.canvas.ui.activity.HomeActivity;
+import miles.canvas.data.event.EventBitmapChosen;
+import miles.canvas.data.event.EventClearCanvas;
+import miles.canvas.data.event.EventColorChosen;
+import miles.canvas.data.event.EventFilenameChosen;
+import miles.canvas.data.event.EventTextChosen;
 import miles.canvas.ui.activity.HomeActivity;
 import miles.canvas.ui.drawing.DrawingCurve;
 import miles.canvas.ui.fragment.DrawingFragment;
-import miles.canvas.ui.fragment.DrawingFragment;
+import miles.canvas.util.Logg;
 import miles.canvas.util.ViewUtils;
-import miles.canvas.ui.widget.CanvasSurface;
-import miles.canvas.ui.widget.Fab;
-import miles.canvas.ui.widget.RoundedFrameLayout;
 
 /**
  * Created by milespeele on 8/7/15.
  */
 public class CanvasLayout extends CoordinatorLayout implements
-        FabMenu.ViewFabMenuListener, DrawingCurve.DrawingCurveListener, OptionsMenu.ViewOptionsMenuListener {
+        FabMenu.ViewFabMenuListener, DrawingCurve.DrawingCurveListener, View.OnClickListener {
 
-    @Bind(R.id.fragment_drawer_canvas)
-    miles.canvas.ui.widget.CanvasSurface drawer;
-    @Bind(R.id.fragment_drawer_menu)
-    FabMenu fabMenu;
-    @Bind(R.id.fragment_drawer_animator)
-    miles.canvas.ui.widget.RoundedFrameLayout fabFrame;
-    @Bind(R.id.fragment_drawer_options_menu)
-    OptionsMenu optionsMenu;
-    @Bind(R.id.fragment_drawer_save_animation)
-    LoadingAnimator loadingAnimator;
+    @Bind(R.id.fragment_drawer_canvas) CanvasSurface drawer;
+    @Bind(R.id.fragment_drawer_menu) FabMenu fabMenu;
+    @Bind(R.id.fragment_drawer_animator) RoundedFrameLayout fabFrame;
+    @Bind(R.id.fragment_drawer_text_bitmap) LinearLayout linearLayout;
+
+    @Inject EventBus bus;
 
     private Rect mRect = new Rect();
-    private final Path mPath = new Path();
     private Paint mShadowPaint;
     private float mStartX, mStartY;
     private long mStartTime;
     private Handler mHandler;
+    private float mRadius;
 
     public CanvasLayout(Context context) {
         super(context);
@@ -79,11 +79,15 @@ public class CanvasLayout extends CoordinatorLayout implements
     }
 
     private void init() {
+        ((MainApp) getContext().getApplicationContext()).getApplicationComponent().inject(this);
+        bus.register(this);
+
         mHandler = new Handler();
 
         mShadowPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mShadowPaint.setColor(Color.BLACK);
         mShadowPaint.setAlpha(0);
+        mShadowPaint.setMaskFilter(new BlurMaskFilter(15, BlurMaskFilter.Blur.OUTER));
 
         setWillNotDraw(false);
         setClipChildren(false);
@@ -97,18 +101,16 @@ public class CanvasLayout extends CoordinatorLayout implements
 
         fabMenu.addListener(this);
         drawer.setListener(this);
-        optionsMenu.addListener(this);
     }
 
     @Override
     protected boolean drawChild(Canvas canvas, View child, long drawingTime) {
         if (mShadowPaint.getAlpha() != 0) {
-            canvas.drawPaint(mShadowPaint);
-
-            int paintAlpha = mShadowPaint.getAlpha();
-            float viewAlpha = paintAlpha / 255f;
-            fabMenu.setAlpha(1f - viewAlpha);
-            optionsMenu.setAlpha(1f - viewAlpha);
+            if (child == fabMenu) {
+                canvas.drawCircle(fabMenu.getCenterX(),
+                        fabMenu.getCenterY() + (getHeight() - fabMenu.getHeight()),
+                        mRadius, mShadowPaint);
+            }
         }
         return super.drawChild(canvas, child, drawingTime);
     }
@@ -119,6 +121,10 @@ public class CanvasLayout extends CoordinatorLayout implements
 
         switch (ev.getAction()) {
             case MotionEvent.ACTION_DOWN:
+                if (isSystemUISwipe(ev)) {
+                    return true;
+                }
+
                 mStartX = x;
                 mStartY = y;
                 mStartTime = ev.getEventTime();
@@ -136,27 +142,28 @@ public class CanvasLayout extends CoordinatorLayout implements
                     }
                     return false;
                 } else {
-                    drawer.setEnabled(true);
-                    fabMenu.setEnabled(true);
+                    if (mShadowPaint.getAlpha() != 0) {
+                        drawer.setEnabled(false);
+                    }
+
+                    if (!fabMenu.isEnabled()) {
+                        fabMenu.setEnabled(true);
+                    }
                 }
                 break;
             case MotionEvent.ACTION_MOVE:
-                if (detectSwipe(ev)) {
-                    drawer.setEnabled(false);
-                }
+                mHandler.postDelayed(() -> ViewUtils.systemUIGone(getRootView()), 350);
                 break;
-        }
-
-        if (ev.getAction() == MotionEvent.ACTION_MOVE) {
-            mHandler.postDelayed(() -> ViewUtils.systemUIGone(getRootView()), 350);
         }
 
         return false;
     }
 
     @Override
-    public void onFabMenuButtonClicked(miles.canvas.ui.widget.Fab v) {
+    public void onFabMenuButtonClicked(Fab v) {
         v.performClick();
+
+        Fab eraser = fabMenu.eraser;
 
         switch (v.getId()) {
             case R.id.menu_toggle:
@@ -170,10 +177,14 @@ public class CanvasLayout extends CoordinatorLayout implements
                 break;
             case R.id.menu_erase:
                 erase();
-                fabMenu.eraser.setSelected(!fabMenu.eraser.isSelected());
+                eraser.setSelected(!eraser.isSelected());
+
+                makeDrawingVisible();
                 break;
             case R.id.menu_ink:
                 ink();
+
+                makeDrawingVisible();
                 break;
             case R.id.menu_navigation:
                 mHandler.removeCallbacksAndMessages(null);
@@ -182,7 +193,7 @@ public class CanvasLayout extends CoordinatorLayout implements
 
         if (v.getId() != R.id.menu_toggle) {
             if (v.getId() != R.id.menu_erase && fabMenu.eraser.isSelected()) {
-                fabMenu.eraser.setSelected(false);
+                eraser.setSelected(false);
             }
         }
     }
@@ -190,9 +201,29 @@ public class CanvasLayout extends CoordinatorLayout implements
     @Override
     public void toggleOptionsMenuVisibilty(boolean setVisible, DrawingCurve.State state) {
         if (setVisible) {
-            optionsMenu.setState(state);
+            TypefaceButton option1 = (TypefaceButton) linearLayout.getChildAt(1);
+            TypefaceButton option2 = (TypefaceButton) linearLayout.getChildAt(2);
+            if (state == DrawingCurve.State.TEXT) {
+                option1.setText(R.string.view_options_menu_edit_text);
+                option1.setCompoundDrawablesWithIntrinsicBounds(null, null, null,
+                        getResources().getDrawable(R.drawable.ic_text_format_24dp));
+
+                option2.setText(R.string.view_options_menu_edit_color);
+                option2.setCompoundDrawablesWithIntrinsicBounds(null, null, null,
+                        getResources().getDrawable(R.drawable.ic_palette_24dp));
+            } else {
+                option1.setText(R.string.view_options_menu_edit_camera);
+                option1.setCompoundDrawablesWithIntrinsicBounds(null, null, null,
+                        getResources().getDrawable(R.drawable.ic_camera_alt_24dp));
+
+                option2.setText(R.string.view_options_menu_edit_import);
+                option2.setCompoundDrawablesWithIntrinsicBounds(null, null, null,
+                        getResources().getDrawable(R.drawable.ic_photo_24dp));
+            }
+
+            ViewUtils.visible(linearLayout);
         } else {
-            ViewUtils.gone(optionsMenu);
+            ViewUtils.gone(linearLayout);
         }
     }
 
@@ -207,6 +238,11 @@ public class CanvasLayout extends CoordinatorLayout implements
 
     @Override
     public void surfaceReady() {
+        HomeActivity activity = (HomeActivity) getContext();
+        activity.dismissLoading();
+    }
+
+    public void reveal() {
         Animator reveal = ViewAnimationUtils.createCircularReveal(this,
                 getWidth() / 2, getHeight() / 2, 0, getHeight());
         reveal.setDuration(600);
@@ -217,67 +253,115 @@ public class CanvasLayout extends CoordinatorLayout implements
                 drawer.setVisibility(View.VISIBLE);
                 fabMenu.setVisibility(View.VISIBLE);
             }
-
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                HomeActivity activity = (HomeActivity) getContext();
-                Window window = activity.getWindow();
-                window.setBackgroundDrawable(null);
-                activity.onLoadFinished();
-            }
         });
         reveal.start();
     }
 
-    @Override
-    public void onOptionsMenuCancel() {
-        drawer.onOptionsMenuCancel();
-    }
-
-    @Override
-    public void onOptionsMenuButtonClicked(View view, DrawingCurve.State state) {}
-
-    @Override
-    public void onOptionsMenuAccept() {
-        drawer.onOptionsMenuAccept();
-    }
-
-    public void startSaveBitmapAnimation() {
-        loadingAnimator.setColors(drawer.getBackgroundColor());
-        loadingAnimator.setTranslationY(getHeight());
-
-        AnimatorSet animatorSet = new AnimatorSet();
-
-        Animator alpha = ObjectAnimator.ofInt(this, CanvasLayout.ALPHA, 128);
-        alpha.setInterpolator(new LinearInterpolator());
-        alpha.setDuration(500);
-
-        ObjectAnimator yPosition = ObjectAnimator.ofFloat(loadingAnimator, View.TRANSLATION_Y, 0);
-        yPosition.setDuration(500);
-        yPosition.setInterpolator(new DecelerateInterpolator());
-        yPosition.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-                loadingAnimator.setVisibility(View.VISIBLE);
-            }
-
+    public Animator unreveal() {
+        Animator reveal = ViewAnimationUtils.createCircularReveal(this,
+                getWidth() / 2, getHeight() / 2, getHeight(), 0);
+        reveal.setDuration(600);
+        reveal.setInterpolator(new AccelerateDecelerateInterpolator());
+        reveal.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
-                loadingAnimator.startAnimation();
+                setVisibility(View.GONE);
             }
         });
+        reveal.start();
 
-        animatorSet.playTogether(alpha, yPosition);
-        animatorSet.start();
+        return reveal;
     }
 
-    public void stopSaveAnimation(AnimatorListenerAdapter adapter) {
-        loadingAnimator.stopAnimation(adapter);
+    @Override
+    @OnClick({R.id.view_options_menu_accept, R.id.view_options_menu_1, R.id.view_options_menu_2,
+                R.id.view_options_menu_cancel})
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.view_options_menu_accept:
+                drawer.onOptionsMenuAccept();
+                break;
+            case R.id.view_options_menu_cancel:
+                drawer.onOptionsMenuCancel();
+                break;
+            default:
+                HomeActivity activityHome = (HomeActivity) getContext();
+                if (activityHome != null) {
+                    activityHome.onOptionsMenuClicked(v, drawer.getState());
+                }
+                break;
+        }
     }
 
-    public void setMenuListeners(DrawingFragment fragmentDrawer) {
+    public void onEvent(EventTextChosen eventTextChosen) {
+        makeDrawingVisible();
+    }
+
+    public void onEvent(EventBitmapChosen eventBitmapChosen) {
+        makeDrawingVisible();
+    }
+
+    public void onEvent(EventColorChosen eventColorChosen) {
+        makeDrawingVisible();
+    }
+
+    public void onEvent(EventFilenameChosen eventFilenameChosen) {
+        makeDrawingVisible();
+    }
+
+    public void onEvent(EventClearCanvas eventClearCanvas) {
+        makeDrawingVisible();
+    }
+
+    private void makeDrawingVisible() {
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                drawer.setEnabled(true);
+                hideBackground();
+                fabMenu.toggleMenu();
+            }
+        }, 200);
+    }
+
+    public void showBackground() {
+        Animator alpha = ObjectAnimator.ofInt(this, ALPHA, 128);
+        alpha.setDuration(400);
+
+        Animator radius = ObjectAnimator.ofFloat(this, RADIUS, getHeight());
+        radius.setDuration(400);
+
+        AnimatorSet set = new AnimatorSet();
+        set.playTogether(alpha, radius);
+        set.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                drawer.setEnabled(false);
+            }
+        });
+        set.start();
+    }
+
+    public void hideBackground() {
+        Animator alpha = ObjectAnimator.ofInt(this, ALPHA, 0);
+        alpha.setDuration(400);
+
+        Animator radius = ObjectAnimator.ofFloat(this, RADIUS, 0);
+        radius.setDuration(400);
+
+        AnimatorSet set = new AnimatorSet();
+        set.playTogether(alpha, radius);
+        set.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                drawer.setEnabled(true);
+            }
+        });
+        set.start();
+    }
+
+    public void setListeners(DrawingFragment fragmentDrawer) {
         fabMenu.addListener(fragmentDrawer);
-        optionsMenu.addListener(fragmentDrawer);
     }
 
     public int getBrushColor() {
@@ -321,6 +405,27 @@ public class CanvasLayout extends CoordinatorLayout implements
         return mShadowPaint.getAlpha();
     }
 
+    private void setRadius(float radius) {
+        mRadius = radius;
+        invalidate();
+    }
+
+    private float getRadius() {
+        return mRadius;
+    }
+
+    private boolean isSystemUISwipe(MotionEvent event) {
+        if (event.getY() <= getResources().getDimension(R.dimen.status_bar_height)) {
+            return true;
+        }
+
+        if (event.getY() >= getHeight() - getResources().getDimension(R.dimen.status_bar_height)) {
+            return true;
+        }
+
+        return false;
+    }
+
     public static final Property<CanvasLayout, Integer> ALPHA = new ViewUtils.IntProperty<CanvasLayout>("alpha") {
 
         @Override
@@ -334,22 +439,16 @@ public class CanvasLayout extends CoordinatorLayout implements
         }
     };
 
-    private boolean detectSwipe(MotionEvent event) {
-        float swipeThreshold = ViewUtils.dpToPx(getResources().getDimension(R.dimen.status_bar_height), getContext());
-        final long elapsed = event.getEventTime() - mStartTime;
-
-        if (mStartY <= swipeThreshold
-                && event.getY() > mStartY + swipeThreshold
-                && elapsed < 500) {
-            return true;
+    private final static ViewUtils.FloatProperty<CanvasLayout> RADIUS =
+            new ViewUtils.FloatProperty<CanvasLayout>("radius") {
+        @Override
+        public void setValue(CanvasLayout object, float value) {
+            object.setRadius(value);
         }
 
-        if (mStartY >= getHeight() - swipeThreshold
-                && event.getY() < mStartY - swipeThreshold
-                && elapsed < 500) {
-            return true;
+        @Override
+        public Float get(CanvasLayout object) {
+            return object.getRadius();
         }
-
-        return false;
-    }
+    };
 }

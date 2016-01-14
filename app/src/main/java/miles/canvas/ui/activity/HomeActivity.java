@@ -22,8 +22,8 @@ import android.support.annotation.StringRes;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
-import android.widget.ProgressBar;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,6 +46,7 @@ import miles.canvas.ui.fragment.TextFragment;
 import miles.canvas.ui.transition.TransitionHelper;
 import miles.canvas.ui.widget.CanvasLayout;
 import miles.canvas.ui.widget.Fab;
+import miles.canvas.ui.widget.LoadingAnimator;
 import miles.canvas.ui.widget.RoundedFrameLayout;
 import miles.canvas.util.FileUtils;
 import miles.canvas.util.Logg;
@@ -66,7 +67,7 @@ public class HomeActivity extends BaseActivity {
     private final static int REQUEST_PERMISSION_CAMERA_CODE = 2003;
 
     @Bind(R.id.activity_home_fragment_frame) FrameLayout frameLayout;
-    @Bind(R.id.adapter_gallery_progress) ProgressBar progressBar;
+    @Bind(R.id.activity_home_loading_animator) LoadingAnimator loadingAnimator;
 
     private RoundedFrameLayout fabFrame;
     private FragmentManager manager;
@@ -80,6 +81,18 @@ public class HomeActivity extends BaseActivity {
         setContentView(R.layout.activity_home);
 
         ViewUtils.systemUIGone(getWindow().getDecorView());
+
+        ViewTreeObserver observer = frameLayout.getViewTreeObserver();
+        observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                if (observer.isAlive()) {
+                    observer.removeOnGlobalLayoutListener(this);
+                }
+
+                loadingAnimator.startAnimation();
+            }
+        });
 
         bus.register(this);
 
@@ -168,12 +181,7 @@ public class HomeActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                ViewUtils.systemUIGone(getWindow().getDecorView());
-            }
-        }, 350);
+        new Handler().postDelayed(() -> ViewUtils.systemUIGone(getWindow().getDecorView()), 350);
     }
 
     @Override
@@ -183,15 +191,17 @@ public class HomeActivity extends BaseActivity {
         FileUtils.deleteTemporaryFiles(this);
     }
 
-    public void onLoadFinished() {
-        ObjectAnimator gone = ViewUtils.goneAnimator(progressBar);
-        gone.addListener(new AnimatorListenerAdapter() {
+    public void dismissLoading() {
+        AnimatorListenerAdapter adapter = new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
-                frameLayout.removeView(progressBar);
+                super.onAnimationEnd(animation);
+                getDrawingFragment().getRootView().reveal();
+                ViewUtils.gone(loadingAnimator);
             }
-        });
-        gone.start();
+        };
+
+        loadingAnimator.stopAnimation(adapter);
     }
 
     public void onFabMenuButtonClicked(View view) {
@@ -249,34 +259,48 @@ public class HomeActivity extends BaseActivity {
     }
 
     private void saveAndExit() {
-        DrawingFragment DrawingFragment = getDrawingFragment();
+        DrawingFragment drawingFragment = getDrawingFragment();
 
-        SafeSubscription<byte[]> subscriber = new SafeSubscription<byte[]>(this) {
+        frameLayout.bringChildToFront(loadingAnimator);
+        loadingAnimator.setColors(drawingFragment.getRootView().getBackgroundColor());
+        ViewUtils.visible(loadingAnimator, 500);
+
+        drawingFragment.getRootView().unreveal().addListener(new AnimatorListenerAdapter() {
             @Override
-            public void onCompleted() {
-                AnimatorListenerAdapter listenerAdapter = new AnimatorListenerAdapter() {
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationEnd(animation);
+
+                SafeSubscription<byte[]> subscriber = new SafeSubscription<byte[]>(HomeActivity.this) {
                     @Override
-                    public void onAnimationEnd(Animator animation) {
-                        finishAndRemoveTask();
+                    public void onCompleted() {
+                        AnimatorListenerAdapter listenerAdapter = new AnimatorListenerAdapter() {
+                            @Override
+                            public void onAnimationEnd(Animator animation) {
+                                finishAndRemoveTask();
+                            }
+                        };
+
+                        loadingAnimator.stopAnimation(listenerAdapter);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Logg.log(e);
+                    }
+
+                    @Override
+                    public void onStart() {
+                        super.onStart();
+                        loadingAnimator.startAnimation();
                     }
                 };
 
-                if (DrawingFragment != null) {
-                    DrawingFragment.getRootView().stopSaveAnimation(listenerAdapter);
-                }
+                FileUtils.cache(drawingFragment.getDrawingBitmap(), HomeActivity.this)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(subscriber);
             }
-
-            @Override
-            public void onStart() {
-                super.onStart();
-                DrawingFragment.getRootView().startSaveBitmapAnimation();
-            }
-        };
-
-        FileUtils.cache(DrawingFragment.getDrawingBitmap(), this)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(subscriber);
+        });
     }
 
     @SuppressWarnings("unused, unchecked")

@@ -75,6 +75,10 @@ public class CanvasSurface extends SurfaceView implements SurfaceHolder.Callback
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        if (!isEnabled()) {
+            return true;
+        }
+
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
             float y = event.getY();
             if (y <= getResources().getDimension(R.dimen.status_bar_height)) {
@@ -124,6 +128,8 @@ public class CanvasSurface extends SurfaceView implements SurfaceHolder.Callback
     }
 
     public Paint getCurrentPaint() { return mDrawingCurve.getPaint(); }
+
+    public DrawingCurve.State getState() { return mDrawingCurve.getState(); }
 
     private class DrawingThread extends Thread {
 

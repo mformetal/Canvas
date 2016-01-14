@@ -53,8 +53,6 @@ public class TransitionDialogToButton extends ChangeBounds {
         float translationX = fab.getX() - fabFrame.getWidth() / 2 + fab.getWidth() * .1f;
         float translationY = fab.getY() + fab.getHeight() * 3.25f + yDiff;
 
-        Animator alpha = ObjectAnimator.ofArgb(layout, CanvasLayout.ALPHA, 0);
-
         Animator background = ObjectAnimator.ofArgb(fabFrame,
                 ViewUtils.BACKGROUND, startColor, endColor)
                 .setDuration(450);
@@ -73,36 +71,17 @@ public class TransitionDialogToButton extends ChangeBounds {
                 .setDuration(350);
 
         AnimatorSet animatorSet = new AnimatorSet();
-        animatorSet.playTogether(alpha, background, scale, position);
+        animatorSet.playTogether(background, scale, position);
         animatorSet.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
                 fabFrame.setVisibility(View.GONE);
                 fab.setVisibility(View.VISIBLE);
-
-                for (int x = 0; x < layout.getChildCount(); x++) {
-                    View v = layout.getChildAt(x);
-                    if (!(v instanceof RoundedFrameLayout)) {
-                        enableView(v);
-                    }
-                }
             }
         });
         animatorSet.setDuration(350);
         animatorSet.setInterpolator(new AccelerateDecelerateInterpolator());
 
         return animatorSet;
-    }
-
-    private void enableView(View v) {
-        v.setEnabled(true);
-
-        if (v instanceof ViewGroup) {
-            ViewGroup vg = (ViewGroup) v;
-            for (int i = 0; i < vg.getChildCount(); i++) {
-                View child = vg.getChildAt(i);
-                enableView(child);
-            }
-        }
     }
 }

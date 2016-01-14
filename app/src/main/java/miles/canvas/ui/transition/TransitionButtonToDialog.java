@@ -59,9 +59,6 @@ public class TransitionButtonToDialog extends ChangeBounds {
         fabFrame.setTranslationY(translationY + yDiff);
         fabFrame.setCorner(0);
 
-        Animator alpha = ObjectAnimator.ofInt(layout, CanvasLayout.ALPHA, 128);
-        alpha.setInterpolator(new LinearInterpolator());
-
         Animator background = ObjectAnimator.ofArgb(fabFrame,
                 ViewUtils.BACKGROUND, startColor, endColor)
                 .setDuration(350);
@@ -78,36 +75,17 @@ public class TransitionButtonToDialog extends ChangeBounds {
                 .setDuration(350);
 
         AnimatorSet animatorSet = new AnimatorSet();
-        animatorSet.playTogether(alpha, background, position, scale);
+        animatorSet.playTogether(background, position, scale);
         animatorSet.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationStart(Animator animation) {
                 fab.setVisibility(View.INVISIBLE);
                 fabFrame.setVisibility(View.VISIBLE);
-
-                for (int x = 0; x < layout.getChildCount(); x++) {
-                    View v = layout.getChildAt(x);
-                    if (!(v instanceof RoundedFrameLayout)) {
-                        disableView(v);
-                    }
-                }
             }
         });
         animatorSet.setDuration(350);
         animatorSet.setInterpolator(new AccelerateDecelerateInterpolator());
 
         return animatorSet;
-    }
-
-    private void disableView(View v) {
-        v.setEnabled(false);
-
-        if (v instanceof ViewGroup) {
-            ViewGroup vg = (ViewGroup) v;
-            for (int i = 0; i < vg.getChildCount(); i++) {
-                View child = vg.getChildAt(i);
-                disableView(child);
-            }
-        }
     }
 }

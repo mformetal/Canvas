@@ -7,8 +7,6 @@ import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.graphics.Canvas;
-import android.graphics.Paint;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
@@ -36,7 +34,6 @@ import miles.canvas.data.event.EventBrushChosen;
 import miles.canvas.data.event.EventColorChosen;
 import miles.canvas.util.Circle;
 import miles.canvas.util.ViewUtils;
-import miles.canvas.ui.widget.Fab;
 
 /**
  * Created by milespeele on 8/7/15.
@@ -54,7 +51,6 @@ public class FabMenu extends ViewGroup implements View.OnClickListener {
 
     @Inject EventBus bus;
 
-    private Paint mPaint;
     private Circle mCircle;
     private Fab mClickedItem;
     private ArrayList<ItemPosition> mItemPositions;
@@ -66,9 +62,7 @@ public class FabMenu extends ViewGroup implements View.OnClickListener {
     private boolean isAnimating = false;
     private boolean isDragging = false;
     private boolean isFlinging = false;
-    private float radius;
     private double mLastAngle;
-    private float mMaxRadius;
     private float mStartY;
     private final static int INITIAL_DELAY = 0;
     private final static int DURATION = 400;
@@ -109,10 +103,6 @@ public class FabMenu extends ViewGroup implements View.OnClickListener {
 
         mItemPositions = new ArrayList<>();
 
-        mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mPaint.setStyle(Paint.Style.FILL_AND_STROKE);
-        mPaint.setColor(getResources().getColor(R.color.half_opacity_gray));
-
         mGestureDetector = new GestureDetector(getContext(), new GestureListener());
 
         setWillNotDraw(false);
@@ -123,7 +113,7 @@ public class FabMenu extends ViewGroup implements View.OnClickListener {
     protected void onFinishInflate() {
         super.onFinishInflate();
         ButterKnife.bind(this);
-        rotateToggleClosed();
+        toggle.setRotation(45);
     }
 
     @Override
@@ -169,10 +159,8 @@ public class FabMenu extends ViewGroup implements View.OnClickListener {
                 r / 2 + toggle.getMeasuredWidth() / 2,
                 getMeasuredHeight() - lps.bottomMargin);
 
-        mMaxRadius = toggle.getMeasuredHeight() * 3.75f;
-        radius = mMaxRadius;
-
-        mCircle = new Circle(ViewUtils.relativeCenterX(toggle), ViewUtils.relativeCenterY(toggle), radius);
+        mCircle = new Circle(ViewUtils.relativeCenterX(toggle), ViewUtils.relativeCenterY(toggle),
+                toggle.getMeasuredHeight() * 3.75f);
         mItemPositions.add(new ItemPosition(toggle, getCenterX(), getCenterY(), ViewUtils.radius(toggle)));
 
         float mItemRadius = toggle.getMeasuredHeight() * 3;
@@ -194,6 +182,8 @@ public class FabMenu extends ViewGroup implements View.OnClickListener {
                 mItemPositions.add(new ItemPosition(child, x, y, ViewUtils.radius(child)));
             }
         }
+
+        hide();
     }
 
     @Override
@@ -236,7 +226,7 @@ public class FabMenu extends ViewGroup implements View.OnClickListener {
 
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
-                if (isFromBottom(event)) {
+                if (isSystemUISwipe(event)) {
                     return false;
                 }
 
@@ -272,17 +262,6 @@ public class FabMenu extends ViewGroup implements View.OnClickListener {
         }
 
         return true;
-    }
-
-    @Override
-    protected void onDraw(Canvas canvas) {
-        canvas.drawCircle(getCenterX(), getCenterY(), radius, mPaint);
-    }
-
-    private boolean isSwipeFromBottom(MotionEvent event) {
-        return event.getAction() == MotionEvent.ACTION_DOWN
-                && event.getY() >= getHeight() - getResources().getDimension(R.dimen.status_bar_height);
-
     }
 
     public void addListener(ViewFabMenuListener listener) {
@@ -333,12 +312,6 @@ public class FabMenu extends ViewGroup implements View.OnClickListener {
 
             ArrayList<Animator> anims = new ArrayList<>();
 
-            ObjectAnimator background = ObjectAnimator.ofFloat(this, RADIUS, mMaxRadius);
-            background.setDuration(DURATION + DELAY_INCREMENT * buttonsList.size());
-            background.setInterpolator(OVERSHOOT_INTERPOLATOR);
-
-            anims.add(background);
-
             ItemPosition max = Collections.max(mItemPositions, new ItemPositionComparator());
             int ndxOfMax = mItemPositions.indexOf(max);
             int delay = INITIAL_DELAY;
@@ -375,7 +348,7 @@ public class FabMenu extends ViewGroup implements View.OnClickListener {
                 ObjectAnimator rotate = ObjectAnimator.ofFloat(view,
                         View.ROTATION, 0f, 360f);
                 rotate.setInterpolator(new DecelerateInterpolator());
-                rotate.setDuration(DURATION * 2);
+                rotate.setDuration(DURATION);
                 rotate.setStartDelay(delay);
 
                 delay += DELAY_INCREMENT;
@@ -389,6 +362,7 @@ public class FabMenu extends ViewGroup implements View.OnClickListener {
             set.addListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationStart(Animator animation) {
+                    ((CanvasLayout) getParent()).showBackground();
                     isAnimating = true;
                     isMenuShowing = true;
                 }
@@ -407,12 +381,6 @@ public class FabMenu extends ViewGroup implements View.OnClickListener {
             rotateToggleClosed();
 
             ArrayList<Animator> anims = new ArrayList<>();
-
-            ObjectAnimator background = ObjectAnimator.ofFloat(this, RADIUS, radius, 0f);
-            background.setDuration(HIDE_DIFF + DURATION + DELAY_INCREMENT * buttonsList.size());
-            background.setInterpolator(ANTICIPATE_INTERPOLATOR);
-
-            anims.add(background);
 
             ItemPosition max = Collections.max(mItemPositions, new ItemPositionComparator());
             int ndxOfMax = mItemPositions.indexOf(max);
@@ -451,7 +419,7 @@ public class FabMenu extends ViewGroup implements View.OnClickListener {
                 ObjectAnimator rotate = ObjectAnimator.ofFloat(view,
                         View.ROTATION, 0f, 360f);
                 rotate.setInterpolator(new DecelerateInterpolator());
-                rotate.setDuration(DURATION * 4);
+                rotate.setDuration(DURATION);
                 rotate.setStartDelay(delay);
 
                 delay += DELAY_INCREMENT;
@@ -466,6 +434,7 @@ public class FabMenu extends ViewGroup implements View.OnClickListener {
                 @Override
                 public void onAnimationStart(Animator animation) {
                     isAnimating = true;
+                    ((CanvasLayout) getParent()).hideBackground();
                 }
 
                 @Override
@@ -494,22 +463,13 @@ public class FabMenu extends ViewGroup implements View.OnClickListener {
         return isMenuShowing && getVisibility() == View.VISIBLE;
     }
 
-    public float getRadius() {
-        return radius;
-    }
-
-    public void setRadius(float radius) {
-        this.radius = radius;
-        invalidate(ViewUtils.boundingRect(mCircle.getCenterX(), mCircle.getCenterY(), radius));
-    }
-
     public float getCenterX() { return mCircle.getCenterX(); }
 
     public float getCenterY() { return mCircle.getCenterY(); }
 
     public float getCircleRadius() { return mCircle.getRadius(); }
 
-    private boolean isFromBottom(MotionEvent event) {
+    private boolean isSystemUISwipe(MotionEvent event) {
         return event.getY() >= (float) toggle.getBottom() -
                 getResources().getDimension(R.dimen.status_bar_height) / 2;
     }
@@ -569,7 +529,7 @@ public class FabMenu extends ViewGroup implements View.OnClickListener {
 
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-               if (isVisible() && !isFromBottom(e1) && !isFromBottom(e2) &&
+               if (isVisible() && !isSystemUISwipe(e1) && !isSystemUISwipe(e2) &&
                     isMinXDist(e1, e2)) {
                 isDragging = false;
 
@@ -617,17 +577,4 @@ public class FabMenu extends ViewGroup implements View.OnClickListener {
             }
         }
     }
-
-    private final static ViewUtils.FloatProperty<FabMenu> RADIUS =
-            new ViewUtils.FloatProperty<FabMenu>("radius") {
-        @Override
-        public void setValue(FabMenu object, float value) {
-            object.setRadius(value);
-        }
-
-        @Override
-        public Float get(FabMenu object) {
-            return object.getRadius();
-        }
-    };
 }

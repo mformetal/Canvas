@@ -146,6 +146,10 @@ public class ViewUtils {
         matrix.setValues(values);
     }
 
+    public static boolean isVisible(View view) {
+        return view.getVisibility() == View.VISIBLE;
+    }
+
     public static void gone(View view, int duration) {
         goneAnimator(view).setDuration(duration).start();
     }

@@ -17,6 +17,8 @@ import android.view.ViewGroup;
 import java.util.List;
 
 import miles.canvas.R;
+import miles.canvas.ui.widget.FabMenu;
+import miles.canvas.util.Logg;
 import miles.canvas.util.ViewUtils;
 import miles.canvas.ui.widget.CanvasLayout;
 import miles.canvas.ui.widget.RoundedFrameLayout;
@@ -73,7 +75,7 @@ public class TransitionFabToDialog extends ChangeBounds {
             }
         });
 
-        Animator alpha = ObjectAnimator.ofInt(layout, CanvasLayout.ALPHA, 128).setDuration(350);
+        Animator alpha = ObjectAnimator.ofFloat(layout.getChildAt(3), View.ALPHA, .5f).setDuration(350);
 
         Animator background = ObjectAnimator.ofArgb(fabFrame,
                 ViewUtils.BACKGROUND, startColor, endColor)
@@ -94,28 +96,9 @@ public class TransitionFabToDialog extends ChangeBounds {
             @Override
             public void onAnimationStart(Animator animation) {
                 fab.setVisibility(View.GONE);
-
-                for (int x = 0; x < layout.getChildCount(); x++) {
-                    View v = layout.getChildAt(x);
-                    if (!(v instanceof RoundedFrameLayout)) {
-                        disableView(v);
-                    }
-                }
             }
         });
 
         return animatorSet;
-    }
-
-    private void disableView(View v) {
-        v.setEnabled(false);
-
-        if (v instanceof ViewGroup) {
-            ViewGroup vg = (ViewGroup) v;
-            for (int i = 0; i < vg.getChildCount(); i++) {
-                View child = vg.getChildAt(i);
-                disableView(child);
-            }
-        }
     }
 }
