@@ -1,7 +1,5 @@
 package miles.scribble.ui.activity;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.app.Dialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -16,7 +14,6 @@ import android.os.Handler;
 import android.os.PersistableBundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
-import android.support.annotation.StringRes;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -24,8 +21,6 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewTreeObserver;
-import android.widget.FrameLayout;
 
 import java.io.File;
 import java.io.IOException;
@@ -47,7 +42,6 @@ import miles.scribble.ui.transition.TransitionHelper;
 import miles.scribble.ui.widget.CanvasLayout;
 import miles.scribble.ui.widget.CanvasLayout.CanvasLayoutListener;
 import miles.scribble.ui.widget.Fab;
-import miles.scribble.ui.widget.LoadingAnimator;
 import miles.scribble.ui.widget.RoundedFrameLayout;
 import miles.scribble.util.FileUtils;
 import miles.scribble.util.Logg;
@@ -142,7 +136,7 @@ public class HomeActivity extends BaseActivity
             builder.show();
         } else {
             BaseFragment fragment = (BaseFragment)
-                    manager.findFragmentById(R.id.fragment_drawer_animator);
+                    manager.findFragmentById(R.id.canvas_framelayout_animator);
             boolean shouldLetFragmentHandle = fragment.onBackPressed();
             if (!shouldLetFragmentHandle) {
                 ViewUtils.systemUIGone(getWindow().getDecorView());
@@ -150,7 +144,7 @@ public class HomeActivity extends BaseActivity
                 count--;
 
                 FragmentTransaction ft = getFragmentManager().beginTransaction();
-                ft.replace(R.id.fragment_drawer_animator, new Fragment());
+                ft.replace(R.id.canvas_framelayout_animator, new Fragment());
                 ft.commit();
             }
         }
@@ -203,7 +197,7 @@ public class HomeActivity extends BaseActivity
     @Override
     public void onFabMenuButtonClicked(View view) {
         if (fabFrame == null) {
-            fabFrame = (RoundedFrameLayout) findViewById(R.id.fragment_drawer_animator);
+            fabFrame = (RoundedFrameLayout) findViewById(R.id.canvas_framelayout_animator);
         }
 
         switch (view.getId()) {
@@ -321,7 +315,7 @@ public class HomeActivity extends BaseActivity
         TransitionHelper.makeFabDialogTransitions(this, view, fabFrame, picker);
 
         manager.beginTransaction()
-                .replace(R.id.fragment_drawer_animator, picker, TAG_FRAGMENT_BRUSH)
+                .replace(R.id.canvas_framelayout_animator, picker, TAG_FRAGMENT_BRUSH)
                 .commit();
 
         count++;
@@ -338,7 +332,7 @@ public class HomeActivity extends BaseActivity
         }
 
         manager.beginTransaction()
-                .replace(R.id.fragment_drawer_animator, picker, TAG_FRAGMENT_COLOR_PICKER)
+                .replace(R.id.canvas_framelayout_animator, picker, TAG_FRAGMENT_COLOR_PICKER)
                 .commit();
 
         count++;
@@ -354,7 +348,7 @@ public class HomeActivity extends BaseActivity
         }
 
         manager.beginTransaction()
-                .replace(R.id.fragment_drawer_animator, text, TAG_FRAGMENT_TEXT)
+                .replace(R.id.canvas_framelayout_animator, text, TAG_FRAGMENT_TEXT)
                 .commit();
 
         count++;
@@ -366,7 +360,7 @@ public class HomeActivity extends BaseActivity
         TransitionHelper.makeFabDialogTransitions(this, view, fabFrame, filename);
 
         manager.beginTransaction()
-                .replace(R.id.fragment_drawer_animator, filename, TAG_FRAGMENT_FILENAME)
+                .replace(R.id.canvas_framelayout_animator, filename, TAG_FRAGMENT_FILENAME)
                 .commit();
 
         count++;

@@ -6,7 +6,7 @@
     android:layout_height="match_parent" >
 
     <Toolbar
-        android:id="@+id/fragment_drawer_toolbar"
+        android:id="@+id/canvas_toolbar"
         android:title="@string/app_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -16,13 +16,13 @@
         android:visibility="gone" />
 
     <miles.scribble.ui.widget.CanvasSurface
-        android:id="@+id/fragment_drawer_canvas"
+        android:id="@+id/canvas_surface"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone" />
 
     <miles.scribble.ui.widget.RoundedFrameLayout
-        android:id="@+id/fragment_drawer_animator"
+        android:id="@+id/canvas_framelayout_animator"
         android:elevation="24dp"
         android:visibility="gone"
         android:layout_width="match_parent"
@@ -32,15 +32,15 @@
         app:layout_anchor="@id/activity_home_canvas_root" />
 
     <miles.scribble.ui.widget.LoadingAnimator
-        android:id="@+id/fragment_drawer_loading"
+        android:id="@+id/canvas_loading"
         android:layout_width="@dimen/view_save_animation_dimens"
         android:layout_height="@dimen/view_save_animation_dimens"
         app:layout_anchorGravity="center"
         app:layout_anchor="@id/activity_home_canvas_root" />
 
     <include
-        layout="@layout/fragment_drawer_fab_menu"
-        android:id="@+id/fragment_drawer_menu"
+        layout="@layout/canvas_fab_menu"
+        android:id="@+id/canvas_fab_menu"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center_horizontal"
@@ -50,9 +50,9 @@
         app:layout_anchor="@id/activity_home_canvas_root" />
 
     <include
-        layout="@layout/fragment_drawer_text_bitmap"
+        layout="@layout/canvas_text_bitmap_options"
         android:visibility="gone"
-        android:id="@+id/fragment_drawer_text_bitmap"
+        android:id="@+id/canvas_text_bitmap"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center_horizontal"

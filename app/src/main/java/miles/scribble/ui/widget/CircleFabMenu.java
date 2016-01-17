@@ -217,6 +217,7 @@ public class CircleFabMenu extends ViewGroup implements View.OnClickListener {
             getParent().requestDisallowInterceptTouchEvent(true);
             View v = getClickedItem(x, y);
             if (v != null && v.getId() == R.id.menu_toggle) {
+                v.performClick();
                 toggleMenu();
             }
             return false;

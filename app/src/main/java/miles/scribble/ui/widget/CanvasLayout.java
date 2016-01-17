@@ -41,7 +41,6 @@ import miles.scribble.data.event.EventColorChosen;
 import miles.scribble.data.event.EventFilenameChosen;
 import miles.scribble.data.event.EventTextChosen;
 import miles.scribble.rx.SafeSubscription;
-import miles.scribble.ui.activity.BaseActivity;
 import miles.scribble.ui.activity.HomeActivity;
 import miles.scribble.ui.drawing.DrawingCurve;
 import miles.scribble.util.FileUtils;
@@ -57,12 +56,12 @@ public class CanvasLayout extends CoordinatorLayout implements
         CircleFabMenu.ViewFabMenuListener, DrawingCurve.DrawingCurveListener,
         View.OnClickListener {
 
-    @Bind(R.id.fragment_drawer_canvas) CanvasSurface drawer;
-    @Bind(R.id.fragment_drawer_menu) CircleFabMenu fabMenu;
-    @Bind(R.id.fragment_drawer_animator) RoundedFrameLayout fabFrame;
-    @Bind(R.id.fragment_drawer_text_bitmap) LinearLayout textAndBitmapOptions;
-    @Bind(R.id.fragment_drawer_loading) LoadingAnimator loadingAnimator;
-    @Bind(R.id.fragment_drawer_toolbar) Toolbar toolbar;
+    @Bind(R.id.canvas_surface) CanvasSurface drawer;
+    @Bind(R.id.canvas_fab_menu) CircleFabMenu fabMenu;
+    @Bind(R.id.canvas_framelayout_animator) RoundedFrameLayout fabFrame;
+    @Bind(R.id.canvas_text_bitmap) LinearLayout textAndBitmapOptions;
+    @Bind(R.id.canvas_loading) LoadingAnimator loadingAnimator;
+    @Bind(R.id.canvas_toolbar) Toolbar toolbar;
 
     @Inject EventBus bus;
 
