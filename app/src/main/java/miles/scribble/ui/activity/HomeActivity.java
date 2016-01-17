@@ -41,7 +41,6 @@ import miles.scribble.ui.drawing.DrawingCurve;
 import miles.scribble.ui.fragment.BaseFragment;
 import miles.scribble.ui.fragment.BrushPickerFragment;
 import miles.scribble.ui.fragment.ColorPickerFragment;
-import miles.scribble.ui.fragment.DrawingFragment;
 import miles.scribble.ui.fragment.FilenameFragment;
 import miles.scribble.ui.fragment.TextFragment;
 import miles.scribble.ui.transition.TransitionHelper;
@@ -58,9 +57,9 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 
-public class HomeActivity extends BaseActivity implements CanvasLayoutListener, NavigationView.OnNavigationItemSelectedListener {
+public class HomeActivity extends BaseActivity
+        implements CanvasLayoutListener, NavigationView.OnNavigationItemSelectedListener {
 
-    private final static String TAG_FRAGMENT_DRAWER = "drawer";
     private final static String TAG_FRAGMENT_COLOR_PICKER = "color";
     private final static String TAG_FRAGMENT_FILENAME = "name";
     private final static String TAG_FRAGMENT_BRUSH = "brush";
@@ -70,9 +69,8 @@ public class HomeActivity extends BaseActivity implements CanvasLayoutListener, 
     private final static int REQUEST_PERMISSION_CAMERA_CODE = 2003;
 
     @Bind(R.id.activity_home_drawer_layout) DrawerLayout drawerLayout;
-    @Bind(R.id.activity_home_fragment_frame) FrameLayout frameLayout;
+    @Bind(R.id.activity_home_canvas_root) CanvasLayout canvasLayout;
     @Bind(R.id.activity_home_navigation) NavigationView navigationView;
-    @Bind(R.id.activity_home_loading_animator) LoadingAnimator loadingAnimator;
 
     private RoundedFrameLayout fabFrame;
     private FragmentManager manager;
@@ -102,25 +100,11 @@ public class HomeActivity extends BaseActivity implements CanvasLayoutListener, 
             }
         });
 
-        final ViewTreeObserver observer = drawerLayout.getViewTreeObserver();
-        observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                if (observer.isAlive()) {
-                    observer.removeOnGlobalLayoutListener(this);
-                }
-
-                loadingAnimator.startAnimation();
-            }
-        });
-
         bus.register(this);
 
         manager = getFragmentManager();
 
-        manager.beginTransaction()
-                .add(R.id.activity_home_fragment_frame, DrawingFragment.newInstance(), TAG_FRAGMENT_DRAWER)
-                .commit();
+        canvasLayout.setActivityListener(this);
     }
 
     @Override
@@ -150,7 +134,7 @@ public class HomeActivity extends BaseActivity implements CanvasLayoutListener, 
             builder.setContentView(R.layout.dialog_save);
             builder.findViewById(R.id.dialog_save_drawing).setOnClickListener(v -> {
                 builder.dismiss();
-                saveAndExit();
+                canvasLayout.unrevealAndSave();
             });
             builder.findViewById(R.id.dialog_exit_app).setOnClickListener(v -> {
                 super.onBackPressed();
@@ -281,123 +265,58 @@ public class HomeActivity extends BaseActivity implements CanvasLayoutListener, 
         return true;
     }
 
-    public void dismissLoading() {
-        AnimatorListenerAdapter adapter = new AnimatorListenerAdapter() {
+    @SuppressWarnings("unused, unchecked")
+    public void onEvent(EventFilenameChosen eventFilenameChosen) {
+        Fab saver = (Fab) findViewById(R.id.menu_upload);
+        SafeSubscription<byte[]> safeSubscription = new SafeSubscription<byte[]>(this) {
             @Override
-            public void onAnimationEnd(Animator animation) {
-                super.onAnimationEnd(animation);
-                getDrawingFragment().getRootView().reveal();
-                ViewUtils.gone(loadingAnimator);
+            public void onError(Throwable e) {
+                super.onError(e);
+                saver.stopSaveAnimation();
+            }
+
+            @Override
+            public void onCompleted() {
+                super.onCompleted();
+                saver.stopSaveAnimation();
+                showSnackbar(canvasLayout,
+                        R.string.snackbar_activity_home_image_saved_title,
+                        Snackbar.LENGTH_LONG,
+                        null);
+            }
+
+            @Override
+            public void onNext(byte[] o) {
+                super.onNext(o);
+                realm.beginTransaction();
+                Sketch sketch = realm.createObject(Sketch.class);
+                sketch.setBytes(o);
+                sketch.setTitle(eventFilenameChosen.filename);
+                sketch.setId(UUID.randomUUID().toString());
+                realm.commitTransaction();
+            }
+
+            @Override
+            public void onStart() {
+                super.onStart();
+                saver.startSaveAnimation();
             }
         };
 
-        loadingAnimator.stopAnimation(adapter);
-    }
+        Bitmap root = canvasLayout.getDrawerBitmap();
+        Bitmap bitmap = Bitmap.createBitmap(root.getWidth(), root.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        canvas.drawColor(canvasLayout.getBackgroundColor());
+        canvas.drawBitmap(root, 0, 0, null);
 
-    private void saveAndExit() {
-        DrawingFragment drawingFragment = getDrawingFragment();
-
-        frameLayout.bringChildToFront(loadingAnimator);
-        ViewUtils.visible(loadingAnimator, 500);
-
-        drawingFragment.getRootView().unreveal().addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                super.onAnimationEnd(animation);
-
-                SafeSubscription<byte[]> subscriber = new SafeSubscription<byte[]>(HomeActivity.this) {
-                    @Override
-                    public void onCompleted() {
-                        AnimatorListenerAdapter listenerAdapter = new AnimatorListenerAdapter() {
-                            @Override
-                            public void onAnimationEnd(Animator animation) {
-                                finishAndRemoveTask();
-                            }
-                        };
-
-                        loadingAnimator.stopAnimation(listenerAdapter);
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        Logg.log(e);
-                    }
-
-                    @Override
-                    public void onStart() {
-                        super.onStart();
-                        loadingAnimator.startAnimation();
-                    }
-                };
-
-                FileUtils.cache(drawingFragment.getDrawingBitmap(), HomeActivity.this)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(subscriber);
-            }
-        });
-    }
-
-    @SuppressWarnings("unused, unchecked")
-    public void onEvent(EventFilenameChosen eventFilenameChosen) {
-        if (hasInternet()) {
-            Fab saver = (Fab) findViewById(R.id.menu_upload);
-            SafeSubscription<byte[]> safeSubscription = new SafeSubscription<byte[]>(this) {
-                @Override
-                public void onError(Throwable e) {
-                    super.onError(e);
-                    saver.stopSaveAnimation();
-                }
-
-                @Override
-                public void onCompleted() {
-                    super.onCompleted();
-                    saver.stopSaveAnimation();
-                    CanvasLayout view = getDrawingFragment().getRootView();
-                    showSnackbar(view,
-                            R.string.snackbar_activity_home_image_saved_title,
-                            Snackbar.LENGTH_LONG,
-                            null);
-                }
-
-                @Override
-                public void onNext(byte[] o) {
-                    super.onNext(o);
-                    realm.beginTransaction();
-                    Sketch sketch = realm.createObject(Sketch.class);
-                    sketch.setBytes(o);
-                    sketch.setTitle(eventFilenameChosen.filename);
-                    sketch.setId(UUID.randomUUID().toString());
-                    realm.commitTransaction();
-                }
-
-                @Override
-                public void onStart() {
-                    super.onStart();
-                    saver.startSaveAnimation();
-                }
-            };
-
-            DrawingFragment drawer = getDrawingFragment();
-            Bitmap root = drawer.getDrawingBitmap();
-            Bitmap bitmap = Bitmap.createBitmap(root.getWidth(), root.getHeight(), Bitmap.Config.ARGB_8888);
-            Canvas canvas = new Canvas(bitmap);
-            canvas.drawColor(drawer.getRootView().getBackgroundColor());
-            canvas.drawBitmap(root, 0, 0, null);
-
-            FileUtils.compress(bitmap)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(safeSubscription);
-        } else {
-            showSnackBar(R.string.snackbar_no_internet, Snackbar.LENGTH_LONG);
-        }
+        FileUtils.compress(bitmap)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(safeSubscription);
     }
 
     private void showBrushChooser(View view) {
-        DrawingFragment frag = getDrawingFragment();
-
-        BrushPickerFragment picker = BrushPickerFragment.newInstance(frag.getRootView().getPaint());
+        BrushPickerFragment picker = BrushPickerFragment.newInstance(canvasLayout.getPaint());
 
         TransitionHelper.makeFabDialogTransitions(this, view, fabFrame, picker);
 
@@ -409,9 +328,7 @@ public class HomeActivity extends BaseActivity implements CanvasLayoutListener, 
     }
 
     private void showColorChooser(View view, boolean toFill) {
-        DrawingFragment frag = getDrawingFragment();
-        CanvasLayout layout = frag.getRootView();
-        int color = toFill ? layout.getBackgroundColor() : layout.getBrushColor();
+        int color = toFill ? canvasLayout.getBackgroundColor() : canvasLayout.getBrushColor();
         ColorPickerFragment picker = ColorPickerFragment.newInstance(color, toFill);
 
         if (view instanceof Fab) {
@@ -500,16 +417,5 @@ public class HomeActivity extends BaseActivity implements CanvasLayoutListener, 
             showGallery();
         });
         builder.show();
-    }
-
-    private void showSnackBar(@StringRes int id, int duration) {
-        DrawingFragment drawer = (DrawingFragment) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
-        if (drawer != null && drawer.getRootView() != null) {
-            Snackbar.make(drawer.getRootView(), id, duration).show();
-        }
-    }
-
-    private DrawingFragment getDrawingFragment() {
-        return (DrawingFragment) manager.findFragmentByTag(TAG_FRAGMENT_DRAWER);
     }
 }

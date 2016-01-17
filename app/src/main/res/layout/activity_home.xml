@@ -6,19 +6,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-    <FrameLayout
-        android:id="@+id/activity_home_fragment_frame"
+    <include
+        layout="@layout/canvas"
+        android:id="@+id/activity_home_canvas_root"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:ignore="RtlSymmetry" >
-
-        <miles.scribble.ui.widget.LoadingAnimator
-            android:id="@+id/activity_home_loading_animator"
-            android:layout_gravity="center"
-            android:layout_width="@dimen/view_save_animation_dimens"
-            android:layout_height="@dimen/view_save_animation_dimens" />
-
-    </FrameLayout>
+        android:layout_height="match_parent" />
     
     <android.support.design.widget.NavigationView
         android:id="@+id/activity_home_navigation"

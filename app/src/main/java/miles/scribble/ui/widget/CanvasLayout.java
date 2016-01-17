@@ -22,6 +22,7 @@ import android.view.MotionEvent;
 import android.view.SoundEffectConstants;
 import android.view.View;
 import android.view.ViewAnimationUtils;
+import android.view.ViewTreeObserver;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.LinearLayout;
 import android.widget.Toolbar;
@@ -39,20 +40,28 @@ import miles.scribble.data.event.EventClearCanvas;
 import miles.scribble.data.event.EventColorChosen;
 import miles.scribble.data.event.EventFilenameChosen;
 import miles.scribble.data.event.EventTextChosen;
+import miles.scribble.rx.SafeSubscription;
+import miles.scribble.ui.activity.BaseActivity;
 import miles.scribble.ui.activity.HomeActivity;
 import miles.scribble.ui.drawing.DrawingCurve;
+import miles.scribble.util.FileUtils;
+import miles.scribble.util.Logg;
 import miles.scribble.util.ViewUtils;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 /**
  * Created by milespeele on 8/7/15.
  */
 public class CanvasLayout extends CoordinatorLayout implements
-        CircleFabMenu.ViewFabMenuListener, DrawingCurve.DrawingCurveListener, View.OnClickListener {
+        CircleFabMenu.ViewFabMenuListener, DrawingCurve.DrawingCurveListener,
+        View.OnClickListener {
 
     @Bind(R.id.fragment_drawer_canvas) CanvasSurface drawer;
     @Bind(R.id.fragment_drawer_menu) CircleFabMenu fabMenu;
     @Bind(R.id.fragment_drawer_animator) RoundedFrameLayout fabFrame;
     @Bind(R.id.fragment_drawer_text_bitmap) LinearLayout textAndBitmapOptions;
+    @Bind(R.id.fragment_drawer_loading) LoadingAnimator loadingAnimator;
     @Bind(R.id.fragment_drawer_toolbar) Toolbar toolbar;
 
     @Inject EventBus bus;
@@ -65,6 +74,7 @@ public class CanvasLayout extends CoordinatorLayout implements
     private float mRadius;
 
     private CanvasLayoutListener mListener;
+
     public interface CanvasLayoutListener {
         void onFabMenuButtonClicked(View view);
         void onOptionsMenuButtonClicked(View view, DrawingCurve.State state);
@@ -112,6 +122,15 @@ public class CanvasLayout extends CoordinatorLayout implements
         toolbar.setNavigationOnClickListener(v -> {
             if (mListener != null) {
                 mListener.onNavigationIconClicked();
+            }
+        });
+
+        getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            @Override
+            public boolean onPreDraw() {
+                getViewTreeObserver().removeOnPreDrawListener(this);
+                loadingAnimator.startAnimation();
+                return false;
             }
         });
     }
@@ -250,26 +269,28 @@ public class CanvasLayout extends CoordinatorLayout implements
 
     @Override
     public void surfaceReady() {
-        HomeActivity activity = (HomeActivity) getContext();
-        activity.dismissLoading();
-    }
-
-    public void reveal() {
-        Animator reveal = ViewAnimationUtils.createCircularReveal(this,
-                getWidth() / 2, getHeight() / 2, 0, getHeight());
-        reveal.setDuration(600);
-        reveal.setInterpolator(new AccelerateDecelerateInterpolator());
-        reveal.addListener(new AnimatorListenerAdapter() {
+        loadingAnimator.stopAnimation(new AnimatorListenerAdapter() {
             @Override
-            public void onAnimationStart(Animator animation) {
-                drawer.setVisibility(View.VISIBLE);
-                fabMenu.setVisibility(View.VISIBLE);
+            public void onAnimationEnd(Animator animation) {
+                ViewUtils.gone(loadingAnimator);
+
+                Animator reveal = ViewAnimationUtils.createCircularReveal(CanvasLayout.this,
+                        getWidth() / 2, getHeight() / 2, 0, getHeight());
+                reveal.setDuration(600);
+                reveal.setInterpolator(new AccelerateDecelerateInterpolator());
+                reveal.addListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+                        drawer.setVisibility(View.VISIBLE);
+                        fabMenu.setVisibility(View.VISIBLE);
+                    }
+                });
+                reveal.start();
             }
-        });
-        reveal.start();
+        }, 500);
     }
 
-    public Animator unreveal() {
+    public void unrevealAndSave() {
         Animator reveal = ViewAnimationUtils.createCircularReveal(this,
                 getWidth() / 2, getHeight() / 2, getHeight(), 0);
         reveal.setDuration(600);
@@ -277,12 +298,39 @@ public class CanvasLayout extends CoordinatorLayout implements
         reveal.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
-                setVisibility(View.GONE);
+                super.onAnimationEnd(animation);
+
+                drawer.setVisibility(View.GONE);
+                fabMenu.setVisibility(View.GONE);
+
+                loadingAnimator.startAnimation();
+
+                final HomeActivity activity = (HomeActivity) getContext();
+
+                SafeSubscription<byte[]> subscriber = new SafeSubscription<byte[]>(activity) {
+                    @Override
+                    public void onCompleted() {
+                        loadingAnimator.stopAnimation(new AnimatorListenerAdapter() {
+                            @Override
+                            public void onAnimationEnd(Animator animation) {
+                                activity.finishAndRemoveTask();
+                            }
+                        }, 700);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Logg.log(e);
+                    }
+                };
+
+                FileUtils.cache(getDrawerBitmap(), activity)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(subscriber);
             }
         });
         reveal.start();
-
-        return reveal;
     }
 
     @Override

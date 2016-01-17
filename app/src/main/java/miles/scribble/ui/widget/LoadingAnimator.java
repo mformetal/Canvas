@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import miles.scribble.R;
+import miles.scribble.util.Logg;
+import miles.scribble.util.ViewUtils;
 
 /**
  * Created by mbpeele on 1/6/16.
@@ -117,6 +119,15 @@ public class LoadingAnimator extends View {
     }
 
     public void startAnimation() {
+        if (getVisibility() == View.GONE) {
+            ViewUtils.visible(this, 50);
+
+            animate()
+                    .scaleY(1f)
+                    .scaleX(1f)
+                    .setDuration(50);
+        }
+
         if (mAnimatorSet == null) {
             ArrayList<Animator> animators = new ArrayList<>();
             for (int i = 0; i < 3; i ++) {
@@ -137,7 +148,7 @@ public class LoadingAnimator extends View {
         }
     }
 
-    public void stopAnimation(AnimatorListenerAdapter adapter) {
+    public void stopAnimation(AnimatorListenerAdapter adapter, int delay) {
         ArrayList<Animator> childAnimations = mAnimatorSet.getChildAnimations();
         for (Animator child: childAnimations) {
             ValueAnimator valueAnimator = (ValueAnimator) child;
@@ -165,16 +176,13 @@ public class LoadingAnimator extends View {
                             public void onAnimationEnd(Animator animation) {
                                 Arrays.fill(mAnimatedEnds, mStart);
                                 mAnimatorSet = null;
-                                animate().scaleY(0f).scaleX(0f)
-                                        .setInterpolator(new DecelerateInterpolator())
-                                        .setStartDelay(300)
-                                        .setDuration(100);
+                                ViewUtils.gone(LoadingAnimator.this, delay);
                                 new Handler().postDelayed(new Runnable() {
                                     @Override
                                     public void run() {
                                         adapter.onAnimationEnd(animation);
                                     }
-                                }, 500);
+                                }, delay);
                             }
                         });
                         scale.start();
