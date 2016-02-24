@@ -231,7 +231,7 @@ public class CanvasLayout extends CoordinatorLayout implements
                         ContextCompat.getDrawable(getContext(), R.drawable.ic_camera_alt_24dp));
 
                 option2.setText(R.string.view_options_menu_edit_import);
-                option1.setCompoundDrawablesWithIntrinsicBounds(null, null, null,
+                option2.setCompoundDrawablesWithIntrinsicBounds(null, null, null,
                         ContextCompat.getDrawable(getContext(), R.drawable.ic_photo_24dp));
             }
 
