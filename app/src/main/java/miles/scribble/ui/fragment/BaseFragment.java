@@ -16,7 +16,7 @@ import miles.scribble.MainApp;
  */
 public class BaseFragment extends Fragment {
 
-    @Inject EventBus bus;
+    public @Inject EventBus bus;
 
     @Override
     public void onAttach(Context context) {

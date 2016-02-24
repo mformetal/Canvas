@@ -227,10 +227,6 @@ public class CircleFabMenu extends ViewGroup implements View.OnClickListener {
 
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
-                if (isSystemUISwipe(event)) {
-                    return false;
-                }
-
                 mClickedItem = getClickedItem(x, y);
 
                 if (isFlinging) {
@@ -470,11 +466,6 @@ public class CircleFabMenu extends ViewGroup implements View.OnClickListener {
 
     public float getCircleRadius() { return mCircle.getRadius(); }
 
-    private boolean isSystemUISwipe(MotionEvent event) {
-        return event.getY() >= (float) toggle.getBottom() -
-                getResources().getDimension(R.dimen.system_ui_scrim);
-    }
-
     private final class ItemPosition {
 
         private Circle mItemCircle;
@@ -530,8 +521,7 @@ public class CircleFabMenu extends ViewGroup implements View.OnClickListener {
 
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-               if (isVisible() && !isSystemUISwipe(e1) && !isSystemUISwipe(e2) &&
-                    isMinXDist(e1, e2)) {
+               if (isVisible() && isMinXDist(e1, e2)) {
                 isDragging = false;
 
                 isFlinging = true;

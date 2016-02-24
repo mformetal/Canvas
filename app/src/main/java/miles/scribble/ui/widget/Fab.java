@@ -24,13 +24,9 @@ import miles.scribble.util.ViewUtils;
 public class Fab extends FloatingActionButton {
 
     private AnimatorSet pulse;
-    private Paint ripplePaint;
-    private AnimatorSet animatorSet;
 
     private boolean isScaledUp = false;
     private boolean isScaling = false;
-    private float cx, cy, radius;
-    private final static int RIPPLE_DURATION = 500;
 
     public Fab(Context context) {
         super(context);
@@ -48,28 +44,6 @@ public class Fab extends FloatingActionButton {
     }
 
     private void init(AttributeSet attrs) {
-        ripplePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        ripplePaint.setColor(getResources().getColor(R.color.half_opacity_gray));
-
-        animatorSet = new AnimatorSet();
-    }
-
-    @Override
-    protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
-        canvas.drawCircle(cx, cy, radius, ripplePaint);
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        switch (event.getAction() & MotionEventCompat.getActionMasked(event)) {
-            case MotionEvent.ACTION_DOWN:
-                cx = event.getX();
-                cy = event.getY();
-                ripple();
-                break;
-        }
-        return super.onTouchEvent(event);
     }
 
     @Override
@@ -164,46 +138,4 @@ public class Fab extends FloatingActionButton {
             pulse.end();
         }
     }
-
-    public void ripple() {
-        if (!animatorSet.isRunning()) {
-            ObjectAnimator rad = ObjectAnimator.ofFloat(this, RIPPLE, 0, getMeasuredWidth() / 2);
-            ObjectAnimator alpha =  ObjectAnimator.ofObject(ripplePaint, ViewUtils.ALPHA,
-                    new ArgbEvaluator(), ripplePaint.getAlpha(), 0);
-
-            animatorSet.playTogether(rad, alpha);
-            animatorSet.setDuration(RIPPLE_DURATION);
-            animatorSet.setInterpolator(new AccelerateDecelerateInterpolator());
-            animatorSet.addListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    ripplePaint.setAlpha(255);
-                    radius = 0;
-                }
-            });
-            animatorSet.start();
-        }
-    }
-
-    public float getRadius() {
-        return radius;
-    }
-
-    public void setRadius(float radius) {
-        this.radius = radius;
-        invalidate();
-    }
-
-    private static ViewUtils.FloatProperty<Fab> RIPPLE
-            = new ViewUtils.FloatProperty<Fab>("ripple") {
-        @Override
-        public void setValue(Fab object, float value) {
-            object.setRadius(value);
-        }
-
-        @Override
-        public Float get(Fab object) {
-            return object.getRadius();
-        }
-    };
 }

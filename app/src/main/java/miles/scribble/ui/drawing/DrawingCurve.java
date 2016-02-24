@@ -93,7 +93,6 @@ public class DrawingCurve {
     public interface DrawingCurveListener {
         void toggleOptionsMenuVisibilty(boolean visible, State state);
         void toggleFabMenuVisibility(boolean visible);
-        void surfaceReady();
     }
 
     public DrawingCurve(Context context) {
@@ -142,14 +141,6 @@ public class DrawingCurve {
         mStroke = new Stroke(mPaint);
 
         mHandler = new Handler(Looper.getMainLooper());
-        mHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (mListener != null) {
-                    mListener.surfaceReady();
-                }
-            }
-        }, 2000);
     }
 
     public void setListener(DrawingCurveListener listener) {

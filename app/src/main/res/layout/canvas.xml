@@ -18,8 +18,7 @@
     <miles.scribble.ui.widget.CanvasSurface
         android:id="@+id/canvas_surface"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone" />
+        android:layout_height="match_parent" />
 
     <miles.scribble.ui.widget.RoundedFrameLayout
         android:id="@+id/canvas_framelayout_animator"
@@ -31,20 +30,12 @@
         app:layout_anchorGravity="center"
         app:layout_anchor="@id/activity_home_canvas_root" />
 
-    <miles.scribble.ui.widget.LoadingAnimator
-        android:id="@+id/canvas_loading"
-        android:layout_width="@dimen/view_save_animation_dimens"
-        android:layout_height="@dimen/view_save_animation_dimens"
-        app:layout_anchorGravity="center"
-        app:layout_anchor="@id/activity_home_canvas_root" />
-
     <include
         layout="@layout/canvas_fab_menu"
         android:id="@+id/canvas_fab_menu"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center_horizontal"
-        android:visibility="gone"
         app:layout_behavior="miles.scribble.ui.widget.FabMenuBehavior"
         app:layout_anchorGravity="bottom|center_horizontal"
         app:layout_anchor="@id/activity_home_canvas_root" />

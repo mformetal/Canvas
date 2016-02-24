@@ -1,5 +1,6 @@
 package miles.scribble.ui.activity;
 
+import android.Manifest;
 import android.app.Dialog;
 import android.app.Fragment;
 import android.app.FragmentManager;

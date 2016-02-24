@@ -13,6 +13,7 @@ import android.graphics.Rect;
 import android.util.DisplayMetrics;
 import android.util.Property;
 import android.util.TypedValue;
+import android.view.MotionEvent;
 import android.view.View;
 
 import java.util.Random;

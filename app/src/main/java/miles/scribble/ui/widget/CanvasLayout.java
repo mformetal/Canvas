@@ -60,15 +60,12 @@ public class CanvasLayout extends CoordinatorLayout implements
     @Bind(R.id.canvas_fab_menu) CircleFabMenu fabMenu;
     @Bind(R.id.canvas_framelayout_animator) RoundedFrameLayout fabFrame;
     @Bind(R.id.canvas_text_bitmap) LinearLayout textAndBitmapOptions;
-    @Bind(R.id.canvas_loading) LoadingAnimator loadingAnimator;
     @Bind(R.id.canvas_toolbar) Toolbar toolbar;
 
     @Inject EventBus bus;
 
     private Rect mRect = new Rect();
     private Paint mShadowPaint;
-    private float mStartX, mStartY;
-    private long mStartTime;
     private Handler mHandler;
     private float mRadius;
 
@@ -123,15 +120,6 @@ public class CanvasLayout extends CoordinatorLayout implements
                 mListener.onNavigationIconClicked();
             }
         });
-
-        getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-            @Override
-            public boolean onPreDraw() {
-                getViewTreeObserver().removeOnPreDrawListener(this);
-                loadingAnimator.startAnimation();
-                return false;
-            }
-        });
     }
 
     @Override
@@ -155,10 +143,6 @@ public class CanvasLayout extends CoordinatorLayout implements
                 if (isSystemUISwipe(ev)) {
                     return true;
                 }
-
-                mStartX = x;
-                mStartY = y;
-                mStartTime = ev.getEventTime();
 
                 if (fabFrame.getVisibility() == View.VISIBLE && !fabFrame.isAnimating()) {
                     drawer.setEnabled(false);
@@ -266,29 +250,6 @@ public class CanvasLayout extends CoordinatorLayout implements
         }
     }
 
-    @Override
-    public void surfaceReady() {
-        loadingAnimator.stopAnimation(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                ViewUtils.gone(loadingAnimator);
-
-                Animator reveal = ViewAnimationUtils.createCircularReveal(CanvasLayout.this,
-                        getWidth() / 2, getHeight() / 2, 0, getHeight());
-                reveal.setDuration(600);
-                reveal.setInterpolator(new AccelerateDecelerateInterpolator());
-                reveal.addListener(new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationStart(Animator animation) {
-                        drawer.setVisibility(View.VISIBLE);
-                        fabMenu.setVisibility(View.VISIBLE);
-                    }
-                });
-                reveal.start();
-            }
-        }, 500);
-    }
-
     public void unrevealAndSave() {
         Animator reveal = ViewAnimationUtils.createCircularReveal(this,
                 getWidth() / 2, getHeight() / 2, getHeight(), 0);
@@ -302,24 +263,12 @@ public class CanvasLayout extends CoordinatorLayout implements
                 drawer.setVisibility(View.GONE);
                 fabMenu.setVisibility(View.GONE);
 
-                loadingAnimator.startAnimation();
-
                 final HomeActivity activity = (HomeActivity) getContext();
 
                 SafeSubscription<byte[]> subscriber = new SafeSubscription<byte[]>(activity) {
                     @Override
                     public void onCompleted() {
-                        loadingAnimator.stopAnimation(new AnimatorListenerAdapter() {
-                            @Override
-                            public void onAnimationEnd(Animator animation) {
-                                activity.finishAndRemoveTask();
-                            }
-                        }, 700);
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        Logg.log(e);
+                        activity.finishAndRemoveTask();
                     }
                 };
 
@@ -374,13 +323,10 @@ public class CanvasLayout extends CoordinatorLayout implements
     }
 
     private void makeDrawingVisible() {
-        mHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                drawer.setEnabled(true);
-                undim();
-                fabMenu.toggleMenu();
-            }
+        mHandler.postDelayed(() -> {
+            drawer.setEnabled(true);
+            undim();
+            fabMenu.toggleMenu();
         }, 200);
     }
 
