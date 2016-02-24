@@ -14,6 +14,7 @@ import miles.scribble.R;
 import miles.scribble.data.model.Sketch;
 import miles.scribble.ui.widget.AspectRatioImageView;
 import miles.scribble.ui.widget.TypefaceTextView;
+import miles.scribble.util.Logg;
 
 /**
  * Created by mbpeele on 1/12/16.

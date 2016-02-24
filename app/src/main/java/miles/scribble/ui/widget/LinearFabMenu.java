@@ -29,7 +29,7 @@ public class LinearFabMenu extends ViewGroup implements View.OnClickListener {
     private final static int DELAY_INCREMENT = 15;
     private final static int HIDE_DIFF = 50;
     private boolean isAnimating = false;
-    private boolean isMenuShowing = true;
+    private boolean isMenuShowing = false;
 
     public LinearFabMenu(Context context) {
         super(context);
@@ -126,8 +126,6 @@ public class LinearFabMenu extends ViewGroup implements View.OnClickListener {
                 curBottom -= child.getMeasuredHeight() + params.topMargin;
             }
         }
-
-        hideMenu();
     }
 
     @Override

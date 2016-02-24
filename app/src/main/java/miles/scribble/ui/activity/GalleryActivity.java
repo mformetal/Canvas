@@ -21,6 +21,7 @@ import miles.scribble.data.model.Sketch;
 import miles.scribble.data.event.EventUpdateDrawingCurve;
 import miles.scribble.util.Logg;
 import rx.functions.Action1;
+import rx.functions.Func1;
 
 /**
  * Created by mbpeele on 1/11/16.
@@ -73,16 +74,15 @@ public class GalleryActivity extends BaseActivity implements OnClickListener {
         realm.where(Sketch.class)
                 .findAllAsync()
                 .asObservable()
+                .filter(sketches -> sketches.isValid() && sketches.isLoaded())
                 .subscribe(new Action1<RealmResults<Sketch>>() {
                     @Override
                     public void call(RealmResults<Sketch> sketches) {
-                        if (sketches.isLoaded()) {
-                            if (sketches.isEmpty()) {
-                                setEmptyView();
-                            } else {
-                                for (Sketch sketch : sketches) {
-                                    adapter.add(sketch);
-                                }
+                        if (sketches.isEmpty()) {
+                            setEmptyView();
+                        } else {
+                            for (Sketch sketch : sketches) {
+                                adapter.add(sketch);
                             }
                         }
                     }
