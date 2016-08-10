@@ -18,6 +18,8 @@ import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.view.animation.OvershootInterpolator;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -25,9 +27,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import butterknife.Bind;
-import butterknife.ButterKnife;
-import de.greenrobot.event.EventBus;
 import miles.scribble.MainApp;
 import miles.scribble.R;
 import miles.scribble.data.event.EventBrushChosen;
@@ -40,16 +39,17 @@ import miles.scribble.util.ViewUtils;
  */
 public class CircleFabMenu extends ViewGroup implements View.OnClickListener {
 
-    @Bind(R.id.menu_toggle) Fab toggle;
-    @Bind(R.id.menu_erase) Fab eraser;
-    @Bind(R.id.menu_upload) Fab saver;
+    Fab toggle;
+    Fab eraser;
+    Fab saver;
 
-    @Bind({R.id.menu_upload, R.id.menu_text, R.id.menu_stroke_color, R.id.menu_canvas_color,
-            R.id.menu_ink, R.id.menu_brush, R.id.menu_undo, R.id.menu_redo, R.id.menu_erase,
-            R.id.menu_image})
+//    @Bind({R.id.menu_upload, R.id.menu_text, R.id.menu_stroke_color, R.id.menu_canvas_color,
+//            R.id.menu_ink, R.id.menu_brush, R.id.menu_undo, R.id.menu_redo, R.id.menu_erase,
+//            R.id.menu_image})
     List<Fab> buttonsList;
 
-    @Inject EventBus bus;
+    @Inject
+    EventBus bus;
 
     private Circle mCircle;
     private Fab mClickedItem;
@@ -112,7 +112,6 @@ public class CircleFabMenu extends ViewGroup implements View.OnClickListener {
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        ButterKnife.bind(this);
         toggle.setRotation(45);
     }
 
@@ -319,7 +318,7 @@ public class CircleFabMenu extends ViewGroup implements View.OnClickListener {
                 }
 
                 ItemPosition position = mItemPositions.get(sum);
-                View view = position.mView;
+                final View view = position.mView;
 
                 if (view.getId() == R.id.menu_toggle) {
                     continue;
@@ -389,7 +388,7 @@ public class CircleFabMenu extends ViewGroup implements View.OnClickListener {
                 }
 
                 ItemPosition position = mItemPositions.get(sum);
-                View view = position.mView;
+                final View view = position.mView;
 
                 if (view.getId() == R.id.menu_toggle) {
                     continue;

@@ -38,7 +38,7 @@ class BitmapCache extends LruCache<Uri, Bitmap> {
     public BitmapCache(Context context) {
         super(getMaxSize(context));
 
-        mReusableBitmaps = Collections.synchronizedSet(new HashSet<>());
+        mReusableBitmaps = Collections.synchronizedSet(new HashSet<SoftReference<Bitmap>>());
 
         mContext = context;
         Point size = new Point();

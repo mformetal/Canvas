@@ -42,8 +42,8 @@ public class TransitionDialogToButton extends ChangeBounds {
         int endColor = context.getResources().getColor(R.color.half_opacity_gray);
 
         List<View> views = getTargets();
-        View fab = views.get(0);
-        RoundedFrameLayout fabFrame = (RoundedFrameLayout) views.get(1);
+        final View fab = views.get(0);
+        final RoundedFrameLayout fabFrame = (RoundedFrameLayout) views.get(1);
         CanvasLayout layout = (CanvasLayout) views.get(2);
 
         Point size = new Point();

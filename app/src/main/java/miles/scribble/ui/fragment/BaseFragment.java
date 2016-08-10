@@ -5,10 +5,10 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.view.View;
 
+import org.greenrobot.eventbus.EventBus;
+
 import javax.inject.Inject;
 
-import butterknife.ButterKnife;
-import de.greenrobot.event.EventBus;
 import miles.scribble.MainApp;
 
 /**
@@ -16,7 +16,8 @@ import miles.scribble.MainApp;
  */
 public class BaseFragment extends Fragment {
 
-    public @Inject EventBus bus;
+    public @Inject
+    EventBus bus;
 
     @Override
     public void onAttach(Context context) {
@@ -27,7 +28,6 @@ public class BaseFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        ButterKnife.unbind(this);
     }
 
     @NonNull

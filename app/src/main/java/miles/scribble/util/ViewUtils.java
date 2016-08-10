@@ -159,7 +159,7 @@ public class ViewUtils {
         goneAnimator(view).start();
     }
 
-    public static ObjectAnimator goneAnimator(View view) {
+    public static ObjectAnimator goneAnimator(final View view) {
         ObjectAnimator gone = ObjectAnimator.ofFloat(view, View.ALPHA, 1f, 0f);
         gone.setDuration(DEFAULT_VISBILITY_DURATION);
         gone.addListener(new AnimatorListenerAdapter() {
@@ -183,7 +183,7 @@ public class ViewUtils {
         }
     }
 
-    public static ObjectAnimator visibleAnimator(View view) {
+    public static ObjectAnimator visibleAnimator(final View view) {
         ObjectAnimator visibility = ObjectAnimator.ofFloat(view, View.ALPHA, 0f, 1f);
         visibility.setDuration(DEFAULT_VISBILITY_DURATION);
         visibility.addListener(new AnimatorListenerAdapter() {

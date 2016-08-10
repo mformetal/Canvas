@@ -19,13 +19,14 @@ import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.view.MotionEvent;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Stack;
 
 import javax.inject.Inject;
 
-import de.greenrobot.event.EventBus;
 import io.realm.Realm;
 import miles.scribble.MainApp;
 import miles.scribble.R;
@@ -43,6 +44,7 @@ import miles.scribble.util.PaintStyles;
 import miles.scribble.util.ViewUtils;
 import rx.Observable;
 import rx.Subscriber;
+import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
 /**
@@ -86,7 +88,8 @@ public class DrawingCurve {
     private boolean shouldUpdate;
 
     @Inject Datastore store;
-    @Inject EventBus bus;
+    @Inject
+    EventBus bus;
     private BitmapCache cache;
 
     private DrawingCurveListener mListener;
@@ -347,7 +350,12 @@ public class DrawingCurve {
                 setPaintColor(mStrokeColor);
                 changeState(State.DRAW);
 
-                mHandler.postDelayed(() -> mListener.toggleFabMenuVisibility(true), 350);
+                mHandler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        mListener.toggleFabMenuVisibility(true);
+                    }
+                }, 350);
                 break;
         }
 
@@ -402,12 +410,17 @@ public class DrawingCurve {
 
     private void redraw() {
         final Bitmap worker = Bitmap.createBitmap(mBitmap);
-        Canvas workerCanvas = new Canvas(worker);
+        final Canvas workerCanvas = new Canvas(worker);
         workerCanvas.drawColor(mBackgroundColor, PorterDuff.Mode.CLEAR);
 
         synchronized (mAllHistory) {
             Observable.from(mAllHistory)
-                    .doOnError(Logg::log)
+                    .doOnError(new Action1<Throwable>() {
+                        @Override
+                        public void call(Throwable throwable) {
+                            Logg.log(throwable);
+                        }
+                    })
                     .subscribeOn(Schedulers.io())
                     .subscribe(new Subscriber<Object>() {
                         @Override

@@ -1,6 +1,7 @@
 package miles.scribble.ui.activity;
 
 import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
@@ -12,8 +13,6 @@ import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 
-import butterknife.Bind;
-import butterknife.OnClick;
 import io.realm.RealmResults;
 import miles.scribble.R;
 import miles.scribble.data.adapter.GalleryPagerAdapter;
@@ -28,7 +27,7 @@ import rx.functions.Func1;
  */
 public class GalleryActivity extends BaseActivity implements OnClickListener {
 
-    @Bind(R.id.activity_gallery_pager) ViewPager pager;
+    ViewPager pager;
 
     private GalleryPagerAdapter adapter;
 
@@ -46,18 +45,23 @@ public class GalleryActivity extends BaseActivity implements OnClickListener {
     }
 
     @Override
-    @OnClick({R.id.activity_gallery_options_menu_cut, R.id.activity_gallery_options_menu_set})
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.activity_gallery_options_menu_cut:
                 AlertDialog.Builder builder = new AlertDialog.Builder(this)
                         .setTitle(R.string.alert_dialog_delete_sketch_title)
                         .setMessage(R.string.alert_dialog_delete_sketch_body)
-                        .setPositiveButton(R.string.alert_dialog_delete_sketch_pos_button, (dialog, which) -> {
-                            deleteSketch();
+                        .setPositiveButton(R.string.alert_dialog_delete_sketch_pos_button, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                deleteSketch();
+                            }
                         })
-                        .setNegativeButton(R.string.alert_dialog_delete_sketch_neg_button, (dialog, which) -> {
-                            dialog.dismiss();
+                        .setNegativeButton(R.string.alert_dialog_delete_sketch_neg_button, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
                         });
                 builder.create().show();
                 break;
@@ -74,7 +78,12 @@ public class GalleryActivity extends BaseActivity implements OnClickListener {
         realm.where(Sketch.class)
                 .findAllAsync()
                 .asObservable()
-                .filter(sketches -> sketches.isValid() && sketches.isLoaded())
+                .filter(new Func1<RealmResults<Sketch>, Boolean>() {
+                    @Override
+                    public Boolean call(RealmResults<Sketch> sketches) {
+                        return sketches.isLoaded() && sketches.isValid();
+                    }
+                })
                 .subscribe(new Action1<RealmResults<Sketch>>() {
                     @Override
                     public void call(RealmResults<Sketch> sketches) {
@@ -123,7 +132,7 @@ public class GalleryActivity extends BaseActivity implements OnClickListener {
         }
 
         realm.beginTransaction();
-        sketch.removeFromRealm();
+        sketch.deleteFromRealm();
         realm.commitTransaction();
 
         if (itemCount == 1) {

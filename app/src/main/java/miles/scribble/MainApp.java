@@ -2,9 +2,6 @@ package miles.scribble;
 
 import android.app.Application;
 
-import com.crashlytics.android.Crashlytics;
-
-import io.fabric.sdk.android.Fabric;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 import miles.scribble.dagger.ApplicationComponent;
@@ -22,7 +19,6 @@ public class MainApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        Fabric.with(this, new Crashlytics());
 
         RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(this)
                 .name("version0")

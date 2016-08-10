@@ -6,9 +6,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import butterknife.Bind;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
 import miles.scribble.R;
 import miles.scribble.data.event.EventBrushChosen;
 import miles.scribble.ui.widget.BrushPickerLayout;
@@ -18,7 +15,7 @@ import miles.scribble.ui.widget.BrushPickerLayout;
  */
 public class BrushPickerFragment extends BaseFragment implements View.OnClickListener {
 
-    @Bind(R.id.fragment_brush_picker_view) BrushPickerLayout root;
+    BrushPickerLayout root;
 
     private static final Paint curPaint = new Paint();
 
@@ -32,13 +29,11 @@ public class BrushPickerFragment extends BaseFragment implements View.OnClickLis
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_brush_picker, container, false);
-        ButterKnife.bind(this, v);
         root.setPaint(curPaint);
         return v;
     }
 
     @Override
-    @OnClick({R.id.fragment_brush_picker_pos, R.id.fragment_brush_picker_cancel})
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.fragment_brush_picker_pos:
@@ -52,6 +47,5 @@ public class BrushPickerFragment extends BaseFragment implements View.OnClickLis
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        ButterKnife.unbind(this);
     }
 }

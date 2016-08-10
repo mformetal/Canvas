@@ -10,10 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
-
-import butterknife.Bind;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
 import miles.scribble.R;
 import miles.scribble.util.ViewUtils;
 
@@ -22,7 +18,7 @@ import miles.scribble.util.ViewUtils;
  */
 public class LinearFabMenu extends ViewGroup implements View.OnClickListener {
 
-    @Bind(R.id.activity_gallery_options_menu_toggle) Fab toggle;
+    Fab toggle;
 
     private final static int INITIAL_DELAY = 0;
     private final static int DURATION = 400;
@@ -57,7 +53,6 @@ public class LinearFabMenu extends ViewGroup implements View.OnClickListener {
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        ButterKnife.bind(this);
     }
 
     @Override
@@ -129,7 +124,6 @@ public class LinearFabMenu extends ViewGroup implements View.OnClickListener {
     }
 
     @Override
-    @OnClick({R.id.activity_gallery_options_menu_toggle})
     public void onClick(View v) {
         toggleMenu();
     }

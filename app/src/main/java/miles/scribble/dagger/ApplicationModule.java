@@ -2,11 +2,12 @@ package miles.scribble.dagger;
 
 import android.app.Application;
 
+import org.greenrobot.eventbus.EventBus;
+
 import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
-import de.greenrobot.event.EventBus;
 import miles.scribble.data.Datastore;
 
 /**

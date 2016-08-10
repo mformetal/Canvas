@@ -148,7 +148,7 @@ public class LoadingAnimator extends View {
         }
     }
 
-    public void stopAnimation(AnimatorListenerAdapter adapter, int delay) {
+    public void stopAnimation(final AnimatorListenerAdapter adapter, final int delay) {
         ArrayList<Animator> childAnimations = mAnimatorSet.getChildAnimations();
         for (Animator child: childAnimations) {
             ValueAnimator valueAnimator = (ValueAnimator) child;
@@ -173,7 +173,7 @@ public class LoadingAnimator extends View {
                             }
 
                             @Override
-                            public void onAnimationEnd(Animator animation) {
+                            public void onAnimationEnd(final Animator animation) {
                                 Arrays.fill(mAnimatedEnds, mStart);
                                 mAnimatorSet = null;
                                 ViewUtils.gone(LoadingAnimator.this, delay);
@@ -192,13 +192,16 @@ public class LoadingAnimator extends View {
         }
     }
 
-    private Animator createLineAnimation(int index) {
+    private Animator createLineAnimation(final int index) {
         ValueAnimator line = ValueAnimator.ofFloat(mStart, mEnd);
         line.setDuration(1000);
         line.setInterpolator(new DecelerateInterpolator());
-        line.addUpdateListener(animation -> {
-            mAnimatedEnds[index] = (Float) animation.getAnimatedValue();
-            invalidate();
+        line.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                mAnimatedEnds[index] = (Float) animation.getAnimatedValue();
+                invalidate();
+            }
         });
         line.setRepeatCount(ValueAnimator.INFINITE);
         line.setRepeatMode(ValueAnimator.REVERSE);

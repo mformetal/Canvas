@@ -1,15 +1,14 @@
 package miles.scribble.ui.fragment;
 
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.inputmethod.EditorInfo;
+import android.widget.TextView;
 
-import butterknife.Bind;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
 import miles.scribble.R;
 import miles.scribble.data.event.EventTextChosen;
 import miles.scribble.ui.widget.TypefaceEditText;
@@ -20,7 +19,7 @@ import miles.scribble.util.ViewUtils;
  */
 public class TextFragment extends BaseFragment implements View.OnClickListener, TypefaceEditText.BackPressedListener {
 
-    @Bind(R.id.fragment_text_input) TypefaceEditText input;
+    TypefaceEditText input;
 
     public TextFragment() {}
 
@@ -31,37 +30,43 @@ public class TextFragment extends BaseFragment implements View.OnClickListener, 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_text, container, false);
-        ButterKnife.bind(this, v);
         input.setBackPressedListener(this);
-        input.setOnClickListener(v1 -> {
-            View view = (View) getView().getParent();
-
-            int screenHeight = ViewUtils.displayHeight(getActivity());
-            float keyboardPos = screenHeight * .5f;
-            float viewBottom = view.getBottom();
-
-            if (keyboardPos < viewBottom) {
-                view.animate()
-                        .setInterpolator(new AccelerateDecelerateInterpolator())
-                        .translationYBy(-Math.abs(keyboardPos - viewBottom));
-            }
-        });
-        input.setOnEditorActionListener((v1, actionId, event) -> {
-            if (actionId == EditorInfo.IME_ACTION_DONE) {
+        input.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
                 View view = (View) getView().getParent();
-                if (view.getTranslationY() != 0) {
+
+                int screenHeight = ViewUtils.displayHeight(getActivity());
+                float keyboardPos = screenHeight * .5f;
+                float viewBottom = view.getBottom();
+
+                if (keyboardPos < viewBottom) {
                     view.animate()
                             .setInterpolator(new AccelerateDecelerateInterpolator())
-                            .translationY(0);
+                            .translationYBy(-Math.abs(keyboardPos - viewBottom));
                 }
             }
-            return false;
         });
+
+        input.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    View view = (View) getView().getParent();
+                    if (view.getTranslationY() != 0) {
+                        view.animate()
+                                .setInterpolator(new AccelerateDecelerateInterpolator())
+                                .translationY(0);
+                    }
+                }
+                return false;
+            }
+        });
+
         return v;
     }
 
     @Override
-    @OnClick({R.id.fragment_text_pos_button, R.id.fragment_text_neg_button, R.id.fragment_text_input})
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.fragment_text_pos_button:

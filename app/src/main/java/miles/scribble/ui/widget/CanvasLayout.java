@@ -27,12 +27,10 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.LinearLayout;
 import android.widget.Toolbar;
 
+import org.greenrobot.eventbus.EventBus;
+
 import javax.inject.Inject;
 
-import butterknife.Bind;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
-import de.greenrobot.event.EventBus;
 import miles.scribble.MainApp;
 import miles.scribble.R;
 import miles.scribble.data.event.EventBitmapChosen;
@@ -56,13 +54,14 @@ public class CanvasLayout extends CoordinatorLayout implements
         CircleFabMenu.ViewFabMenuListener, DrawingCurve.DrawingCurveListener,
         View.OnClickListener {
 
-    @Bind(R.id.canvas_surface) CanvasSurface drawer;
-    @Bind(R.id.canvas_fab_menu) CircleFabMenu fabMenu;
-    @Bind(R.id.canvas_framelayout_animator) RoundedFrameLayout fabFrame;
-    @Bind(R.id.canvas_text_bitmap) LinearLayout textAndBitmapOptions;
-    @Bind(R.id.canvas_toolbar) Toolbar toolbar;
+    CanvasSurface drawer;
+    CircleFabMenu fabMenu;
+    RoundedFrameLayout fabFrame;
+    LinearLayout textAndBitmapOptions;
+    Toolbar toolbar;
 
-    @Inject EventBus bus;
+    @Inject
+    EventBus bus;
 
     private Rect mRect = new Rect();
     private Paint mShadowPaint;
@@ -111,13 +110,15 @@ public class CanvasLayout extends CoordinatorLayout implements
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        ButterKnife.bind(this);
 
         fabMenu.addListener(this);
         drawer.setListener(this);
-        toolbar.setNavigationOnClickListener(v -> {
-            if (mListener != null) {
-                mListener.onNavigationIconClicked();
+        toolbar.setNavigationOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mListener != null) {
+                    mListener.onNavigationIconClicked();
+                }
             }
         });
     }
@@ -167,7 +168,12 @@ public class CanvasLayout extends CoordinatorLayout implements
                 }
                 break;
             case MotionEvent.ACTION_MOVE:
-                mHandler.postDelayed(() -> ViewUtils.systemUIGone(getRootView()), 350);
+                mHandler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        ViewUtils.systemUIGone(getRootView());
+                    }
+                }, 350);
                 break;
         }
 
@@ -282,8 +288,6 @@ public class CanvasLayout extends CoordinatorLayout implements
     }
 
     @Override
-    @OnClick({R.id.view_options_menu_accept, R.id.view_options_menu_1, R.id.view_options_menu_2,
-                R.id.view_options_menu_cancel})
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.view_options_menu_accept:
@@ -323,10 +327,13 @@ public class CanvasLayout extends CoordinatorLayout implements
     }
 
     private void makeDrawingVisible() {
-        mHandler.postDelayed(() -> {
-            drawer.setEnabled(true);
-            undim();
-            fabMenu.toggleMenu();
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                drawer.setEnabled(true);
+                undim();
+                fabMenu.toggleMenu();
+            }
         }, 200);
     }
 

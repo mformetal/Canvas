@@ -10,12 +10,12 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.ArrayList;
 
 import javax.inject.Inject;
 
-import butterknife.ButterKnife;
-import de.greenrobot.event.EventBus;
 import io.realm.Realm;
 import miles.scribble.MainApp;
 import rx.Subscription;
@@ -26,7 +26,8 @@ import rx.subscriptions.CompositeSubscription;
  */
 public abstract class BaseActivity extends Activity {
 
-    @Inject EventBus bus;
+    @Inject
+    EventBus bus;
     Realm realm;
 
     private CompositeSubscription mCompositeSubscription;
@@ -50,13 +51,11 @@ public abstract class BaseActivity extends Activity {
     @Override
     public void setContentView(int layoutResID) {
         super.setContentView(layoutResID);
-        ButterKnife.bind(this);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        ButterKnife.unbind(this);
         realm.close();
         if (mCompositeSubscription.hasSubscriptions()) {
             mCompositeSubscription.unsubscribe();

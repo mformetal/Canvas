@@ -17,37 +17,12 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:id="@+id/fragment_color_picker_title" />
 
-    <com.larswerkman.holocolorpicker.ColorPicker
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/fragment_color_picker_title"
-        android:layout_centerHorizontal="true"
-        android:id="@+id/fragment_color_picker_view"
-        app:color_wheel_radius="100dp" />
-
-    <com.larswerkman.holocolorpicker.SVBar
-        android:id="@+id/fragment_color_picker_sv"
-        android:layout_below="@id/fragment_color_picker_view"
-        android:layout_marginBottom="@dimen/fragment_color_picker_vertical_margin"
-        android:layout_centerHorizontal="true"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-
-    <com.larswerkman.holocolorpicker.OpacityBar
-        android:id="@+id/fragment_color_picker_opacity"
-        android:layout_below="@id/fragment_color_picker_sv"
-        android:layout_marginBottom="@dimen/fragment_color_picker_vertical_margin"
-        android:layout_centerHorizontal="true"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
-
     <miles.scribble.ui.widget.TypefaceButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/fragment_color_picker_choose"
         android:textColor="@android:color/white"
         android:id="@+id/fragment_color_picker_select"
-        android:layout_below="@id/fragment_color_picker_opacity"
         android:layout_alignParentEnd="true"
         style="?android:attr/borderlessButtonStyle"
         android:background="?android:attr/selectableItemBackground" />
@@ -59,7 +34,6 @@
         android:textColor="@android:color/white"
         android:id="@+id/fragment_color_picker_cancel"
         android:layout_toStartOf="@id/fragment_color_picker_select"
-        android:layout_below="@id/fragment_color_picker_opacity"
         style="?android:attr/borderlessButtonStyle"
         android:background="?android:attr/selectableItemBackground"/>
 

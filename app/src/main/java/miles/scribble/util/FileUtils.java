@@ -29,7 +29,7 @@ public class FileUtils {
 
     private static ArrayList<String> mFilenames;
 
-    public static Observable<byte[]> compress(Bitmap bitmap) {
+    public static Observable<byte[]> compress(final Bitmap bitmap) {
         return Observable.create(new Observable.OnSubscribe<byte[]>() {
             @Override
             public void call(Subscriber<? super byte[]> subscriber) {
@@ -46,7 +46,7 @@ public class FileUtils {
         });
     }
 
-    public static Observable<byte[]> cache(Bitmap bitmap, Context context) {
+    public static Observable<byte[]> cache(final Bitmap bitmap, final Context context) {
         return Observable.create(new Observable.OnSubscribe<byte[]>() {
             @Override
             public void call(Subscriber<? super byte[]> subscriber) {

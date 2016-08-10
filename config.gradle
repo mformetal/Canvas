@@ -1,0 +1,54 @@
+ext {
+    buildToolsVersion = "23.0.2"
+    minSdkVersion = 21
+    targetSdkVersion = 23
+    compileSdkVersion = 23
+    versionCode = 1
+    versionName = "1.0"
+    applicationId = "miles.scribble"
+
+    daggerVersion = '2.6'
+    androidSupportVersion = '23.3.0'
+    gsonVersion = '2.5'
+    retrofitVersion = '2.0.0-beta3'
+    okHttpVersion = '3.2.0'
+    javaxInjectVersion = '1'
+    javaxAnnotationVersion = '10.0-b28'
+    glideVersion = '3.7.0'
+    guavaVersion = '19.0'
+    rxJavaVersion = '1.0.14'
+    rxAndroidVersion = '1.1.0'
+    eventBusVersion = '3.0.0'
+    circleImageViewVersion = '2.1.0'
+    autofitTextViewVersion = '0.2.1'
+
+    // Dependencies
+    dagger = "com.google.dagger:dagger:${daggerVersion}"
+    daggerCompiler = "com.google.dagger:dagger-compiler:${daggerVersion}"
+    javaxInject = "javax.inject:javax.inject:${javaxInjectVersion}"
+    javaxAnnotation = "org.glassfish:javax.annotation:${javaxAnnotationVersion}"
+
+    gson = "com.google.code.gson:gson:${gsonVersion}"
+    guava = "com.google.guava:guava:${guavaVersion}"
+
+    eventBus = "org.greenrobot:eventbus:${eventBusVersion}"
+
+    rxJava = "io.reactivex:rxjava:${rxJavaVersion}"
+    rxAndroid = "io.reactivex:rxandroid:${rxAndroidVersion}"
+
+    appCompat = "com.android.support:appcompat-v7:${androidSupportVersion}"
+    recyclerView = "com.android.support:recyclerview-v7:${androidSupportVersion}"
+    supportDesign = "com.android.support:design:${androidSupportVersion}"
+    supportAnnotation = "com.android.support:support-annotations:${androidSupportVersion}"
+
+    retrofit = "com.squareup.retrofit2:retrofit:${retrofitVersion}"
+    retrofitGson = "com.squareup.retrofit2:converter-gson:${retrofitVersion}"
+    retrofitRx = "com.squareup.retrofit2:adapter-rxjava:${retrofitVersion}"
+    httpLoggingInterceptor = "com.squareup.okhttp3:logging-interceptor:${okHttpVersion}"
+
+    glide = "com.github.bumptech.glide:glide:${glideVersion}"
+
+    circleImageView = "de.hdodenhof:circleimageview:${circleImageViewVersion}"
+
+    autoFitTextView = "me.grantland:autofittextview:${autofitTextViewVersion}"
+}

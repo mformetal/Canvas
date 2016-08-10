@@ -27,8 +27,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
 
-import butterknife.Bind;
-import butterknife.ButterKnife;
 import miles.scribble.R;
 import miles.scribble.data.event.EventBitmapChosen;
 import miles.scribble.data.event.EventFilenameChosen;
@@ -63,9 +61,9 @@ public class HomeActivity extends BaseActivity
     private final static int REQUEST_CAMERA_CODE = 2002;
     private final static int REQUEST_PERMISSION_CAMERA_CODE = 2003;
 
-    @Bind(R.id.activity_home_drawer_layout) DrawerLayout drawerLayout;
-    @Bind(R.id.activity_home_canvas_root) CanvasLayout canvasLayout;
-    @Bind(R.id.activity_home_navigation) NavigationView navigationView;
+    DrawerLayout drawerLayout;
+    CanvasLayout canvasLayout;
+    NavigationView navigationView;
 
     private RoundedFrameLayout fabFrame;
     private FragmentManager manager;
@@ -115,43 +113,6 @@ public class HomeActivity extends BaseActivity
     }
 
     @Override
-    public void onBackPressed() {
-        // UGLY, but popBackStack() results in a weird exception on certain devices
-        // https://code.google.com/p/android/issues/detail?id=82832
-
-        if (count == 0) {
-            if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-                drawerLayout.closeDrawer(GravityCompat.START);
-                return;
-            }
-
-            Dialog builder = new Dialog(this);
-            builder.setContentView(R.layout.dialog_save);
-            builder.findViewById(R.id.dialog_save_drawing).setOnClickListener(v -> {
-                builder.dismiss();
-                canvasLayout.unrevealAndSave();
-            });
-            builder.findViewById(R.id.dialog_exit_app).setOnClickListener(v -> {
-                super.onBackPressed();
-            });
-            builder.show();
-        } else {
-            BaseFragment fragment = (BaseFragment)
-                    manager.findFragmentById(R.id.canvas_framelayout_animator);
-            boolean shouldLetFragmentHandle = fragment.onBackPressed();
-            if (!shouldLetFragmentHandle) {
-                ViewUtils.systemUIGone(getWindow().getDecorView());
-
-                count--;
-
-                FragmentTransaction ft = getFragmentManager().beginTransaction();
-                ft.replace(R.id.canvas_framelayout_animator, new Fragment());
-                ft.commit();
-            }
-        }
-    }
-
-    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
@@ -183,15 +144,8 @@ public class HomeActivity extends BaseActivity
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        new Handler().postDelayed(() -> ViewUtils.systemUIGone(getWindow().getDecorView()), 350);
-    }
-
-    @Override
     protected void onDestroy() {
         super.onDestroy();
-        ButterKnife.unbind(this);
         FileUtils.deleteTemporaryFiles(this);
     }
 
@@ -261,8 +215,8 @@ public class HomeActivity extends BaseActivity
     }
 
     @SuppressWarnings("unused, unchecked")
-    public void onEvent(EventFilenameChosen eventFilenameChosen) {
-        Fab saver = (Fab) findViewById(R.id.menu_upload);
+    public void onEvent(final EventFilenameChosen eventFilenameChosen) {
+        final Fab saver = (Fab) findViewById(R.id.menu_upload);
         SafeSubscription<byte[]> safeSubscription = new SafeSubscription<byte[]>(this) {
             @Override
             public void onError(Throwable e) {
@@ -401,15 +355,21 @@ public class HomeActivity extends BaseActivity
     }
 
     private void showImageChooser() {
-        Dialog builder = new Dialog(this);
+        final Dialog builder = new Dialog(this);
         builder.setContentView(R.layout.dialog_image_chooser);
-        builder.findViewById(R.id.dialog_from_camera).setOnClickListener(v -> {
-            builder.dismiss();
-            showCamera();
+        builder.findViewById(R.id.dialog_from_camera).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                builder.dismiss();
+                showCamera();
+            }
         });
-        builder.findViewById(R.id.dialog_from_gallery).setOnClickListener(v -> {
-            builder.dismiss();
-            showGallery();
+        builder.findViewById(R.id.dialog_from_gallery).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                builder.dismiss();
+                showGallery();
+            }
         });
         builder.show();
     }

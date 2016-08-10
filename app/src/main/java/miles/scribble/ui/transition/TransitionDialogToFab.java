@@ -40,8 +40,8 @@ public class TransitionDialogToFab extends ChangeBounds {
         int endColor = Color.WHITE;
 
         List<View> views = getTargets();
-        View fab = views.get(0);
-        RoundedFrameLayout fabFrame = (RoundedFrameLayout) views.get(1);
+        final View fab = views.get(0);
+        final RoundedFrameLayout fabFrame = (RoundedFrameLayout) views.get(1);
         CanvasLayout layout = (CanvasLayout) views.get(2);
 
         float fabRadius = ViewUtils.radius(fab);
