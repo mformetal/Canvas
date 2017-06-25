@@ -24,7 +24,6 @@ import android.widget.LinearLayout;
 import android.widget.Toolbar;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import miles.scribble.MainApp;
 import miles.scribble.R;
 import miles.scribble.home.HomeActivity;
 import miles.scribble.home.drawing.DrawingCurve;
@@ -76,8 +75,6 @@ public class CanvasLayout extends CoordinatorLayout implements
     }
 
     private void init() {
-        ((MainApp) getContext().getApplicationContext()).getApplicationComponent().inject(this);
-
         mHandler = new Handler();
 
         mShadowPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -308,7 +305,7 @@ public class CanvasLayout extends CoordinatorLayout implements
         }, 200);
     }
 
-    public void dim() {
+    void dim() {
         Animator alpha = ObjectAnimator.ofInt(this, ALPHA, 64).setDuration(200);
 
         Animator radius = ObjectAnimator.ofFloat(this, RADIUS, getHeight()).setDuration(200);
@@ -326,7 +323,7 @@ public class CanvasLayout extends CoordinatorLayout implements
         set.start();
     }
 
-    public void undim() {
+    void undim() {
         Animator alpha = ObjectAnimator.ofInt(this, ALPHA, 0).setDuration(400);
 
         Animator radius = ObjectAnimator.ofFloat(this, RADIUS, 0).setDuration(400);
@@ -350,7 +347,7 @@ public class CanvasLayout extends CoordinatorLayout implements
 
     public int getBackgroundColor() { return drawer.getBackgroundColor(); }
 
-    public Bitmap getDrawerBitmap() {
+    private Bitmap getDrawerBitmap() {
         return drawer.getDrawingBitmap();
     }
 
@@ -397,19 +394,16 @@ public class CanvasLayout extends CoordinatorLayout implements
     }
 
     private boolean isSystemUISwipe(MotionEvent event) {
-        if (event.getY() <= getResources().getDimension(R.dimen.system_ui_scrim)) {
+        float scrim = getResources().getDimension(R.dimen.system_ui_scrim);
+
+        if (event.getY() <= scrim) {
             return true;
         }
 
-        if (event.getY() >=
-                getHeight() - getResources().getDimension(R.dimen.system_ui_scrim)) {
-            return true;
-        }
-
-        return false;
+        return event.getY() >= getHeight() - scrim;
     }
 
-    public static final Property<CanvasLayout, Integer> ALPHA = new ViewUtils.IntProperty<CanvasLayout>("alpha") {
+    private static final Property<CanvasLayout, Integer> ALPHA = new ViewUtils.IntProperty<CanvasLayout>("alpha") {
 
         @Override
         public void setValue(CanvasLayout layout, int value) {

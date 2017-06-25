@@ -8,7 +8,8 @@ import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.inputmethod.EditorInfo;
 import android.widget.TextView;
-
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import miles.scribble.R;
 import miles.scribble.ui.BaseFragment;
 import miles.scribble.ui.widget.OnBackPressedEditText;
@@ -19,7 +20,7 @@ import miles.scribble.util.ViewUtils;
  */
 public class FilenameFragment extends BaseFragment implements View.OnClickListener, OnBackPressedEditText.BackPressedListener {
 
-    OnBackPressedEditText input;
+    @BindView(R.id.fragment_filename_input) OnBackPressedEditText input;
 
     public FilenameFragment() {}
 
@@ -30,6 +31,8 @@ public class FilenameFragment extends BaseFragment implements View.OnClickListen
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_filename, container, false);
+        ButterKnife.bind(this, v);
+
         input.setBackPressedListener(this);
         input.setOnClickListener(new View.OnClickListener() {
             @Override

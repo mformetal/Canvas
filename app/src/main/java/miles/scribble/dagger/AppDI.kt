@@ -33,9 +33,4 @@ interface ApplicationComponent {
 
     fun inject(drawingCurve: DrawingCurve)
 
-    fun inject(viewFabMenu: CircleFabMenu)
-
-    fun inject(canvasLayout: CanvasLayout)
-
-    fun inject(fragment: BaseFragment)
 }

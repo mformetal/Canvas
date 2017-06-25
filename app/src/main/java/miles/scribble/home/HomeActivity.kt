@@ -15,6 +15,8 @@ import android.support.v4.view.GravityCompat
 import android.support.v4.widget.DrawerLayout
 import android.view.MenuItem
 import android.view.View
+import butterknife.BindView
+import butterknife.ButterKnife
 import kotlinx.android.synthetic.main.activity_home.*
 
 import java.io.File
@@ -36,26 +38,29 @@ import miles.scribble.util.ViewUtils
 
 class HomeActivity : BaseActivity(), CanvasLayoutListener, NavigationView.OnNavigationItemSelectedListener {
 
-    lateinit internal var canvasLayout: CanvasLayout
-    lateinit private var fabFrame: RoundedFrameLayout
+    private val TAG_FRAGMENT_COLOR_PICKER = "color"
+    private val TAG_FRAGMENT_FILENAME = "name"
+    private val TAG_FRAGMENT_BRUSH = "brush"
+    private val TAG_FRAGMENT_TEXT = "text"
+    private val REQUEST_IMPORT_CODE = 2001
+    private val REQUEST_CAMERA_CODE = 2002
+    private val REQUEST_PERMISSION_CAMERA_CODE = 2003
 
-    private var filePath: String = ""
-
-    private var count: Int = 0
+    @BindView(R.id.canvas) lateinit var canvasLayout: CanvasLayout
+    @BindView(R.id.canvas_framelayout_animator) lateinit var fabFrame: RoundedFrameLayout
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
 
-        ViewUtils.systemUIGone(window.decorView)
+        ButterKnife.bind(this)
 
-        canvasLayout = findViewById(R.id.canvas) as CanvasLayout
-        fabFrame = findViewById(R.id.canvas_framelayout_animator) as RoundedFrameLayout
+        ViewUtils.systemUIGone(window.decorView)
 
         root.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
         navigation.setNavigationItemSelectedListener(this)
 
-        root.setDrawerListener(object : DrawerLayout.SimpleDrawerListener() {
+        root.addDrawerListener(object : DrawerLayout.SimpleDrawerListener() {
             override fun onDrawerOpened(drawerView: View?) {
                 window.decorView.systemUIVisibile()
             }
@@ -66,16 +71,6 @@ class HomeActivity : BaseActivity(), CanvasLayoutListener, NavigationView.OnNavi
         })
 
         canvasLayout.setActivityListener(this)
-    }
-
-    override fun onSaveInstanceState(outState: Bundle, outPersistentState: PersistableBundle) {
-        super.onSaveInstanceState(outState, outPersistentState)
-        outState.putString("filePath", filePath)
-    }
-
-    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        super.onRestoreInstanceState(savedInstanceState)
-        filePath = savedInstanceState.getString("filePath")
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
@@ -104,14 +99,7 @@ class HomeActivity : BaseActivity(), CanvasLayoutListener, NavigationView.OnNavi
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        FileUtils.deleteTemporaryFiles(this)
-    }
-
     override fun onFabMenuButtonClicked(view: View) {
-        fabFrame = findViewById(R.id.canvas_framelayout_animator) as RoundedFrameLayout
-
         when (view.id) {
             R.id.menu_brush -> showBrushChooser(view)
             R.id.menu_stroke_color -> showColorChooser(view, false)
@@ -162,8 +150,6 @@ class HomeActivity : BaseActivity(), CanvasLayoutListener, NavigationView.OnNavi
         supportFragmentManager.beginTransaction()
                 .replace(R.id.canvas_framelayout_animator, picker, TAG_FRAGMENT_BRUSH)
                 .commit()
-
-        count++
     }
 
     private fun showColorChooser(view: View, toFill: Boolean) {
@@ -179,8 +165,6 @@ class HomeActivity : BaseActivity(), CanvasLayoutListener, NavigationView.OnNavi
         supportFragmentManager.beginTransaction()
                 .replace(R.id.canvas_framelayout_animator, picker, TAG_FRAGMENT_COLOR_PICKER)
                 .commit()
-
-        count++
     }
 
     private fun showTextFragment(view: View) {
@@ -195,8 +179,6 @@ class HomeActivity : BaseActivity(), CanvasLayoutListener, NavigationView.OnNavi
         supportFragmentManager.beginTransaction()
                 .replace(R.id.canvas_framelayout_animator, text, TAG_FRAGMENT_TEXT)
                 .commit()
-
-        count++
     }
 
     private fun showFilenameFragment(view: View) {
@@ -207,8 +189,6 @@ class HomeActivity : BaseActivity(), CanvasLayoutListener, NavigationView.OnNavi
         supportFragmentManager.beginTransaction()
                 .replace(R.id.canvas_framelayout_animator, filename, TAG_FRAGMENT_FILENAME)
                 .commit()
-
-        count++
     }
 
     private fun showGallery() {
@@ -227,7 +207,6 @@ class HomeActivity : BaseActivity(), CanvasLayoutListener, NavigationView.OnNavi
                     var photoFile: File? = null
                     try {
                         photoFile = FileUtils.createPhotoFile()
-                        filePath = photoFile.absolutePath
                     } catch (e: IOException) {
                     }
 
@@ -254,16 +233,5 @@ class HomeActivity : BaseActivity(), CanvasLayoutListener, NavigationView.OnNavi
             showGallery()
         }
         builder.show()
-    }
-
-    companion object {
-
-        private val TAG_FRAGMENT_COLOR_PICKER = "color"
-        private val TAG_FRAGMENT_FILENAME = "name"
-        private val TAG_FRAGMENT_BRUSH = "brush"
-        private val TAG_FRAGMENT_TEXT = "text"
-        private val REQUEST_IMPORT_CODE = 2001
-        private val REQUEST_CAMERA_CODE = 2002
-        private val REQUEST_PERMISSION_CAMERA_CODE = 2003
     }
 }

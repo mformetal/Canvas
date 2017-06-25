@@ -31,7 +31,8 @@
         android:id="@+id/canvas_fab_menu"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|center_horizontal" />
+        android:layout_gravity="bottom|center_horizontal"
+        app:layout_behavior="miles.scribble.ui.widget.FabMenuBehavior" />
 
     <include
         layout="@layout/canvas_text_bitmap_options"
@@ -39,6 +40,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center_horizontal"
-        android:visibility="gone" />
+        android:visibility="gone"
+        app:layout_behavior="miles.scribble.ui.widget.FabMenuBehavior" />
 
 </miles.scribble.ui.widget.CanvasLayout>

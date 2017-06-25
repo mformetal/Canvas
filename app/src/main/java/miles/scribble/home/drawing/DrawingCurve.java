@@ -12,6 +12,9 @@ import android.view.MotionEvent;
 import miles.scribble.MainApp;
 import miles.scribble.R;
 import miles.scribble.data.Datastore;
+import miles.scribble.home.drawing.drawhistory.BitmapDrawHistory;
+import miles.scribble.home.drawing.drawhistory.NormalDrawHistory;
+import miles.scribble.home.drawing.drawhistory.TextDrawHistory;
 import miles.scribble.util.FileUtils;
 import miles.scribble.util.PaintStyles;
 import miles.scribble.util.ViewUtils;
@@ -316,7 +319,7 @@ public class DrawingCurve {
         switch (mState) {
             case ERASE:
             case DRAW:
-                mAllHistory.push(new NormalDrawHistory(mStroke, mStroke.paint));
+                mAllHistory.push(new NormalDrawHistory(mStroke, mStroke.getPaint()));
                 mStroke.clear();
                 break;
             case INK:
@@ -536,11 +539,11 @@ public class DrawingCurve {
     private void setPaintColor(int color) {
         mTextPaint.setColor(color);
         mPaint.setColor(color);
-        mStroke.paint.setColor(color);
+        mStroke.getPaint().setColor(color);
     }
 
     private void setPaintThickness(float floater) {
         mPaint.setStrokeWidth(floater);
-        mStroke.paint.setStrokeWidth(floater);
+        mStroke.getPaint().setStrokeWidth(floater);
     }
 }

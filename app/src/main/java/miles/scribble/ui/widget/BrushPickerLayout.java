@@ -11,6 +11,8 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import miles.scribble.R;
 import miles.scribble.data.adapter.BrushPickerAdapter;
 import miles.scribble.ui.RecyclerClickListener;
@@ -25,8 +27,8 @@ import java.util.ArrayList;
  */
 public class BrushPickerLayout extends LinearLayout implements RecyclerClickListener.OnItemClickListener {
 
-    BrushExample mainExample;
-    RecyclerView recycler;
+    @BindView(R.id.fragment_brush_picker_view_example) BrushExample mainExample;
+    @BindView(R.id.fragment_brush_picker_view_recycler) RecyclerView recycler;
 
     private Paint lastSelectedPaint;
     private int trueColor;
@@ -60,6 +62,8 @@ public class BrushPickerLayout extends LinearLayout implements RecyclerClickList
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
+
+        ButterKnife.bind(this);
 
         recycler.setHasFixedSize(true);
         recycler.setLayoutManager(new StaggeredGridLayoutManager(3, VERTICAL));

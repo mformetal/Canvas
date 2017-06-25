@@ -19,7 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
 
-        <android.support.design.widget.TextInputEditText
+        <miles.scribble.ui.widget.OnBackPressedEditText
             android:id="@+id/fragment_text_input"
             android:gravity="center"
             android:layout_gravity="center"
@@ -32,7 +32,7 @@
 
     </android.support.design.widget.TextInputLayout>
 
-    <miles.scribble.ui.widget.TypefaceButton
+    <Button
         android:id="@+id/fragment_text_pos_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -43,7 +43,7 @@
         android:paddingBottom="@dimen/activity_horizontal_margin"
         style="?android:attr/borderlessButtonStyle" />
 
-    <miles.scribble.ui.widget.TypefaceButton
+    <Button
         android:id="@+id/fragment_text_neg_button"
         android:layout_width="wrap_content"
         android:layout_below="@id/fragment_text_input_layout"

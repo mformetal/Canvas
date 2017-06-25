@@ -5,13 +5,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import miles.scribble.R;
 import miles.scribble.ui.BaseFragment;
 
 public class ColorPickerFragment extends BaseFragment
         implements View.OnClickListener {
 
-    TextView title;
+    @BindView(R.id.fragment_color_picker_title) TextView title;
 
     private int currentColor;
 
@@ -30,6 +32,7 @@ public class ColorPickerFragment extends BaseFragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_color_picker, container, false);
+        ButterKnife.bind(this, v);
 
         currentColor = getArguments().getInt("prev");
 

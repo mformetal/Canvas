@@ -17,7 +17,6 @@ import android.view.animation.OvershootInterpolator;
 import butterknife.BindView;
 import butterknife.BindViews;
 import butterknife.ButterKnife;
-import miles.scribble.MainApp;
 import miles.scribble.R;
 import miles.scribble.util.Circle;
 import miles.scribble.util.ViewUtils;
@@ -87,8 +86,6 @@ public class CircleFabMenu extends ViewGroup implements View.OnClickListener {
     }
 
     private void init() {
-        ((MainApp) getContext().getApplicationContext()).getApplicationComponent().inject(this);
-
         mListeners = new ArrayList<>();
 
         mItemPositions = new ArrayList<>();
