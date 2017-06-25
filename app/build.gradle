@@ -1,31 +1,31 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
+apply plugin: 'kotlin-android-extensions'
 apply plugin: 'realm-android'
 
 def config = rootProject.extensions.getByName("ext")
 
 android {
-    compileSdkVersion config.getAt("compileSdkVersion")
-    buildToolsVersion config.getAt("buildToolsVersion")
+    compileSdkVersion config["compileSdkVersion"]
+    buildToolsVersion config["buildToolsVersion"]
 
     defaultConfig {
-        minSdkVersion config.getAt("minSdkVersion")
-        targetSdkVersion config.getAt("targetSdkVersion")
-        applicationId config.getAt("applicationId") + ".app"
+        minSdkVersion config["minSdkVersion"]
+        targetSdkVersion config["targetSdkVersion"]
+        applicationId config["applicationId"] + ".app"
     }
 
     lintOptions {
         abortOnError false
     }
-
-    dataBinding {
-        enabled true
-    }
 }
 
 dependencies {
     compile config.kotlinStdLib
+
+    compile config.butterKnife
+    kapt config.butterKnifeApt
 
     kapt config.daggerCompiler
     provided config.javaxInject

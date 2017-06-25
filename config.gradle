@@ -19,15 +19,18 @@ ext {
     eventBusVersion = '3.0.0'
     circleImageViewVersion = '2.1.0'
     autofitTextViewVersion = '0.2.1'
+    butterKnifeVersion = '8.6.0'
 
     kotlinVersion = '1.1.2'
     kotlinStdLib = "org.jetbrains.kotlin:kotlin-stdlib-jre7:${kotlinVersion}"
     kotlinReflect = "org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}"
 
-    // Dependencies
     dagger = "com.google.dagger:dagger:${daggerVersion}"
     daggerCompiler = "com.google.dagger:dagger-compiler:${daggerVersion}"
     javaxInject = "javax.annotation:jsr250-api:1.0"
+
+    butterKnife = "com.jakewharton:butterknife:${butterKnifeVersion}"
+    butterKnifeApt = "com.jakewharton:butterknife-compiler:${butterKnifeVersion}"
 
     gson = "com.google.code.gson:gson:${gsonVersion}"
     guava = "com.google.guava:guava:${guavaVersion}"

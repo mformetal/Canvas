@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.annotation.StringRes;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
 import org.greenrobot.eventbus.EventBus;
@@ -24,7 +25,7 @@ import rx.subscriptions.CompositeSubscription;
 /**
  * Created by milespeele on 7/14/15.
  */
-public abstract class BaseActivity extends Activity {
+public abstract class BaseActivity extends AppCompatActivity {
 
     @Inject
     EventBus bus;
@@ -32,8 +33,6 @@ public abstract class BaseActivity extends Activity {
 
     private CompositeSubscription mCompositeSubscription;
     private ArrayList<Subscription> mRemovableSubscriptions;
-
-    public final static int REQUEST_AUTHENTICATION_CODE = 2004;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -100,7 +100,6 @@ public class DrawingCurve {
 
     public DrawingCurve(Context context) {
         ((MainApp) context.getApplicationContext()).getApplicationComponent().inject(this);
-        bus.register(this);
 
         mContext = context;
 

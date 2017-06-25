@@ -28,7 +28,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="30dp"
         app:layout_anchorGravity="center"
-        app:layout_anchor="@id/activity_home_canvas_root" />
+        app:layout_anchor="@id/canvas_surface" />
 
     <include
         layout="@layout/canvas_fab_menu"
@@ -38,7 +38,7 @@
         android:layout_gravity="bottom|center_horizontal"
         app:layout_behavior="miles.scribble.ui.widget.FabMenuBehavior"
         app:layout_anchorGravity="bottom|center_horizontal"
-        app:layout_anchor="@id/activity_home_canvas_root" />
+        app:layout_anchor="@id/canvas_surface" />
 
     <include
         layout="@layout/canvas_text_bitmap_options"
@@ -49,6 +49,6 @@
         android:layout_gravity="bottom|center_horizontal"
         app:layout_behavior="miles.canvas.ui.widget.FabMenuBehavior"
         app:layout_anchorGravity="bottom|center_horizontal"
-        app:layout_anchor="@id/activity_home_canvas_root" />
+        app:layout_anchor="@id/canvas_surface" />
 
 </miles.scribble.ui.widget.CanvasLayout>

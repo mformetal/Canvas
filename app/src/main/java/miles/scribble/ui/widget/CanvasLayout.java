@@ -6,12 +6,7 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BlurMaskFilter;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Rect;
+import android.graphics.*;
 import android.os.Handler;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
@@ -22,30 +17,24 @@ import android.view.MotionEvent;
 import android.view.SoundEffectConstants;
 import android.view.View;
 import android.view.ViewAnimationUtils;
-import android.view.ViewTreeObserver;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.LinearLayout;
 import android.widget.Toolbar;
-
-import org.greenrobot.eventbus.EventBus;
-
-import javax.inject.Inject;
-
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import miles.scribble.MainApp;
 import miles.scribble.R;
-import miles.scribble.data.event.EventBitmapChosen;
-import miles.scribble.data.event.EventClearCanvas;
-import miles.scribble.data.event.EventColorChosen;
-import miles.scribble.data.event.EventFilenameChosen;
-import miles.scribble.data.event.EventTextChosen;
+import miles.scribble.data.event.*;
 import miles.scribble.rx.SafeSubscription;
 import miles.scribble.ui.activity.HomeActivity;
 import miles.scribble.ui.drawing.DrawingCurve;
 import miles.scribble.util.FileUtils;
-import miles.scribble.util.Logg;
 import miles.scribble.util.ViewUtils;
+import org.greenrobot.eventbus.EventBus;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
+
+import javax.inject.Inject;
 
 /**
  * Created by milespeele on 8/7/15.
@@ -54,11 +43,11 @@ public class CanvasLayout extends CoordinatorLayout implements
         CircleFabMenu.ViewFabMenuListener, DrawingCurve.DrawingCurveListener,
         View.OnClickListener {
 
-    CanvasSurface drawer;
-    CircleFabMenu fabMenu;
-    RoundedFrameLayout fabFrame;
-    LinearLayout textAndBitmapOptions;
-    Toolbar toolbar;
+    @BindView(R.id.canvas_surface) CanvasSurface drawer;
+    @BindView(R.id.canvas_fab_menu) CircleFabMenu fabMenu;
+    @BindView(R.id.canvas_framelayout_animator) RoundedFrameLayout fabFrame;
+    @BindView(R.id.canvas_text_bitmap) LinearLayout textAndBitmapOptions;
+    @BindView(R.id.canvas_toolbar)  Toolbar toolbar;
 
     @Inject
     EventBus bus;
@@ -93,7 +82,6 @@ public class CanvasLayout extends CoordinatorLayout implements
 
     private void init() {
         ((MainApp) getContext().getApplicationContext()).getApplicationComponent().inject(this);
-        bus.register(this);
 
         mHandler = new Handler();
 
@@ -110,6 +98,8 @@ public class CanvasLayout extends CoordinatorLayout implements
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
+
+        ButterKnife.bind(this);
 
         fabMenu.addListener(this);
         drawer.setListener(this);

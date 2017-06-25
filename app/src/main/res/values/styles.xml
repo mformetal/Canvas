@@ -14,15 +14,6 @@
 
     <style name="Canvas.Widget" parent="android:Widget" />
 
-    <style name="Canvas.HomeActivity" parent="Canvas" >
-        <item name="android:windowBackground">@color/accent</item>
-        <item name="android:listDivider">@color/divider</item>
-    </style>
-
-    <style name="Canvas.GalleryActivity" parent="Canvas" >
-        <item name="android:windowBackground">@color/gallery_activity_background</item>
-    </style>
-
     <style name="Canvas.Widget.DrawerToolbar" parent="@android:style/ThemeOverlay.Material.Dark.ActionBar">
         <item name="android:titleTextAppearance">@android:style/TextAppearance.Material.Widget.ActionBar.Title</item>
         <item name="android:elevation">@dimen/fab_elevation</item>

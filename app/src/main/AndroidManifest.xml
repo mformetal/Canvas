@@ -19,8 +19,7 @@
         <activity
             android:name="miles.scribble.ui.activity.HomeActivity"
             android:windowSoftInputMode="stateHidden|adjustNothing"
-            android:screenOrientation="portrait"
-            android:theme="@style/Canvas.HomeActivity" >
+            android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -29,12 +28,7 @@
 
         <activity
             android:name="miles.scribble.ui.activity.GalleryActivity"
-            android:windowSoftInputMode="stateHidden"
-            android:theme="@style/Canvas.GalleryActivity" />
-
-        <meta-data
-            android:name="io.fabric.ApiKey"
-            android:value="a8993ecce733fbb6ed9eab0eadea21ecea038c13" />
+            android:windowSoftInputMode="stateHidden" />
 
     </application>
 

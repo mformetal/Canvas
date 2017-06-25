@@ -1,10 +1,6 @@
 package miles.scribble.ui.widget;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
-import android.animation.PropertyValuesHolder;
+import android.animation.*;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
@@ -17,35 +13,35 @@ import android.view.animation.AnticipateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.view.animation.OvershootInterpolator;
-
-import org.greenrobot.eventbus.EventBus;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
-import javax.inject.Inject;
-
+import butterknife.BindView;
+import butterknife.BindViews;
+import butterknife.ButterKnife;
 import miles.scribble.MainApp;
 import miles.scribble.R;
 import miles.scribble.data.event.EventBrushChosen;
 import miles.scribble.data.event.EventColorChosen;
 import miles.scribble.util.Circle;
 import miles.scribble.util.ViewUtils;
+import org.greenrobot.eventbus.EventBus;
+
+import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * Created by milespeele on 8/7/15.
  */
 public class CircleFabMenu extends ViewGroup implements View.OnClickListener {
 
-    Fab toggle;
-    Fab eraser;
-    Fab saver;
+    @BindView(R.id.menu_toggle) Fab toggle;
+    @BindView(R.id.menu_erase) Fab eraser;
+    @BindView(R.id.menu_upload) Fab saver;
 
-//    @Bind({R.id.menu_upload, R.id.menu_text, R.id.menu_stroke_color, R.id.menu_canvas_color,
-//            R.id.menu_ink, R.id.menu_brush, R.id.menu_undo, R.id.menu_redo, R.id.menu_erase,
-//            R.id.menu_image})
+    @BindViews({R.id.menu_upload, R.id.menu_text, R.id.menu_stroke_color, R.id.menu_canvas_color,
+            R.id.menu_ink, R.id.menu_brush, R.id.menu_undo, R.id.menu_redo, R.id.menu_erase,
+            R.id.menu_image})
     List<Fab> buttonsList;
 
     @Inject
@@ -97,7 +93,6 @@ public class CircleFabMenu extends ViewGroup implements View.OnClickListener {
 
     private void init() {
         ((MainApp) getContext().getApplicationContext()).getApplicationComponent().inject(this);
-        bus.register(this);
 
         mListeners = new ArrayList<>();
 
@@ -112,6 +107,7 @@ public class CircleFabMenu extends ViewGroup implements View.OnClickListener {
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
+        ButterKnife.bind(this);
         toggle.setRotation(45);
     }
 
