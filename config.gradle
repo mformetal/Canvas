@@ -1,32 +1,33 @@
 ext {
-    buildToolsVersion = "23.0.2"
+    buildToolsVersion = "26.0.0"
+    jdkVersion = '1.8'
     minSdkVersion = 21
-    targetSdkVersion = 23
-    compileSdkVersion = 23
-    versionCode = 1
-    versionName = "1.0"
+    targetSdkVersion = 26
+    compileSdkVersion = 26
     applicationId = "miles.scribble"
 
-    daggerVersion = '2.6'
-    androidSupportVersion = '23.3.0'
-    gsonVersion = '2.5'
-    retrofitVersion = '2.0.0-beta3'
-    okHttpVersion = '3.2.0'
-    javaxInjectVersion = '1'
+    daggerVersion = '2.9'
+    androidSupportVersion = '26.0.0-alpha1'
+    gsonVersion = '2.8.1'
+    retrofitVersion = '2.3.0'
+    okHttpVersion = '3.8.1'
     javaxAnnotationVersion = '10.0-b28'
-    glideVersion = '3.7.0'
-    guavaVersion = '19.0'
+    glideVersion = '4.0.0-RC1'
+    guavaVersion = '22.0-android'
     rxJavaVersion = '1.0.14'
     rxAndroidVersion = '1.1.0'
     eventBusVersion = '3.0.0'
     circleImageViewVersion = '2.1.0'
     autofitTextViewVersion = '0.2.1'
 
+    kotlinVersion = '1.1.2'
+    kotlinStdLib = "org.jetbrains.kotlin:kotlin-stdlib-jre7:${kotlinVersion}"
+    kotlinReflect = "org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}"
+
     // Dependencies
     dagger = "com.google.dagger:dagger:${daggerVersion}"
     daggerCompiler = "com.google.dagger:dagger-compiler:${daggerVersion}"
-    javaxInject = "javax.inject:javax.inject:${javaxInjectVersion}"
-    javaxAnnotation = "org.glassfish:javax.annotation:${javaxAnnotationVersion}"
+    javaxInject = "javax.annotation:jsr250-api:1.0"
 
     gson = "com.google.code.gson:gson:${gsonVersion}"
     guava = "com.google.guava:guava:${guavaVersion}"

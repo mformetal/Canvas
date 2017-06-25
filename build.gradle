@@ -3,10 +3,14 @@ apply from: 'config.gradle'
 buildscript {
     repositories {
         jcenter()
+        google()
+        mavenCentral()
     }
+
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.1.0'
-        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
+        classpath 'com.android.tools.build:gradle:2.3.3'
+        classpath 'io.realm:realm-gradle-plugin:3.3.1'
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.1.2'
     }
 }
 
@@ -21,5 +25,5 @@ task clean(type: Delete) {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.0'
+    gradleVersion = '4.0'
 }

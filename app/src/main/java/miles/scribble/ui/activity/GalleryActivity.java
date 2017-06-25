@@ -111,7 +111,6 @@ public class GalleryActivity extends BaseActivity implements OnClickListener {
 
         Glide.with(this)
                 .load(R.drawable.painting)
-                .asGif()
                 .into((ImageView) layout.getChildAt(0));
 
         setContentView(layout);

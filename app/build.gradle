@@ -1,14 +1,6 @@
-buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath "io.realm:realm-gradle-plugin:1.1.0"
-    }
-}
-
 apply plugin: 'com.android.application'
-apply plugin: 'com.neenbedankt.android-apt'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
 apply plugin: 'realm-android'
 
 def config = rootProject.extensions.getByName("ext")
@@ -20,8 +12,6 @@ android {
     defaultConfig {
         minSdkVersion config.getAt("minSdkVersion")
         targetSdkVersion config.getAt("targetSdkVersion")
-        versionCode config.getAt("versionCode")
-        versionName config.getAt("versionName")
         applicationId config.getAt("applicationId") + ".app"
     }
 
@@ -35,9 +25,10 @@ android {
 }
 
 dependencies {
+    compile config.kotlinStdLib
 
-    apt config.daggerCompiler
-    provided config.javaxAnnotation
+    kapt config.daggerCompiler
+    provided config.javaxInject
     compile config.dagger
 
     compile config.guava

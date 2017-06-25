@@ -48,9 +48,7 @@ public class GalleryPagerAdapter extends PagerAdapter {
         textView.setText(sketch.getTitle());
 
         Glide.with(mActivity)
-                .fromBytes()
                 .asBitmap()
-                .animate(android.R.anim.fade_in)
                 .load(sketch.getBytes())
                 .into(imageView);
 
