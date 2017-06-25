@@ -9,7 +9,6 @@ import android.content.Context;
 import android.graphics.*;
 import android.os.Handler;
 import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
@@ -17,28 +16,19 @@ import android.util.Property;
 import android.view.MotionEvent;
 import android.view.SoundEffectConstants;
 import android.view.View;
-import android.view.ViewAnimationUtils;
-import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Toolbar;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import miles.scribble.R;
-import miles.scribble.home.HomeActivity;
 import miles.scribble.home.drawing.DrawingCurve;
-import miles.scribble.util.FileUtils;
 import miles.scribble.util.ViewUtils;
-import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
 /**
  * Created by milespeele on 8/7/15.
  */
-public class CanvasLayout extends CoordinatorLayout implements
-        CircleFabMenu.ViewFloatingActionButtonMenuListener, DrawingCurve.DrawingCurveListener,
-        View.OnClickListener {
+public class CanvasLayout extends CoordinatorLayout implements DrawingCurve.DrawingCurveListener {
 
     @BindView(R.id.canvas_surface) CanvasSurface drawer;
     @BindView(R.id.canvas_fab_menu) CircleFabMenu fabMenu;
@@ -50,14 +40,6 @@ public class CanvasLayout extends CoordinatorLayout implements
     private Paint mShadowPaint;
     private Handler mHandler;
     private float mRadius;
-
-    private CanvasLayoutListener mListener;
-
-    public interface CanvasLayoutListener {
-        void onFabMenuButtonClicked(View view);
-        void onOptionsMenuButtonClicked(View view, DrawingCurve.State state);
-        void onNavigationIconClicked();
-    }
 
     public CanvasLayout(Context context) {
         super(context);
@@ -93,16 +75,7 @@ public class CanvasLayout extends CoordinatorLayout implements
 
         ButterKnife.bind(this);
 
-        fabMenu.addListener(this);
         drawer.setListener(this);
-        toolbar.setNavigationOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mListener != null) {
-                    mListener.onNavigationIconClicked();
-                }
-            }
-        });
     }
 
     @Override
@@ -163,44 +136,6 @@ public class CanvasLayout extends CoordinatorLayout implements
     }
 
     @Override
-    public void onFloatingActionButtonMenuButtonClicked(FloatingActionButton v) {
-        mListener.onFabMenuButtonClicked(v);
-
-        v.performClick();
-
-        FloatingActionButton eraser = fabMenu.eraser;
-
-        switch (v.getId()) {
-            case R.id.menu_toggle:
-                fabMenu.toggleMenu();
-                break;
-            case R.id.menu_undo:
-                undo();
-                break;
-            case R.id.menu_redo:
-                redo();
-                break;
-            case R.id.menu_erase:
-                erase();
-                eraser.setSelected(!eraser.isSelected());
-
-                makeDrawingVisible();
-                break;
-            case R.id.menu_ink:
-                ink();
-
-                makeDrawingVisible();
-                break;
-        }
-
-        if (v.getId() != R.id.menu_toggle) {
-            if (v.getId() != R.id.menu_erase && fabMenu.eraser.isSelected()) {
-                eraser.setSelected(false);
-            }
-        }
-    }
-
-    @Override
     public void toggleOptionsMenuVisibilty(boolean setVisible, DrawingCurve.State state) {
         if (setVisible) {
             Button option1 = (Button) textAndBitmapOptions.getChildAt(1);
@@ -236,62 +171,6 @@ public class CanvasLayout extends CoordinatorLayout implements
         } else {
             ViewUtils.gone(fabMenu);
         }
-    }
-
-    public void unrevealAndSave() {
-        Animator reveal = ViewAnimationUtils.createCircularReveal(this,
-                getWidth() / 2, getHeight() / 2, getHeight(), 0);
-        reveal.setDuration(600);
-        reveal.setInterpolator(new AccelerateDecelerateInterpolator());
-        reveal.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                super.onAnimationEnd(animation);
-
-                drawer.setVisibility(View.GONE);
-                fabMenu.setVisibility(View.GONE);
-
-                final HomeActivity activity = (HomeActivity) getContext();
-
-                Subscriber<byte[]> subscriber = new Subscriber<byte[]>() {
-                    @Override
-                    public void onCompleted() {
-                        activity.finishAndRemoveTask();
-                    }
-
-                    @Override
-                    public void onError(Throwable throwable) { }
-
-                    @Override
-                    public void onNext(byte[] bytes) { }
-                };
-
-                FileUtils.cache(getDrawerBitmap(), activity)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(subscriber);
-            }
-        });
-        reveal.start();
-    }
-
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.view_options_menu_accept:
-                drawer.onOptionsMenuAccept();
-                break;
-            case R.id.view_options_menu_cancel:
-                drawer.onOptionsMenuCancel();
-                break;
-            default:
-                mListener.onOptionsMenuButtonClicked(v, drawer.getState());
-                break;
-        }
-    }
-
-    public void setActivityListener(HomeActivity activityListener) {
-        mListener = activityListener;
     }
 
     private void makeDrawingVisible() {

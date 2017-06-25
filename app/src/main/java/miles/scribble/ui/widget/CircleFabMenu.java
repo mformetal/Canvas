@@ -29,7 +29,7 @@ import java.util.List;
 /**
  * Created by milespeele on 8/7/15.
  */
-public class CircleFabMenu extends ViewGroup implements View.OnClickListener {
+public class CircleFabMenu extends ViewGroup {
 
     @BindView(R.id.menu_toggle)
     FloatingActionButton toggle;
@@ -59,11 +59,6 @@ public class CircleFabMenu extends ViewGroup implements View.OnClickListener {
     private final static int DELAY_INCREMENT = 15;
     private final static int HIDE_DIFF = 50;
 
-    private ArrayList<ViewFloatingActionButtonMenuListener> mListeners;
-    public interface ViewFloatingActionButtonMenuListener {
-        void onFloatingActionButtonMenuButtonClicked(FloatingActionButton v);
-    }
-
     public CircleFabMenu(Context context) {
         super(context);
         init();
@@ -86,8 +81,6 @@ public class CircleFabMenu extends ViewGroup implements View.OnClickListener {
     }
 
     private void init() {
-        mListeners = new ArrayList<>();
-
         mItemPositions = new ArrayList<>();
 
         mGestureDetector = new GestureDetector(getContext(), new GestureListener());
@@ -174,17 +167,6 @@ public class CircleFabMenu extends ViewGroup implements View.OnClickListener {
     }
 
     @Override
-    public void onClick(View v) {
-        if (v.getVisibility() != View.GONE) {
-            FloatingActionButton FloatingActionButton = (FloatingActionButton) v;
-
-            for (ViewFloatingActionButtonMenuListener listener: mListeners) {
-                listener.onFloatingActionButtonMenuButtonClicked(FloatingActionButton);
-            }
-        }
-    }
-
-    @Override
     public boolean onTouchEvent(MotionEvent event) {
         final float x = event.getX(), y = event.getY();
 
@@ -239,17 +221,12 @@ public class CircleFabMenu extends ViewGroup implements View.OnClickListener {
             case MotionEvent.ACTION_UP:
                 isDragging = false;
                 if (mClickedItem != null && mClickedItem == getClickedItem(x, y)) {
-                    onClick(mClickedItem);
                     mClickedItem = null;
                 }
                 break;
         }
 
         return true;
-    }
-
-    public void addListener(ViewFloatingActionButtonMenuListener listener) {
-        mListeners.add(listener);
     }
 
     private void rotateToggleOpen() {

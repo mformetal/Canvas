@@ -11,6 +11,7 @@ ext {
     retrofitVersion = '2.3.0'
     okHttpVersion = '3.8.1'
     butterKnifeVersion = '8.6.0'
+    archComponentsVersion = '1.0.0-alpha3'
 
     kotlinVersion = '1.1.2'
     kotlinStdLib = "org.jetbrains.kotlin:kotlin-stdlib-jre7:${kotlinVersion}"
@@ -22,6 +23,10 @@ ext {
 
     butterKnife = "com.jakewharton:butterknife:${butterKnifeVersion}"
     butterKnifeApt = "com.jakewharton:butterknife-compiler:${butterKnifeVersion}"
+
+    lifecycle = "android.arch.lifecycle:runtime:${archComponentsVersion}"
+    lifecycleExtensions = "android.arch.lifecycle:extensions:${archComponentsVersion}"
+    lifecycleApt = "android.arch.lifecycle:compiler:${archComponentsVersion}"
 
     gson = "com.google.code.gson:gson:2.8.1"
     guava = "com.google.guava:guava:22.0-android"

@@ -47,5 +47,9 @@ dependencies {
 
     compile config.timber
 
+    compile config.lifecycle
+    compile config.lifecycleExtensions
+    kapt config.lifecycleApt
+
     compile config.autoFitTextView
 }

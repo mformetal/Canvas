@@ -30,13 +30,12 @@ import miles.scribble.gallery.GalleryActivity
 import miles.scribble.home.drawing.DrawingCurve
 import miles.scribble.ui.transition.TransitionHelper
 import miles.scribble.ui.widget.CanvasLayout
-import miles.scribble.ui.widget.CanvasLayout.CanvasLayoutListener
 import miles.scribble.ui.widget.RoundedFrameLayout
 import miles.scribble.util.FileUtils
 import miles.scribble.util.ViewUtils
 
 
-class HomeActivity : BaseActivity(), CanvasLayoutListener, NavigationView.OnNavigationItemSelectedListener {
+class HomeActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     private val TAG_FRAGMENT_COLOR_PICKER = "color"
     private val TAG_FRAGMENT_FILENAME = "name"
@@ -69,8 +68,6 @@ class HomeActivity : BaseActivity(), CanvasLayoutListener, NavigationView.OnNavi
                 window.decorView.systemUIGone()
             }
         })
-
-        canvasLayout.setActivityListener(this)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
@@ -93,44 +90,10 @@ class HomeActivity : BaseActivity(), CanvasLayoutListener, NavigationView.OnNavi
         when (requestCode) {
             REQUEST_PERMISSION_CAMERA_CODE -> {
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    showCamera()
+
                 }
             }
         }
-    }
-
-    override fun onFabMenuButtonClicked(view: View) {
-        when (view.id) {
-            R.id.menu_brush -> showBrushChooser(view)
-            R.id.menu_stroke_color -> showColorChooser(view, false)
-            R.id.menu_text -> showTextFragment(view)
-            R.id.menu_upload -> showFilenameFragment(view)
-            R.id.menu_canvas_color -> showColorChooser(view, true)
-            R.id.menu_image -> showImageChooser()
-        }
-    }
-
-    override fun onOptionsMenuButtonClicked(view: View, state: DrawingCurve.State) {
-        when (state) {
-            DrawingCurve.State.TEXT -> {
-                if (view.id == R.id.view_options_menu_1) {
-                    showTextFragment(view)
-                } else {
-                    showColorChooser(view, false)
-                }
-            }
-            DrawingCurve.State.PICTURE -> {
-                if (view.id == R.id.view_options_menu_1) {
-                    showCamera()
-                } else {
-                    showGallery()
-                }
-            }
-        }
-    }
-
-    override fun onNavigationIconClicked() {
-        root.openDrawer(GravityCompat.START)
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
@@ -140,98 +103,5 @@ class HomeActivity : BaseActivity(), CanvasLayoutListener, NavigationView.OnNavi
 
         root.closeDrawer(GravityCompat.START)
         return true
-    }
-
-    private fun showBrushChooser(view: View) {
-        val picker = BrushPickerFragment.newInstance(canvasLayout.paint)
-
-        TransitionHelper.makeFabDialogTransitions(this, view, fabFrame, picker)
-
-        supportFragmentManager.beginTransaction()
-                .replace(R.id.canvas_framelayout_animator, picker, TAG_FRAGMENT_BRUSH)
-                .commit()
-    }
-
-    private fun showColorChooser(view: View, toFill: Boolean) {
-        val color = if (toFill) canvasLayout.backgroundColor else canvasLayout.brushColor
-        val picker = ColorPickerFragment.newInstance(color, toFill)
-
-        if (view is FloatingActionButton) {
-            TransitionHelper.makeFabDialogTransitions(this, view, fabFrame, picker)
-        } else {
-            TransitionHelper.makeButtonDialogTransitions(this, view, fabFrame, picker)
-        }
-
-        supportFragmentManager.beginTransaction()
-                .replace(R.id.canvas_framelayout_animator, picker, TAG_FRAGMENT_COLOR_PICKER)
-                .commit()
-    }
-
-    private fun showTextFragment(view: View) {
-        val text = TextFragment.newInstance()
-
-        if (view is FloatingActionButton) {
-            TransitionHelper.makeFabDialogTransitions(this, view, fabFrame, text)
-        } else {
-            TransitionHelper.makeButtonDialogTransitions(this, view, fabFrame, text)
-        }
-
-        supportFragmentManager.beginTransaction()
-                .replace(R.id.canvas_framelayout_animator, text, TAG_FRAGMENT_TEXT)
-                .commit()
-    }
-
-    private fun showFilenameFragment(view: View) {
-        val filename = FilenameFragment.newInstance()
-
-        TransitionHelper.makeFabDialogTransitions(this, view, fabFrame, filename)
-
-        supportFragmentManager.beginTransaction()
-                .replace(R.id.canvas_framelayout_animator, filename, TAG_FRAGMENT_FILENAME)
-                .commit()
-    }
-
-    private fun showGallery() {
-        val intent = Intent()
-        intent.type = "image/*"
-        intent.action = Intent.ACTION_GET_CONTENT
-        startActivityForResult(intent, REQUEST_IMPORT_CODE)
-    }
-
-    private fun showCamera() {
-        val permissions = arrayOf(android.Manifest.permission.CAMERA, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-        if (checkPermissions(permissions)) {
-            if (packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
-                val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-                if (takePictureIntent.resolveActivity(packageManager) != null) {
-                    var photoFile: File? = null
-                    try {
-                        photoFile = FileUtils.createPhotoFile()
-                    } catch (e: IOException) {
-                    }
-
-                    if (photoFile != null) {
-                        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile))
-                        startActivityForResult(takePictureIntent, REQUEST_CAMERA_CODE)
-                    }
-                }
-            }
-        } else {
-            ActivityCompat.requestPermissions(this, permissions, REQUEST_PERMISSION_CAMERA_CODE)
-        }
-    }
-
-    private fun showImageChooser() {
-        val builder = Dialog(this)
-        builder.setContentView(R.layout.dialog_image_chooser)
-        builder.findViewById<View>(R.id.dialog_from_camera).setOnClickListener {
-            builder.dismiss()
-            showCamera()
-        }
-        builder.findViewById<View>(R.id.dialog_from_gallery).setOnClickListener {
-            builder.dismiss()
-            showGallery()
-        }
-        builder.show()
     }
 }

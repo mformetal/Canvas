@@ -14,7 +14,6 @@
         android:layout_height="wrap_content"
         android:text="@string/app_name"
         android:textColor="@color/primary_light"
-        android:background="@drawable/road"
         android:textSize="@dimen/xlarge_text_size" />
 
 <!--</FrameLayout>-->
