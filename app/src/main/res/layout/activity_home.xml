@@ -1,26 +1,22 @@
 <android.support.v4.widget.DrawerLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/activity_home_drawer_layout"
+    android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
     <include
         layout="@layout/canvas"
-        android:id="@+id/activity_home_canvas_root"
+        android:id="@+id/canvas"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
     
     <android.support.design.widget.NavigationView
-        android:id="@+id/activity_home_navigation"
+        android:id="@+id/navigation"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:fitsSystemWindows="true"
         android:layout_gravity="start"
-        android:theme="@style/Canvas"
-        android:background="@color/accent"
-        app:itemTextColor="@color/primary_light"
-        app:itemIconTint="@color/primary_light"
         app:headerLayout="@layout/activity_home_header_layout"
         app:menu="@menu/activity_home_navigation_menu" />
 

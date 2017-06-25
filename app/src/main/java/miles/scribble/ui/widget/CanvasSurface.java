@@ -10,10 +10,7 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-
-import miles.scribble.R;
-import miles.scribble.ui.drawing.DrawingCurve;
-import miles.scribble.util.Logg;
+import miles.scribble.home.drawing.DrawingCurve;
 
 /**
  * Created by Miles Peele on 10/2/2015.
@@ -155,7 +152,7 @@ public class CanvasSurface extends SurfaceView implements SurfaceHolder.Callback
                         }
                     }
                 } catch (IllegalArgumentException e) {
-                    Logg.log(e);
+
                 } finally {
                     if (c != null) {
                         mSurfaceHolder.unlockCanvasAndPost(c);
@@ -172,7 +169,7 @@ public class CanvasSurface extends SurfaceView implements SurfaceHolder.Callback
                     join();
                     retry = false;
                 } catch (InterruptedException e) {
-                    Logg.log(e);
+
                 }
             }
         }

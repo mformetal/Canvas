@@ -8,32 +8,30 @@ import android.view.KeyEvent;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
-import miles.scribble.util.TextUtils;
-
 /**
  * Created by mbpeele on 9/2/15.
  */
-public class TypefaceEditText extends EditText {
+public class OnBackPressedEditText extends EditText {
 
     private BackPressedListener mOnImeBack;
 
-    public TypefaceEditText(Context context) {
+    public OnBackPressedEditText(Context context) {
         super(context);
         init();
     }
 
-    public TypefaceEditText(Context context, AttributeSet attrs) {
+    public OnBackPressedEditText(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
     }
 
-    public TypefaceEditText(Context context, AttributeSet attrs, int defStyleAttr) {
+    public OnBackPressedEditText(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init();
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public TypefaceEditText(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public OnBackPressedEditText(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         init();
     }
@@ -52,8 +50,6 @@ public class TypefaceEditText extends EditText {
         if (isInEditMode()) {
             return;
         }
-
-        setTypeface(TextUtils.getStaticTypeFace(getContext()));
     }
 
     public String getTextAsString() { return getText().toString(); }
@@ -69,6 +65,6 @@ public class TypefaceEditText extends EditText {
     }
 
     public interface BackPressedListener {
-        void onImeBack(TypefaceEditText editText);
+        void onImeBack(OnBackPressedEditText editText);
     }
 }

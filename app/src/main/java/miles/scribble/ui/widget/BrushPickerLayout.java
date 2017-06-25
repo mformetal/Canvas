@@ -9,16 +9,15 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.AttributeSet;
 import android.view.View;
+import android.widget.Button;
 import android.widget.LinearLayout;
-
-import java.util.ArrayList;
-
 import miles.scribble.R;
 import miles.scribble.data.adapter.BrushPickerAdapter;
+import miles.scribble.ui.RecyclerClickListener;
+import miles.scribble.ui.SpacingDecoration;
 import miles.scribble.util.PaintStyles;
-import miles.scribble.recyclerview.RecyclerClickListener;
-import miles.scribble.recyclerview.SpacingDecoration;
-import miles.scribble.util.TextUtils;
+
+import java.util.ArrayList;
 
 
 /**
@@ -71,11 +70,7 @@ public class BrushPickerLayout extends LinearLayout implements RecyclerClickList
 
     @Override
     public void onItemClicked(RecyclerView recyclerView, int position, View v) {
-        TypefaceButton example = (TypefaceButton) v;
-
-        Paint paint = example.getExamplePaint();
-        lastSelectedPaint.set(paint);
-        mainExample.animatePaintChange(paint);
+        Button example = (Button) v;
     }
 
     public void setPaint(Paint paint) {
@@ -94,14 +89,8 @@ public class BrushPickerLayout extends LinearLayout implements RecyclerClickList
         String[] myResArray = context.getResources().getStringArray(R.array.paint_examples);
         ArrayList<BrushPickerAdapter.PaintExample> arrayList = new ArrayList<>();
         for (String res: myResArray) {
-            String name = res;
-            if (TextUtils.containsCapital(name)) {
-                String[] array = name.split("(?=\\p{Upper})");
-                String first = array[0], second = array[1];
-                name = TextUtils.capitalizeFirst(first) + "\n" + TextUtils.capitalizeFirst(second);
-            } else {
-                name = name.toUpperCase();
-            }
+            String name = res.toUpperCase();
+
             arrayList.add(new BrushPickerAdapter.PaintExample(name,
                     PaintStyles.getStyleFromName(res, lastSelectedPaint.getColor())));
         }

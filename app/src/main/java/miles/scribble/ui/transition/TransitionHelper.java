@@ -1,8 +1,8 @@
 package miles.scribble.ui.transition;
 
-import android.app.Fragment;
 import android.content.Context;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.v4.app.Fragment;
 import android.view.View;
 import android.widget.FrameLayout;
 

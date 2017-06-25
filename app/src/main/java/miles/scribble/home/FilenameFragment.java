@@ -1,4 +1,4 @@
-package miles.scribble.ui.fragment;
+package miles.scribble.home;
 
 import android.os.Bundle;
 import android.view.KeyEvent;
@@ -10,26 +10,26 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.TextView;
 
 import miles.scribble.R;
-import miles.scribble.data.event.EventTextChosen;
-import miles.scribble.ui.widget.TypefaceEditText;
+import miles.scribble.ui.BaseFragment;
+import miles.scribble.ui.widget.OnBackPressedEditText;
 import miles.scribble.util.ViewUtils;
 
 /**
- * Created by mbpeele on 11/14/15.
+ * Created by Miles Peele on 7/13/2015.
  */
-public class TextFragment extends BaseFragment implements View.OnClickListener, TypefaceEditText.BackPressedListener {
+public class FilenameFragment extends BaseFragment implements View.OnClickListener, OnBackPressedEditText.BackPressedListener {
 
-    TypefaceEditText input;
+    OnBackPressedEditText input;
 
-    public TextFragment() {}
+    public FilenameFragment() {}
 
-    public static TextFragment newInstance() {
-        return new TextFragment();
+    public static FilenameFragment newInstance() {
+        return new FilenameFragment();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_text, container, false);
+        View v = inflater.inflate(R.layout.fragment_filename, container, false);
         input.setBackPressedListener(this);
         input.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -62,28 +62,27 @@ public class TextFragment extends BaseFragment implements View.OnClickListener, 
                 return false;
             }
         });
-
         return v;
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.fragment_text_pos_button:
-                if (validateEnteredText()) {
-                    bus.post(new EventTextChosen(input.getTextAsString()));
+            case R.id.fragment_filename_pos_button:
+                if (validateFileName()) {
                     input.closeKeyboard();
                     getActivity().onBackPressed();
                 }
                 break;
-            case R.id.fragment_text_neg_button:
+            case R.id.fragment_filename_neg_button:
                 getActivity().onBackPressed();
                 break;
         }
     }
 
+
     @Override
-    public void onImeBack(TypefaceEditText editText) {
+    public void onImeBack(OnBackPressedEditText editText) {
         View view = (View) getView().getParent();
         if (view.getTranslationY() != 0) {
             view.animate()
@@ -92,10 +91,10 @@ public class TextFragment extends BaseFragment implements View.OnClickListener, 
         }
     }
 
-    private boolean validateEnteredText() {
-        String text = input.getTextAsString();
-        if (text.length() == 0) {
-            input.setError("Text must not be empty!");
+    private boolean validateFileName() {
+        String name = input.getTextAsString();
+        if (name.length() == 0) {
+            input.setError("Filename must not be empty");
             return false;
         }
 

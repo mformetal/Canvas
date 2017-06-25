@@ -19,7 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
 
-        <miles.scribble.ui.widget.TypefaceEditText
+        <miles.scribble.ui.widget.OnBackPressedEditText
             android:id="@+id/fragment_filename_input"
             android:gravity="center"
             android:layout_gravity="center"

@@ -5,12 +5,10 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import miles.scribble.R;
 
 import java.util.List;
-
-import miles.scribble.R;
-import miles.scribble.ui.widget.TypefaceButton;
-import miles.scribble.util.TextUtils;
 
 /**
  * Created by Miles Peele on 9/17/2015.
@@ -18,11 +16,11 @@ import miles.scribble.util.TextUtils;
 public class BrushPickerAdapter extends RecyclerView.Adapter<BrushPickerAdapter.BrushViewHolder> {
 
     public final static class BrushViewHolder extends RecyclerView.ViewHolder {
-        public TypefaceButton button;
+        public Button button;
 
         public BrushViewHolder(View itemView) {
             super(itemView);
-            button = (TypefaceButton) itemView.findViewById(R.id.paint_example_layout_text);
+            button = (Button) itemView.findViewById(R.id.paint_example_layout_text);
         }
     }
 
@@ -42,18 +40,10 @@ public class BrushPickerAdapter extends RecyclerView.Adapter<BrushPickerAdapter.
     public void onBindViewHolder(BrushViewHolder viewHolder, int i) {
         PaintExample example = dataList.get(i);
 
-        TypefaceButton textView = viewHolder.button;
+        Button textView = viewHolder.button;
 
         String paintName = example.getPaintName();
-        Paint paint = example.getPaint();
-
         textView.setText(paintName);
-        textView.setPaint(paint);
-
-        if (!TextUtils.containsNewLine(paintName)) {
-            textView.setSingleLine();
-            textView.setMaxLines(1);
-        }
     }
 
     @Override

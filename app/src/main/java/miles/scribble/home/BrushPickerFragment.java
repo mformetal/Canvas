@@ -1,4 +1,4 @@
-package miles.scribble.ui.fragment;
+package miles.scribble.home;
 
 import android.graphics.Paint;
 import android.os.Bundle;
@@ -7,7 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import miles.scribble.R;
-import miles.scribble.data.event.EventBrushChosen;
+import miles.scribble.ui.BaseFragment;
 import miles.scribble.ui.widget.BrushPickerLayout;
 
 /**
@@ -37,7 +37,6 @@ public class BrushPickerFragment extends BaseFragment implements View.OnClickLis
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.fragment_brush_picker_pos:
-                bus.post(new EventBrushChosen(root.getPaint()));
             case R.id.fragment_brush_picker_cancel:
                 getActivity().onBackPressed();
                 break;

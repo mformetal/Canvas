@@ -1,6 +1,5 @@
-package miles.scribble.ui.activity;
+package miles.scribble.ui;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
@@ -10,26 +9,18 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-
-import org.greenrobot.eventbus.EventBus;
-
-import java.util.ArrayList;
-
-import javax.inject.Inject;
-
 import io.realm.Realm;
-import miles.scribble.MainApp;
 import rx.Subscription;
 import rx.subscriptions.CompositeSubscription;
+
+import java.util.ArrayList;
 
 /**
  * Created by milespeele on 7/14/15.
  */
 public abstract class BaseActivity extends AppCompatActivity {
 
-    @Inject
-    EventBus bus;
-    Realm realm;
+    public Realm realm;
 
     private CompositeSubscription mCompositeSubscription;
     private ArrayList<Subscription> mRemovableSubscriptions;
@@ -39,8 +30,6 @@ public abstract class BaseActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         realm = Realm.getDefaultInstance();
-
-        ((MainApp) getApplication()).getApplicationComponent().inject(this);
 
         mRemovableSubscriptions = new ArrayList<>();
 

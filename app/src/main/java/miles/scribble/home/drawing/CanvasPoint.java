@@ -1,4 +1,4 @@
-package miles.scribble.ui.drawing;
+package miles.scribble.home.drawing;
 
 /**
  * Created by mbpeele on 11/29/15.

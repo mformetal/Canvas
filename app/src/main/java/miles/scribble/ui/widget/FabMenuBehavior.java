@@ -21,7 +21,7 @@ public class FabMenuBehavior extends CoordinatorLayout.Behavior<ViewGroup> {
 
     @Override
     public boolean onDependentViewChanged(CoordinatorLayout parent, ViewGroup child, View dependency) {
-        float translationY = Math.max(0, dependency.getHeight() - dependency.getTranslationY());
+        float translationY = Math.max(0, parent.getHeight() - parent.getTranslationY());
         child.setTranslationY(-translationY);
         return true;
     }

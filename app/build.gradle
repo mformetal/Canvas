@@ -45,7 +45,7 @@ dependencies {
 
     compile config.glide
 
-    compile config.eventBus
+    compile config.timber
 
     compile config.autoFitTextView
 }

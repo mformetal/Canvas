@@ -1,19 +1,17 @@
-package miles.scribble.ui.fragment;
+package miles.scribble.home;
 
-import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
+import android.widget.TextView;
 import miles.scribble.R;
-import miles.scribble.data.event.EventColorChosen;
-import miles.scribble.ui.widget.TypefaceTextView;
+import miles.scribble.ui.BaseFragment;
 
 public class ColorPickerFragment extends BaseFragment
         implements View.OnClickListener {
 
-    TypefaceTextView title;
+    TextView title;
 
     private int currentColor;
 
@@ -44,7 +42,6 @@ public class ColorPickerFragment extends BaseFragment
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.fragment_color_picker_select:
-                bus.post(new EventColorChosen(0, true));
             case R.id.fragment_color_picker_cancel:
                 getActivity().onBackPressed();
                 break;

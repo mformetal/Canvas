@@ -4,6 +4,7 @@ import android.animation.*;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
+import android.support.design.widget.FloatingActionButton;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -18,13 +19,9 @@ import butterknife.BindViews;
 import butterknife.ButterKnife;
 import miles.scribble.MainApp;
 import miles.scribble.R;
-import miles.scribble.data.event.EventBrushChosen;
-import miles.scribble.data.event.EventColorChosen;
 import miles.scribble.util.Circle;
 import miles.scribble.util.ViewUtils;
-import org.greenrobot.eventbus.EventBus;
 
-import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -35,20 +32,18 @@ import java.util.List;
  */
 public class CircleFabMenu extends ViewGroup implements View.OnClickListener {
 
-    @BindView(R.id.menu_toggle) Fab toggle;
-    @BindView(R.id.menu_erase) Fab eraser;
-    @BindView(R.id.menu_upload) Fab saver;
+    @BindView(R.id.menu_toggle)
+    FloatingActionButton toggle;
+    @BindView(R.id.menu_erase) FloatingActionButton eraser;
+    @BindView(R.id.menu_upload) FloatingActionButton saver;
 
     @BindViews({R.id.menu_upload, R.id.menu_text, R.id.menu_stroke_color, R.id.menu_canvas_color,
             R.id.menu_ink, R.id.menu_brush, R.id.menu_undo, R.id.menu_redo, R.id.menu_erase,
             R.id.menu_image})
-    List<Fab> buttonsList;
-
-    @Inject
-    EventBus bus;
+    List<FloatingActionButton> buttonsList;
 
     private Circle mCircle;
-    private Fab mClickedItem;
+    private FloatingActionButton mClickedItem;
     private ArrayList<ItemPosition> mItemPositions;
     private GestureDetector mGestureDetector;
     private static final Interpolator OVERSHOOT_INTERPOLATOR = new OvershootInterpolator();
@@ -65,9 +60,9 @@ public class CircleFabMenu extends ViewGroup implements View.OnClickListener {
     private final static int DELAY_INCREMENT = 15;
     private final static int HIDE_DIFF = 50;
 
-    private ArrayList<ViewFabMenuListener> mListeners;
-    public interface ViewFabMenuListener {
-        void onFabMenuButtonClicked(Fab v);
+    private ArrayList<ViewFloatingActionButtonMenuListener> mListeners;
+    public interface ViewFloatingActionButtonMenuListener {
+        void onFloatingActionButtonMenuButtonClicked(FloatingActionButton v);
     }
 
     public CircleFabMenu(Context context) {
@@ -163,7 +158,7 @@ public class CircleFabMenu extends ViewGroup implements View.OnClickListener {
         final double slice = Math.toRadians(360d / (count - 1));
 
         for (int i = 0; i < count; i++) {
-            final Fab child = (Fab) getChildAt(i);
+            final FloatingActionButton child = (FloatingActionButton) getChildAt(i);
             if (child.getId() != R.id.menu_toggle) {
                 double angle = i * slice;
                 double x = getCenterX() + mItemRadius * Math.cos(angle);
@@ -184,10 +179,10 @@ public class CircleFabMenu extends ViewGroup implements View.OnClickListener {
     @Override
     public void onClick(View v) {
         if (v.getVisibility() != View.GONE) {
-            Fab fab = (Fab) v;
+            FloatingActionButton FloatingActionButton = (FloatingActionButton) v;
 
-            for (ViewFabMenuListener listener: mListeners) {
-                listener.onFabMenuButtonClicked(fab);
+            for (ViewFloatingActionButtonMenuListener listener: mListeners) {
+                listener.onFloatingActionButtonMenuButtonClicked(FloatingActionButton);
             }
         }
     }
@@ -256,7 +251,7 @@ public class CircleFabMenu extends ViewGroup implements View.OnClickListener {
         return true;
     }
 
-    public void addListener(ViewFabMenuListener listener) {
+    public void addListener(ViewFloatingActionButtonMenuListener listener) {
         mListeners.add(listener);
     }
 
@@ -278,7 +273,7 @@ public class CircleFabMenu extends ViewGroup implements View.OnClickListener {
         }
     }
 
-    private Fab getClickedItem(float x, float y) {
+    private FloatingActionButton getClickedItem(float x, float y) {
         for (ItemPosition position: mItemPositions) {
             if (position.contains(x, y)) {
                 return position.mView;
@@ -439,18 +434,6 @@ public class CircleFabMenu extends ViewGroup implements View.OnClickListener {
         }
     }
 
-    public void onEvent(EventColorChosen eventColorChosen) {
-        if (eventColorChosen.color != 0) {
-            eraser.scaleDown();
-        }
-    }
-
-    public void onEvent(EventBrushChosen eventBrushChosen) {
-        if (eventBrushChosen.paint != null) {
-            eraser.scaleDown();
-        }
-    }
-
     public boolean isVisible() {
         return isMenuShowing && getVisibility() == View.VISIBLE;
     }
@@ -464,9 +447,9 @@ public class CircleFabMenu extends ViewGroup implements View.OnClickListener {
     private final class ItemPosition {
 
         private Circle mItemCircle;
-        private Fab mView;
+        private FloatingActionButton mView;
 
-        public ItemPosition(Fab child, double itemX, double itemY, float radius) {
+        public ItemPosition(FloatingActionButton child, double itemX, double itemY, float radius) {
             mView = child;
             mItemCircle = new Circle((float) itemX, (float) itemY, radius);
         }

@@ -5,20 +5,21 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Context;
+import android.support.design.widget.FloatingActionButton;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
-
-import java.util.ArrayList;
 import miles.scribble.R;
 import miles.scribble.util.ViewUtils;
+
+import java.util.ArrayList;
 
 /**
  * Created by mbpeele on 1/13/16.
  */
 public class LinearFabMenu extends ViewGroup implements View.OnClickListener {
 
-    Fab toggle;
+    FloatingActionButton toggle;
 
     private final static int INITIAL_DELAY = 0;
     private final static int DURATION = 400;
@@ -105,7 +106,7 @@ public class LinearFabMenu extends ViewGroup implements View.OnClickListener {
         int curBottom = toggle.getTop() - lps.topMargin;
 
         for (int i = 0; i < getChildCount(); i++) {
-            final Fab child = (Fab) getChildAt(i);
+            final FloatingActionButton child = (FloatingActionButton) getChildAt(i);
             if (child.getId() != R.id.activity_gallery_options_menu_toggle) {
                 MarginLayoutParams params = (MarginLayoutParams) child.getLayoutParams();
 

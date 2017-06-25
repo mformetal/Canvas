@@ -1,4 +1,4 @@
-package miles.scribble.ui.activity;
+package miles.scribble.gallery;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -10,15 +10,12 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-
 import com.bumptech.glide.Glide;
-
 import io.realm.RealmResults;
 import miles.scribble.R;
 import miles.scribble.data.adapter.GalleryPagerAdapter;
 import miles.scribble.data.model.Sketch;
-import miles.scribble.data.event.EventUpdateDrawingCurve;
-import miles.scribble.util.Logg;
+import miles.scribble.ui.BaseActivity;
 import rx.functions.Action1;
 import rx.functions.Func1;
 
@@ -68,7 +65,6 @@ public class GalleryActivity extends BaseActivity implements OnClickListener {
             case R.id.activity_gallery_options_menu_set:
                 int curItem = pager.getCurrentItem();
                 Sketch sketch = adapter.get(curItem);
-                bus.post(new EventUpdateDrawingCurve(sketch.getId()));
                 onBackPressed();
                 break;
         }
@@ -98,7 +94,7 @@ public class GalleryActivity extends BaseActivity implements OnClickListener {
                 }, new Action1<Throwable>() {
                     @Override
                     public void call(Throwable throwable) {
-                        Logg.log(throwable);
+
                     }
                 });
     }

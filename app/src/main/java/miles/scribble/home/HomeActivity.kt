@@ -1,17 +1,15 @@
-package miles.scribble.ui.activity
+package miles.scribble.home
 
 import android.app.Activity
 import android.app.Dialog
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.graphics.Canvas
 import android.net.Uri
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.provider.MediaStore
+import android.support.design.widget.FloatingActionButton
 import android.support.design.widget.NavigationView
-import android.support.design.widget.Snackbar
 import android.support.v4.app.ActivityCompat
 import android.support.v4.view.GravityCompat
 import android.support.v4.widget.DrawerLayout
@@ -21,28 +19,19 @@ import kotlinx.android.synthetic.main.activity_home.*
 
 import java.io.File
 import java.io.IOException
-import java.util.UUID
 
 import miles.scribble.R
-import miles.scribble.data.event.EventBitmapChosen
-import miles.scribble.data.event.EventFilenameChosen
-import miles.scribble.data.model.Sketch
-import miles.scribble.ui.drawing.DrawingCurve
-import miles.scribble.ui.fragment.BrushPickerFragment
-import miles.scribble.ui.fragment.ColorPickerFragment
-import miles.scribble.ui.fragment.FilenameFragment
-import miles.scribble.ui.fragment.TextFragment
+import miles.scribble.extensions.systemUIGone
+import miles.scribble.extensions.systemUIVisibile
+import miles.scribble.ui.BaseActivity
+import miles.scribble.gallery.GalleryActivity
+import miles.scribble.home.drawing.DrawingCurve
 import miles.scribble.ui.transition.TransitionHelper
 import miles.scribble.ui.widget.CanvasLayout
 import miles.scribble.ui.widget.CanvasLayout.CanvasLayoutListener
-import miles.scribble.ui.widget.Fab
 import miles.scribble.ui.widget.RoundedFrameLayout
 import miles.scribble.util.FileUtils
-import miles.scribble.util.Logg
-import miles.scribble.rx.SafeSubscription
 import miles.scribble.util.ViewUtils
-import rx.android.schedulers.AndroidSchedulers
-import rx.schedulers.Schedulers
 
 
 class HomeActivity : BaseActivity(), CanvasLayoutListener, NavigationView.OnNavigationItemSelectedListener {
@@ -60,19 +49,19 @@ class HomeActivity : BaseActivity(), CanvasLayoutListener, NavigationView.OnNavi
 
         ViewUtils.systemUIGone(window.decorView)
 
-        canvasLayout = findViewById(R.id.activity_home_canvas_root) as CanvasLayout
+        canvasLayout = findViewById(R.id.canvas) as CanvasLayout
         fabFrame = findViewById(R.id.canvas_framelayout_animator) as RoundedFrameLayout
 
-        activity_home_drawer_layout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
-        activity_home_navigation.setNavigationItemSelectedListener(this)
+        root.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+        navigation.setNavigationItemSelectedListener(this)
 
-        activity_home_drawer_layout.setDrawerListener(object : DrawerLayout.SimpleDrawerListener() {
+        root.setDrawerListener(object : DrawerLayout.SimpleDrawerListener() {
             override fun onDrawerOpened(drawerView: View?) {
-                ViewUtils.systemUIVisibile(window.decorView)
+                window.decorView.systemUIVisibile()
             }
 
             override fun onDrawerClosed(drawerView: View?) {
-                ViewUtils.systemUIGone(window.decorView)
+                window.decorView.systemUIGone()
             }
         })
 
@@ -94,11 +83,10 @@ class HomeActivity : BaseActivity(), CanvasLayoutListener, NavigationView.OnNavi
         if (resultCode == Activity.RESULT_OK) {
             when (requestCode) {
                 REQUEST_IMPORT_CODE -> {
-                    bus.post(EventBitmapChosen(data.data))
+
                 }
                 REQUEST_CAMERA_CODE -> {
-                    val uri = FileUtils.addFileToGallery(this, filePath)
-                    bus.post(EventBitmapChosen(uri))
+
                 }
             }
         }
@@ -154,7 +142,7 @@ class HomeActivity : BaseActivity(), CanvasLayoutListener, NavigationView.OnNavi
     }
 
     override fun onNavigationIconClicked() {
-        activity_home_drawer_layout.openDrawer(GravityCompat.START)
+        root.openDrawer(GravityCompat.START)
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
@@ -162,52 +150,8 @@ class HomeActivity : BaseActivity(), CanvasLayoutListener, NavigationView.OnNavi
             R.id.activity_home_menu_gallery -> startActivity(Intent(this, GalleryActivity::class.java))
         }
 
-        activity_home_drawer_layout.closeDrawer(GravityCompat.START)
+        root.closeDrawer(GravityCompat.START)
         return true
-    }
-
-    fun onEvent(eventFilenameChosen: EventFilenameChosen) {
-        val saver = findViewById(R.id.menu_upload) as Fab
-        val safeSubscription = object : SafeSubscription<ByteArray>(this) {
-            override fun onError(e: Throwable) {
-                super.onError(e)
-                saver.stopSaveAnimation()
-            }
-
-            override fun onCompleted() {
-                super.onCompleted()
-                saver.stopSaveAnimation()
-                showSnackbar(canvasLayout,
-                        R.string.snackbar_activity_home_image_saved_title,
-                        Snackbar.LENGTH_LONG, null)
-            }
-
-            override fun onNext(o: ByteArray) {
-                super.onNext(o)
-                realm.beginTransaction()
-                val sketch = realm.createObject(Sketch::class.java)
-                sketch.bytes = o
-                sketch.title = eventFilenameChosen.filename
-                sketch.id = UUID.randomUUID().toString()
-                realm.commitTransaction()
-            }
-
-            override fun onStart() {
-                super.onStart()
-                saver.startSaveAnimation()
-            }
-        }
-
-        val root = canvasLayout.drawerBitmap
-        val bitmap = Bitmap.createBitmap(root.width, root.height, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(bitmap)
-        canvas.drawColor(canvasLayout.backgroundColor)
-        canvas.drawBitmap(root, 0f, 0f, null)
-
-        FileUtils.compress(bitmap)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(safeSubscription)
     }
 
     private fun showBrushChooser(view: View) {
@@ -215,7 +159,7 @@ class HomeActivity : BaseActivity(), CanvasLayoutListener, NavigationView.OnNavi
 
         TransitionHelper.makeFabDialogTransitions(this, view, fabFrame, picker)
 
-        fragmentManager.beginTransaction()
+        supportFragmentManager.beginTransaction()
                 .replace(R.id.canvas_framelayout_animator, picker, TAG_FRAGMENT_BRUSH)
                 .commit()
 
@@ -226,13 +170,13 @@ class HomeActivity : BaseActivity(), CanvasLayoutListener, NavigationView.OnNavi
         val color = if (toFill) canvasLayout.backgroundColor else canvasLayout.brushColor
         val picker = ColorPickerFragment.newInstance(color, toFill)
 
-        if (view is Fab) {
+        if (view is FloatingActionButton) {
             TransitionHelper.makeFabDialogTransitions(this, view, fabFrame, picker)
         } else {
             TransitionHelper.makeButtonDialogTransitions(this, view, fabFrame, picker)
         }
 
-        fragmentManager.beginTransaction()
+        supportFragmentManager.beginTransaction()
                 .replace(R.id.canvas_framelayout_animator, picker, TAG_FRAGMENT_COLOR_PICKER)
                 .commit()
 
@@ -242,13 +186,13 @@ class HomeActivity : BaseActivity(), CanvasLayoutListener, NavigationView.OnNavi
     private fun showTextFragment(view: View) {
         val text = TextFragment.newInstance()
 
-        if (view is Fab) {
+        if (view is FloatingActionButton) {
             TransitionHelper.makeFabDialogTransitions(this, view, fabFrame, text)
         } else {
             TransitionHelper.makeButtonDialogTransitions(this, view, fabFrame, text)
         }
 
-        fragmentManager.beginTransaction()
+        supportFragmentManager.beginTransaction()
                 .replace(R.id.canvas_framelayout_animator, text, TAG_FRAGMENT_TEXT)
                 .commit()
 
@@ -260,7 +204,7 @@ class HomeActivity : BaseActivity(), CanvasLayoutListener, NavigationView.OnNavi
 
         TransitionHelper.makeFabDialogTransitions(this, view, fabFrame, filename)
 
-        fragmentManager.beginTransaction()
+        supportFragmentManager.beginTransaction()
                 .replace(R.id.canvas_framelayout_animator, filename, TAG_FRAGMENT_FILENAME)
                 .commit()
 
@@ -285,7 +229,6 @@ class HomeActivity : BaseActivity(), CanvasLayoutListener, NavigationView.OnNavi
                         photoFile = FileUtils.createPhotoFile()
                         filePath = photoFile.absolutePath
                     } catch (e: IOException) {
-                        Logg.log(e)
                     }
 
                     if (photoFile != null) {

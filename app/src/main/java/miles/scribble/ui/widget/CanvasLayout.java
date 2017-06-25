@@ -9,6 +9,7 @@ import android.content.Context;
 import android.graphics.*;
 import android.os.Handler;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
@@ -18,29 +19,26 @@ import android.view.SoundEffectConstants;
 import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Toolbar;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import miles.scribble.MainApp;
 import miles.scribble.R;
-import miles.scribble.data.event.*;
-import miles.scribble.rx.SafeSubscription;
-import miles.scribble.ui.activity.HomeActivity;
-import miles.scribble.ui.drawing.DrawingCurve;
+import miles.scribble.home.HomeActivity;
+import miles.scribble.home.drawing.DrawingCurve;
 import miles.scribble.util.FileUtils;
 import miles.scribble.util.ViewUtils;
-import org.greenrobot.eventbus.EventBus;
+import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
-
-import javax.inject.Inject;
 
 /**
  * Created by milespeele on 8/7/15.
  */
 public class CanvasLayout extends CoordinatorLayout implements
-        CircleFabMenu.ViewFabMenuListener, DrawingCurve.DrawingCurveListener,
+        CircleFabMenu.ViewFloatingActionButtonMenuListener, DrawingCurve.DrawingCurveListener,
         View.OnClickListener {
 
     @BindView(R.id.canvas_surface) CanvasSurface drawer;
@@ -48,9 +46,6 @@ public class CanvasLayout extends CoordinatorLayout implements
     @BindView(R.id.canvas_framelayout_animator) RoundedFrameLayout fabFrame;
     @BindView(R.id.canvas_text_bitmap) LinearLayout textAndBitmapOptions;
     @BindView(R.id.canvas_toolbar)  Toolbar toolbar;
-
-    @Inject
-    EventBus bus;
 
     private Rect mRect = new Rect();
     private Paint mShadowPaint;
@@ -171,12 +166,12 @@ public class CanvasLayout extends CoordinatorLayout implements
     }
 
     @Override
-    public void onFabMenuButtonClicked(Fab v) {
+    public void onFloatingActionButtonMenuButtonClicked(FloatingActionButton v) {
         mListener.onFabMenuButtonClicked(v);
 
         v.performClick();
 
-        Fab eraser = fabMenu.eraser;
+        FloatingActionButton eraser = fabMenu.eraser;
 
         switch (v.getId()) {
             case R.id.menu_toggle:
@@ -211,8 +206,8 @@ public class CanvasLayout extends CoordinatorLayout implements
     @Override
     public void toggleOptionsMenuVisibilty(boolean setVisible, DrawingCurve.State state) {
         if (setVisible) {
-            TypefaceButton option1 = (TypefaceButton) textAndBitmapOptions.getChildAt(1);
-            TypefaceButton option2 = (TypefaceButton) textAndBitmapOptions.getChildAt(2);
+            Button option1 = (Button) textAndBitmapOptions.getChildAt(1);
+            Button option2 = (Button) textAndBitmapOptions.getChildAt(2);
             if (state == DrawingCurve.State.TEXT) {
                 option1.setText(R.string.view_options_menu_edit_text);
                 option1.setCompoundDrawablesWithIntrinsicBounds(null, null, null,
@@ -261,11 +256,17 @@ public class CanvasLayout extends CoordinatorLayout implements
 
                 final HomeActivity activity = (HomeActivity) getContext();
 
-                SafeSubscription<byte[]> subscriber = new SafeSubscription<byte[]>(activity) {
+                Subscriber<byte[]> subscriber = new Subscriber<byte[]>() {
                     @Override
                     public void onCompleted() {
                         activity.finishAndRemoveTask();
                     }
+
+                    @Override
+                    public void onError(Throwable throwable) { }
+
+                    @Override
+                    public void onNext(byte[] bytes) { }
                 };
 
                 FileUtils.cache(getDrawerBitmap(), activity)
@@ -294,26 +295,6 @@ public class CanvasLayout extends CoordinatorLayout implements
 
     public void setActivityListener(HomeActivity activityListener) {
         mListener = activityListener;
-    }
-
-    public void onEvent(EventTextChosen eventTextChosen) {
-        makeDrawingVisible();
-    }
-
-    public void onEvent(EventBitmapChosen eventBitmapChosen) {
-        makeDrawingVisible();
-    }
-
-    public void onEvent(EventColorChosen eventColorChosen) {
-        makeDrawingVisible();
-    }
-
-    public void onEvent(EventFilenameChosen eventFilenameChosen) {
-        makeDrawingVisible();
-    }
-
-    public void onEvent(EventClearCanvas eventClearCanvas) {
-        makeDrawingVisible();
     }
 
     private void makeDrawingVisible() {

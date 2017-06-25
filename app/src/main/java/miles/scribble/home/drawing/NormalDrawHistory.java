@@ -1,4 +1,4 @@
-package miles.scribble.ui.drawing;
+package miles.scribble.home.drawing;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;

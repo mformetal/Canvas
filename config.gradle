@@ -8,17 +8,8 @@ ext {
 
     daggerVersion = '2.9'
     androidSupportVersion = '26.0.0-alpha1'
-    gsonVersion = '2.8.1'
     retrofitVersion = '2.3.0'
     okHttpVersion = '3.8.1'
-    javaxAnnotationVersion = '10.0-b28'
-    glideVersion = '4.0.0-RC1'
-    guavaVersion = '22.0-android'
-    rxJavaVersion = '1.0.14'
-    rxAndroidVersion = '1.1.0'
-    eventBusVersion = '3.0.0'
-    circleImageViewVersion = '2.1.0'
-    autofitTextViewVersion = '0.2.1'
     butterKnifeVersion = '8.6.0'
 
     kotlinVersion = '1.1.2'
@@ -32,13 +23,11 @@ ext {
     butterKnife = "com.jakewharton:butterknife:${butterKnifeVersion}"
     butterKnifeApt = "com.jakewharton:butterknife-compiler:${butterKnifeVersion}"
 
-    gson = "com.google.code.gson:gson:${gsonVersion}"
-    guava = "com.google.guava:guava:${guavaVersion}"
+    gson = "com.google.code.gson:gson:2.8.1"
+    guava = "com.google.guava:guava:22.0-android"
 
-    eventBus = "org.greenrobot:eventbus:${eventBusVersion}"
-
-    rxJava = "io.reactivex:rxjava:${rxJavaVersion}"
-    rxAndroid = "io.reactivex:rxandroid:${rxAndroidVersion}"
+    rxJava = "io.reactivex:rxjava:1.0.14"
+    rxAndroid = "io.reactivex:rxandroid:1.1.0"
 
     appCompat = "com.android.support:appcompat-v7:${androidSupportVersion}"
     recyclerView = "com.android.support:recyclerview-v7:${androidSupportVersion}"
@@ -50,9 +39,11 @@ ext {
     retrofitRx = "com.squareup.retrofit2:adapter-rxjava:${retrofitVersion}"
     httpLoggingInterceptor = "com.squareup.okhttp3:logging-interceptor:${okHttpVersion}"
 
-    glide = "com.github.bumptech.glide:glide:${glideVersion}"
+    timber = "com.jakewharton.timber:timber:4.5.1"
 
-    circleImageView = "de.hdodenhof:circleimageview:${circleImageViewVersion}"
+    glide = "com.github.bumptech.glide:glide:4.0.0-RC1"
 
-    autoFitTextView = "me.grantland:autofittextview:${autofitTextViewVersion}"
+    circleImageView = "de.hdodenhof:circleimageview:2.1.0"
+
+    autoFitTextView = "me.grantland:autofittextview:0.2.1"
 }

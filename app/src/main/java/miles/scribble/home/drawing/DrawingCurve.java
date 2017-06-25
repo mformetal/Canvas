@@ -1,51 +1,27 @@
-package miles.scribble.ui.drawing;
+package miles.scribble.home.drawing;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Matrix;
-import android.graphics.Paint;
-import android.graphics.Point;
-import android.graphics.PointF;
-import android.graphics.PorterDuff;
+import android.graphics.*;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
-import android.text.Layout;
 import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.view.MotionEvent;
-
-import org.greenrobot.eventbus.EventBus;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Stack;
-
-import javax.inject.Inject;
-
-import io.realm.Realm;
 import miles.scribble.MainApp;
 import miles.scribble.R;
-import miles.scribble.data.model.Sketch;
-import miles.scribble.data.event.EventBitmapChosen;
-import miles.scribble.data.event.EventBrushChosen;
-import miles.scribble.data.event.EventClearCanvas;
-import miles.scribble.data.event.EventColorChosen;
-import miles.scribble.data.event.EventTextChosen;
 import miles.scribble.data.Datastore;
-import miles.scribble.data.event.EventUpdateDrawingCurve;
 import miles.scribble.util.FileUtils;
-import miles.scribble.util.Logg;
 import miles.scribble.util.PaintStyles;
 import miles.scribble.util.ViewUtils;
 import rx.Observable;
 import rx.Subscriber;
 import rx.functions.Action1;
 import rx.schedulers.Schedulers;
+
+import javax.inject.Inject;
+import java.util.Stack;
 
 /**
  * Created by mbpeele on 9/25/15.
@@ -87,9 +63,8 @@ public class DrawingCurve {
     private float mLastRotation = 0f;
     private boolean shouldUpdate;
 
-    @Inject Datastore store;
     @Inject
-    EventBus bus;
+    Datastore store;
     private BitmapCache cache;
 
     private DrawingCurveListener mListener;
@@ -417,7 +392,7 @@ public class DrawingCurve {
                     .doOnError(new Action1<Throwable>() {
                         @Override
                         public void call(Throwable throwable) {
-                            Logg.log(throwable);
+
                         }
                     })
                     .subscribeOn(Schedulers.io())
@@ -545,165 +520,6 @@ public class DrawingCurve {
                 mPhotoBitmap.recycle();
                 mPhotoBitmap = null;
                 break;
-        }
-    }
-
-    @SuppressWarnings("unused")
-    public void onEvent(EventUpdateDrawingCurve eventUpdateDrawingCurve) {
-        isSafeToDraw = false;
-
-        Realm realm = Realm.getDefaultInstance();
-        Sketch sketch = realm.where(Sketch.class).equalTo("id", eventUpdateDrawingCurve.id).findFirst();
-        realm.close();
-
-        mAllHistory.clear();
-        mRedoneHistory.clear();
-        mStroke.clear();
-
-        mCachedBitmap = BitmapFactory.decodeByteArray(sketch.getBytes(), 0,
-                sketch.getBytes().length, FileUtils.getBitmapOptions());
-        mBitmap = Bitmap.createBitmap(mCachedBitmap.getWidth(), mCachedBitmap.getHeight(), Bitmap.Config.ARGB_8888);
-        mCanvas = new Canvas(mBitmap);
-        mCanvas.drawBitmap(mCachedBitmap, 0, 0, null);
-
-        isSafeToDraw = true;
-    }
-
-    @SuppressWarnings("unused")
-    public void onEvent(EventClearCanvas eventClearCanvas) {
-        isSafeToDraw = false;
-
-        int width = mBitmap.getWidth(), height = mBitmap.getHeight();
-
-        FileUtils.deleteBitmapFile(mContext, FileUtils.DRAWING_BITMAP_FILENAME);
-
-        mStroke.clear();
-        mAllHistory.clear();
-        mRedoneHistory.clear();
-
-        mCachedBitmap.recycle();
-        mCachedBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-
-        mBitmap.recycle();
-        mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        mCanvas = new Canvas(mBitmap);
-
-        isSafeToDraw = true;
-    }
-
-    @SuppressWarnings("unused")
-    public void onEvent(EventTextChosen eventTextChosen) {
-        mTextLayout = new StaticLayout(eventTextChosen.text, mTextPaint, mBitmap.getWidth(),
-                Layout.Alignment.ALIGN_CENTER, 1, 1, false);
-
-        switch (mState) {
-            case DRAW:
-                mMatrix.postTranslate(0, mBitmap.getHeight() / 2f);
-
-                changeState(State.TEXT);
-
-                mHandler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        mListener.toggleOptionsMenuVisibilty(true, State.TEXT);
-                        mListener.toggleFabMenuVisibility(false);
-                    }
-                }, 350);
-                break;
-        }
-    }
-
-    @SuppressWarnings("unused")
-    public void onEvent(EventColorChosen eventColorChosen) {
-        int color = eventColorChosen.color;
-
-        switch (mState) {
-            case DRAW:
-                if (eventColorChosen.fill) {
-                    mBackgroundColor = color;
-
-                    store.setLastBackgroundColor(mBackgroundColor);
-
-                    mStroke.clear();
-                    mAllHistory.clear();
-                    mRedoneHistory.clear();
-
-
-                    mCachedBitmap.eraseColor(mBackgroundColor);
-                    mBitmap.eraseColor(mBackgroundColor);
-
-                    mOppositeBackgroundColor = ViewUtils.complementColor(mBackgroundColor);
-                } else {
-                    mStrokeColor = color;
-
-                    setPaintColor(color);
-                }
-                break;
-            case TEXT:
-                mTextPaint.setColor(color);
-                break;
-            case ERASE:
-                mStrokeColor = color;
-                changeState(State.DRAW);
-                break;
-        }
-    }
-
-    @SuppressWarnings("unused")
-    public void onEvent(EventBrushChosen eventBrushChosen) {
-        Paint paint = eventBrushChosen.paint;
-
-        changeState(State.DRAW);
-
-        mPaint.set(paint);
-        mStroke.paint.set(mPaint);
-
-        STROKE_WIDTH = paint.getStrokeWidth();
-    }
-
-    @SuppressWarnings("unused")
-    public void onEvent(EventBitmapChosen eventBitmapChosen) {
-        if (mPhotoBitmap != null) {
-            mPhotoBitmap.recycle();
-        }
-
-        ViewUtils.identityMatrix(mMatrix);
-
-        mPhotoBitmapUri = eventBitmapChosen.data;
-        InputStream inputStream = null;
-        if (mPhotoBitmapUri != null) {
-            try {
-                inputStream = mContext.getContentResolver().openInputStream(mPhotoBitmapUri);
-                mPhotoBitmap = FileUtils.getBitmapFromStream(inputStream);
-
-                float scale = Math.min((float) mBitmap.getWidth() / mPhotoBitmap.getWidth(),
-                        (float) mBitmap.getHeight() / mPhotoBitmap.getHeight());
-                scale = Math.max(scale, Math.min((float) mBitmap.getHeight() / mPhotoBitmap.getWidth(),
-                        (float) mBitmap.getWidth() / mPhotoBitmap.getHeight()));
-                if (scale < 1) {
-                    mMatrix.setScale(scale, scale);
-                }
-            } catch (IOException e) {
-                Logg.log(e);
-            } finally {
-                if (inputStream != null) {
-                    try {
-                        mHandler.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                mListener.toggleOptionsMenuVisibilty(true, State.PICTURE);
-                                mListener.toggleFabMenuVisibility(false);
-                            }
-                        }, 350);
-
-                        changeState(State.PICTURE);
-
-                        inputStream.close();
-                    } catch (IOException e) {
-                        Logg.log(e);
-                    }
-                }
-            }
         }
     }
 

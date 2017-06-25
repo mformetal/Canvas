@@ -5,127 +5,94 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content" >
 
-    <miles.scribble.ui.widget.Fab
+    <android.support.design.widget.FloatingActionButton
         android:id="@+id/menu_toggle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_add_24dp"
         android:layout_margin="@dimen/fab_margin"
         android:padding="@dimen/fab_padding"
-        app:backgroundTint="@android:color/white"
-        app:borderWidth="0dp"
         app:elevation="@dimen/fab_elevation"
-        app:rippleColor="@color/primary_dark"
         app:fabSize="mini" />
 
-    <miles.scribble.ui.widget.Fab
+    <android.support.design.widget.FloatingActionButton
         android:id="@+id/menu_upload"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_upload_24dp"
-        app:backgroundTint="@android:color/white"
-        app:borderWidth="0dp"
         app:elevation="@dimen/fab_elevation"
-        app:rippleColor="@color/primary_dark"
         app:fabSize="mini" />
 
-    <miles.scribble.ui.widget.Fab
+    <android.support.design.widget.FloatingActionButton
         android:id="@+id/menu_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_text_format_24dp"
-        app:backgroundTint="@android:color/white"
-        app:borderWidth="0dp"
         app:elevation="@dimen/fab_elevation"
-        app:rippleColor="@color/primary_dark"
         app:fabSize="mini" />
 
-    <miles.scribble.ui.widget.Fab
+    <android.support.design.widget.FloatingActionButton
         android:id="@+id/menu_stroke_color"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_palette_24dp"
-        app:backgroundTint="@android:color/white"
-        app:borderWidth="0dp"
         app:elevation="@dimen/fab_elevation"
-        app:rippleColor="@color/primary_dark"
         app:fabSize="mini" />
 
-    <miles.scribble.ui.widget.Fab
+    <android.support.design.widget.FloatingActionButton
         android:id="@+id/menu_canvas_color"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_format_color_fill_24dp"
-        app:backgroundTint="@android:color/white"
-        app:borderWidth="0dp"
         app:elevation="@dimen/fab_elevation"
-        app:rippleColor="@color/primary_dark"
         app:fabSize="mini" />
 
-    <miles.scribble.ui.widget.Fab
+    <android.support.design.widget.FloatingActionButton
         android:id="@+id/menu_ink"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_colorize_24dp"
-        app:backgroundTint="@android:color/white"
-        app:borderWidth="0dp"
         app:elevation="@dimen/fab_elevation"
-        app:rippleColor="@color/primary_dark"
         app:fabSize="mini" />
 
-    <miles.scribble.ui.widget.Fab
+    <android.support.design.widget.FloatingActionButton
         android:id="@+id/menu_brush"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_brush_24dp"
-        app:backgroundTint="@android:color/white"
-        app:borderWidth="0dp"
         app:elevation="@dimen/fab_elevation"
-        app:rippleColor="@color/primary_dark"
         app:fabSize="mini" />
 
-    <miles.scribble.ui.widget.Fab
+    <android.support.design.widget.FloatingActionButton
         android:id="@+id/menu_undo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_undo_24dp"
-        app:backgroundTint="@android:color/white"
-        app:borderWidth="0dp"
         app:elevation="@dimen/fab_elevation"
-        app:rippleColor="@color/primary_dark"
         app:fabSize="mini" />
 
-    <miles.scribble.ui.widget.Fab
+    <android.support.design.widget.FloatingActionButton
         android:id="@+id/menu_redo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_redo_24dp"
-        app:backgroundTint="@android:color/white"
-        app:borderWidth="0dp"
         app:elevation="@dimen/fab_elevation"
-        app:rippleColor="@color/primary_dark"
         app:fabSize="mini" />
 
-    <miles.scribble.ui.widget.Fab
+    <android.support.design.widget.FloatingActionButton
         android:id="@+id/menu_erase"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_erase_24dp"
-        app:backgroundTint="@android:color/white"
-        app:borderWidth="0dp"
         app:elevation="@dimen/fab_elevation"
-        app:rippleColor="@color/primary_dark"
         app:fabSize="mini" />
 
-    <miles.scribble.ui.widget.Fab
+    <android.support.design.widget.FloatingActionButton
         android:id="@+id/menu_image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_photo_24dp"
-        app:backgroundTint="@android:color/white"
-        app:borderWidth="0dp"
         app:elevation="@dimen/fab_elevation"
-        app:rippleColor="@color/primary_dark"
         app:fabSize="mini" />
 
 </miles.scribble.ui.widget.CircleFabMenu>

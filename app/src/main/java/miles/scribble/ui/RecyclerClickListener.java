@@ -1,4 +1,4 @@
-package miles.scribble.recyclerview;
+package miles.scribble.ui;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.View;

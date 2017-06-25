@@ -5,16 +5,13 @@ import android.support.v4.view.PagerAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
+import android.widget.TextView;
 import com.bumptech.glide.Glide;
-
-import java.util.ArrayList;
-
 import miles.scribble.R;
 import miles.scribble.data.model.Sketch;
 import miles.scribble.ui.widget.AspectRatioImageView;
-import miles.scribble.ui.widget.TypefaceTextView;
-import miles.scribble.util.Logg;
+
+import java.util.ArrayList;
 
 /**
  * Created by mbpeele on 1/12/16.
@@ -40,10 +37,8 @@ public class GalleryPagerAdapter extends PagerAdapter {
 
         Sketch sketch = mDataList.get(position);
 
-        AspectRatioImageView imageView =
-                (AspectRatioImageView) viewGroup.findViewById(R.id.adapter_gallery_image);
-        TypefaceTextView textView =
-                (TypefaceTextView) viewGroup.findViewById(R.id.adapter_gallery_title);
+        AspectRatioImageView imageView = viewGroup.findViewById(R.id.adapter_gallery_image);
+        TextView textView = viewGroup.findViewById(R.id.adapter_gallery_title);
 
         textView.setText(sketch.getTitle());
 

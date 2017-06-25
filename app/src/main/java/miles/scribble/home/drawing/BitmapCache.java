@@ -1,4 +1,4 @@
-package miles.scribble.ui.drawing;
+package miles.scribble.home.drawing;
 
 import android.app.Activity;
 import android.app.ActivityManager;
@@ -7,9 +7,9 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.net.Uri;
-
 import com.bumptech.glide.util.LruCache;
 import com.google.common.io.ByteStreams;
+import miles.scribble.util.FileUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -20,8 +20,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-
-import miles.scribble.util.FileUtils;
 
 import static android.content.Context.ACTIVITY_SERVICE;
 import static android.content.pm.ApplicationInfo.FLAG_LARGE_HEAP;

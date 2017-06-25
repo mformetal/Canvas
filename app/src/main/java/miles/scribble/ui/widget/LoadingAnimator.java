@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import miles.scribble.R;
-import miles.scribble.util.Logg;
 import miles.scribble.util.ViewUtils;
 
 /**
