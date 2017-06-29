@@ -1,52 +1,47 @@
 package miles.scribble.home
 
+import android.Manifest
 import android.app.Activity
-import android.app.Dialog
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
-import android.os.PersistableBundle
-import android.provider.MediaStore
-import android.support.design.widget.FloatingActionButton
-import android.support.design.widget.NavigationView
+import android.provider.Settings
 import android.support.v4.app.ActivityCompat
-import android.support.v4.view.GravityCompat
 import android.support.v4.widget.DrawerLayout
-import android.view.MenuItem
+import android.support.v7.app.AlertDialog
 import android.view.View
 import butterknife.BindView
 import butterknife.ButterKnife
 import kotlinx.android.synthetic.main.activity_home.*
 
-import java.io.File
-import java.io.IOException
-
 import miles.scribble.R
-import miles.scribble.extensions.systemUIGone
-import miles.scribble.extensions.systemUIVisibile
-import miles.scribble.ui.BaseActivity
-import miles.scribble.gallery.GalleryActivity
-import miles.scribble.home.drawing.DrawingCurve
-import miles.scribble.ui.transition.TransitionHelper
+import miles.scribble.dagger.activity.HasActivitySubcomponentBuilders
+import miles.scribble.home.di.HomeComponent
+import miles.scribble.home.di.HomeModule
+import miles.scribble.home.viewmodel.HomeViewModel
+import miles.scribble.ui.ViewModelActivity
 import miles.scribble.ui.widget.CanvasLayout
 import miles.scribble.ui.widget.RoundedFrameLayout
-import miles.scribble.util.FileUtils
 import miles.scribble.util.ViewUtils
+import miles.scribble.util.extensions.*
 
 
-class HomeActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedListener {
+class HomeActivity : ViewModelActivity<HomeViewModel>() {
 
-    private val TAG_FRAGMENT_COLOR_PICKER = "color"
-    private val TAG_FRAGMENT_FILENAME = "name"
-    private val TAG_FRAGMENT_BRUSH = "brush"
-    private val TAG_FRAGMENT_TEXT = "text"
-    private val REQUEST_IMPORT_CODE = 2001
-    private val REQUEST_CAMERA_CODE = 2002
-    private val REQUEST_PERMISSION_CAMERA_CODE = 2003
+    val REQUEST_PERMISSION_WRITE_SETTINGS = 1
 
     @BindView(R.id.canvas) lateinit var canvasLayout: CanvasLayout
     @BindView(R.id.canvas_framelayout_animator) lateinit var fabFrame: RoundedFrameLayout
+
+    override fun inject(hasActivitySubcomponentBuilders: HasActivitySubcomponentBuilders) : HomeViewModel {
+        val builder = hasActivitySubcomponentBuilders.getBuilder(HomeActivity::class.java)
+        val componentBuilder = builder as HomeComponent.Builder
+        val component = componentBuilder.module(HomeModule(this)).build()
+        component.injectMembers(this)
+        return component.viewModel()
+    }
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,11 +49,7 @@ class HomeActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
         ButterKnife.bind(this)
 
-        ViewUtils.systemUIGone(window.decorView)
-
         root.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
-        navigation.setNavigationItemSelectedListener(this)
-
         root.addDrawerListener(object : DrawerLayout.SimpleDrawerListener() {
             override fun onDrawerOpened(drawerView: View?) {
                 window.decorView.systemUIVisibile()
@@ -70,38 +61,38 @@ class HomeActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         })
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == Activity.RESULT_OK) {
-            when (requestCode) {
-                REQUEST_IMPORT_CODE -> {
-
-                }
-                REQUEST_CAMERA_CODE -> {
-
-                }
-            }
-        }
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int,
-                                            permissions: Array<String>,
-                                            grantResults: IntArray) {
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         when (requestCode) {
-            REQUEST_PERMISSION_CAMERA_CODE -> {
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                }
+            REQUEST_PERMISSION_WRITE_SETTINGS -> {
+                setAutoRotate(true)
+            }
+            else -> {
+                super.onActivityResult(requestCode, resultCode, data)
             }
         }
     }
 
-    override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.activity_home_menu_gallery -> startActivity(Intent(this, GalleryActivity::class.java))
-        }
+    override fun onResume() {
+        super.onResume()
 
-        root.closeDrawer(GravityCompat.START)
-        return true
+        ViewUtils.systemUIGone(window.decorView)
+
+        if (hasWriteSettingsPermission()) {
+            setAutoRotate(true)
+            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR
+        } else {
+            if (isAtLeastMarshmallow()) {
+                val intent = Intent(android.provider.Settings.ACTION_MANAGE_WRITE_SETTINGS)
+                intent.data = Uri.parse("package:" + packageName)
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                startActivity(intent)
+            }
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+
+        setAutoRotate(false)
     }
 }

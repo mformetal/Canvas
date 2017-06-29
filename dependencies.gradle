@@ -13,9 +13,11 @@ ext {
     butterKnifeVersion = '8.6.0'
     archComponentsVersion = '1.0.0-alpha3'
 
-    kotlinVersion = '1.1.2'
+    appCompatVersion = '25.4.0'
+    appCompat = "com.android.support:appcompat-v7:${appCompatVersion}"
+
+    kotlinVersion = '1.1.2-4'
     kotlinStdLib = "org.jetbrains.kotlin:kotlin-stdlib-jre7:${kotlinVersion}"
-    kotlinReflect = "org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}"
 
     dagger = "com.google.dagger:dagger:${daggerVersion}"
     daggerCompiler = "com.google.dagger:dagger-compiler:${daggerVersion}"

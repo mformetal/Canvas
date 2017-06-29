@@ -9,24 +9,29 @@ import java.util.ArrayList
 /**
  * Created by mbpeele on 11/23/15.
  */
-internal class Stroke(paint: Paint) : ArrayList<CanvasPoint>() {
+internal class Stroke(paint: Paint) {
 
     private val TOLERANCE = 5f
+    val points : ArrayList<CanvasPoint> = ArrayList()
 
     val paint: Paint = Paint(paint)
 
     fun peek(): CanvasPoint {
-        return get(size - 1)
+        return points.last()
+    }
+
+    fun clear() {
+        points.clear()
     }
 
     fun addPoint(x: Float, y: Float, canvas: Canvas, paint: Paint) {
         val nextPoint: CanvasPoint
-        if (isEmpty()) {
+        if (points.isEmpty()) {
             nextPoint = CanvasPoint(x, y, SystemClock.currentThreadTimeMillis())
 
             paint.strokeWidth = paint.strokeWidth / 2
             canvas.drawPoint(x, y, paint)
-            add(nextPoint)
+            points.add(nextPoint)
             paint.strokeWidth = paint.strokeWidth * 2
         } else {
             val prevPoint = peek()
@@ -37,7 +42,7 @@ internal class Stroke(paint: Paint) : ArrayList<CanvasPoint>() {
 
             nextPoint = CanvasPoint(x, y, SystemClock.currentThreadTimeMillis())
 
-            add(nextPoint)
+            points.add(nextPoint)
             draw(prevPoint, nextPoint, canvas, paint)
         }
     }

@@ -1,6 +1,10 @@
 package miles.scribble.ui.widget;
 
-import android.animation.*;
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
+import android.animation.PropertyValuesHolder;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
@@ -14,25 +18,26 @@ import android.view.animation.AnticipateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.view.animation.OvershootInterpolator;
-import butterknife.BindView;
-import butterknife.BindViews;
-import butterknife.ButterKnife;
-import miles.scribble.R;
-import miles.scribble.util.Circle;
-import miles.scribble.util.ViewUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.BindViews;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import miles.scribble.R;
+import miles.scribble.util.Circle;
+import miles.scribble.util.ViewUtils;
+
 /**
  * Created by milespeele on 8/7/15.
  */
 public class CircleFabMenu extends ViewGroup {
 
-    @BindView(R.id.menu_toggle)
-    FloatingActionButton toggle;
+    @BindView(R.id.menu_toggle) FloatingActionButton toggle;
     @BindView(R.id.menu_erase) FloatingActionButton eraser;
     @BindView(R.id.menu_upload) FloatingActionButton saver;
 
@@ -141,7 +146,7 @@ public class CircleFabMenu extends ViewGroup {
 
         mCircle = new Circle(ViewUtils.relativeCenterX(toggle), ViewUtils.relativeCenterY(toggle),
                 toggle.getMeasuredHeight() * 3.75f);
-        mItemPositions.add(new ItemPosition(toggle, getCenterX(), getCenterY(), ViewUtils.radius(toggle)));
+        mItemPositions.add(new ItemPosition(toggle, getCx(), getCy(), ViewUtils.radius(toggle)));
 
         float mItemRadius = toggle.getMeasuredHeight() * 3;
         final int count = getChildCount();
@@ -151,8 +156,8 @@ public class CircleFabMenu extends ViewGroup {
             final FloatingActionButton child = (FloatingActionButton) getChildAt(i);
             if (child.getId() != R.id.menu_toggle) {
                 double angle = i * slice;
-                double x = getCenterX() + mItemRadius * Math.cos(angle);
-                double y = getCenterY() - mItemRadius * Math.sin(angle);
+                double x = getCx() + mItemRadius * Math.cos(angle);
+                double y = getCy() - mItemRadius * Math.sin(angle);
 
                 child.layout((int) x - child.getMeasuredWidth() / 2,
                         (int) y - child.getMeasuredHeight() / 2,
@@ -162,8 +167,6 @@ public class CircleFabMenu extends ViewGroup {
                 mItemPositions.add(new ItemPosition(child, x, y, ViewUtils.radius(child)));
             }
         }
-
-        hide();
     }
 
     @Override
@@ -229,6 +232,11 @@ public class CircleFabMenu extends ViewGroup {
         return true;
     }
 
+    @OnClick(R.id.menu_toggle)
+    public void onToggleClicked() {
+        toggleMenu();
+    }
+
     private void rotateToggleOpen() {
         ObjectAnimator.ofFloat(toggle, View.ROTATION,
                 toggle.getRotation(), toggle.getRotation() - 135f).start();
@@ -289,8 +297,8 @@ public class CircleFabMenu extends ViewGroup {
                     continue;
                 }
 
-                float diffX = position.mItemCircle.getCenterX() - getCenterX();
-                float diffY = position.mItemCircle.getCenterY() - getCenterY();
+                float diffX = position.mItemCircle.getCx() - getCx();
+                float diffY = position.mItemCircle.getCy() - getCy();
 
                 ObjectAnimator out = ObjectAnimator.ofPropertyValuesHolder(view,
                         PropertyValuesHolder.ofFloat(View.X, view.getX() + diffX),
@@ -359,8 +367,8 @@ public class CircleFabMenu extends ViewGroup {
                     continue;
                 }
 
-                float diffX = position.mItemCircle.getCenterX() - getCenterX();
-                float diffY = position.mItemCircle.getCenterY() - getCenterY();
+                float diffX = position.mItemCircle.getCx() - getCx();
+                float diffY = position.mItemCircle.getCy() - getCy();
 
                 ObjectAnimator out = ObjectAnimator.ofPropertyValuesHolder(view,
                         PropertyValuesHolder.ofFloat(View.X, view.getX() - diffX),
@@ -412,9 +420,9 @@ public class CircleFabMenu extends ViewGroup {
         return isMenuShowing && getVisibility() == View.VISIBLE;
     }
 
-    public float getCenterX() { return mCircle.getCenterX(); }
+    public float getCx() { return mCircle.getCx(); }
 
-    public float getCenterY() { return mCircle.getCenterY(); }
+    public float getCy() { return mCircle.getCy(); }
 
     public float getCircleRadius() { return mCircle.getRadius(); }
 
@@ -434,14 +442,14 @@ public class CircleFabMenu extends ViewGroup {
             double cosAngle = Math.cos(angleInRads);
             double sinAngle = Math.sin(angleInRads);
 
-            float dx = mItemCircle.getCenterX() - getCenterX();
-            float dy = mItemCircle.getCenterY() - getCenterY();
+            float dx = mItemCircle.getCx() - getCx();
+            float dy = mItemCircle.getCy() - getCy();
 
             float rx = (float) (dx * cosAngle - dy * sinAngle);
             float ry = (float) (dx * sinAngle + dy * cosAngle);
 
-            rx += getCenterX();
-            ry += getCenterY();
+            rx += getCx();
+            ry += getCy();
 
             mItemCircle.setCenterX(rx);
             mItemCircle.setCenterY(ry);
@@ -453,7 +461,7 @@ public class CircleFabMenu extends ViewGroup {
         }
 
         public boolean contains(float x, float y) {
-            return mItemCircle.getBoundingRect().contains(x, y);
+            return mItemCircle.contains(x, y);
         }
     }
 
@@ -463,8 +471,8 @@ public class CircleFabMenu extends ViewGroup {
         public int compare(ItemPosition lhs, ItemPosition rhs) {
             Circle left = lhs.mItemCircle;
             Circle right = rhs.mItemCircle;
-            if (left.getCenterX() < right.getCenterX()) return -1;
-            if (left.getCenterX() > right.getCenterX()) return 1;
+            if (left.getCx() < right.getCx()) return -1;
+            if (left.getCx() > right.getCx()) return 1;
             return 0;
         }
     }

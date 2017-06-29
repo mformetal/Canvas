@@ -17,7 +17,7 @@
 #}
 
 -dontwarn com.squareup.okhttp.**
--dontwarn com.google.appengine.api.urlfetch.**
+-dontwarn com.google.appengine.sdk.urlfetch.**
 -dontwarn rx.**
 -dontwarn retrofit.**
 -keepattributes Signature

@@ -13,7 +13,7 @@ android {
     defaultConfig {
         minSdkVersion config["minSdkVersion"]
         targetSdkVersion config["targetSdkVersion"]
-        applicationId config["applicationId"] + ".app"
+        applicationId config["applicationId"]
     }
 
     lintOptions {
@@ -22,34 +22,33 @@ android {
 }
 
 dependencies {
-    compile config.kotlinStdLib
+    implementation config.kotlinStdLib
 
-    compile config.butterKnife
+    implementation config.appCompat
+
+    implementation config.butterKnife
     kapt config.butterKnifeApt
 
     kapt config.daggerCompiler
-    provided config.javaxInject
-    compile config.dagger
+    compileOnly config.javaxInject
+    implementation config.dagger
 
-    compile config.guava
+    implementation config.guava
 
-    compile config.gson
+    implementation config.gson
 
-    compile config.supportDesign
-    compile config.supportAnnotation
+    implementation config.supportDesign
 
-    compile config.rxAndroid
-    compile config.rxJava
+    implementation config.rxAndroid
+    implementation config.rxJava
 
-    compile config.circleImageView
+    implementation config.glide
 
-    compile config.glide
+    debugImplementation config.timber
 
-    compile config.timber
-
-    compile config.lifecycle
-    compile config.lifecycleExtensions
+    implementation config.lifecycle
+    implementation config.lifecycleExtensions
     kapt config.lifecycleApt
 
-    compile config.autoFitTextView
+    implementation config.autoFitTextView
 }

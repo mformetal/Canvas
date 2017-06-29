@@ -2,19 +2,28 @@ package miles.scribble.home.drawing;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.*;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Matrix;
+import android.graphics.Paint;
+import android.graphics.Point;
+import android.graphics.PointF;
+import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.view.MotionEvent;
-import miles.scribble.MainApp;
+
+import java.util.Stack;
+
 import miles.scribble.R;
-import miles.scribble.data.Datastore;
 import miles.scribble.home.drawing.drawhistory.BitmapDrawHistory;
-import miles.scribble.home.drawing.drawhistory.NormalDrawHistory;
+import miles.scribble.home.drawing.drawhistory.PointsDrawHistory;
 import miles.scribble.home.drawing.drawhistory.TextDrawHistory;
+import miles.scribble.util.BitmapCache;
 import miles.scribble.util.FileUtils;
 import miles.scribble.util.PaintStyles;
 import miles.scribble.util.ViewUtils;
@@ -22,9 +31,6 @@ import rx.Observable;
 import rx.Subscriber;
 import rx.functions.Action1;
 import rx.schedulers.Schedulers;
-
-import javax.inject.Inject;
-import java.util.Stack;
 
 /**
  * Created by mbpeele on 9/25/15.
@@ -65,20 +71,16 @@ public class DrawingCurve {
     private double mOldDist = 1f;
     private float mLastRotation = 0f;
     private boolean shouldUpdate;
-
-    @Inject
-    Datastore store;
     private BitmapCache cache;
 
     private DrawingCurveListener mListener;
     public interface DrawingCurveListener {
-        void toggleOptionsMenuVisibilty(boolean visible, State state);
+
         void toggleFabMenuVisibility(boolean visible);
+
     }
 
     public DrawingCurve(Context context) {
-        ((MainApp) context.getApplicationContext()).getApplicationComponent().inject(this);
-
         mContext = context;
 
         cache = new BitmapCache(mContext);
@@ -89,7 +91,6 @@ public class DrawingCurve {
         int h = size.y;
 
         mStrokeColor = ViewUtils.randomColor();
-        mBackgroundColor = store.getLastBackgroundColor();
         mOppositeBackgroundColor = ViewUtils.complementColor(mBackgroundColor);
         mInkedColor = mStrokeColor;
 
@@ -319,7 +320,7 @@ public class DrawingCurve {
         switch (mState) {
             case ERASE:
             case DRAW:
-                mAllHistory.push(new NormalDrawHistory(mStroke, mStroke.getPaint()));
+                mAllHistory.push(new PointsDrawHistory(mStroke.getPoints(), mStroke.getPaint()));
                 mStroke.clear();
                 break;
             case INK:
@@ -417,8 +418,8 @@ public class DrawingCurve {
 
                         @Override
                         public void onNext(Object object) {
-                            if (object instanceof NormalDrawHistory) {
-                                ((NormalDrawHistory) object).draw(workerCanvas);
+                            if (object instanceof PointsDrawHistory) {
+                                ((PointsDrawHistory) object).draw(workerCanvas);
                             } else if (object instanceof BitmapDrawHistory) {
                                 ((BitmapDrawHistory) object).draw(mMatrix, cache, mContext, workerCanvas);
                             } else if (object instanceof TextDrawHistory) {
@@ -462,7 +463,6 @@ public class DrawingCurve {
     }
 
     public void onOptionsMenuCancel() {
-        mListener.toggleOptionsMenuVisibilty(false, null);
         mListener.toggleFabMenuVisibility(true);
 
         changeState(State.DRAW);
@@ -484,7 +484,6 @@ public class DrawingCurve {
         float[] values = new float[9];
         switch (mState) {
             case TEXT:
-                mListener.toggleOptionsMenuVisibilty(false, null);
                 mListener.toggleFabMenuVisibility(true);
 
                 mCanvas.save();
@@ -502,7 +501,6 @@ public class DrawingCurve {
                 mTextLayout = null;
                 break;
             case PICTURE:
-                mListener.toggleOptionsMenuVisibilty(false, null);
                 mListener.toggleFabMenuVisibility(true);
 
                 mCanvas.save();

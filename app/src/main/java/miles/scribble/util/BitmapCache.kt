@@ -1,4 +1,4 @@
-package miles.scribble.home.drawing
+package miles.scribble.util
 
 import android.app.Activity
 import android.app.ActivityManager
@@ -9,7 +9,6 @@ import android.graphics.Point
 import android.net.Uri
 import com.bumptech.glide.util.LruCache
 import com.google.common.io.ByteStreams
-import miles.scribble.util.FileUtils
 
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream

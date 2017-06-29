@@ -24,7 +24,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="30dp"
-		    android:layout_gravity="center" />
+        android:layout_gravity="center" />
 
     <include
         layout="@layout/canvas_fab_menu"
@@ -32,15 +32,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center_horizontal"
-        app:layout_behavior="miles.scribble.ui.widget.FabMenuBehavior" />
-
-    <include
-        layout="@layout/canvas_text_bitmap_options"
-        android:id="@+id/canvas_text_bitmap"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|center_horizontal"
-        android:visibility="gone"
         app:layout_behavior="miles.scribble.ui.widget.FabMenuBehavior" />
 
 </miles.scribble.ui.widget.CanvasLayout>

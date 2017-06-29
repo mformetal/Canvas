@@ -6,19 +6,22 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.*;
+import android.graphics.Bitmap;
+import android.graphics.BlurMaskFilter;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Rect;
 import android.os.Handler;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
-import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.util.Property;
 import android.view.MotionEvent;
 import android.view.SoundEffectConstants;
 import android.view.View;
-import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.Toolbar;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import miles.scribble.R;
@@ -33,7 +36,6 @@ public class CanvasLayout extends CoordinatorLayout implements DrawingCurve.Draw
     @BindView(R.id.canvas_surface) CanvasSurface drawer;
     @BindView(R.id.canvas_fab_menu) CircleFabMenu fabMenu;
     @BindView(R.id.canvas_framelayout_animator) RoundedFrameLayout fabFrame;
-    @BindView(R.id.canvas_text_bitmap) LinearLayout textAndBitmapOptions;
     @BindView(R.id.canvas_toolbar)  Toolbar toolbar;
 
     private Rect mRect = new Rect();
@@ -82,8 +84,8 @@ public class CanvasLayout extends CoordinatorLayout implements DrawingCurve.Draw
     protected boolean drawChild(Canvas canvas, View child, long drawingTime) {
         if (mShadowPaint.getAlpha() != 0) {
             if (child == fabMenu) {
-                canvas.drawCircle(fabMenu.getCenterX(),
-                        fabMenu.getCenterY() + (getHeight() - fabMenu.getHeight()),
+                canvas.drawCircle(fabMenu.getCx(),
+                        fabMenu.getCy() + (getHeight() - fabMenu.getHeight()),
                         mRadius, mShadowPaint);
             }
         }
@@ -133,35 +135,6 @@ public class CanvasLayout extends CoordinatorLayout implements DrawingCurve.Draw
         }
 
         return false;
-    }
-
-    @Override
-    public void toggleOptionsMenuVisibilty(boolean setVisible, DrawingCurve.State state) {
-        if (setVisible) {
-            Button option1 = (Button) textAndBitmapOptions.getChildAt(1);
-            Button option2 = (Button) textAndBitmapOptions.getChildAt(2);
-            if (state == DrawingCurve.State.TEXT) {
-                option1.setText(R.string.view_options_menu_edit_text);
-                option1.setCompoundDrawablesWithIntrinsicBounds(null, null, null,
-                        ContextCompat.getDrawable(getContext(), R.drawable.ic_text_format_24dp));
-
-                option2.setText(R.string.view_options_menu_edit_color);
-                option1.setCompoundDrawablesWithIntrinsicBounds(null, null, null,
-                        ContextCompat.getDrawable(getContext(), R.drawable.ic_palette_24dp));
-            } else {
-                option1.setText(R.string.view_options_menu_edit_camera);
-                option1.setCompoundDrawablesWithIntrinsicBounds(null, null, null,
-                        ContextCompat.getDrawable(getContext(), R.drawable.ic_camera_alt_24dp));
-
-                option2.setText(R.string.view_options_menu_edit_import);
-                option2.setCompoundDrawablesWithIntrinsicBounds(null, null, null,
-                        ContextCompat.getDrawable(getContext(), R.drawable.ic_photo_24dp));
-            }
-
-            ViewUtils.visible(textAndBitmapOptions);
-        } else {
-            ViewUtils.gone(textAndBitmapOptions);
-        }
     }
 
     @Override

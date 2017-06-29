@@ -7,6 +7,8 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Environment;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -99,6 +101,7 @@ public class FileUtils {
         return inSampleSize;
     }
 
+    @Nullable
     public static Bitmap getCachedBitmap(Context context) {
         Bitmap bitmap = null;
         try {

@@ -9,7 +9,7 @@ import java.util.ArrayList
 /**
  * Created by mbpeele on 1/4/16.
  */
-internal class NormalDrawHistory(points: ArrayList<CanvasPoint>, paint: Paint) {
+internal class PointsDrawHistory(points: ArrayList<CanvasPoint>, paint: Paint) {
 
     var lines: FloatArray = FloatArray(0)
     val paint: Paint = Paint(paint)

@@ -4,7 +4,7 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Matrix
 import android.net.Uri
-import miles.scribble.home.drawing.BitmapCache
+import miles.scribble.util.BitmapCache
 
 import java.io.IOException
 import java.io.InputStream
