@@ -19,6 +19,11 @@ import android.view.MotionEvent;
 
 import java.util.Stack;
 
+import io.reactivex.Observable;
+import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 import miles.scribble.R;
 import miles.scribble.home.drawing.drawhistory.BitmapDrawHistory;
 import miles.scribble.home.drawing.drawhistory.PointsDrawHistory;
@@ -27,10 +32,6 @@ import miles.scribble.util.BitmapCache;
 import miles.scribble.util.FileUtils;
 import miles.scribble.util.PaintStyles;
 import miles.scribble.util.ViewUtils;
-import rx.Observable;
-import rx.Subscriber;
-import rx.functions.Action1;
-import rx.schedulers.Schedulers;
 
 /**
  * Created by mbpeele on 9/25/15.
@@ -392,28 +393,20 @@ public class DrawingCurve {
         workerCanvas.drawColor(mBackgroundColor, PorterDuff.Mode.CLEAR);
 
         synchronized (mAllHistory) {
-            Observable.from(mAllHistory)
-                    .doOnError(new Action1<Throwable>() {
+            Observable.fromIterable(mAllHistory)
+                    .subscribeOn(Schedulers.io())
+                    .doOnSubscribe(new Consumer<Disposable>() {
                         @Override
-                        public void call(Throwable throwable) {
+                        public void accept(Disposable disposable) throws Exception {
 
                         }
                     })
-                    .subscribeOn(Schedulers.io())
-                    .subscribe(new Subscriber<Object>() {
+                    .subscribe(new Observer<Object>() {
                         @Override
-                        public void onCompleted() {
-                            mBitmap = worker.copy(Bitmap.Config.ARGB_8888, true);
-                            mCanvas = new Canvas(mBitmap);
+                        public void onSubscribe(Disposable d) {
+                            isSafeToDraw = false;
 
-                            worker.recycle();
-
-                            isSafeToDraw = true;
-                        }
-
-                        @Override
-                        public void onError(Throwable e) {
-
+                            workerCanvas.drawBitmap(mCachedBitmap, 0, 0, null);
                         }
 
                         @Override
@@ -428,12 +421,18 @@ public class DrawingCurve {
                         }
 
                         @Override
-                        public void onStart() {
-                            super.onStart();
+                        public void onError(Throwable e) {
+                            e.printStackTrace();
+                        }
 
-                            isSafeToDraw = false;
+                        @Override
+                        public void onComplete() {
+                            mBitmap = worker.copy(Bitmap.Config.ARGB_8888, true);
+                            mCanvas = new Canvas(mBitmap);
 
-                            workerCanvas.drawBitmap(mCachedBitmap, 0, 0, null);
+                            worker.recycle();
+
+                            isSafeToDraw = true;
                         }
                     });
         }

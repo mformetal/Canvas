@@ -16,7 +16,7 @@ ext {
     appCompatVersion = '25.4.0'
     appCompat = "com.android.support:appcompat-v7:${appCompatVersion}"
 
-    kotlinVersion = '1.1.2-4'
+    kotlinVersion = '1.1.3'
     kotlinStdLib = "org.jetbrains.kotlin:kotlin-stdlib-jre7:${kotlinVersion}"
 
     dagger = "com.google.dagger:dagger:${daggerVersion}"
@@ -33,8 +33,8 @@ ext {
     gson = "com.google.code.gson:gson:2.8.1"
     guava = "com.google.guava:guava:22.0-android"
 
-    rxJava = "io.reactivex:rxjava:1.0.14"
-    rxAndroid = "io.reactivex:rxandroid:1.1.0"
+    rxJava = "io.reactivex.rxjava2:rxjava:2.1.1"
+    rxAndroid = "io.reactivex.rxjava2:rxandroid:2.0.1"
 
     appCompat = "com.android.support:appcompat-v7:${androidSupportVersion}"
     recyclerView = "com.android.support:recyclerview-v7:${androidSupportVersion}"
