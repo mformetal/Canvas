@@ -35,10 +35,12 @@ class HomeActivity : ViewModelActivity<HomeViewModel>() {
     @BindView(R.id.canvas) lateinit var canvasLayout: CanvasLayout
     @BindView(R.id.canvas_framelayout_animator) lateinit var fabFrame: RoundedFrameLayout
 
+    lateinit var component : HomeComponent
+
     override fun inject(hasActivitySubcomponentBuilders: HasActivitySubcomponentBuilders) : HomeViewModel {
         val builder = hasActivitySubcomponentBuilders.getBuilder(HomeActivity::class.java)
         val componentBuilder = builder as HomeComponent.Builder
-        val component = componentBuilder.module(HomeModule(this)).build()
+        component = componentBuilder.module(HomeModule(this)).build()
         component.injectMembers(this)
         return component.viewModel()
     }

@@ -38,7 +38,10 @@ class MainApp : Application(), HasActivitySubcomponentBuilders {
 
         Realm.setDefaultConfiguration(realmConfiguration)
 
-        applicationComponent = DaggerApplicationComponent.create()
+        applicationComponent = DaggerApplicationComponent.builder()
+                .applicationModule(ApplicationModule(this))
+                .build()
+
         applicationComponent.inject(this)
     }
 

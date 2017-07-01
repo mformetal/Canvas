@@ -13,21 +13,17 @@ class OnBackPressedEditText : AppCompatEditText {
 
     private var mOnImeBack: BackPressedListener? = null
 
-    constructor(context: Context) : super(context) {}
+    constructor(context: Context) : super(context)
 
-    constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {}
+    constructor(context: Context, attrs: AttributeSet) : super(context, attrs)
 
-    constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {}
+    constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
 
     override fun onKeyPreIme(keyCode: Int, event: KeyEvent): Boolean {
         if (event.keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_UP) {
             mOnImeBack?.onImeBack(this)
         }
         return super.dispatchKeyEvent(event)
-    }
-
-    fun setBackPressedListener(listener: BackPressedListener) {
-        mOnImeBack = listener
     }
 
     interface BackPressedListener {
