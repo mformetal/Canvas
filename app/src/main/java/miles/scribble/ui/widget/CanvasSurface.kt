@@ -13,7 +13,6 @@ import javax.inject.Inject
 
 import miles.scribble.home.HomeActivity
 import miles.scribble.home.di.CanvasSurfaceModule
-import miles.scribble.home.drawing.DrawingCurve
 import miles.scribble.home.events.CanvasSurfaceEvents
 import miles.scribble.home.viewmodel.HomeState
 import miles.scribble.home.viewmodel.HomeViewModel
@@ -29,9 +28,6 @@ class CanvasSurface : SurfaceView, SurfaceHolder.Callback {
     @Inject
     lateinit var dispatcher : Dispatcher<CanvasSurfaceEvents, HomeState>
     private lateinit var drawingThread: DrawingThread
-
-    val drawingCurve: DrawingCurve
-        get() = viewModel.drawingCurve
 
     constructor(context: Context) : super(context) {
         init()
@@ -72,7 +68,7 @@ class CanvasSurface : SurfaceView, SurfaceHolder.Callback {
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        return !isEnabled || drawingCurve.onTouchEvent(event)
+        return !isEnabled && viewModel.onTouchEvent(event)
     }
 
     private inner class DrawingThread(private val mSurfaceHolder: SurfaceHolder) : Thread("drawingThread") {
@@ -96,8 +92,10 @@ class CanvasSurface : SurfaceView, SurfaceHolder.Callback {
 
                     synchronized(mSurfaceHolder) {
                         synchronized(mRunLock) {
-                            if (mRun) {
-                                drawingCurve.drawToSurfaceView(c)
+                            c?.let {
+                                if (mRun) {
+                                    viewModel.drawToSurfaceView(it)
+                                }
                             }
                         }
                     }

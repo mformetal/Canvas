@@ -10,11 +10,11 @@ import android.provider.Settings
 import miles.scribble.MainApp
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Point
 import android.net.Uri
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat.startActivity
-
-
+import android.view.WindowManager
 
 
 /**
@@ -38,5 +38,11 @@ fun Context.hasWriteSettingsPermission() : Boolean {
 fun Activity.setAutoRotate(enable: Boolean) {
     if (hasWriteSettingsPermission()) {
         Settings.System.putInt(contentResolver, Settings.System.ACCELEROMETER_ROTATION, if (enable) 1 else 0)
+    }
+}
+
+fun Context.getDisplaySize() : Point {
+    return Point().apply {
+        (getSystemService(Context.WINDOW_SERVICE) as WindowManager).defaultDisplay.getRealSize(this)
     }
 }

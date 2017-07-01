@@ -25,7 +25,10 @@ import miles.scribble.R
 import miles.scribble.dagger.activity.HasActivitySubcomponentBuilders
 import miles.scribble.home.di.HomeComponent
 import miles.scribble.home.di.HomeModule
+import miles.scribble.home.events.HomeActivityEvents
+import miles.scribble.home.viewmodel.HomeState
 import miles.scribble.home.viewmodel.HomeViewModel
+import miles.scribble.redux.core.Dispatcher
 import miles.scribble.ui.ViewModelActivity
 import miles.scribble.ui.widget.CanvasLayout
 import miles.scribble.ui.widget.RoundedFrameLayout
@@ -41,10 +44,14 @@ class HomeActivity : ViewModelActivity<HomeViewModel>() {
     lateinit var component : HomeComponent
     lateinit var orientationChangeListener : OrientationEventListener
 
+    @Inject
+    lateinit var dispatcher : Dispatcher<HomeActivityEvents, HomeState>
+
     override fun inject(app: MainApp) : HomeViewModel {
         val builder = app.getBuilder(HomeActivity::class.java)
         val componentBuilder = builder as HomeComponent.Builder
         component = componentBuilder.module(HomeModule(this)).build()
+        component.injectMembers(this)
         return component.viewModel()
     }
 
@@ -57,11 +64,9 @@ class HomeActivity : ViewModelActivity<HomeViewModel>() {
         orientationChangeListener = object : OrientationEventListener(this,
                 SensorManager.SENSOR_DELAY_NORMAL) {
             override fun onOrientationChanged(orientation: Int) {
-                val size = Point().apply {
-                    windowManager.defaultDisplay.getRealSize(this)
+                getDisplaySize().run {
+                    dispatcher.dispatch(HomeActivityEvents.Resize(x, y))
                 }
-
-                viewModel.resize(size.x, size.y)
             }
         }
     }
