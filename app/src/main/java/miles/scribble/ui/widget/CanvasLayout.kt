@@ -26,6 +26,7 @@ import butterknife.BindView
 import butterknife.ButterKnife
 import miles.scribble.R
 import miles.scribble.home.HomeActivity
+import miles.scribble.home.di.CanvasLayoutModule
 import miles.scribble.home.drawing.DrawingCurve
 import miles.scribble.home.viewmodel.HomeState
 import miles.scribble.home.viewmodel.HomeViewModel
@@ -79,7 +80,7 @@ class CanvasLayout : CoordinatorLayout, DrawingCurve.DrawingCurveListener, State
     }
 
     private fun init() {
-        (context as HomeActivity).component.inject(this)
+        (context as HomeActivity).component.canvasLayoutComponent(CanvasLayoutModule()).injectMembers(this)
 
         mShadowPaint = Paint(Paint.ANTI_ALIAS_FLAG)
         mShadowPaint.color = Color.BLACK

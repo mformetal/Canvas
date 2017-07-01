@@ -30,6 +30,7 @@ import butterknife.ButterKnife
 import butterknife.OnClick
 import miles.scribble.R
 import miles.scribble.home.HomeActivity
+import miles.scribble.home.di.CircleMenuModule
 import miles.scribble.home.events.CircleMenuEvents
 import miles.scribble.home.viewmodel.HomeState
 import miles.scribble.home.viewmodel.HomeViewModel
@@ -91,7 +92,7 @@ class CircleFabMenu : ViewGroup {
     }
 
     private fun init() {
-        (context as HomeActivity).component.inject(this)
+        (context as HomeActivity).component.circleMenuComponent(CircleMenuModule()).injectMembers(this)
 
         setWillNotDraw(false)
         descendantFocusability = ViewGroup.FOCUS_AFTER_DESCENDANTS

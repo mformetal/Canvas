@@ -16,6 +16,7 @@ import android.view.View
 import javax.inject.Inject
 
 import miles.scribble.home.HomeActivity
+import miles.scribble.home.di.CanvasSurfaceModule
 import miles.scribble.home.drawing.DrawingCurve
 import miles.scribble.home.viewmodel.HomeViewModel
 
@@ -49,7 +50,8 @@ class CanvasSurface : SurfaceView, SurfaceHolder.Callback {
     }
 
     fun init() {
-        (context as HomeActivity).component.inject(this)
+        (context as HomeActivity).component.canvasSurfaceComponent(CanvasSurfaceModule()).injectMembers(this)
+
         setLayerType(View.LAYER_TYPE_NONE, null)
 
         setWillNotDraw(false)
