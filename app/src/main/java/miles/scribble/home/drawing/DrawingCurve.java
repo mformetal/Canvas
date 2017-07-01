@@ -1,6 +1,5 @@
 package miles.scribble.home.drawing;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -16,11 +15,18 @@ import android.os.Looper;
 import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.view.MotionEvent;
+import android.view.WindowManager;
 
 import java.util.Stack;
+import java.util.concurrent.Callable;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import io.reactivex.Observable;
 import io.reactivex.Observer;
+import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
@@ -36,6 +42,7 @@ import miles.scribble.util.ViewUtils;
 /**
  * Created by mbpeele on 9/25/15.
  */
+@Singleton
 public class DrawingCurve {
 
     public enum State {
@@ -74,20 +81,14 @@ public class DrawingCurve {
     private boolean shouldUpdate;
     private BitmapCache cache;
 
-    private DrawingCurveListener mListener;
-    public interface DrawingCurveListener {
-
-        void toggleFabMenuVisibility(boolean visible);
-
-    }
-
+    @Inject
     public DrawingCurve(Context context) {
         mContext = context;
 
         cache = new BitmapCache(mContext);
 
         Point size = new Point();
-        ((Activity) context).getWindowManager().getDefaultDisplay().getRealSize(size);
+        ((WindowManager) (context.getSystemService(Context.WINDOW_SERVICE))).getDefaultDisplay().getRealSize(size);
         int w = size.x;
         int h = size.y;
 
@@ -125,10 +126,6 @@ public class DrawingCurve {
         mHandler = new Handler(Looper.getMainLooper());
     }
 
-    public void setListener(DrawingCurveListener listener) {
-        mListener = listener;
-    }
-
     public void drawToSurfaceView(Canvas canvas) {
         if (canvas != null && isSafeToDraw) {
             canvas.drawBitmap(mBitmap, 0, 0, null);
@@ -164,6 +161,24 @@ public class DrawingCurve {
                     break;
             }
         }
+    }
+
+    public void resize(final int width, final int height) {
+        Single.fromCallable(new Callable<Bitmap>() {
+            @Override
+            public Bitmap call() throws Exception {
+                return Bitmap.createScaledBitmap(mBitmap, width, height, false);
+            }
+        }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<Bitmap>() {
+                    @Override
+                    public void accept(Bitmap bitmap) throws Exception {
+                        mBitmap = bitmap;
+                        mCanvas = new Canvas(mBitmap);
+                        mCanvas.drawBitmap(mBitmap, 0, 0, null);
+                    }
+                });
     }
 
     private void changeState(State newValue) {
@@ -328,13 +343,6 @@ public class DrawingCurve {
                 mStrokeColor = mInkedColor;
                 setPaintColor(mStrokeColor);
                 changeState(State.DRAW);
-
-                mHandler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        mListener.toggleFabMenuVisibility(true);
-                    }
-                }, 350);
                 break;
         }
 
@@ -441,8 +449,6 @@ public class DrawingCurve {
     public void ink() {
         changeState(State.INK);
 
-        mListener.toggleFabMenuVisibility(false);
-
         int middleX = mBitmap.getWidth() / 2;
         int middleY = mBitmap.getHeight() / 2;
 
@@ -462,8 +468,6 @@ public class DrawingCurve {
     }
 
     public void onOptionsMenuCancel() {
-        mListener.toggleFabMenuVisibility(true);
-
         changeState(State.DRAW);
 
         ViewUtils.identityMatrix(mMatrix);
@@ -473,50 +477,6 @@ public class DrawingCurve {
                 mTextLayout = null;
                 break;
             case PICTURE:
-                mPhotoBitmap.recycle();
-                mPhotoBitmap = null;
-                break;
-        }
-    }
-
-    public void onOptionsMenuAccept() {
-        float[] values = new float[9];
-        switch (mState) {
-            case TEXT:
-                mListener.toggleFabMenuVisibility(true);
-
-                mCanvas.save();
-                mCanvas.concat(mMatrix);
-                mTextLayout.draw(mCanvas);
-                mCanvas.restore();
-
-                changeState(State.DRAW);
-
-                mMatrix.getValues(values);
-                mAllHistory.push(new TextDrawHistory(mTextLayout.getText(), values, mTextPaint));
-
-                ViewUtils.identityMatrix(mMatrix);
-
-                mTextLayout = null;
-                break;
-            case PICTURE:
-                mListener.toggleFabMenuVisibility(true);
-
-                mCanvas.save();
-                mCanvas.concat(mMatrix);
-                mCanvas.drawBitmap(mPhotoBitmap, 0, 0, null);
-                mCanvas.restore();
-
-                changeState(State.DRAW);
-
-                cache.put(mPhotoBitmapUri, mPhotoBitmap.copy(mPhotoBitmap.getConfig(), true));
-
-                mMatrix.getValues(values);
-                mAllHistory.push(new BitmapDrawHistory(mPhotoBitmapUri, values));
-
-                ViewUtils.identityMatrix(mMatrix);
-
-                mPhotoBitmapUri = null;
                 mPhotoBitmap.recycle();
                 mPhotoBitmap = null;
                 break;

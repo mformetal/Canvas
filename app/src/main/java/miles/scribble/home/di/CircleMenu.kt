@@ -8,6 +8,7 @@ import miles.scribble.dagger.ViewScope
 import miles.scribble.home.events.CircleMenuEvents
 import miles.scribble.home.events.CircleMenuEventsReducer
 import miles.scribble.home.viewmodel.HomeState
+import miles.scribble.home.viewmodel.HomeViewModel
 import miles.scribble.redux.core.Dispatcher
 import miles.scribble.redux.core.Dispatchers
 import miles.scribble.redux.core.Reducer
@@ -32,8 +33,8 @@ class CircleMenuModule {
 
     @Provides
     @ViewScope
-    fun dispatcher(store: Store<HomeState>, reducer: Reducer<CircleMenuEvents, HomeState>)
+    fun dispatcher(homeViewModel: HomeViewModel, reducer: Reducer<CircleMenuEvents, HomeState>)
             : Dispatcher<CircleMenuEvents, HomeState> {
-        return Dispatchers.create(store, reducer)
+        return Dispatchers.create(homeViewModel.store, reducer)
     }
 }

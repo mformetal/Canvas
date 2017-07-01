@@ -2,17 +2,18 @@ package miles.scribble
 
 import android.app.Activity
 import android.app.Application
-import android.os.Bundle
+import android.arch.lifecycle.ViewModel
+import android.arch.lifecycle.ViewModelProvider
+import android.content.Context
 import dagger.Component
 import dagger.Module
 import dagger.Provides
 
-import io.realm.Realm
-import io.realm.RealmConfiguration
 import miles.scribble.dagger.activity.ActivityBindingModule
 import miles.scribble.dagger.activity.ActivityComponentBuilder
 import miles.scribble.dagger.activity.HasActivitySubcomponentBuilders
-import miles.scribble.home.drawing.DrawingCurve
+import miles.scribble.dagger.viewmodel.CanvasViewModelFactory
+import miles.scribble.dagger.viewmodel.ViewModelModule
 import javax.inject.Inject
 import javax.inject.Provider
 import javax.inject.Singleton
@@ -25,23 +26,15 @@ class MainApp : Application(), HasActivitySubcomponentBuilders {
     @Inject
     lateinit var activityComponentBuilders: Map<Class<out Activity>, @JvmSuppressWildcards Provider<ActivityComponentBuilder<*, *>>>
 
-    lateinit var applicationComponent: ApplicationComponent
+    lateinit var applicationComponent: AppComponent
         private set
 
     override fun onCreate() {
         super.onCreate()
 
-        Realm.init(this)
-
-        val realmConfiguration = RealmConfiguration.Builder()
+        applicationComponent = DaggerAppComponent.builder()
+                .appModule(AppModule(this))
                 .build()
-
-        Realm.setDefaultConfiguration(realmConfiguration)
-
-        applicationComponent = DaggerApplicationComponent.builder()
-                .applicationModule(ApplicationModule(this))
-                .build()
-
         applicationComponent.inject(this)
     }
 
@@ -50,18 +43,25 @@ class MainApp : Application(), HasActivitySubcomponentBuilders {
     }
 }
 
-@Module(includes = arrayOf(ActivityBindingModule::class))
+@Module(includes = arrayOf(ActivityBindingModule::class, ViewModelModule::class))
 @Singleton
-class ApplicationModule(private val mApplication: Application) {
+class AppModule(private val application: Application) {
 
     @Provides
     @Singleton
-    fun provideAppContext() : Application = mApplication
+    fun appContext() : Context = application
+
+    @Provides
+    @Singleton
+    fun factory(creators: Map<Class<out ViewModel>, @JvmSuppressWildcards Provider<ViewModel>>)
+            : ViewModelProvider.Factory {
+        return CanvasViewModelFactory(creators)
+    }
 }
 
 @Singleton
-@Component(modules = arrayOf(ApplicationModule::class))
-interface ApplicationComponent {
+@Component(modules = arrayOf(AppModule::class))
+interface AppComponent {
 
     fun inject(app: MainApp)
 

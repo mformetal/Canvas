@@ -1,12 +1,8 @@
 package miles.scribble.ui.widget
 
 import android.annotation.SuppressLint
-import android.annotation.TargetApi
 import android.content.Context
-import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.graphics.Paint
-import android.os.Build
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.SurfaceHolder
@@ -18,7 +14,10 @@ import javax.inject.Inject
 import miles.scribble.home.HomeActivity
 import miles.scribble.home.di.CanvasSurfaceModule
 import miles.scribble.home.drawing.DrawingCurve
+import miles.scribble.home.events.CanvasSurfaceEvents
+import miles.scribble.home.viewmodel.HomeState
 import miles.scribble.home.viewmodel.HomeViewModel
+import miles.scribble.redux.core.Dispatcher
 
 /**
  * Created by Miles Peele on 10/2/2015.
@@ -27,6 +26,8 @@ class CanvasSurface : SurfaceView, SurfaceHolder.Callback {
 
     @Inject
     lateinit var viewModel: HomeViewModel
+    @Inject
+    lateinit var dispatcher : Dispatcher<CanvasSurfaceEvents, HomeState>
     private lateinit var drawingThread: DrawingThread
 
     val drawingCurve: DrawingCurve
@@ -41,11 +42,6 @@ class CanvasSurface : SurfaceView, SurfaceHolder.Callback {
     }
 
     constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
-        init()
-    }
-
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int, defStyleRes: Int) : super(context, attrs, defStyleAttr, defStyleRes) {
         init()
     }
 
@@ -77,11 +73,6 @@ class CanvasSurface : SurfaceView, SurfaceHolder.Callback {
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
         return !isEnabled || drawingCurve.onTouchEvent(event)
-
-    }
-
-    fun setListener(listener: DrawingCurve.DrawingCurveListener) {
-        drawingCurve.setListener(listener)
     }
 
     private inner class DrawingThread(private val mSurfaceHolder: SurfaceHolder) : Thread("drawingThread") {

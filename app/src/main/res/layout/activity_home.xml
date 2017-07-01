@@ -1,22 +1,36 @@
-<android.support.v4.widget.DrawerLayout
+<miles.scribble.ui.widget.CanvasLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-    <include
-        layout="@layout/canvas"
-        android:id="@+id/canvas"
+    <Toolbar
+        android:id="@+id/canvas_toolbar"
+        android:title="@string/app_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
+
+    <miles.scribble.ui.widget.CanvasSurface
+        android:id="@+id/canvas_surface"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
-    
-    <android.support.design.widget.NavigationView
-        android:id="@+id/navigation"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:fitsSystemWindows="true"
-        android:layout_gravity="start"
-        app:menu="@menu/activity_home_navigation_menu" />
 
-</android.support.v4.widget.DrawerLayout>
+    <miles.scribble.ui.widget.RoundedFrameLayout
+        android:id="@+id/canvas_framelayout_animator"
+        android:elevation="24dp"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="30dp"
+        android:layout_gravity="center" />
+
+    <include
+        layout="@layout/canvas_fab_menu"
+        android:id="@+id/canvas_fab_menu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        app:layout_behavior="miles.scribble.ui.widget.FabMenuBehavior" />
+
+</miles.scribble.ui.widget.CanvasLayout>

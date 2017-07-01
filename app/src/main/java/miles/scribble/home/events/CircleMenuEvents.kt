@@ -17,7 +17,7 @@ class CircleMenuEventsReducer : Reducer<CircleMenuEvents, HomeState> {
     override fun reduce(event: CircleMenuEvents, state: HomeState): HomeState {
         return when (event) {
             is CircleMenuEvents.ToggleClicked -> {
-                state.copy(isMenuOpen = event.isMenuShowing)
+                HomeState().apply { isMenuOpen = event.isMenuShowing }
             }
         }
     }

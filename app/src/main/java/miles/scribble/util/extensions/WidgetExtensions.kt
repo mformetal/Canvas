@@ -43,6 +43,10 @@ fun View.systemUIVisibile() {
             View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
 }
 
+fun View.radius() : Float {
+    return measuredWidth / 2F
+}
+
 fun TextView.textString() : String {
     return text.toString()
 }

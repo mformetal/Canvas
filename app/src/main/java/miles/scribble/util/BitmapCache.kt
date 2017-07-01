@@ -20,6 +20,7 @@ import java.util.HashSet
 
 import android.content.Context.ACTIVITY_SERVICE
 import android.content.pm.ApplicationInfo.FLAG_LARGE_HEAP
+import android.view.WindowManager
 
 /**
  * Created by mbpeele on 1/5/16.
@@ -34,7 +35,7 @@ private fun getMaxSize(context: Context): Int {
     return 1024 * 1024 * memoryClass / 5
 }
 
-internal class BitmapCache(mContext: Context) : LruCache<Uri, Bitmap>(getMaxSize(mContext)) {
+internal class BitmapCache(context: Context) : LruCache<Uri, Bitmap>(getMaxSize(context)) {
 
     val mReusableBitmaps: MutableSet<SoftReference<Bitmap>> = Collections.synchronizedSet(HashSet<SoftReference<Bitmap>>())
     val mViewWidth: Int
@@ -42,7 +43,7 @@ internal class BitmapCache(mContext: Context) : LruCache<Uri, Bitmap>(getMaxSize
 
     init {
         val size = Point().apply {
-            (mContext as Activity).windowManager.defaultDisplay.getSize(this)
+            (context.getSystemService(Context.WINDOW_SERVICE) as WindowManager).defaultDisplay.getSize(this)
         }
         mViewWidth = size.x
         mViewHeight = size.y

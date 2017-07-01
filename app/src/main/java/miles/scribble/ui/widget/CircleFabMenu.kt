@@ -6,9 +6,7 @@ import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.animation.PropertyValuesHolder
 import android.annotation.SuppressLint
-import android.annotation.TargetApi
 import android.content.Context
-import android.os.Build
 import android.support.design.widget.FloatingActionButton
 import android.util.AttributeSet
 import android.view.GestureDetector
@@ -17,7 +15,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnticipateInterpolator
 import android.view.animation.DecelerateInterpolator
-import android.view.animation.Interpolator
 import android.view.animation.OvershootInterpolator
 
 import java.util.ArrayList
@@ -35,9 +32,9 @@ import miles.scribble.home.events.CircleMenuEvents
 import miles.scribble.home.viewmodel.HomeState
 import miles.scribble.home.viewmodel.HomeViewModel
 import miles.scribble.redux.core.Dispatcher
-import miles.scribble.redux.core.Dispatchers
 import miles.scribble.util.Circle
 import miles.scribble.util.ViewUtils
+import miles.scribble.util.extensions.radius
 import javax.inject.Inject
 
 /**
@@ -47,6 +44,8 @@ class CircleFabMenu : ViewGroup {
 
     @Inject
     lateinit var viewModel : HomeViewModel
+    @Inject
+    lateinit var dispatcher : Dispatcher<CircleMenuEvents, HomeState>
 
     @BindView(R.id.menu_toggle)
     internal lateinit var toggle: FloatingActionButton
@@ -59,20 +58,26 @@ class CircleFabMenu : ViewGroup {
             R.id.menu_ink, R.id.menu_brush, R.id.menu_undo, R.id.menu_redo, R.id.menu_erase, R.id.menu_image)
     internal lateinit var buttonsList: List<@JvmSuppressWildcards FloatingActionButton>
 
-    private lateinit var mCircle: Circle
-    private var mClickedItem: FloatingActionButton? = null
-    private val mItemPositions: ArrayList<ItemPosition> = ArrayList()
-    private val mGestureDetector: GestureDetector = GestureDetector(context, GestureListener())
+    private lateinit var circle: Circle
+    private var clickedItem: FloatingActionButton? = null
+    private val itemPositions: ArrayList<ItemPosition> = ArrayList()
+    private val gestureDetector: GestureDetector = GestureDetector(context, GestureListener())
 
     private var isMenuShowing = true
     private var isAnimating = false
     private var isDragging = false
     private var isFlinging = false
-    private var mLastAngle: Double = 0.toDouble()
-    private var mStartY: Float = 0.toFloat()
+    private var lastAngle: Double = 0.toDouble()
+    private var startY: Float = 0.toFloat()
 
-    @Inject
-    lateinit var dispatcher : Dispatcher<CircleMenuEvents, HomeState>
+    val isVisible: Boolean
+        get() = isMenuShowing && visibility == View.VISIBLE
+
+    val cx: Float
+        get() = circle.cx
+
+    val cy: Float
+        get() = circle.cy
 
     constructor(context: Context) : super(context) {
         init()
@@ -83,11 +88,6 @@ class CircleFabMenu : ViewGroup {
     }
 
     constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
-        init()
-    }
-
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int, defStyleRes: Int) : super(context, attrs, defStyleAttr, defStyleRes) {
         init()
     }
 
@@ -131,7 +131,7 @@ class CircleFabMenu : ViewGroup {
 
     @SuppressLint("DrawAllocation")
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
-        if (!mItemPositions.isEmpty()) {
+        if (!itemPositions.isEmpty()) {
             return
         }
 
@@ -142,15 +142,15 @@ class CircleFabMenu : ViewGroup {
                 r / 2 + toggle.measuredWidth / 2,
                 measuredHeight - lps.bottomMargin)
 
-        mCircle = Circle(ViewUtils.relativeCenterX(toggle), ViewUtils.relativeCenterY(toggle),
+        circle = Circle(ViewUtils.relativeCenterX(toggle), ViewUtils.relativeCenterY(toggle),
                 toggle.measuredHeight * 3.75f)
-        mItemPositions.add(ItemPosition(toggle, cx.toDouble(), cy.toDouble(), ViewUtils.radius(toggle)))
+        itemPositions.add(ItemPosition(toggle, cx.toDouble(), cy.toDouble(), toggle.radius()))
 
         val mItemRadius = (toggle.measuredHeight * 3).toFloat()
         val count = childCount
         val slice = Math.toRadians(360.0 / (count - 1))
 
-        for (i in 0..count - 1) {
+        for (i in 0 until count) {
             val child = getChildAt(i) as FloatingActionButton
             if (child.id != R.id.menu_toggle) {
                 val angle = i * slice
@@ -162,11 +162,9 @@ class CircleFabMenu : ViewGroup {
                         x.toInt() + child.measuredWidth / 2,
                         y.toInt() + child.measuredHeight / 2)
 
-                mItemPositions.add(ItemPosition(child, x, y, ViewUtils.radius(child)))
+                itemPositions.add(ItemPosition(child, x, y, child.radius()))
             }
         }
-
-        hide()
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -174,7 +172,7 @@ class CircleFabMenu : ViewGroup {
         val x = event.x
         val y = event.y
 
-        if (!mCircle.contains(x, y)) {
+        if (!circle.contains(x, y)) {
             return false
         }
 
@@ -196,46 +194,41 @@ class CircleFabMenu : ViewGroup {
             return false
         }
 
-        mGestureDetector.onTouchEvent(event)
+        gestureDetector.onTouchEvent(event)
 
         when (event.action and MotionEvent.ACTION_MASK) {
             MotionEvent.ACTION_DOWN -> {
-                mClickedItem = getClickedItem(x, y)
+                clickedItem = getClickedItem(x, y)
 
                 if (isFlinging) {
                     isFlinging = false
                 }
 
-                mLastAngle = mCircle.angleInDegrees(x, y)
+                lastAngle = circle.angleInDegrees(x, y)
 
-                mStartY = y
+                startY = y
             }
             MotionEvent.ACTION_MOVE -> {
-                val degrees = mCircle.angleInDegrees(x, y)
-                val rotater = degrees - mLastAngle
+                val degrees = circle.angleInDegrees(x, y)
+                val rotater = degrees - lastAngle
 
                 if (isDragging) {
                     updateItemPositions(rotater)
                 }
 
-                mLastAngle = degrees
+                lastAngle = degrees
 
                 isDragging = true
             }
             MotionEvent.ACTION_UP -> {
                 isDragging = false
-                if (mClickedItem != null && mClickedItem === getClickedItem(x, y)) {
-                    mClickedItem = null
+                if (clickedItem != null && clickedItem === getClickedItem(x, y)) {
+                    clickedItem = null
                 }
             }
         }
 
         return true
-    }
-
-    @OnClick(R.id.menu_toggle)
-    fun onToggleClicked() {
-        toggleMenu()
     }
 
     private fun rotateToggleOpen() {
@@ -251,15 +244,16 @@ class CircleFabMenu : ViewGroup {
     }
 
     private fun updateItemPositions(rotater: Double) {
-        for (itemPosition in mItemPositions) {
+        for (itemPosition in itemPositions) {
             itemPosition.update(rotater)
         }
     }
 
     private fun getClickedItem(x: Float, y: Float): FloatingActionButton? {
-        return mItemPositions.firstOrNull { it.contains(x, y) }?.mView
+        return itemPositions.firstOrNull { it.contains(x, y) }?.mView
     }
 
+    @OnClick(R.id.menu_toggle)
     fun toggleMenu() {
         if (!isAnimating) {
             dispatcher.dispatch(CircleMenuEvents.ToggleClicked(isMenuShowing))
@@ -278,16 +272,16 @@ class CircleFabMenu : ViewGroup {
 
             val anims = ArrayList<Animator>()
 
-            val max = Collections.max(mItemPositions, ItemPositionComparator())
-            val ndxOfMax = mItemPositions.indexOf(max)
+            val max = Collections.max(itemPositions, ItemPositionComparator())
+            val ndxOfMax = itemPositions.indexOf(max)
             var delay = INITIAL_DELAY
-            for (i in mItemPositions.indices) {
+            for (i in itemPositions.indices) {
                 var sum = i + ndxOfMax
-                if (sum > mItemPositions.size - 1) {
-                    sum -= mItemPositions.size
+                if (sum > itemPositions.size - 1) {
+                    sum -= itemPositions.size
                 }
 
-                val position = mItemPositions[sum]
+                val position = itemPositions[sum]
                 val view = position.mView
 
                 if (view.id == R.id.menu_toggle) {
@@ -344,16 +338,16 @@ class CircleFabMenu : ViewGroup {
 
             val anims = ArrayList<Animator>()
 
-            val max = Collections.max(mItemPositions, ItemPositionComparator())
-            val ndxOfMax = mItemPositions.indexOf(max)
+            val max = Collections.max(itemPositions, ItemPositionComparator())
+            val ndxOfMax = itemPositions.indexOf(max)
             var delay = INITIAL_DELAY
-            for (i in mItemPositions.indices) {
+            for (i in itemPositions.indices) {
                 var sum = i + ndxOfMax
-                if (sum > mItemPositions.size - 1) {
-                    sum -= mItemPositions.size
+                if (sum > itemPositions.size - 1) {
+                    sum -= itemPositions.size
                 }
 
-                val position = mItemPositions[sum]
+                val position = itemPositions[sum]
                 val view = position.mView
 
                 if (view.id == R.id.menu_toggle) {
@@ -404,18 +398,6 @@ class CircleFabMenu : ViewGroup {
             set.start()
         }
     }
-
-    val isVisible: Boolean
-        get() = isMenuShowing && visibility == View.VISIBLE
-
-    val cx: Float
-        get() = mCircle.cx
-
-    val cy: Float
-        get() = mCircle.cy
-
-    val circleRadius: Float
-        get() = mCircle.radius
 
     private inner class ItemPosition(val mView: FloatingActionButton, itemX: Double, itemY: Double, radius: Float) {
 
@@ -469,7 +451,7 @@ class CircleFabMenu : ViewGroup {
 
                 isFlinging = true
 
-                val angle = mCircle.angleInDegrees(e2.x - e1.x, e2.y - e1.y)
+                val angle = circle.angleInDegrees(e2.x - e1.x, e2.y - e1.y)
                 val velocity = velocityX / 10 + velocityY / 10
                 post(FlingRunnable(velocity, angle <= 45.0))
 

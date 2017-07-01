@@ -37,7 +37,7 @@ import javax.inject.Inject
 /**
  * Created by milespeele on 8/7/15.
  */
-class CanvasLayout : CoordinatorLayout, DrawingCurve.DrawingCurveListener, StateChangeListener<HomeState> {
+class CanvasLayout : CoordinatorLayout, StateChangeListener<HomeState> {
 
     @Inject
     lateinit var homeViewModel : HomeViewModel
@@ -97,8 +97,6 @@ class CanvasLayout : CoordinatorLayout, DrawingCurve.DrawingCurveListener, State
 
         ButterKnife.bind(this)
 
-        surface.setListener(this)
-
         homeViewModel.store.subscribe(this)
     }
 
@@ -151,14 +149,6 @@ class CanvasLayout : CoordinatorLayout, DrawingCurve.DrawingCurveListener, State
         return false
     }
 
-    override fun toggleFabMenuVisibility(setVisible: Boolean) {
-        if (setVisible) {
-            ViewUtils.visible(fabMenu)
-        } else {
-            ViewUtils.gone(fabMenu)
-        }
-    }
-
     override fun onStateChanged(state: HomeState) {
         if (state.isMenuOpen) {
             undim()
@@ -167,7 +157,7 @@ class CanvasLayout : CoordinatorLayout, DrawingCurve.DrawingCurveListener, State
         }
     }
 
-    internal fun dim() {
+    private fun dim() {
         val alpha = ObjectAnimator.ofInt(this, ALPHA, 64).setDuration(200)
 
         val radius = ObjectAnimator.ofFloat(this, RADIUS, height.toFloat()).setDuration(200)
@@ -184,7 +174,7 @@ class CanvasLayout : CoordinatorLayout, DrawingCurve.DrawingCurveListener, State
         set.start()
     }
 
-    internal fun undim() {
+    private fun undim() {
         val alpha = ObjectAnimator.ofInt(this, ALPHA, 0).setDuration(400)
 
         val radius = ObjectAnimator.ofFloat(this, RADIUS, 0F).setDuration(400)

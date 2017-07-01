@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import miles.scribble.dagger.activity.HasActivitySubcomponentBuilders
 import miles.scribble.util.extensions.app
+import miles.scribble.MainApp
 
 /**
  * Created by milespeele on 7/14/15.
@@ -24,7 +25,7 @@ abstract class ViewModelActivity<VM : ViewModel> : AppCompatActivity(), Lifecycl
         viewModel = inject(app())
     }
 
-    abstract fun inject(hasActivitySubcomponentBuilders: HasActivitySubcomponentBuilders) : VM
+    abstract fun inject(app: MainApp) : VM
 
     override fun getLifecycle(): LifecycleRegistry {
         return lifecycleRegistry

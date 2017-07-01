@@ -2,7 +2,6 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlin-android-extensions'
-apply plugin: 'realm-android'
 
 def config = rootProject.extensions.getByName("ext")
 
@@ -18,12 +17,6 @@ android {
 
     lintOptions {
         abortOnError false
-    }
-}
-
-repositories {
-    maven {
-        url "https://oss.sonatype.org/content/repositories/snapshots"
     }
 }
 

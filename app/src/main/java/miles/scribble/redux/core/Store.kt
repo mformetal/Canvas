@@ -20,7 +20,7 @@ interface Store<S : State> {
     fun unsubscribe(stateChangeListener: StateChangeListener<S>)
 }
 
-class SimpleStore<S : State>(initialState: S,
+open class SimpleStore<S : State>(initialState: S,
                              private val subscribers: CopyOnWriteArrayList<StateChangeListener<S>> =CopyOnWriteArrayList()) : Store<S> {
 
     override var state by Delegates.observable(initialState, {
