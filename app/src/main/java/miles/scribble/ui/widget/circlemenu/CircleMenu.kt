@@ -1,4 +1,4 @@
-package miles.scribble.ui.widget
+package miles.scribble.ui.widget.circlemenu
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
@@ -40,7 +40,7 @@ import javax.inject.Inject
 /**
  * Created by milespeele on 8/7/15.
  */
-class CircleFabMenu : ViewGroup {
+class CircleMenu : ViewGroup {
 
     @Inject
     lateinit var viewModel : HomeViewModel
@@ -63,7 +63,7 @@ class CircleFabMenu : ViewGroup {
     private val itemPositions: ArrayList<ItemPosition> = ArrayList()
     private val gestureDetector: GestureDetector = GestureDetector(context, GestureListener())
 
-    private var isMenuShowing = true
+    private var isMenuShowing = false
     private var isAnimating = false
     private var isDragging = false
     private var isFlinging = false
@@ -117,16 +117,16 @@ class CircleFabMenu : ViewGroup {
         setMeasuredDimension(width, width shr 1)
     }
 
-    override fun generateDefaultLayoutParams(): ViewGroup.LayoutParams {
-        return ViewGroup.MarginLayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+    override fun generateDefaultLayoutParams(): LayoutParams {
+        return MarginLayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
     }
 
-    override fun generateLayoutParams(p: ViewGroup.LayoutParams): ViewGroup.LayoutParams {
-        return ViewGroup.MarginLayoutParams(p)
+    override fun generateLayoutParams(p: LayoutParams): LayoutParams {
+        return MarginLayoutParams(p)
     }
 
-    override fun generateLayoutParams(attrs: AttributeSet): ViewGroup.LayoutParams {
-        return ViewGroup.MarginLayoutParams(context, attrs)
+    override fun generateLayoutParams(attrs: AttributeSet): LayoutParams {
+        return MarginLayoutParams(context, attrs)
     }
 
     @SuppressLint("DrawAllocation")
@@ -135,7 +135,7 @@ class CircleFabMenu : ViewGroup {
             return
         }
 
-        val lps = toggle.layoutParams as ViewGroup.MarginLayoutParams
+        val lps = toggle.layoutParams as MarginLayoutParams
 
         toggle.layout(r / 2 - toggle.measuredWidth / 2,
                 measuredHeight - toggle.measuredHeight - lps.bottomMargin,
@@ -162,7 +162,12 @@ class CircleFabMenu : ViewGroup {
                         x.toInt() + child.measuredWidth / 2,
                         y.toInt() + child.measuredHeight / 2)
 
-                itemPositions.add(ItemPosition(child, x, y, child.radius()))
+                val position = ItemPosition(child, x, y, child.radius())
+                itemPositions.add(position)
+
+                child.x -= position.mItemCircle.cx - cx
+                child.y -=  position.mItemCircle.cy - cy
+                child.alpha = 0f
             }
         }
     }

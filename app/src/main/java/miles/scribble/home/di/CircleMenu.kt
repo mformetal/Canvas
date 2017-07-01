@@ -12,15 +12,14 @@ import miles.scribble.home.viewmodel.HomeViewModel
 import miles.scribble.redux.core.Dispatcher
 import miles.scribble.redux.core.Dispatchers
 import miles.scribble.redux.core.Reducer
-import miles.scribble.redux.core.Store
-import miles.scribble.ui.widget.CircleFabMenu
+import miles.scribble.ui.widget.circlemenu.CircleMenu
 
 /**
  * Created by mbpeele on 6/30/17.
  */
 @ViewScope
 @Subcomponent(modules = arrayOf(CircleMenuModule::class))
-interface CircleMenuComponent : MembersInjector<CircleFabMenu>
+interface CircleMenuComponent : MembersInjector<CircleMenu>
 
 @Module
 class CircleMenuModule {

@@ -6,7 +6,6 @@ import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.app.Activity
 import android.content.Context
-import android.graphics.Bitmap
 import android.graphics.BlurMaskFilter
 import android.graphics.Canvas
 import android.graphics.Color
@@ -14,9 +13,7 @@ import android.graphics.Paint
 import android.graphics.Rect
 import android.os.Handler
 import android.support.design.widget.CoordinatorLayout
-import android.support.design.widget.Snackbar
 import android.util.AttributeSet
-import android.util.Property
 import android.view.MotionEvent
 import android.view.SoundEffectConstants
 import android.view.View
@@ -27,10 +24,10 @@ import butterknife.ButterKnife
 import miles.scribble.R
 import miles.scribble.home.HomeActivity
 import miles.scribble.home.di.CanvasLayoutModule
-import miles.scribble.home.drawing.DrawingCurve
 import miles.scribble.home.viewmodel.HomeState
 import miles.scribble.home.viewmodel.HomeViewModel
 import miles.scribble.redux.core.StateChangeListener
+import miles.scribble.ui.widget.circlemenu.CircleMenu
 import miles.scribble.util.ViewUtils
 import javax.inject.Inject
 
@@ -45,7 +42,7 @@ class CanvasLayout : CoordinatorLayout, StateChangeListener<HomeState> {
     @BindView(R.id.canvas_surface)
     internal lateinit var surface: CanvasSurface
     @BindView(R.id.canvas_fab_menu)
-    internal lateinit var fabMenu: CircleFabMenu
+    internal lateinit var fabMenu: CircleMenu
     @BindView(R.id.canvas_framelayout_animator)
     internal lateinit var fabFrame: RoundedFrameLayout
     @BindView(R.id.canvas_toolbar)
