@@ -45,7 +45,6 @@ class HomeActivity : ViewModelActivity<HomeViewModel>() {
         val builder = app.getBuilder(HomeActivity::class.java)
         val componentBuilder = builder as HomeComponent.Builder
         component = componentBuilder.module(HomeModule(this)).build()
-        component.injectMembers(this)
         return component.viewModel()
     }
 
@@ -64,7 +63,6 @@ class HomeActivity : ViewModelActivity<HomeViewModel>() {
 
                 viewModel.resize(size.x, size.y)
             }
-
         }
     }
 

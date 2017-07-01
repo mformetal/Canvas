@@ -32,18 +32,12 @@ dependencies {
     compileOnly config.javaxInject
     implementation config.dagger
 
-    implementation config.guava
-
-    implementation config.gson
-
     implementation config.supportDesign
 
     implementation config.rxAndroid
     implementation config.rxJava
 
     implementation config.glide
-
-    debugImplementation config.timber
 
     implementation config.lifecycle
     implementation config.lifecycleExtensions

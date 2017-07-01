@@ -406,7 +406,9 @@ public class DrawingCurve {
                     .doOnSubscribe(new Consumer<Disposable>() {
                         @Override
                         public void accept(Disposable disposable) throws Exception {
+                            isSafeToDraw = false;
 
+                            workerCanvas.drawBitmap(mCachedBitmap, 0, 0, null);
                         }
                     })
                     .subscribe(new Observer<Object>() {

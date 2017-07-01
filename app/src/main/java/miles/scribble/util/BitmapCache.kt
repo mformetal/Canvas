@@ -8,7 +8,6 @@ import android.graphics.BitmapFactory
 import android.graphics.Point
 import android.net.Uri
 import com.bumptech.glide.util.LruCache
-import com.google.common.io.ByteStreams
 
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -57,7 +56,16 @@ internal class BitmapCache(context: Context) : LruCache<Uri, Bitmap>(getMaxSize(
     @Throws(IOException::class)
     fun decodeStream(inputStream: InputStream): Bitmap {
         val out = ByteArrayOutputStream()
-        ByteStreams.copy(inputStream, out)
+        val buf = ByteArray(8191)
+        var total: Long = 0
+        while (true) {
+            val r = inputStream.read(buf)
+            if (r == -1) {
+                break
+            }
+            out.write(buf, 0, r)
+            total += r.toLong()
+        }
         val `in` = ByteArrayInputStream(out.toByteArray())
 
         val options = BitmapFactory.Options()
