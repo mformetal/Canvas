@@ -121,8 +121,7 @@ internal class BitmapCache(context: Context) : LruCache<Uri, Bitmap>(getMaxSize(
         return bitmap
     }
 
-    private fun canUseForInBitmap(
-            candidate: Bitmap, targetOptions: BitmapFactory.Options): Boolean {
+    private fun canUseForInBitmap(candidate: Bitmap, targetOptions: BitmapFactory.Options): Boolean {
         val width = targetOptions.outWidth / targetOptions.inSampleSize
         val height = targetOptions.outHeight / targetOptions.inSampleSize
         val byteCount = width * height * getBytesPerPixel(candidate.config)

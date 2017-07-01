@@ -9,7 +9,7 @@ import miles.scribble.redux.core.Store
 /**
  * Created by mbpeele on 6/30/17.
  */
-open class StoreViewModel<S : State>(val store: Store<S>) : ViewModel() {
+open class StoreViewModel<S : State, out D : Store<S>>(val store: D) : ViewModel() {
 
     val state : State
         get() = store.state

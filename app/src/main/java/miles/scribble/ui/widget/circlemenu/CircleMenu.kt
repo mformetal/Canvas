@@ -101,7 +101,6 @@ class CircleMenu : ViewGroup {
     override fun onFinishInflate() {
         super.onFinishInflate()
         ButterKnife.bind(this)
-        toggle.rotation = 45f
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -227,9 +226,10 @@ class CircleMenu : ViewGroup {
             }
             MotionEvent.ACTION_UP -> {
                 isDragging = false
-                if (clickedItem != null && clickedItem === getClickedItem(x, y)) {
-                    clickedItem = null
-                }
+                clickedItem?.takeIf { it == getClickedItem(x, y) }?.let {
+                            dispatchClickEvent(it)
+                            clickedItem = null
+                        }
             }
         }
 
@@ -267,6 +267,17 @@ class CircleMenu : ViewGroup {
                 hide()
             } else {
                 show()
+            }
+        }
+    }
+
+    private fun dispatchClickEvent(view: View) {
+        when (view.id) {
+            R.id.menu_redo -> {
+                dispatcher.dispatch(CircleMenuEvents.RedoClicked())
+            }
+            R.id.menu_undo -> {
+                dispatcher.dispatch(CircleMenuEvents.UndoClicked())
             }
         }
     }

@@ -10,6 +10,8 @@ import miles.scribble.redux.core.Reducer
 sealed class CircleMenuEvents : Event {
 
     class ToggleClicked(val isMenuShowing: Boolean) : CircleMenuEvents()
+    class RedoClicked : CircleMenuEvents()
+    class UndoClicked : CircleMenuEvents()
 
 }
 
@@ -17,7 +19,13 @@ class CircleMenuEventsReducer : Reducer<CircleMenuEvents, HomeState> {
     override fun reduce(event: CircleMenuEvents, state: HomeState): HomeState {
         return when (event) {
             is CircleMenuEvents.ToggleClicked -> {
-                HomeState().apply { isMenuOpen = event.isMenuShowing }
+                state.setIsMenuOpen(event.isMenuShowing)
+            }
+            is CircleMenuEvents.RedoClicked -> {
+                state
+            }
+            is CircleMenuEvents.UndoClicked -> {
+                state
             }
         }
     }

@@ -32,7 +32,7 @@ open class SimpleStore<S : State>(initialState: S,
         notifySubscribers()
     }
 
-    fun notifySubscribers() {
+    private fun notifySubscribers() {
         subscribers.forEach { it.onStateChanged(state) }
     }
 

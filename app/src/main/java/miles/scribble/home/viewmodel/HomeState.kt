@@ -1,5 +1,6 @@
 package miles.scribble.home.viewmodel
 
+import miles.scribble.home.drawing.DrawingCurve
 import miles.scribble.redux.core.SimpleStore
 import miles.scribble.redux.core.State
 import javax.inject.Inject
@@ -12,8 +13,13 @@ import javax.inject.Singleton
 class HomeStore @Inject constructor(state: HomeState) : SimpleStore<HomeState>(state)
 
 @Singleton
-class HomeState @Inject constructor() : State {
+class HomeState @Inject constructor(val drawingCurve: DrawingCurve) : State {
 
-    var isMenuOpen : Boolean = false
+    private var isMenuOpen : Boolean = false
+        private set
+
+    fun setIsMenuOpen(isMenuOpen: Boolean) : HomeState {
+        return HomeState(drawingCurve).apply { this.isMenuOpen = isMenuOpen }
+    }
 
 }
