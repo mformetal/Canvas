@@ -25,7 +25,6 @@ import miles.scribble.R
 import miles.scribble.dagger.activity.HasActivitySubcomponentBuilders
 import miles.scribble.home.di.HomeComponent
 import miles.scribble.home.di.HomeModule
-import miles.scribble.home.events.HomeActivityEvents
 import miles.scribble.home.viewmodel.HomeState
 import miles.scribble.home.viewmodel.HomeViewModel
 import miles.scribble.redux.core.Dispatcher
@@ -42,10 +41,6 @@ class HomeActivity : ViewModelActivity<HomeViewModel>() {
     val REQUEST_PERMISSION_WRITE_SETTINGS = 1
 
     lateinit var component : HomeComponent
-    lateinit var orientationChangeListener : OrientationEventListener
-
-    @Inject
-    lateinit var dispatcher : Dispatcher<HomeActivityEvents, HomeState>
 
     override fun inject(app: MainApp) : HomeViewModel {
         val builder = app.getBuilder(HomeActivity::class.java)
@@ -60,15 +55,6 @@ class HomeActivity : ViewModelActivity<HomeViewModel>() {
         setContentView(R.layout.activity_home)
 
         ButterKnife.bind(this)
-
-        orientationChangeListener = object : OrientationEventListener(this,
-                SensorManager.SENSOR_DELAY_NORMAL) {
-            override fun onOrientationChanged(orientation: Int) {
-                getDisplaySize().run {
-                    dispatcher.dispatch(HomeActivityEvents.Resize(x, y))
-                }
-            }
-        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -98,15 +84,11 @@ class HomeActivity : ViewModelActivity<HomeViewModel>() {
                 startActivity(intent)
             }
         }
-
-        orientationChangeListener.enable()
     }
 
     override fun onStop() {
         super.onStop()
 
         setAutoRotate(false)
-
-        orientationChangeListener.disable()
     }
 }

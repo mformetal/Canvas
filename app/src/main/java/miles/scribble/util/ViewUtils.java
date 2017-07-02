@@ -3,17 +3,10 @@ package miles.scribble.util;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
-import android.app.Activity;
-import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Matrix;
-import android.graphics.Point;
 import android.graphics.Rect;
-import android.util.DisplayMetrics;
 import android.util.Property;
-import android.util.TypedValue;
-import android.view.MotionEvent;
 import android.view.View;
 
 import java.util.Random;
@@ -24,10 +17,7 @@ import java.util.Random;
 public class ViewUtils {
 
     public final static String BACKGROUND = "backgroundColor";
-    public final static String ALPHA = "alpha";
-    public final static float MAX_ALPHA = 255f;
     private final static int DEFAULT_VISBILITY_DURATION = 350;
-    private static int actionBarSize = -1;
 
     public static abstract class FloatProperty<T> extends Property<T, Float> {
         public FloatProperty(String name) {
@@ -61,31 +51,6 @@ public class ViewUtils {
         return Color.argb(255, random.nextInt(256), random.nextInt(256), random.nextInt(256));
     }
 
-    public static int complementColor(int color) {
-        int alpha = Color.alpha(color);
-        int red = Color.red(color);
-        int blue = Color.blue(color);
-        int green = Color.green(color);
-
-        red = (~red) & 0xff;
-        blue = (~blue) & 0xff;
-        green = (~green) & 0xff;
-
-        return Color.argb(alpha, red, green, blue);
-    }
-
-    public static float dpToPx(float dp, Context context){
-        Resources resources = context.getResources();
-        DisplayMetrics metrics = resources.getDisplayMetrics();
-        return dp * (metrics.densityDpi / 160f);
-    }
-
-    public static float pxToDp(float px, Context context){
-        Resources resources = context.getResources();
-        DisplayMetrics metrics = resources.getDisplayMetrics();
-        return px / (metrics.densityDpi / 160f);
-    }
-
     public static void systemUIGone(View decorView) {
         decorView.setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE
@@ -101,24 +66,6 @@ public class ViewUtils {
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                         | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                         | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
-    }
-
-    public static int displayHeight(Context context) {
-        Point point = new Point();
-        ((Activity) context).getWindow().getWindowManager().getDefaultDisplay().getRealSize(point);
-        return point.y;
-    }
-
-    public static int displayWidth(Context context) {
-        Point point = new Point();
-        ((Activity) context).getWindow().getWindowManager().getDefaultDisplay().getRealSize(point);
-        return point.x;
-    }
-
-    public static Point screenDimens(Context context) {
-        Point point = new Point();
-        ((Activity) context).getWindow().getWindowManager().getDefaultDisplay().getSize(point);
-        return point;
     }
 
     public static float relativeCenterX(View view) {
@@ -193,22 +140,6 @@ public class ViewUtils {
             }
         });
         return visibility;
-    }
-
-    public static ObjectAnimator backgroundAnimator(View view, int color, int dur) {
-        ObjectAnimator background = ObjectAnimator.ofArgb(view, ViewUtils.BACKGROUND, color);
-        background.setDuration(dur);
-        return background;
-    }
-
-    public static int actionBarSize(Context context) {
-        if (actionBarSize < 0) {
-            TypedValue value = new TypedValue();
-            context.getTheme().resolveAttribute(android.R.attr.actionBarSize, value, true);
-            actionBarSize = TypedValue.complexToDimensionPixelSize(value.data, context
-                    .getResources().getDisplayMetrics());
-        }
-        return actionBarSize;
     }
 
 }

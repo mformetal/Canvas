@@ -33,7 +33,7 @@ class CircleMenuModule {
     @Provides
     @ViewScope
     fun dispatcher(homeViewModel: HomeViewModel, reducer: Reducer<CircleMenuEvents, HomeState>)
-            : Dispatcher<CircleMenuEvents, HomeState> {
+            : Dispatcher<CircleMenuEvents, CircleMenuEvents> {
         return Dispatchers.create(homeViewModel.store, reducer)
     }
 }

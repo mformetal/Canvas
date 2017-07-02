@@ -26,7 +26,7 @@ class CanvasSurface : SurfaceView, SurfaceHolder.Callback {
     @Inject
     lateinit var viewModel: HomeViewModel
     @Inject
-    lateinit var dispatcher : Dispatcher<CanvasSurfaceEvents, HomeState>
+    lateinit var dispatcher : Dispatcher<CanvasSurfaceEvents, CanvasSurfaceEvents>
     private lateinit var drawingThread: DrawingThread
 
     constructor(context: Context) : super(context) {
@@ -60,7 +60,9 @@ class CanvasSurface : SurfaceView, SurfaceHolder.Callback {
         drawingThread.start()
     }
 
-    override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {}
+    override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
+        dispatcher.dispatch(CanvasSurfaceEvents.Resize(width, height))
+    }
 
     override fun surfaceDestroyed(holder: SurfaceHolder) {
         drawingThread.onDestroy()
@@ -68,7 +70,21 @@ class CanvasSurface : SurfaceView, SurfaceHolder.Callback {
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        return !isEnabled && viewModel.onTouchEvent(event)
+        when (event.action and MotionEvent.ACTION_MASK) {
+            MotionEvent.ACTION_DOWN -> dispatcher.dispatch(CanvasSurfaceEvents.TouchDown(event))
+
+            MotionEvent.ACTION_POINTER_DOWN -> dispatcher.dispatch(CanvasSurfaceEvents.PointerDown(event))
+
+            MotionEvent.ACTION_MOVE -> dispatcher.dispatch(CanvasSurfaceEvents.TouchMove(event))
+
+            MotionEvent.ACTION_UP -> dispatcher.dispatch(CanvasSurfaceEvents.TouchUp(event))
+
+            MotionEvent.ACTION_POINTER_UP -> dispatcher.dispatch(CanvasSurfaceEvents.PointerUp(event))
+
+            MotionEvent.ACTION_CANCEL -> dispatcher.dispatch(CanvasSurfaceEvents.MotionCancel(event))
+        }
+
+        return true
     }
 
     private inner class DrawingThread(private val mSurfaceHolder: SurfaceHolder) : Thread("drawingThread") {
@@ -102,9 +118,7 @@ class CanvasSurface : SurfaceView, SurfaceHolder.Callback {
                 } catch (e: IllegalArgumentException) {
 
                 } finally {
-                    if (c != null) {
-                        mSurfaceHolder.unlockCanvasAndPost(c)
-                    }
+                    c?.let { mSurfaceHolder.unlockCanvasAndPost(it) }
                 }
             }
         }

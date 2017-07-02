@@ -24,6 +24,7 @@ import butterknife.ButterKnife
 import miles.scribble.R
 import miles.scribble.home.HomeActivity
 import miles.scribble.home.di.CanvasLayoutModule
+import miles.scribble.home.drawing.CanvasPoint
 import miles.scribble.home.viewmodel.HomeState
 import miles.scribble.home.viewmodel.HomeViewModel
 import miles.scribble.redux.core.StateChangeListener
@@ -42,7 +43,7 @@ class CanvasLayout : CoordinatorLayout, StateChangeListener<HomeState> {
     @BindView(R.id.canvas_surface)
     internal lateinit var surface: CanvasSurface
     @BindView(R.id.canvas_fab_menu)
-    internal lateinit var fabMenu: CircleMenu
+    internal lateinit var circleMenu: CircleMenu
     @BindView(R.id.canvas_framelayout_animator)
     internal lateinit var fabFrame: RoundedFrameLayout
     @BindView(R.id.canvas_toolbar)
@@ -97,17 +98,6 @@ class CanvasLayout : CoordinatorLayout, StateChangeListener<HomeState> {
         homeViewModel.store.subscribe(this)
     }
 
-    override fun drawChild(canvas: Canvas, child: View, drawingTime: Long): Boolean {
-        if (mShadowPaint.alpha != 0) {
-            if (child === fabMenu) {
-                canvas.drawCircle(fabMenu.cx,
-                        fabMenu.cy + (height - fabMenu.height),
-                        radius, mShadowPaint)
-            }
-        }
-        return super.drawChild(canvas, child, drawingTime)
-    }
-
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
         val x = ev.x
         val y = ev.y
@@ -120,7 +110,7 @@ class CanvasLayout : CoordinatorLayout, StateChangeListener<HomeState> {
 
                 if (fabFrame.visibility == View.VISIBLE && !fabFrame.isAnimating) {
                     surface.isEnabled = false
-                    fabMenu.isEnabled = false
+                    circleMenu.isEnabled = false
                     fabFrame.getHitRect(mRect)
 
                     if (!mRect.contains(x.toInt(), y.toInt())) {
@@ -135,8 +125,8 @@ class CanvasLayout : CoordinatorLayout, StateChangeListener<HomeState> {
                         surface.isEnabled = false
                     }
 
-                    if (!fabMenu.isEnabled) {
-                        fabMenu.isEnabled = true
+                    if (!circleMenu.isEnabled) {
+                        circleMenu.isEnabled = true
                     }
                 }
             }
@@ -148,16 +138,37 @@ class CanvasLayout : CoordinatorLayout, StateChangeListener<HomeState> {
 
     override fun onStateChanged(state: HomeState) {
         if (state.isMenuOpen) {
-            undim()
-        } else {
             dim()
+        } else {
+            undim()
         }
+    }
+
+    override fun drawChild(canvas: Canvas, child: View, drawingTime: Long) : Boolean {
+        if (ALPHA.get(this) != 0) {
+            if (child == circleMenu) {
+                canvas.drawCircle(circleMenu.cx, circleMenu.cy + (height - circleMenu.height),
+                        radius, mShadowPaint)
+            }
+        }
+
+        return super.drawChild(canvas, child, drawingTime)
     }
 
     private fun dim() {
         val alpha = ObjectAnimator.ofInt(this, ALPHA, 64).setDuration(200)
 
-        val radius = ObjectAnimator.ofFloat(this, RADIUS, height.toFloat()).setDuration(200)
+        // Radius is distance from the middle of toggle button to the top-left corner of the view
+        // Using CanvasPoint because it already has the distance formula defined and implemented
+        val rcx = width / 2f
+        val rcy = IntArray(2).run {
+            circleMenu.toggle.getLocationOnScreen(this)
+            this.last().toFloat() + circleMenu.toggle.height / 2F
+        }
+        val togglePoint = CanvasPoint(rcx, rcy)
+        val targetPoint = CanvasPoint(0f, 0f)
+
+        val radius = ObjectAnimator.ofFloat(this, RADIUS, togglePoint.computeDistance(targetPoint)).setDuration(200)
 
         val visibility = ViewUtils.visibleAnimator(toolbar)
 

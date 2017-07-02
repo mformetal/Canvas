@@ -9,7 +9,7 @@ import java.util.ArrayList
 /**
  * Created by mbpeele on 1/4/16.
  */
-internal class PointsDrawHistory(points: ArrayList<CanvasPoint>, paint: Paint) {
+internal class PointsDrawHistory(points: List<CanvasPoint>, paint: Paint) {
 
     var lines: FloatArray = FloatArray(0)
     val paint: Paint = Paint(paint)
@@ -24,7 +24,7 @@ internal class PointsDrawHistory(points: ArrayList<CanvasPoint>, paint: Paint) {
         }
     }
 
-    private fun storePoints(points: ArrayList<CanvasPoint>): FloatArray {
+    private fun storePoints(points: List<CanvasPoint>): FloatArray {
         val length = points.size
 
         val n = length * 2

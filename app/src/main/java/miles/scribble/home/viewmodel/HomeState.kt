@@ -21,21 +21,29 @@ import android.support.v4.widget.ViewDragHelper.INVALID_POINTER
 class HomeStore @Inject constructor(context: Context) : SimpleStore<HomeState>(HomeState.create(context))
 
 data class HomeState(val isMenuOpen : Boolean = false,
-                     var width : Int = 0, var height : Int = 0,
+                     val width : Int, val height : Int,
                      val drawType: DrawType = HomeState.DrawType.DRAW,
-                     var cachedBitmap: Bitmap,
-                     var isSafeToDraw : Boolean = true) : State {
+                     val cachedBitmap: Bitmap,
+                     val isSafeToDraw : Boolean = true,
+                     val paint : Paint = PaintStyles.normal(ViewUtils.randomColor(), 5f),
+                     val stroke : Stroke = Stroke(),
+                     val activePointer : Int = INVALID_POINTER,
+                     val lastX : Float = 0f,
+                     val lastY : Float = 0f,
+                     val history: Stack<Any> = Stack(),
+                     val bitmap: Bitmap,
+                     val canvas: Canvas) : State {
 
     companion object {
-        private val STROKE_WIDTH = 5f
-        private val INVALID_POINTER = -1
-        private val NONE = 0
-        private val DRAG = 1
-        private val ZOOM = 2
+        val INVALID_POINTER = -1
 
         fun create(context: Context) : HomeState {
             val point = context.getDisplaySize()
-            return HomeState(width = point.x, height = point.y, cachedBitmap = FileUtils.getCachedBitmap(context))
+            val bitmap = Bitmap.createBitmap(point.x, point.y, Bitmap.Config.ARGB_8888)
+            return HomeState(width = point.x, height = point.y, cachedBitmap = FileUtils.getCachedBitmap(context),
+                    bitmap = bitmap, canvas = Canvas(bitmap)).apply {
+                canvas.drawBitmap(cachedBitmap, 0f, 0f, null)
+            }
         }
     }
 
@@ -46,41 +54,4 @@ data class HomeState(val isMenuOpen : Boolean = false,
         INK,
         PICTURE
     }
-
-    private val matrix: Matrix = Matrix()
-    private val savedMatrix: Matrix = Matrix()
-    private val canvas: Canvas
-    private val stroke: Stroke
-    private val redoneHistory: Stack<Any> = Stack()
-    private val history: Stack<Any> = Stack()
-    private val paint: Paint
-    private val state = DrawType.DRAW
-    private val startPoint: PointF = PointF()
-    private val midPoint: PointF = PointF()
-    private val mActivePointer = INVALID_POINTER
-    private val mLastX: Float = 0.toFloat()
-    private val mLastY: Float = 0.toFloat()
-    private val mStrokeColor: Int = 0
-    private val mBackgroundColor: Int = 0
-    private val mOppositeBackgroundColor: Int = 0
-    private val mInkedColor: Int = 0
-    private val mOldDist = 1.0
-    private val mLastRotation = 0f
-    private val shouldUpdate: Boolean = false
-    var bitmap: Bitmap
-
-    init {
-        val strokeColor = ViewUtils.randomColor()
-        paint = PaintStyles.normal(strokeColor, 5f)
-
-        bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-        bitmap.eraseColor(Color.WHITE)
-        cachedBitmap.eraseColor(Color.WHITE)
-
-        canvas = Canvas(bitmap)
-        canvas.drawBitmap(cachedBitmap, 0f, 0f, null)
-
-        stroke = Stroke(paint)
-    }
-
 }

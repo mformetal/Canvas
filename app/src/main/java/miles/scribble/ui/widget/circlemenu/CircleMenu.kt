@@ -45,7 +45,7 @@ class CircleMenu : ViewGroup {
     @Inject
     lateinit var viewModel : HomeViewModel
     @Inject
-    lateinit var dispatcher : Dispatcher<CircleMenuEvents, HomeState>
+    lateinit var dispatcher : Dispatcher<CircleMenuEvents, CircleMenuEvents>
 
     @BindView(R.id.menu_toggle)
     internal lateinit var toggle: FloatingActionButton
@@ -261,7 +261,7 @@ class CircleMenu : ViewGroup {
     @OnClick(R.id.menu_toggle)
     fun toggleMenu() {
         if (!isAnimating) {
-            dispatcher.dispatch(CircleMenuEvents.ToggleClicked(isMenuShowing))
+            dispatcher.dispatch(CircleMenuEvents.ToggleClicked(!isMenuShowing))
 
             if (isMenuShowing) {
                 hide()

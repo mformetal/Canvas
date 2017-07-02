@@ -3,27 +3,26 @@ package miles.scribble.redux.core
 import miles.scribble.redux.core.Reducer
 import miles.scribble.redux.core.Store
 
-/**
- * Created by mbpeele on 6/30/17.
- */
-interface Dispatcher<E : Event, S: State> {
+@Suppress("AddVarianceModifier")
+interface Dispatcher<E : Event, A : Any> {
 
-    fun dispatch(event: E)
+    fun dispatch(event: E) : A
 
 }
 
 class SimpleDispatcher<E : Event, S: State>(val store: Store<S>,
-                                               val reducer: Reducer<E, S>) : Dispatcher<E, S> {
+                                               val reducer: Reducer<E, S>) : Dispatcher<E, E> {
 
-    override fun dispatch(event: E) {
+    override fun dispatch(event: E) : E {
         store.state = reducer.reduce(event, store.state)
+        return event
     }
 
 }
 
 object Dispatchers {
 
-    fun <E: Event, S: State> create(store: Store<S>, reducer: Reducer<E, S>) : Dispatcher<E, S> {
+    fun <E: Event, S: State> create(store: Store<S>, reducer: Reducer<E, S>) : Dispatcher<E, E> {
         return SimpleDispatcher(store, reducer)
     }
 }

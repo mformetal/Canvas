@@ -29,7 +29,7 @@
     <string name="permission_record_audio_denied">Please enable RECORD_AUDIO_PERMISSION. Go to \nSettings -> Apps -> Permissions</string>
 
     <!--PHONE PERMISSIONS-->
-    <string name="permission_read_phone_state_explanation">Application needs READ_PHONE_STATE_PERMISSION in order to access phone state. Please allow permission.</string>
+    <string name="permission_read_phone_state_explanation">Application needs READ_PHONE_STATE_PERMISSION in order to access phone positions. Please allow permission.</string>
     <string name="permission_read_phone_state_denied">Please enable READ_PHONE_STATE_PERMISSION. Go to \nSettings -> Apps -> Permissions</string>
     <string name="permission_call_phone_explanation">Application needs CALL_PHONE_PERMISSION in order to make a call. Please allow permission.</string>
     <string name="permission_call_phone_denied">Please enable CALL_PHONE_PERMISSION. Go to \nSettings -> Apps -> Permissions</string>

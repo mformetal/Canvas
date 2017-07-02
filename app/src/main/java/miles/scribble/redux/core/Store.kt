@@ -24,8 +24,7 @@ open class SimpleStore<S : State>(initialState: S,
                              private val subscribers: CopyOnWriteArrayList<StateChangeListener<S>> =CopyOnWriteArrayList()) : Store<S> {
 
     override var state by Delegates.observable(initialState, {
-        _, _, _ ->
-        notifySubscribers()
+        _, _, _ -> notifySubscribers()
     })
 
     init {

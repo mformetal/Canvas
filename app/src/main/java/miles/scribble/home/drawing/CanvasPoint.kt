@@ -1,9 +1,11 @@
 package miles.scribble.home.drawing
 
+import android.os.SystemClock
+
 /**
  * Created by mbpeele on 11/29/15.
  */
-internal data class CanvasPoint(var x: Float, var y: Float, var time: Long) {
+data class CanvasPoint(var x: Float, var y: Float, var time: Long = SystemClock.currentThreadTimeMillis()) {
 
     fun computeDistance(p: CanvasPoint): Float {
         val dx = x - p.x

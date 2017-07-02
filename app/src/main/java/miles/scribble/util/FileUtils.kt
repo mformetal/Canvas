@@ -18,11 +18,11 @@ object FileUtils {
 
     val bitmapOptions: BitmapFactory.Options
         get() {
-            val options = BitmapFactory.Options()
-            options.inPreferredConfig = Bitmap.Config.ARGB_8888
-            options.inMutable = true
-            options.inPreferQualityOverSpeed = true
-            return options
+            return BitmapFactory.Options().apply {
+                inPreferredConfig = Bitmap.Config.ARGB_8888
+                inMutable = true
+                inPreferQualityOverSpeed = true
+            }
         }
 
     fun calculateInSampleSize(options: BitmapFactory.Options,

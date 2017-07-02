@@ -33,7 +33,8 @@ class CanvasSurfaceModule {
 
     @Provides
     @ViewScope
-    fun dispatcher(homeViewModel: HomeViewModel, reducer: Reducer<CanvasSurfaceEvents, HomeState>) : Dispatcher<CanvasSurfaceEvents, HomeState> {
+    fun dispatcher(homeViewModel: HomeViewModel, reducer: Reducer<CanvasSurfaceEvents, HomeState>)
+            : Dispatcher<CanvasSurfaceEvents, CanvasSurfaceEvents> {
         return Dispatchers.create(homeViewModel.store, reducer)
     }
 }
