@@ -9,7 +9,7 @@ import java.util.ArrayList
 /**
  * Created by mbpeele on 11/23/15.
  */
-data class Stroke(val points : List<CanvasPoint> = listOf()) {
+data class Stroke(val points : ArrayList<CanvasPoint> = ArrayList()) {
 
     private val TOLERANCE = 5f
 
@@ -17,16 +17,18 @@ data class Stroke(val points : List<CanvasPoint> = listOf()) {
         return points.last().copy()
     }
 
-    fun addPoint(x: Float, y: Float, canvas: Canvas, paint: Paint) : Stroke {
+    fun addPoint(x: Float, y: Float, canvas: Canvas, paint: Paint) {
         val nextPoint: CanvasPoint = if (points.isEmpty()) {
              CanvasPoint(x, y).apply {
+                 paint.strokeWidth = paint.strokeWidth / 2
                  canvas.drawPoint(x, y, paint)
+                 paint.strokeWidth = paint.strokeWidth * 2
              }
         } else {
             val prevPoint = peek()
 
             if (Math.abs(prevPoint.x - x) < TOLERANCE && Math.abs(prevPoint.y - y) < TOLERANCE) {
-                return this
+                return
             }
 
             CanvasPoint(x, y).apply {
@@ -34,6 +36,10 @@ data class Stroke(val points : List<CanvasPoint> = listOf()) {
             }
         }
 
-        return Stroke(points = ArrayList(points).apply { add(nextPoint) })
+        points.add(nextPoint)
+    }
+
+    fun copy() : Stroke {
+        return Stroke(ArrayList(points))
     }
 }

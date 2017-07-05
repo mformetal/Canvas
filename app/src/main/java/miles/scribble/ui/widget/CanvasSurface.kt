@@ -70,6 +70,10 @@ class CanvasSurface : SurfaceView, SurfaceHolder.Callback {
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
+        if (!isEnabled) {
+            return true
+        }
+
         when (event.action and MotionEvent.ACTION_MASK) {
             MotionEvent.ACTION_DOWN -> dispatcher.dispatch(CanvasSurfaceEvents.TouchDown(event))
 

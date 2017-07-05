@@ -1,5 +1,9 @@
 package miles.scribble.redux.core
 
+import android.os.Handler
+import android.os.Looper
+import android.support.annotation.UiThread
+import io.reactivex.android.schedulers.AndroidSchedulers
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.properties.Delegates
 
@@ -7,6 +11,7 @@ interface State
 
 interface StateChangeListener<in S : State> {
 
+    @UiThread
     fun onStateChanged(state: S)
 
 }
@@ -26,13 +31,16 @@ open class SimpleStore<S : State>(initialState: S,
     override var state by Delegates.observable(initialState, {
         _, _, _ -> notifySubscribers()
     })
+    private val handler : Handler = Handler(Looper.getMainLooper())
 
     init {
         notifySubscribers()
     }
 
     private fun notifySubscribers() {
-        subscribers.forEach { it.onStateChanged(state) }
+        AndroidSchedulers.mainThread().scheduleDirect {
+            subscribers.forEach { it.onStateChanged(state) }
+        }
     }
 
     override fun subscribe(stateChangeListener: StateChangeListener<S>) {

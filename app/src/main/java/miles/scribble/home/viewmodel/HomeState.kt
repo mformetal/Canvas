@@ -31,6 +31,7 @@ data class HomeState(val isMenuOpen : Boolean = false,
                      val lastX : Float = 0f,
                      val lastY : Float = 0f,
                      val history: Stack<Any> = Stack(),
+                     val redoHistory : Stack<Any> = Stack(),
                      val bitmap: Bitmap,
                      val canvas: Canvas) : State {
 

@@ -31,6 +31,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center_horizontal"
-        app:layout_behavior="miles.scribble.ui.widget.FabMenuBehavior" />
+        app:layout_behavior="miles.scribble.ui.widget.SnackbarBehavior" />
 
 </miles.scribble.ui.widget.CanvasLayout>

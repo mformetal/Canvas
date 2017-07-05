@@ -8,6 +8,7 @@ import android.animation.PropertyValuesHolder
 import android.annotation.SuppressLint
 import android.content.Context
 import android.support.design.widget.FloatingActionButton
+import android.support.design.widget.Snackbar
 import android.util.AttributeSet
 import android.view.GestureDetector
 import android.view.MotionEvent
@@ -274,10 +275,18 @@ class CircleMenu : ViewGroup {
     private fun dispatchClickEvent(view: View) {
         when (view.id) {
             R.id.menu_redo -> {
-                dispatcher.dispatch(CircleMenuEvents.RedoClicked())
+                if (viewModel.state.redoHistory.isEmpty()) {
+                    Snackbar.make(this, R.string.snackbar_no_more_redo, Snackbar.LENGTH_SHORT).show()
+                } else {
+                    viewModel.redraw(false, dispatcher)
+                }
             }
             R.id.menu_undo -> {
-                dispatcher.dispatch(CircleMenuEvents.UndoClicked())
+                if (viewModel.state.history.isEmpty()) {
+                    Snackbar.make(this, R.string.snackbar_no_more_undo, Snackbar.LENGTH_SHORT).show()
+                } else {
+                    viewModel.redraw(true, dispatcher)
+                }
             }
         }
     }

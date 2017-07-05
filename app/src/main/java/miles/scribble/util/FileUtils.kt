@@ -14,7 +14,7 @@ import java.io.InputStream
  */
 object FileUtils {
 
-    val DRAWING_BITMAP_FILENAME = "canvas:bitmap"
+    val DRAWING_BITMAP_FILENAME = "workerCanvas:workerBitmap"
 
     val bitmapOptions: BitmapFactory.Options
         get() {

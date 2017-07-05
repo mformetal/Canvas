@@ -45,7 +45,8 @@ class CanvasSurfaceReducer : Reducer<CanvasSurfaceEvents, HomeState> {
 
                 when (state.drawType) {
                     HomeState.DrawType.DRAW, HomeState.DrawType.ERASE -> {
-                        state.copy(stroke = state.stroke.addPoint(x, y, state.canvas, state.paint),
+                        state.stroke.addPoint(x, y, state.canvas, state.paint)
+                        state.copy(stroke = state.stroke.copy(),
                                 activePointer = event.motionEvent.getPointerId(0),
                                 lastX = x, lastY = y)
                     }
@@ -71,7 +72,7 @@ class CanvasSurfaceReducer : Reducer<CanvasSurfaceEvents, HomeState> {
 
                 when (state.drawType) {
                     HomeState.DrawType.DRAW, HomeState.DrawType.ERASE -> {
-                        val stroke = state.stroke.run {
+                        val stroke = state.stroke.apply {
                             for (i in 0 until event.motionEvent.historySize) {
                                 addPoint(
                                         event.motionEvent.getHistoricalX(pointerIndex, i),
@@ -81,7 +82,7 @@ class CanvasSurfaceReducer : Reducer<CanvasSurfaceEvents, HomeState> {
                             addPoint(x, y, state.canvas, state.paint)
                         }
 
-                        state.copy(stroke = stroke, lastX = x, lastY = y)
+                        state.copy(stroke = stroke.copy(), lastX = x, lastY = y)
                     }
                     HomeState.DrawType.TEXT -> TODO()
                     HomeState.DrawType.INK -> TODO()
