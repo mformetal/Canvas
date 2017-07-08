@@ -4,7 +4,8 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.PorterDuff
-import miles.scribble.home.drawing.drawhistory.PointsDrawHistory
+import miles.scribble.home.drawing.redrawable.Redrawable
+import miles.scribble.home.drawing.redrawable.RedrawableLines
 import miles.scribble.home.viewmodel.HomeState
 import miles.scribble.redux.core.Event
 import miles.scribble.redux.core.Reducer
@@ -19,7 +20,7 @@ sealed class CircleMenuEvents : Event {
     class ToggleClicked(val isMenuShowing: Boolean) : CircleMenuEvents()
 
     class RedrawStarted(val isUndo: Boolean) : CircleMenuEvents()
-    class Redraw(val toRedraw: Any) : CircleMenuEvents()
+    class Redraw(val toRedraw: Redrawable) : CircleMenuEvents()
     class RedrawCompleted : CircleMenuEvents()
 }
 
@@ -39,8 +40,8 @@ class CircleMenuEventsReducer : Reducer<CircleMenuEvents, HomeState> {
                     drawColor(Color.WHITE, PorterDuff.Mode.CLEAR)
                     drawBitmap(state.cachedBitmap, 0f, 0f, null)
                 }
-                val history : Stack<Any>
-                val redoHistory : Stack<Any>
+                val history : Stack<Redrawable>
+                val redoHistory : Stack<Redrawable>
 
                 if (event.isUndo) {
                     history = state.history.copy()
@@ -58,8 +59,7 @@ class CircleMenuEventsReducer : Reducer<CircleMenuEvents, HomeState> {
                 state.copy(isSafeToDraw = false, redoHistory = redoHistory, history = history)
             }
             is CircleMenuEvents.Redraw -> {
-                val test = event.toRedraw as PointsDrawHistory
-                test.draw(workerCanvas)
+                event.toRedraw.draw(workerCanvas)
                 state
             }
             is CircleMenuEvents.RedrawCompleted -> {

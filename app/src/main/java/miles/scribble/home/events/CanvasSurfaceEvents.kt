@@ -4,16 +4,11 @@ import android.view.MotionEvent
 import miles.scribble.home.viewmodel.HomeState
 import miles.scribble.redux.core.Event
 import miles.scribble.redux.core.Reducer
-import android.R.attr.y
-import android.R.attr.x
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import miles.scribble.R.id.width
 import miles.scribble.home.drawing.Stroke
-import miles.scribble.home.drawing.drawhistory.PointsDrawHistory
+import miles.scribble.home.drawing.redrawable.RedrawableLines
 import miles.scribble.util.extensions.copy
-import java.util.*
-import android.support.v4.view.MotionEventCompat.getPointerId
 
 
 /**
@@ -93,7 +88,7 @@ class CanvasSurfaceReducer : Reducer<CanvasSurfaceEvents, HomeState> {
                 when (state.drawType) {
                     HomeState.DrawType.DRAW, HomeState.DrawType.ERASE -> {
                         val history = state.history.copy().apply {
-                            push(PointsDrawHistory(state.stroke.points, state.paint))
+                            push(RedrawableLines(state.stroke.points, state.paint))
                         }
                         state.copy(history = history, stroke = Stroke(),
                                 lastX = event.motionEvent.x, lastY = event.motionEvent.y)

@@ -12,7 +12,7 @@ import miles.scribble.util.extensions.getDisplaySize
 import java.util.*
 import javax.inject.Inject
 import android.support.v4.widget.ViewDragHelper.INVALID_POINTER
-
+import miles.scribble.home.drawing.redrawable.Redrawable
 
 
 /**
@@ -30,8 +30,8 @@ data class HomeState(val isMenuOpen : Boolean = false,
                      val activePointer : Int = INVALID_POINTER,
                      val lastX : Float = 0f,
                      val lastY : Float = 0f,
-                     val history: Stack<Any> = Stack(),
-                     val redoHistory : Stack<Any> = Stack(),
+                     val history: Stack<Redrawable> = Stack(),
+                     val redoHistory : Stack<Redrawable> = Stack(),
                      val bitmap: Bitmap,
                      val canvas: Canvas) : State {
 

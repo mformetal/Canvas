@@ -1,15 +1,13 @@
-package miles.scribble.home.drawing.drawhistory
+package miles.scribble.home.drawing.redrawable
 
 import android.graphics.Canvas
 import android.graphics.Paint
 import miles.scribble.home.drawing.CanvasPoint
 
-import java.util.ArrayList
-
 /**
  * Created by mbpeele on 1/4/16.
  */
-internal class PointsDrawHistory(points: List<CanvasPoint>, paint: Paint) {
+internal class RedrawableLines(points: List<CanvasPoint>, paint: Paint) : Redrawable {
 
     var lines: FloatArray = FloatArray(0)
     val paint: Paint = Paint(paint)
@@ -18,7 +16,7 @@ internal class PointsDrawHistory(points: List<CanvasPoint>, paint: Paint) {
         lines = storePoints(points)
     }
 
-    fun draw(canvas: Canvas) {
+    override fun draw(canvas: Canvas) {
         if (lines.isNotEmpty()) {
             canvas.drawLines(lines, paint)
         }
