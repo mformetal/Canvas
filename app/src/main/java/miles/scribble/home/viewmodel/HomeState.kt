@@ -12,6 +12,8 @@ import miles.scribble.util.extensions.getDisplaySize
 import java.util.*
 import javax.inject.Inject
 import android.support.v4.widget.ViewDragHelper.INVALID_POINTER
+import io.reactivex.subjects.PublishSubject
+import io.reactivex.subjects.Subject
 import miles.scribble.home.drawing.redrawable.Redrawable
 
 
@@ -33,7 +35,8 @@ data class HomeState(val isMenuOpen : Boolean = false,
                      val history: Stack<Redrawable> = Stack(),
                      val redoHistory : Stack<Redrawable> = Stack(),
                      val bitmap: Bitmap,
-                     val canvas: Canvas) : State {
+                     val canvas: Canvas,
+                     val onClickSubject: Subject<Int> = PublishSubject.create<Int>()) : State {
 
     companion object {
         val INVALID_POINTER = -1

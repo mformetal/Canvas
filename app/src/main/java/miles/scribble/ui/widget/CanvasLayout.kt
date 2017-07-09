@@ -28,7 +28,6 @@ import miles.scribble.home.drawing.CanvasPoint
 import miles.scribble.home.viewmodel.HomeState
 import miles.scribble.home.viewmodel.HomeViewModel
 import miles.scribble.redux.core.StateChangeListener
-import miles.scribble.ui.widget.circlemenu.CircleMenu
 import miles.scribble.util.ViewUtils
 import javax.inject.Inject
 

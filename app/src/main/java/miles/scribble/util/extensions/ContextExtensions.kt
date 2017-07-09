@@ -14,6 +14,7 @@ import android.graphics.Point
 import android.net.Uri
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat.startActivity
+import android.view.LayoutInflater
 import android.view.WindowManager
 
 
@@ -39,6 +40,10 @@ fun Activity.setAutoRotate(enable: Boolean) {
     if (hasWriteSettingsPermission()) {
         Settings.System.putInt(contentResolver, Settings.System.ACCELEROMETER_ROTATION, if (enable) 1 else 0)
     }
+}
+
+fun Activity.inflater() : LayoutInflater {
+    return LayoutInflater.from(this)
 }
 
 fun Context.getDisplaySize() : Point {

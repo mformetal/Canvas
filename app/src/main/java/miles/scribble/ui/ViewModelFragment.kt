@@ -3,28 +3,32 @@ package miles.scribble.ui
 import android.arch.lifecycle.LifecycleRegistry
 import android.arch.lifecycle.LifecycleRegistryOwner
 import android.arch.lifecycle.ViewModel
+import android.content.Context
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
-import miles.scribble.util.extensions.app
-import miles.scribble.MainApp
+import android.support.v4.app.Fragment
+import miles.scribble.dagger.fragment.HasFragmentSubcomponentBuilders
 
 /**
- * Created by milespeele on 7/14/15.
+ * Created by mbpeele on 7/8/17.
  */
-abstract class ViewModelActivity<VM : ViewModel> : AppCompatActivity(), LifecycleRegistryOwner {
+abstract class ViewModelFragment<VM : ViewModel> : Fragment(), LifecycleRegistryOwner {
 
     private lateinit var lifecycleRegistry : LifecycleRegistry
     lateinit var viewModel : VM
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        viewModel = inject(context as HasFragmentSubcomponentBuilders)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         lifecycleRegistry = LifecycleRegistry(this)
-
-        viewModel = inject(app())
     }
 
-    abstract fun inject(app: MainApp) : VM
+    abstract fun inject(hasFragmentSubcomponentBuilders: HasFragmentSubcomponentBuilders) : VM
 
     override fun getLifecycle(): LifecycleRegistry {
         return lifecycleRegistry

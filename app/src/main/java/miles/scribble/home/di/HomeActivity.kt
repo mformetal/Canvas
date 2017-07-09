@@ -2,14 +2,17 @@ package miles.scribble.home.di
 
 import android.arch.lifecycle.ViewModelProvider
 import android.arch.lifecycle.ViewModelProviders
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.Subcomponent
-import miles.scribble.dagger.activity.ActivityComponent
-import miles.scribble.dagger.activity.ActivityComponentBuilder
-import miles.scribble.dagger.activity.ActivityModule
-import miles.scribble.dagger.activity.ActivityScope
+import dagger.multibindings.IntoMap
+import miles.scribble.dagger.activity.*
+import miles.scribble.dagger.fragment.FragmentComponent
+import miles.scribble.dagger.fragment.FragmentComponentBuilder
+import miles.scribble.dagger.fragment.FragmentKey
 import miles.scribble.home.HomeActivity
+import miles.scribble.home.colorpicker.ColorPickerFragment
 import miles.scribble.home.viewmodel.HomeViewModel
 
 /**
@@ -18,7 +21,7 @@ import miles.scribble.home.viewmodel.HomeViewModel
 /**
  * Created by mbpeele on 6/28/17.
  */
-@Module
+@Module(includes = arrayOf(HomeActivityFragmentBindingModule::class))
 class HomeModule(activity: HomeActivity) : ActivityModule<HomeActivity>(activity) {
 
     @Provides
@@ -46,4 +49,13 @@ interface HomeComponent : ActivityComponent<HomeActivity> {
     @Subcomponent.Builder
     interface Builder : ActivityComponentBuilder<HomeModule, HomeComponent>
 
+}
+
+@Module(subcomponents = arrayOf(ColorPickerComponent::class))
+abstract class HomeActivityFragmentBindingModule {
+
+    @Binds
+    @IntoMap
+    @FragmentKey(ColorPickerFragment::class)
+    abstract fun colorPickerBuilder(impl: ColorPickerComponent.Builder) : FragmentComponentBuilder<*, *>
 }

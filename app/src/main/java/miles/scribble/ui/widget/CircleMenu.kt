@@ -1,4 +1,4 @@
-package miles.scribble.ui.widget.circlemenu
+package miles.scribble.ui.widget
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
@@ -30,7 +30,6 @@ import miles.scribble.R
 import miles.scribble.home.HomeActivity
 import miles.scribble.home.di.CircleMenuModule
 import miles.scribble.home.events.CircleMenuEvents
-import miles.scribble.home.viewmodel.HomeState
 import miles.scribble.home.viewmodel.HomeViewModel
 import miles.scribble.redux.core.Dispatcher
 import miles.scribble.util.Circle
@@ -278,15 +277,30 @@ class CircleMenu : ViewGroup {
                 if (viewModel.state.redoHistory.isEmpty()) {
                     Snackbar.make(this, R.string.snackbar_no_more_redo, Snackbar.LENGTH_SHORT).show()
                 } else {
-                    viewModel.redraw(false, dispatcher)
+                    dispatcher.dispatch(CircleMenuEvents.RedrawStarted(false))
+
+                    for (any in viewModel.state.history) {
+                        dispatcher.dispatch(CircleMenuEvents.Redraw(any))
+                    }
+
+                    dispatcher.dispatch(CircleMenuEvents.RedrawCompleted())
                 }
             }
             R.id.menu_undo -> {
                 if (viewModel.state.history.isEmpty()) {
                     Snackbar.make(this, R.string.snackbar_no_more_undo, Snackbar.LENGTH_SHORT).show()
                 } else {
-                    viewModel.redraw(true, dispatcher)
+                    dispatcher.dispatch(CircleMenuEvents.RedrawStarted(true))
+
+                    for (any in viewModel.state.history) {
+                        dispatcher.dispatch(CircleMenuEvents.Redraw(any))
+                    }
+
+                    dispatcher.dispatch(CircleMenuEvents.RedrawCompleted())
                 }
+            }
+            R.id.menu_stroke_color -> {
+                dispatcher.dispatch(CircleMenuEvents.ColorClicked(R.id.menu_stroke_color))
             }
         }
     }

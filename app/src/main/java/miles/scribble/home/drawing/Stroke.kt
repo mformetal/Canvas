@@ -38,8 +38,4 @@ data class Stroke(val points : ArrayList<CanvasPoint> = ArrayList()) {
 
         points.add(nextPoint)
     }
-
-    fun copy() : Stroke {
-        return Stroke(ArrayList(points))
-    }
 }

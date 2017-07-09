@@ -1,46 +1,40 @@
 package miles.scribble.home
 
-import android.arch.lifecycle.ViewModel
-import android.arch.lifecycle.ViewModelProvider
-import android.arch.lifecycle.ViewModelProviders
-import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
-import android.content.res.Configuration
-import android.graphics.Point
-import android.hardware.Sensor
-import android.hardware.SensorManager
 import android.net.Uri
 import android.os.Bundle
-import android.support.v4.widget.DrawerLayout
-import android.view.OrientationEventListener
-import android.view.View
-import android.view.WindowManager
+import android.support.v4.app.Fragment
+import android.widget.FrameLayout
 import butterknife.BindView
 import butterknife.ButterKnife
-import kotlinx.android.synthetic.main.activity_home.*
 import miles.scribble.MainApp
 
 import miles.scribble.R
-import miles.scribble.dagger.activity.HasActivitySubcomponentBuilders
+import miles.scribble.dagger.fragment.FragmentComponentBuilder
+import miles.scribble.dagger.fragment.HasFragmentSubcomponentBuilders
+import miles.scribble.home.colorpicker.ColorPickerFragment
 import miles.scribble.home.di.HomeComponent
 import miles.scribble.home.di.HomeModule
-import miles.scribble.home.viewmodel.HomeState
 import miles.scribble.home.viewmodel.HomeViewModel
-import miles.scribble.redux.core.Dispatcher
 import miles.scribble.ui.ViewModelActivity
-import miles.scribble.ui.widget.CanvasLayout
-import miles.scribble.ui.widget.RoundedFrameLayout
+import miles.scribble.ui.transition.makeFabDialogTransitions
 import miles.scribble.util.ViewUtils
 import miles.scribble.util.extensions.*
 import javax.inject.Inject
+import javax.inject.Provider
 
 
-class HomeActivity : ViewModelActivity<HomeViewModel>() {
+class HomeActivity : ViewModelActivity<HomeViewModel>(), HasFragmentSubcomponentBuilders {
 
     val REQUEST_PERMISSION_WRITE_SETTINGS = 1
 
     lateinit var component : HomeComponent
+    @Inject
+    lateinit var fragmentComponentBuilders: Map<Class<out Fragment>, @JvmSuppressWildcards Provider<FragmentComponentBuilder<*, *>>>
+
+    @BindView(R.id.canvas_framelayout_animator)
+    lateinit var fragmentFrame : FrameLayout
 
     override fun inject(app: MainApp) : HomeViewModel {
         val builder = app.getBuilder(HomeActivity::class.java)
@@ -50,11 +44,29 @@ class HomeActivity : ViewModelActivity<HomeViewModel>() {
         return component.viewModel()
     }
 
+    override fun getBuilder(fragmentClass: Class<out Fragment>): FragmentComponentBuilder<*, *> {
+        return fragmentComponentBuilders.get(fragmentClass)!!.get()
+    }
+
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
 
         ButterKnife.bind(this)
+
+        viewModel.state.onClickSubject.subscribe {
+            when (it) {
+                R.id.menu_stroke_color -> {
+                    val picker = ColorPickerFragment()
+                    val fab = findViewById(it)
+                    makeFabDialogTransitions(this, fab, fragmentFrame, picker)
+
+                    supportFragmentManager.beginTransaction()
+                            .replace(R.id.canvas_framelayout_animator, picker, null)
+                            .commit()
+                }
+            }
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

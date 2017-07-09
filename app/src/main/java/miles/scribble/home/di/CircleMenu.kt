@@ -12,7 +12,7 @@ import miles.scribble.home.viewmodel.HomeViewModel
 import miles.scribble.redux.core.Dispatcher
 import miles.scribble.redux.core.Dispatchers
 import miles.scribble.redux.core.Reducer
-import miles.scribble.ui.widget.circlemenu.CircleMenu
+import miles.scribble.ui.widget.CircleMenu
 
 /**
  * Created by mbpeele on 6/30/17.

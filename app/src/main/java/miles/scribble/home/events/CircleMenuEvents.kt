@@ -18,10 +18,12 @@ import java.util.*
 sealed class CircleMenuEvents : Event {
 
     class ToggleClicked(val isMenuShowing: Boolean) : CircleMenuEvents()
+    class ColorClicked(val id: Int) : CircleMenuEvents()
 
     class RedrawStarted(val isUndo: Boolean) : CircleMenuEvents()
     class Redraw(val toRedraw: Redrawable) : CircleMenuEvents()
     class RedrawCompleted : CircleMenuEvents()
+
 }
 
 class CircleMenuEventsReducer : Reducer<CircleMenuEvents, HomeState> {
@@ -65,6 +67,10 @@ class CircleMenuEventsReducer : Reducer<CircleMenuEvents, HomeState> {
             is CircleMenuEvents.RedrawCompleted -> {
                 val bitmap = workerBitmap.copy(Bitmap.Config.ARGB_8888, true)
                 state.copy(isSafeToDraw = true, bitmap = bitmap, canvas = Canvas(bitmap))
+            }
+            is CircleMenuEvents.ColorClicked -> {
+                state.onClickSubject.onNext(event.id)
+                state.copy(isSafeToDraw = false)
             }
         }
     }

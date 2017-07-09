@@ -15,6 +15,6 @@ abstract class ActivityBindingModule {
     @Binds
     @IntoMap
     @ActivityKey(HomeActivity::class)
-    abstract fun loginComponentBuilder(impl: HomeComponent.Builder) : ActivityComponentBuilder<*, *>
+    abstract fun homeActivityBuilder(impl: HomeComponent.Builder) : ActivityComponentBuilder<*, *>
 
 }

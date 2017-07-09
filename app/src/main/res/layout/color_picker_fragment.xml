@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<miles.scribble.home.colorpicker.ColorPickerView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/picker"
+    android:layout_height="800dp"
+    android:layout_width="800dp" />

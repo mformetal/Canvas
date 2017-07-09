@@ -35,7 +35,7 @@ internal class RedrawableLines(points: List<CanvasPoint>, paint: Paint) : Redraw
         val pts = FloatArray(arraySize)
         var counter = 1
 
-        for (ndx in 0..length - 1) {
+        for (ndx in 0 until length) {
             val x = points[ndx].x
             val y = points[ndx].y
 

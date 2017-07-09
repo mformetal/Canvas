@@ -21,14 +21,4 @@ class HomeViewModel @Inject constructor(homeStore: HomeStore) : StoreViewModel<H
             canvas?.drawBitmap(state.bitmap, 0f, 0f, null)
         }
     }
-
-    fun redraw(isUndo: Boolean, dispatcher: Dispatcher<CircleMenuEvents, CircleMenuEvents>) {
-        dispatcher.dispatch(CircleMenuEvents.RedrawStarted(isUndo))
-
-        for (any in state.history) {
-            dispatcher.dispatch(CircleMenuEvents.Redraw(any))
-        }
-
-        dispatcher.dispatch(CircleMenuEvents.RedrawCompleted())
-    }
 }

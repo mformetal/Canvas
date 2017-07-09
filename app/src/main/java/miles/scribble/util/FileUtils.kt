@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import miles.scribble.util.extensions.getDisplaySize
+import java.io.FileNotFoundException
 
 import java.io.IOException
 import java.io.InputStream
@@ -47,11 +48,13 @@ object FileUtils {
     fun getCachedBitmap(context: Context): Bitmap {
         var bitmap : Bitmap ?= null
         try {
+
             val inputStream = context.openFileInput(DRAWING_BITMAP_FILENAME)
             bitmap = BitmapFactory.decodeStream(inputStream, null, bitmapOptions)
             inputStream.close()
-        } catch (e: IOException) {
-            e.printStackTrace()
+        } catch (e: FileNotFoundException) {
+            // Just means we didn't find a Bitmap.
+            // Tired of seeing this trace show up all the time
         }
 
         if (bitmap == null) {

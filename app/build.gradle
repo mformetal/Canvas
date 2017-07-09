@@ -6,8 +6,8 @@ apply plugin: 'kotlin-android-extensions'
 def config = rootProject.extensions.getByName("ext")
 
 android {
-    compileSdkVersion config["compileSdkVersion"]
-    buildToolsVersion config["buildToolsVersion"]
+    compileSdkVersion 26
+    buildToolsVersion '26.0.0'
 
     defaultConfig {
         minSdkVersion config["minSdkVersion"]
@@ -22,26 +22,18 @@ android {
 
 dependencies {
     implementation config.kotlinStdLib
-
     implementation config.appCompat
-
     implementation config.butterKnife
     kapt config.butterKnifeApt
-
     kapt config.daggerCompiler
     compileOnly config.javaxInject
     implementation config.dagger
-
     implementation config.supportDesign
-
     implementation config.rxAndroid
     implementation config.rxJava
-
     implementation config.glide
-
     implementation config.lifecycle
     implementation config.lifecycleExtensions
     kapt config.lifecycleApt
-
     implementation config.autoFitTextView
 }
