@@ -3,42 +3,28 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="activity_header_layout_margin">20dp</dimen>
 
+    <dimen name="spacing_micro">4dp</dimen>
+    <dimen name="spacing_normal">8dp</dimen>
+    <dimen name="spacing_large">32dp</dimen>
+    <dimen name="spacing_xlarge">48dp</dimen>
+    <dimen name="padding_normal">16dp</dimen>
+    <dimen name="spacing_huge">64dp</dimen>
+    <dimen name="padding_large">24dp</dimen>
+
     <dimen name="system_ui_scrim">18dp</dimen>
     <dimen name="status_bar_height">24dp</dimen>
     <dimen name="nav_bar_height">48dp</dimen>
-
-    <dimen name="view_save_animation_dimens">100dp</dimen>
-
-    <dimen name="gallery_image_dimens">250dp</dimen>
-
-    <dimen name="brush_recycler_spacing">10dp</dimen>
-    
-    <dimen name="parse_login_ui_width">300dp</dimen>
-    <dimen name="parse_login_ui_signup_margin">8dp</dimen>
-
-    <dimen name="fragment_color_picker_title_padding_bottom">8dp</dimen>
-    <dimen name="fragment_color_picker_vertical_margin">15dp</dimen>
 
     <dimen name="fab_margin">10dp</dimen>
     <dimen name="fab_padding">16dp</dimen>
     <dimen name="fab_elevation">8dp</dimen>
 
     <dimen name="padding_button_top">20dp</dimen>
-
-    <dimen name="paint_example_items_margin">10dp</dimen>
-
-    <dimen name="dialog_title_text_size">20sp</dimen>
-    <dimen name="dialog_body_text_size">15sp</dimen>
-    <dimen name="dialog_view_vertical_margin">20dp</dimen>
-    <dimen name="dialog_view_horizontal_margin">15dp</dimen>
-
-    <dimen name="title_text_size">30sp</dimen>
-
-    <dimen name="adapter_colors_layout_view_dimens">20dp</dimen>
     
     <dimen name="small_text_size">12sp</dimen>
     <dimen name="medium_text_size">18sp</dimen>
     <dimen name="large_text_size">22sp</dimen>
     <dimen name="xlarge_text_size">40sp</dimen>
+
     <item name="aspect_ratio" type="dimen" format="float">1.777777778</item>
 </resources>

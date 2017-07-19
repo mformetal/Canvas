@@ -8,11 +8,10 @@ import dagger.Provides
 import dagger.Subcomponent
 import dagger.multibindings.IntoMap
 import miles.scribble.dagger.activity.*
-import miles.scribble.dagger.fragment.FragmentComponent
 import miles.scribble.dagger.fragment.FragmentComponentBuilder
 import miles.scribble.dagger.fragment.FragmentKey
 import miles.scribble.home.HomeActivity
-import miles.scribble.home.colorpicker.ColorPickerFragment
+import miles.scribble.home.colorpicker.ColorPickerDialogFragment
 import miles.scribble.home.viewmodel.HomeViewModel
 
 /**
@@ -56,6 +55,6 @@ abstract class HomeActivityFragmentBindingModule {
 
     @Binds
     @IntoMap
-    @FragmentKey(ColorPickerFragment::class)
+    @FragmentKey(ColorPickerDialogFragment::class)
     abstract fun colorPickerBuilder(impl: ColorPickerComponent.Builder) : FragmentComponentBuilder<*, *>
 }

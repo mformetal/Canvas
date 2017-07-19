@@ -43,8 +43,6 @@ class CanvasLayout : CoordinatorLayout, StateChangeListener<HomeState> {
     internal lateinit var surface: CanvasSurface
     @BindView(R.id.canvas_fab_menu)
     internal lateinit var circleMenu: CircleMenu
-    @BindView(R.id.canvas_framelayout_animator)
-    internal lateinit var fabFrame: RoundedFrameLayout
     @BindView(R.id.canvas_toolbar)
     internal lateinit var toolbar: Toolbar
 
@@ -107,26 +105,12 @@ class CanvasLayout : CoordinatorLayout, StateChangeListener<HomeState> {
                     return true
                 }
 
-                if (fabFrame.visibility == View.VISIBLE && !fabFrame.isAnimating) {
+                if (mShadowPaint.alpha != 0) {
                     surface.isEnabled = false
-                    circleMenu.isEnabled = false
-                    fabFrame.getHitRect(mRect)
+                }
 
-                    if (!mRect.contains(x.toInt(), y.toInt())) {
-                        if (context is Activity) {
-                            playSoundEffect(SoundEffectConstants.CLICK)
-                            (context as Activity).onBackPressed()
-                        }
-                    }
-                    return false
-                } else {
-                    if (mShadowPaint.alpha != 0) {
-                        surface.isEnabled = false
-                    }
-
-                    if (!circleMenu.isEnabled) {
-                        circleMenu.isEnabled = true
-                    }
+                if (!circleMenu.isEnabled) {
+                    circleMenu.isEnabled = true
                 }
             }
             MotionEvent.ACTION_MOVE -> mHandler.postDelayed({ ViewUtils.systemUIGone(rootView) }, 350)

@@ -10,31 +10,111 @@
         android:id="@+id/current_color"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_weight="1"
+        android:layout_marginTop="@dimen/spacing_normal"
+        tools:background="@android:color/black" />
 
-    <SeekBar
-        android:id="@+id/red_bar"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:max="255" />
+        android:layout_marginTop="@dimen/spacing_large"
+        android:orientation="horizontal" >
 
-    <SeekBar
-        android:id="@+id/green_bar"
+        <SeekBar
+            android:id="@+id/red_bar"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_normal"
+            android:thumbTint="@color/material_dark_red"
+            android:progressTint="@color/material_dark_red"
+            android:max="255"
+            tools:progress="120" />
+
+        <TextView
+            android:id="@+id/red_input"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="@dimen/spacing_normal"
+            android:layout_marginEnd="@dimen/spacing_normal"
+            android:textColor="@color/material_dark_red"
+            android:maxLength="3"
+            tools:text="255" />
+
+    </LinearLayout>
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:max="255" />
+        android:layout_marginTop="@dimen/spacing_large"
+        android:orientation="horizontal" >
 
-    <SeekBar
-        android:id="@+id/blue_bar"
+        <SeekBar
+            android:id="@+id/green_bar"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_normal"
+            android:thumbTint="@color/material_dark_green"
+            android:progressTint="@color/material_dark_green"
+            android:max="255"
+            tools:progress="120" />
+
+        <TextView
+            android:id="@+id/green_input"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="@dimen/spacing_normal"
+            android:layout_marginEnd="@dimen/spacing_normal"
+            android:textColor="@color/material_dark_green"
+            android:maxLength="3"
+            tools:text="255" />
+
+    </LinearLayout>
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:max="255" />
+        android:layout_marginTop="@dimen/spacing_large"
+        android:orientation="horizontal" >
+
+        <SeekBar
+            android:id="@+id/blue_bar"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_normal"
+            android:thumbTint="@color/material_dark_blue"
+            android:progressTint="@color/material_dark_blue"
+            android:max="255"
+            tools:progress="120" />
+
+        <TextView
+            android:id="@+id/blue_input"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="@dimen/spacing_normal"
+            android:layout_marginEnd="@dimen/spacing_normal"
+            android:textColor="@color/material_dark_blue"
+            android:maxLength="3"
+            tools:text=" 12" />
+
+    </LinearLayout>
 
     <EditText
         android:id="@+id/hex_input"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="@dimen/padding_normal"
+        android:layout_marginBottom="@dimen/padding_normal"
+        android:paddingStart="@dimen/padding_normal"
+        android:paddingEnd="@dimen/padding_normal"
         android:inputType="number"
+        android:maxLength="6"
         tools:text="#FFFFFF" />
 
 </LinearLayout>

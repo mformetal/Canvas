@@ -5,20 +5,17 @@ import android.content.pm.ActivityInfo
 import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.Fragment
-import android.widget.FrameLayout
-import butterknife.BindView
 import butterknife.ButterKnife
 import miles.scribble.MainApp
 
 import miles.scribble.R
 import miles.scribble.dagger.fragment.FragmentComponentBuilder
 import miles.scribble.dagger.fragment.HasFragmentSubcomponentBuilders
-import miles.scribble.home.colorpicker.ColorPickerFragment
+import miles.scribble.home.colorpicker.ColorPickerDialogFragment
 import miles.scribble.home.di.HomeComponent
 import miles.scribble.home.di.HomeModule
 import miles.scribble.home.viewmodel.HomeViewModel
 import miles.scribble.ui.ViewModelActivity
-import miles.scribble.ui.transition.makeFabDialogTransitions
 import miles.scribble.util.ViewUtils
 import miles.scribble.util.extensions.*
 import javax.inject.Inject
@@ -32,9 +29,6 @@ class HomeActivity : ViewModelActivity<HomeViewModel>(), HasFragmentSubcomponent
     lateinit var component : HomeComponent
     @Inject
     lateinit var fragmentComponentBuilders: Map<Class<out Fragment>, @JvmSuppressWildcards Provider<FragmentComponentBuilder<*, *>>>
-
-    @BindView(R.id.canvas_framelayout_animator)
-    lateinit var fragmentFrame : FrameLayout
 
     override fun inject(app: MainApp) : HomeViewModel {
         val builder = app.getBuilder(HomeActivity::class.java)
@@ -57,13 +51,7 @@ class HomeActivity : ViewModelActivity<HomeViewModel>(), HasFragmentSubcomponent
         viewModel.state.onClickSubject.subscribe {
             when (it) {
                 R.id.menu_stroke_color -> {
-                    val picker = ColorPickerFragment()
-                    val fab = findViewById(it)
-                    makeFabDialogTransitions(this, fab, fragmentFrame, picker)
-
-                    supportFragmentManager.beginTransaction()
-                            .replace(R.id.canvas_framelayout_animator, picker, null)
-                            .commit()
+                    ColorPickerDialogFragment().show(supportFragmentManager, null)
                 }
             }
         }

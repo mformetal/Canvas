@@ -1,9 +1,9 @@
 ext {
-    buildToolsVersion = "26.0.0"
+    buildToolsVersion = "25.0.0"
     jdkVersion = '1.8'
     minSdkVersion = 21
-    targetSdkVersion = 26
-    compileSdkVersion = 26
+    targetSdkVersion = 25
+    compileSdkVersion = 25
     applicationId = "miles.scribble"
 
     daggerVersion = '2.9'

@@ -7,8 +7,6 @@
     <string name="fragment_text_title">Enter Text</string>
     <string name="fragment_text_input_hint">Will Be Drawn On Canvas</string>
 
-    <string name="fragment_color_picker_choose">Choose</string>
-    <string name="fragment_color_picker_nah">Cancel</string>
     <string name="fragment_color_picker_title">Choose Color</string>
 
     <string name="snackbar_activity_home_image_saved_title">Saved Your Masterpiece!</string>

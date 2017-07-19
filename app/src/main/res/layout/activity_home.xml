@@ -16,15 +16,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <miles.scribble.ui.widget.RoundedFrameLayout
-        android:id="@+id/canvas_framelayout_animator"
-        android:elevation="24dp"
-        android:visibility="gone"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="30dp"
-        android:layout_gravity="center" />
-
     <include
         layout="@layout/canvas_circle_menu"
         android:id="@+id/canvas_fab_menu"

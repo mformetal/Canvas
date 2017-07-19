@@ -6,7 +6,7 @@ import miles.scribble.dagger.fragment.FragmentComponent
 import miles.scribble.dagger.fragment.FragmentComponentBuilder
 import miles.scribble.dagger.fragment.FragmentModule
 import miles.scribble.dagger.fragment.FragmentScope
-import miles.scribble.home.colorpicker.ColorPickerFragment
+import miles.scribble.home.colorpicker.ColorPickerDialogFragment
 import miles.scribble.home.viewmodel.HomeViewModel
 
 /**
@@ -14,7 +14,7 @@ import miles.scribble.home.viewmodel.HomeViewModel
  */
 @FragmentScope
 @Subcomponent(modules = arrayOf(ColorPickerModule::class))
-interface ColorPickerComponent : FragmentComponent<ColorPickerFragment> {
+interface ColorPickerComponent : FragmentComponent<ColorPickerDialogFragment> {
 
     fun viewModel() : HomeViewModel
 
@@ -24,4 +24,4 @@ interface ColorPickerComponent : FragmentComponent<ColorPickerFragment> {
 }
 
 @Module
-class ColorPickerModule(fragment: ColorPickerFragment) : FragmentModule<ColorPickerFragment>(fragment)
+class ColorPickerModule(fragment: ColorPickerDialogFragment) : FragmentModule<ColorPickerDialogFragment>(fragment)
