@@ -16,14 +16,10 @@ abstract class ViewModelFragment<VM : ViewModel> : Fragment(), LifecycleRegistry
     private lateinit var lifecycleRegistry : LifecycleRegistry
     lateinit var viewModel : VM
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-
-        viewModel = inject(context as HasFragmentSubcomponentBuilders)
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        viewModel = inject(context as HasFragmentSubcomponentBuilders)
 
         lifecycleRegistry = LifecycleRegistry(this)
     }

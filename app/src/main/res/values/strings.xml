@@ -1,31 +1,6 @@
 <resources>
     <string name="app_name">Scribble</string>
 
-    <string name="activity_drawer_header_gallery">My Masterpieces</string>
-
-    <string name="toast_fragment_text_empty">Input some text to be drawn!</string>
-    <string name="fragment_text_title">Enter Text</string>
-    <string name="fragment_text_input_hint">Will Be Drawn On Canvas</string>
-
-    <string name="fragment_color_picker_title">Choose Color</string>
-
-    <string name="snackbar_activity_home_image_saved_title">Saved Your Masterpiece!</string>
-    <string name="snackbar_activity_home_imaged_saved_body">View</string>
-    <string name="snackbar_no_more_redo">Nothing more to redo!</string>
-    <string name="snackbar_no_more_undo">Nothing more to undo!</string>
-    <string name="snackbar_no_internet">Get yo internet up</string>
-    <string name="snackbar_no_camera">Phone ain\'t got no camera bih</string>
-
-    <string name="toast_fragment_filename_invalid">Must contain only alphanumeric characters</string>
-    <string name="fragment_filename_empty">Put in a name to save!</string>
-    <string name="fragment_filename_title">Upload Masterpiece</string>
-    <string name="fragment_filename_edittext_hint">Enter name</string>
-    <string name="fragment_filename_pos_button_text">Save!</string>
-    <string name="fragment_filename_neg_button_text">No thanks</string>
-
-    <string name="fragment_brush_picker_title">Brush Style</string>
-    <string name="fragment_brush_picker_pos_button_text">Set!</string>
-
     <string-array name="paint_examples">
         <item>normal</item>
         <item>dots</item>
@@ -37,22 +12,4 @@
         <item>solidShadow</item>
     </string-array>
 
-    <string name="alert_dialog_delete_sketch_title">Delete Sketch?</string>
-    <string name="alert_dialog_delete_sketch_body">Pressing \"Word\" permanently deletes this
-        sketch. Like, real forever.</string>
-    <string name="alert_dialog_delete_sketch_pos_button">Aight</string>
-    <string name="alert_dialog_delete_sketch_neg_button">Nah</string>
-
-    <string name="dialog_save_drawing">Cache Drawing</string>
-    <string name="dialog_exit_canvas">Exit Canvas</string>
-    
-    <string name="dialog_from_gallery">Picture From Gallery</string>
-    <string name="dialog_from_camera">Take a Picture</string>
-
-    <string name="view_options_menu_cancel">Cancel</string>
-    <string name="view_options_menu_accept">Done</string>
-    <string name="view_options_menu_edit_text">Text</string>
-    <string name="view_options_menu_edit_color">Color</string>
-    <string name="view_options_menu_edit_import">Import</string>
-    <string name="view_options_menu_edit_camera">Camera</string>
 </resources>

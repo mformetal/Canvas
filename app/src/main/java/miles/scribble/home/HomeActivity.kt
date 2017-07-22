@@ -6,6 +6,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import butterknife.ButterKnife
+import io.reactivex.disposables.Disposable
 import miles.scribble.MainApp
 
 import miles.scribble.R
@@ -24,11 +25,15 @@ import javax.inject.Provider
 
 class HomeActivity : ViewModelActivity<HomeViewModel>(), HasFragmentSubcomponentBuilders {
 
-    val REQUEST_PERMISSION_WRITE_SETTINGS = 1
+    private val DIALOG_COLOR_PICKER = "colorPicker"
+
+    private val REQUEST_PERMISSION_WRITE_SETTINGS = 1
 
     lateinit var component : HomeComponent
     @Inject
     lateinit var fragmentComponentBuilders: Map<Class<out Fragment>, @JvmSuppressWildcards Provider<FragmentComponentBuilder<*, *>>>
+
+    lateinit var clickDispoable : Disposable
 
     override fun inject(app: MainApp) : HomeViewModel {
         val builder = app.getBuilder(HomeActivity::class.java)
@@ -48,13 +53,19 @@ class HomeActivity : ViewModelActivity<HomeViewModel>(), HasFragmentSubcomponent
 
         ButterKnife.bind(this)
 
-        viewModel.state.onClickSubject.subscribe {
+        clickDispoable = viewModel.state.onClickSubject.subscribe {
             when (it) {
                 R.id.menu_stroke_color -> {
-                    ColorPickerDialogFragment().show(supportFragmentManager, null)
+                    ColorPickerDialogFragment().show(supportFragmentManager, DIALOG_COLOR_PICKER)
                 }
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        clickDispoable.dispose()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

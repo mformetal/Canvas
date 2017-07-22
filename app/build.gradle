@@ -22,18 +22,26 @@ android {
 
 dependencies {
     implementation config.kotlinStdLib
-    implementation config.appCompat
+
     implementation config.butterKnife
+
+    implementation config.appCompat
     kapt config.butterKnifeApt
+
     kapt config.daggerCompiler
     compileOnly config.javaxInject
     implementation config.dagger
+
+    implementation config.appCompat
     implementation config.supportDesign
+    implementation config.constraintLayout
+
+    implementation config.glide
+
     implementation config.rxAndroid
     implementation config.rxJava
-    implementation config.glide
+
     implementation config.lifecycle
     implementation config.lifecycleExtensions
     kapt config.lifecycleApt
-    implementation config.autoFitTextView
 }

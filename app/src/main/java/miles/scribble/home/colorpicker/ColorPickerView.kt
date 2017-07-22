@@ -80,7 +80,7 @@ class ColorPickerView : FrameLayout {
 
         hexInput.setCompoundDrawablesWithIntrinsicBounds(FixedTextDrawable("#", hexInput),
                 null, null, null)
-        hexInput.compoundDrawablePadding = context.resources.getDimension(R.dimen.padding_small).toInt()
+        hexInput.compoundDrawablePadding = context.resources.getDimension(R.dimen.padding_normal).toInt()
         hexInput.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(editable: Editable) {
                 if (hexInput.hasFocus()) {
@@ -101,6 +101,9 @@ class ColorPickerView : FrameLayout {
                             blueBar.progress = Color.blue(color)
                         }
                         seekBarAnimator.start()
+
+                        hexInput.setText(viewModel.hexString)
+                        hexInput.setSelection(hexInput.text.length)
                     }
                 }
             }
@@ -111,8 +114,10 @@ class ColorPickerView : FrameLayout {
         })
 
         redBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
-                computeColor()
+            override fun onProgressChanged(p0: SeekBar?, p1: Int, fromUser: Boolean) {
+                if (fromUser) {
+                    computeColor()
+                }
 
                 redInput.text = viewModel.redString
             }
@@ -123,8 +128,10 @@ class ColorPickerView : FrameLayout {
         })
 
         greenBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
-                computeColor()
+            override fun onProgressChanged(p0: SeekBar?, p1: Int, fromUser: Boolean) {
+                if (fromUser) {
+                    computeColor()
+                }
 
                 greenInput.text = viewModel.greenString
             }
@@ -135,8 +142,10 @@ class ColorPickerView : FrameLayout {
         })
 
         blueBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
-                computeColor()
+            override fun onProgressChanged(p0: SeekBar?, p1: Int, fromUser: Boolean) {
+                if (fromUser) {
+                    computeColor()
+                }
 
                 blueInput.text = viewModel.blueString
             }

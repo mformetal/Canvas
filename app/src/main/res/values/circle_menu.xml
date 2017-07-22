@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="snackbar_no_more_redo">Nothing more to redo!</string>
+    <string name="snackbar_no_more_undo">Nothing more to undo!</string>
+
+</resources>

@@ -70,7 +70,7 @@ class CircleMenuEventsReducer : Reducer<CircleMenuEvents, HomeState> {
             }
             is CircleMenuEvents.ColorClicked -> {
                 state.onClickSubject.onNext(event.id)
-                state.copy(isSafeToDraw = false)
+                state
             }
         }
     }

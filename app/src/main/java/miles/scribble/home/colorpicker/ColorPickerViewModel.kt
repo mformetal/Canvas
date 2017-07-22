@@ -5,9 +5,9 @@ import android.graphics.Color
 /**
  * Created by mbpeele on 7/18/17.
  */
-class ColorPickerViewModel(private val colorChangeListener: (Int, Int) -> Unit) {
+class ColorPickerViewModel(currentColor : Int = Color.BLACK, private val colorChangeListener: (Int, Int) -> Unit) {
 
-    var currentColor : Int = Color.BLACK
+    var currentColor : Int = currentColor
         set(value) {
             if (field != value) {
                 colorChangeListener.invoke(field, value)

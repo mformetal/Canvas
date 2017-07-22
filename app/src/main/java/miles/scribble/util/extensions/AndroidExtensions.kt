@@ -10,12 +10,14 @@ import android.provider.Settings
 import miles.scribble.MainApp
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.graphics.Point
 import android.net.Uri
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat.startActivity
 import android.view.LayoutInflater
 import android.view.WindowManager
+import android.view.inputmethod.InputMethodManager
 
 
 /**
@@ -49,5 +51,19 @@ fun Activity.inflater() : LayoutInflater {
 fun Context.getDisplaySize() : Point {
     return Point().apply {
         (getSystemService(Context.WINDOW_SERVICE) as WindowManager).defaultDisplay.getRealSize(this)
+    }
+}
+
+fun Activity.isLandScape() : Boolean  {
+    return resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+}
+
+fun Activity.hideKeyboard() {
+    val imm = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+    if (imm.isAcceptingText) {
+        currentFocus?.let {
+            it.clearFocus()
+            imm.hideSoftInputFromWindow(it.windowToken, 0)
+        }
     }
 }
