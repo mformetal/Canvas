@@ -45,20 +45,10 @@ class CanvasSurfaceReducer : Reducer<CanvasSurfaceEvents, HomeState> {
                                 activePointer = event.motionEvent.getPointerId(0),
                                 lastX = x, lastY = y)
                     }
-                    HomeState.DrawType.TEXT -> TODO()
-                    HomeState.DrawType.INK -> TODO()
-                    HomeState.DrawType.PICTURE -> TODO()
                 }
             }
             is CanvasSurfaceEvents.PointerDown -> {
-                when (state.drawType) {
-                    HomeState.DrawType.TEXT, HomeState.DrawType.PICTURE -> {
-                        TODO()
-                    }
-                    else -> {
-                        state
-                    }
-                }
+                state
             }
             is CanvasSurfaceEvents.TouchMove -> {
                 val pointerIndex = event.motionEvent.findPointerIndex(state.activePointer)
@@ -79,9 +69,6 @@ class CanvasSurfaceReducer : Reducer<CanvasSurfaceEvents, HomeState> {
 
                         state.copy(stroke = stroke.copy(), lastX = x, lastY = y)
                     }
-                    HomeState.DrawType.TEXT -> TODO()
-                    HomeState.DrawType.INK -> TODO()
-                    HomeState.DrawType.PICTURE -> TODO()
                 }
             }
             is CanvasSurfaceEvents.TouchUp -> {
@@ -93,9 +80,6 @@ class CanvasSurfaceReducer : Reducer<CanvasSurfaceEvents, HomeState> {
                         state.copy(history = history, stroke = Stroke(),
                                 lastX = event.motionEvent.x, lastY = event.motionEvent.y)
                     }
-                    HomeState.DrawType.TEXT -> TODO()
-                    HomeState.DrawType.INK -> TODO()
-                    HomeState.DrawType.PICTURE -> TODO()
                 }
             }
             is CanvasSurfaceEvents.PointerUp -> {

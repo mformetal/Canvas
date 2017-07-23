@@ -21,6 +21,7 @@ import android.widget.Toolbar
 
 import butterknife.BindView
 import butterknife.ButterKnife
+import kotlinx.android.synthetic.main.activity_home.view.*
 import miles.scribble.R
 import miles.scribble.home.HomeActivity
 import miles.scribble.home.di.CanvasLayoutModule
@@ -96,9 +97,6 @@ class CanvasLayout : CoordinatorLayout, StateChangeListener<HomeState> {
     }
 
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
-        val x = ev.x
-        val y = ev.y
-
         when (ev.action) {
             MotionEvent.ACTION_DOWN -> {
                 if (isSystemUISwipe(ev)) {
@@ -127,59 +125,59 @@ class CanvasLayout : CoordinatorLayout, StateChangeListener<HomeState> {
         }
     }
 
-    override fun drawChild(canvas: Canvas, child: View, drawingTime: Long) : Boolean {
-        if (ALPHA.get(this) != 0) {
-            if (child == circleMenu) {
-                canvas.drawCircle(circleMenu.cx, circleMenu.cy + (height - circleMenu.height),
-                        radius, mShadowPaint)
-            }
-        }
+    override fun draw(canvas: Canvas) {
+        super.draw(canvas)
 
-        return super.drawChild(canvas, child, drawingTime)
+        canvas.drawCircle(circleMenu.cx, circleMenu.cy + (height - circleMenu.height),
+                radius, mShadowPaint)
     }
 
     private fun dim() {
-        val alpha = ObjectAnimator.ofInt(this, ALPHA, 64).setDuration(200)
+        if (ALPHA.get(this) != 64) {
+            val alpha = ObjectAnimator.ofInt(this, ALPHA, 64).setDuration(200)
 
-        // Radius is distance from the middle of toggle button to the top-left corner of the view
-        // Using CanvasPoint because it already has the distance formula defined and implemented
-        val rcx = width / 2f
-        val rcy = IntArray(2).run {
-            circleMenu.toggle.getLocationOnScreen(this)
-            this.last().toFloat() + circleMenu.toggle.height / 2F
-        }
-        val togglePoint = CanvasPoint(rcx, rcy)
-        val targetPoint = CanvasPoint(0f, 0f)
-
-        val radius = ObjectAnimator.ofFloat(this, RADIUS, togglePoint.computeDistance(targetPoint)).setDuration(200)
-
-        val visibility = ViewUtils.visibleAnimator(toolbar)
-
-        val set = AnimatorSet()
-        set.playTogether(alpha, radius, visibility)
-        set.addListener(object : AnimatorListenerAdapter() {
-            override fun onAnimationStart(animation: Animator) {
-                surface.isEnabled = false
+            // Radius is distance from the middle of toggle button to the top-left corner of the view
+            // Using CanvasPoint because it already has the distance formula defined and implemented
+            val rcx = width / 2f
+            val rcy = IntArray(2).run {
+                circleMenu.toggle.getLocationOnScreen(this)
+                this.last().toFloat() + circleMenu.toggle.height / 2F
             }
-        })
-        set.start()
+            val togglePoint = CanvasPoint(rcx, rcy)
+            val targetPoint = CanvasPoint(0f, 0f)
+
+            val radius = ObjectAnimator.ofFloat(this, RADIUS, togglePoint.computeDistance(targetPoint)).setDuration(200)
+
+            val visibility = ViewUtils.visibleAnimator(toolbar)
+
+            val set = AnimatorSet()
+            set.playTogether(alpha, radius, visibility)
+            set.addListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationStart(animation: Animator) {
+                    surface.isEnabled = false
+                }
+            })
+            set.start()
+        }
     }
 
     private fun undim() {
-        val alpha = ObjectAnimator.ofInt(this, ALPHA, 0).setDuration(400)
+        if (ALPHA.get(this) != 0) {
+            val alpha = ObjectAnimator.ofInt(this, ALPHA, 0).setDuration(400)
 
-        val radius = ObjectAnimator.ofFloat(this, RADIUS, 0F).setDuration(400)
+            val radius = ObjectAnimator.ofFloat(this, RADIUS, 0F).setDuration(400)
 
-        val visibility = ViewUtils.goneAnimator(toolbar)
+            val visibility = ViewUtils.goneAnimator(toolbar)
 
-        val set = AnimatorSet()
-        set.playTogether(alpha, radius, visibility)
-        set.addListener(object : AnimatorListenerAdapter() {
-            override fun onAnimationEnd(animation: Animator) {
-                surface.isEnabled = true
-            }
-        })
-        set.start()
+            val set = AnimatorSet()
+            set.playTogether(alpha, radius, visibility)
+            set.addListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: Animator) {
+                    surface.isEnabled = true
+                }
+            })
+            set.start()
+        }
     }
 
     private fun isSystemUISwipe(event: MotionEvent): Boolean {

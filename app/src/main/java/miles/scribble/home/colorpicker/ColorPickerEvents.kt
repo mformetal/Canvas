@@ -22,7 +22,7 @@ class ColorPickerReducer : Reducer<ColorPickerEvents, HomeState> {
                 val paint = Paint(state.paint).apply {
                     color = event.color
                 }
-                state.copy(paint = paint)
+                state.copy(paint = paint, strokeColor = event.color)
             }
             is ColorPickerEvents.BackgroundColorChosen -> {
                 val backgroundColor = event.color

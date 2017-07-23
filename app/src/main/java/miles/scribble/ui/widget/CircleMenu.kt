@@ -37,6 +37,8 @@ import miles.scribble.redux.core.Dispatcher
 import miles.scribble.util.Circle
 import miles.scribble.util.ViewUtils
 import miles.scribble.util.extensions.radius
+import miles.scribble.util.extensions.scaleDown
+import miles.scribble.util.extensions.scaleUp
 import miles.scribble.util.extensions.toInt
 import javax.inject.Inject
 
@@ -309,6 +311,16 @@ class CircleMenu : ViewGroup {
             }
             R.id.menu_canvas_color -> {
                 dispatcher.dispatch(CircleMenuEvents.BackgroundColorClicked(R.id.menu_canvas_color))
+            }
+            R.id.menu_erase -> {
+                if (eraser.isSelected) {
+                    eraser.scaleDown(1f, 1f)
+                } else {
+                    eraser.scaleUp(1.3f, 1.3f)
+                }.start()
+
+                eraser.isSelected = !eraser.isSelected
+                dispatcher.dispatch(CircleMenuEvents.EraserClicked(eraser.isSelected))
             }
         }
     }

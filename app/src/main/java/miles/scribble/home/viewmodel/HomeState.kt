@@ -27,8 +27,9 @@ data class HomeState(val isMenuOpen : Boolean = false,
                      val drawType: DrawType = HomeState.DrawType.DRAW,
                      val cachedBitmap: Bitmap,
                      val isSafeToDraw : Boolean = true,
-                     val paint : Paint = PaintStyles.normal(ViewUtils.randomColor(), 5f),
+                     val paint : Paint = PaintStyles.normal(ViewUtils.randomColor(), STROKE_WIDTH),
                      val backgroundColor : Int = Color.WHITE,
+                     val strokeColor : Int = paint.color,
                      val stroke : Stroke = Stroke(),
                      val activePointer : Int = INVALID_POINTER,
                      val lastX : Float = 0f,
@@ -41,6 +42,7 @@ data class HomeState(val isMenuOpen : Boolean = false,
 
     companion object {
         val INVALID_POINTER = -1
+        val STROKE_WIDTH = 5f
 
         fun create(context: Context) : HomeState {
             val point = context.getDisplaySize()
@@ -54,9 +56,6 @@ data class HomeState(val isMenuOpen : Boolean = false,
 
     enum class DrawType {
         DRAW,
-        ERASE,
-        TEXT,
-        INK,
-        PICTURE
+        ERASE
     }
 }

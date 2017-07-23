@@ -57,10 +57,12 @@ class HomeActivity : ViewModelActivity<HomeViewModel>(), HasFragmentSubcomponent
         clickDispoable = viewModel.state.onClickSubject.subscribe {
             when (it) {
                 R.id.menu_stroke_color -> {
-                    ColorPickerDialogFragment.newInstance(false).show(supportFragmentManager, DIALOG_COLOR_PICKER_STROKE)
+                    ColorPickerDialogFragment.newInstance(false)
+                            .show(supportFragmentManager, DIALOG_COLOR_PICKER_STROKE)
                 }
                 R.id.menu_canvas_color -> {
-                    ColorPickerDialogFragment.newInstance(true).show(supportFragmentManager, DIALOG_COLOR_PICKER_BACKGROUND)
+                    ColorPickerDialogFragment.newInstance(true)
+                            .show(supportFragmentManager, DIALOG_COLOR_PICKER_BACKGROUND)
                 }
             }
         }

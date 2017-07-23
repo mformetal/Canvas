@@ -12,22 +12,6 @@ import android.widget.TextView
 /**
  * Created by mbpeele on 6/25/17.
  */
-fun FloatingActionButton.scaleUp() {
-    val scaleUp = ObjectAnimator.ofPropertyValuesHolder(this,
-            PropertyValuesHolder.ofFloat(View.SCALE_X, 1f, 1.1f),
-            PropertyValuesHolder.ofFloat(View.SCALE_Y, 1f, 1.1f))
-            .setDuration(350)
-    scaleUp.start()
-}
-
-fun FloatingActionButton.scaleDown() {
-    val scaleDown = ObjectAnimator.ofPropertyValuesHolder(this,
-            PropertyValuesHolder.ofFloat(View.SCALE_X, 1f),
-            PropertyValuesHolder.ofFloat(View.SCALE_Y, 1f))
-            .setDuration(350)
-    scaleDown.start()
-}
-
 fun View.systemUIGone() {
     systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
             View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
