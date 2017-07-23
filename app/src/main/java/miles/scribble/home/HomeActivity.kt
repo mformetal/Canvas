@@ -25,7 +25,8 @@ import javax.inject.Provider
 
 class HomeActivity : ViewModelActivity<HomeViewModel>(), HasFragmentSubcomponentBuilders {
 
-    private val DIALOG_COLOR_PICKER = "colorPicker"
+    private val DIALOG_COLOR_PICKER_STROKE = "strokeColorPicker"
+    private val DIALOG_COLOR_PICKER_BACKGROUND = "backgroundColorPicker"
 
     private val REQUEST_PERMISSION_WRITE_SETTINGS = 1
 
@@ -56,7 +57,10 @@ class HomeActivity : ViewModelActivity<HomeViewModel>(), HasFragmentSubcomponent
         clickDispoable = viewModel.state.onClickSubject.subscribe {
             when (it) {
                 R.id.menu_stroke_color -> {
-                    ColorPickerDialogFragment().show(supportFragmentManager, DIALOG_COLOR_PICKER)
+                    ColorPickerDialogFragment.newInstance(false).show(supportFragmentManager, DIALOG_COLOR_PICKER_STROKE)
+                }
+                R.id.menu_canvas_color -> {
+                    ColorPickerDialogFragment.newInstance(true).show(supportFragmentManager, DIALOG_COLOR_PICKER_BACKGROUND)
                 }
             }
         }

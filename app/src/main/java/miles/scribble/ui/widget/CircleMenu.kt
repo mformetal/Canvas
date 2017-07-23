@@ -305,7 +305,10 @@ class CircleMenu : ViewGroup {
                 }
             }
             R.id.menu_stroke_color -> {
-                dispatcher.dispatch(CircleMenuEvents.ColorClicked(R.id.menu_stroke_color))
+                dispatcher.dispatch(CircleMenuEvents.StrokeColorClicked(R.id.menu_stroke_color))
+            }
+            R.id.menu_canvas_color -> {
+                dispatcher.dispatch(CircleMenuEvents.BackgroundColorClicked(R.id.menu_canvas_color))
             }
         }
     }

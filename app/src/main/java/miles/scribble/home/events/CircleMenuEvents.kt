@@ -5,7 +5,6 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.PorterDuff
 import miles.scribble.home.drawing.redrawable.Redrawable
-import miles.scribble.home.drawing.redrawable.RedrawableLines
 import miles.scribble.home.viewmodel.HomeState
 import miles.scribble.redux.core.Event
 import miles.scribble.redux.core.Reducer
@@ -18,7 +17,8 @@ import java.util.*
 sealed class CircleMenuEvents : Event {
 
     class ToggleClicked(val isMenuShowing: Boolean) : CircleMenuEvents()
-    class ColorClicked(val id: Int) : CircleMenuEvents()
+    class StrokeColorClicked(val id: Int) : CircleMenuEvents()
+    class BackgroundColorClicked(val id: Int) : CircleMenuEvents()
 
     class RedrawStarted(val isUndo: Boolean) : CircleMenuEvents()
     class Redraw(val toRedraw: Redrawable) : CircleMenuEvents()
@@ -68,7 +68,11 @@ class CircleMenuEventsReducer : Reducer<CircleMenuEvents, HomeState> {
                 val bitmap = workerBitmap.copy(Bitmap.Config.ARGB_8888, true)
                 state.copy(isSafeToDraw = true, bitmap = bitmap, canvas = Canvas(bitmap))
             }
-            is CircleMenuEvents.ColorClicked -> {
+            is CircleMenuEvents.StrokeColorClicked -> {
+                state.onClickSubject.onNext(event.id)
+                state
+            }
+            is CircleMenuEvents.BackgroundColorClicked -> {
                 state.onClickSubject.onNext(event.id)
                 state
             }

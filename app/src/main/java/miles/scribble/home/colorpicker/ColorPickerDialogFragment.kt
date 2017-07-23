@@ -1,5 +1,6 @@
 package miles.scribble.home.colorpicker
 
+import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.DialogInterface
 import android.os.Bundle
@@ -26,11 +27,23 @@ import android.view.WindowManager
 class ColorPickerDialogFragment : ViewModelDialogFragment<HomeViewModel>() {
 
     private val KEY_CURRENT_COLOR = "currentColor"
+    private val KEY_TO_FILL = "fill"
 
     @BindView(R.id.picker)
     lateinit var colorPicker : ColorPickerView
     @Inject
     lateinit var dispatcher : Dispatcher<ColorPickerEvents, ColorPickerEvents>
+
+    companion object {
+        @SuppressLint("NewApi")
+        fun newInstance(toFill: Boolean) : ColorPickerDialogFragment {
+            return ColorPickerDialogFragment().apply {
+                arguments = Bundle().apply {
+                    putBoolean(KEY_TO_FILL, toFill)
+                }
+            }
+        }
+    }
 
     override fun inject(hasFragmentSubcomponentBuilders: HasFragmentSubcomponentBuilders): HomeViewModel {
         val builder = hasFragmentSubcomponentBuilders.getBuilder(ColorPickerDialogFragment::class.java)
@@ -47,13 +60,24 @@ class ColorPickerDialogFragment : ViewModelDialogFragment<HomeViewModel>() {
             ButterKnife.bind(this@ColorPickerDialogFragment, this)
         }
 
-        val color = savedInstanceState?.getInt(KEY_CURRENT_COLOR) ?: viewModel.state.paint.color
+        val toFill = arguments.getBoolean(KEY_TO_FILL)
+        val color = savedInstanceState?.getInt(KEY_CURRENT_COLOR) ?:
+                if (toFill) viewModel.state.backgroundColor else viewModel.state.paint.color
         colorPicker.setColor(color)
 
         return AlertDialog.Builder(activity)
                 .setView(view)
                 .setPositiveButton(R.string.positive_button, { dialog, _ ->
-                    dispatcher.dispatch(ColorPickerEvents.ColorChosen(colorPicker.viewModel.currentColor))
+                    val chosenColor = colorPicker.viewModel.currentColor
+
+                    val event = if (toFill) {
+                        ColorPickerEvents.BackgroundColorChosen(chosenColor)
+                    } else {
+                        ColorPickerEvents.StrokeColorChosen(chosenColor)
+                    }
+
+                    dispatcher.dispatch(event)
+
                     dialog.dismiss()
                 })
                 .setNegativeButton(android.R.string.cancel, null)
