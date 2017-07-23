@@ -7,6 +7,8 @@ import android.animation.ObjectAnimator
 import android.animation.PropertyValuesHolder
 import android.annotation.SuppressLint
 import android.content.Context
+import android.os.Parcel
+import android.os.Parcelable
 import android.support.design.widget.FloatingActionButton
 import android.support.design.widget.Snackbar
 import android.util.AttributeSet
@@ -35,6 +37,7 @@ import miles.scribble.redux.core.Dispatcher
 import miles.scribble.util.Circle
 import miles.scribble.util.ViewUtils
 import miles.scribble.util.extensions.radius
+import miles.scribble.util.extensions.toInt
 import javax.inject.Inject
 
 /**
@@ -67,8 +70,7 @@ class CircleMenu : ViewGroup {
     private var isAnimating = false
     private var isDragging = false
     private var isFlinging = false
-    private var lastAngle: Double = 0.toDouble()
-    private var startY: Float = 0.toFloat()
+    private var lastAngle: Double = Math.toRadians(0.0)
 
     val isVisible: Boolean
         get() = isMenuShowing && visibility == View.VISIBLE
@@ -130,7 +132,7 @@ class CircleMenu : ViewGroup {
 
     @SuppressLint("DrawAllocation")
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
-        if (!itemPositions.isEmpty()) {
+        if (itemPositions.isNotEmpty()) {
             return
         }
 
@@ -143,7 +145,7 @@ class CircleMenu : ViewGroup {
 
         circle = Circle(ViewUtils.relativeCenterX(toggle), ViewUtils.relativeCenterY(toggle),
                 toggle.measuredHeight * 3.75f)
-        itemPositions.add(ItemPosition(toggle, cx.toDouble(), cy.toDouble(), toggle.radius()))
+        itemPositions.add(ItemPosition(toggle, cx, cy, toggle.radius()))
 
         val mItemRadius = (toggle.measuredHeight * 3).toFloat()
         val count = childCount
@@ -161,12 +163,17 @@ class CircleMenu : ViewGroup {
                         x.toInt() + child.measuredWidth / 2,
                         y.toInt() + child.measuredHeight / 2)
 
-                val position = ItemPosition(child, x, y, child.radius())
+                val position = ItemPosition(child, x.toFloat(), y.toFloat(), child.radius())
                 itemPositions.add(position)
 
-                child.x -= position.mItemCircle.cx - cx
-                child.y -=  position.mItemCircle.cy - cy
-                child.alpha = 0f
+                child.x -= position.itemCircle.cx - cx
+                child.y -=  position.itemCircle.cy - cy
+                if (isMenuShowing) {
+                    child.alpha = 1f
+                    position.update(lastAngle)
+                } else {
+                    child.alpha = 0f
+                }
             }
         }
     }
@@ -209,8 +216,6 @@ class CircleMenu : ViewGroup {
                 }
 
                 lastAngle = circle.angleInDegrees(x, y)
-
-                startY = y
             }
             MotionEvent.ACTION_MOVE -> {
                 val degrees = circle.angleInDegrees(x, y)
@@ -255,7 +260,7 @@ class CircleMenu : ViewGroup {
     }
 
     private fun getClickedItem(x: Float, y: Float): FloatingActionButton? {
-        return itemPositions.firstOrNull { it.contains(x, y) }?.mView
+        return itemPositions.firstOrNull { it.contains(x, y) }?.fab
     }
 
     @OnClick(R.id.menu_toggle)
@@ -321,14 +326,14 @@ class CircleMenu : ViewGroup {
                 }
 
                 val position = itemPositions[sum]
-                val view = position.mView
+                val view = position.fab
 
                 if (view.id == R.id.menu_toggle) {
                     continue
                 }
 
-                val diffX = position.mItemCircle.cx - cx
-                val diffY = position.mItemCircle.cy - cy
+                val diffX = position.itemCircle.cx - cx
+                val diffY = position.itemCircle.cy - cy
 
                 val out = ObjectAnimator.ofPropertyValuesHolder(view,
                         PropertyValuesHolder.ofFloat(View.X, view.x + diffX),
@@ -387,14 +392,14 @@ class CircleMenu : ViewGroup {
                 }
 
                 val position = itemPositions[sum]
-                val view = position.mView
+                val view = position.fab
 
                 if (view.id == R.id.menu_toggle) {
                     continue
                 }
 
-                val diffX = position.mItemCircle.cx - cx
-                val diffY = position.mItemCircle.cy - cy
+                val diffX = position.itemCircle.cx - cx
+                val diffY = position.itemCircle.cy - cy
 
                 val out = ObjectAnimator.ofPropertyValuesHolder(view,
                         PropertyValuesHolder.ofFloat(View.X, view.x - diffX),
@@ -438,9 +443,9 @@ class CircleMenu : ViewGroup {
         }
     }
 
-    private inner class ItemPosition(val mView: FloatingActionButton, itemX: Double, itemY: Double, radius: Float) {
+    private inner class ItemPosition(val fab: FloatingActionButton, itemX: Float, itemY: Float, radius: Float) {
 
-        val mItemCircle: Circle = Circle(itemX.toFloat(), itemY.toFloat(), radius)
+        val itemCircle: Circle = Circle(itemX, itemY, radius)
 
         fun update(matrixAngle: Double) {
             val angleInRads = Math.toRadians(matrixAngle)
@@ -448,8 +453,8 @@ class CircleMenu : ViewGroup {
             val cosAngle = Math.cos(angleInRads)
             val sinAngle = Math.sin(angleInRads)
 
-            val dx = mItemCircle.cx - cx
-            val dy = mItemCircle.cy - cy
+            val dx = itemCircle.cx - cx
+            val dy = itemCircle.cy - cy
 
             var rx = (dx * cosAngle - dy * sinAngle).toFloat()
             var ry = (dx * sinAngle + dy * cosAngle).toFloat()
@@ -457,25 +462,25 @@ class CircleMenu : ViewGroup {
             rx += cx
             ry += cy
 
-            mItemCircle.setCenterX(rx)
-            mItemCircle.setCenterY(ry)
+            itemCircle.cx = rx
+            itemCircle.cy = ry
 
-            val radius = mItemCircle.radius
+            val radius = itemCircle.radius
 
-            mView.x = rx - radius
-            mView.y = ry - radius
+            fab.x = rx - radius
+            fab.y = ry - radius
         }
 
         fun contains(x: Float, y: Float): Boolean {
-            return mItemCircle.contains(x, y)
+            return itemCircle.contains(x, y)
         }
     }
 
     private inner class ItemPositionComparator : Comparator<ItemPosition> {
 
         override fun compare(lhs: ItemPosition, rhs: ItemPosition): Int {
-            val left = lhs.mItemCircle
-            val right = rhs.mItemCircle
+            val left = lhs.itemCircle
+            val right = rhs.itemCircle
             if (left.cx < right.cx) return -1
             if (left.cx > right.cx) return 1
             return 0
@@ -520,6 +525,52 @@ class CircleMenu : ViewGroup {
                 post(this)
             } else {
                 isFlinging = false
+            }
+        }
+    }
+
+    public override fun onSaveInstanceState(): Parcelable {
+        val superState = super.onSaveInstanceState()
+        val ss = SavedState(superState)
+        ss.lastAngle = lastAngle
+        ss.isMenuShowing = isMenuShowing
+        return ss
+    }
+
+    public override fun onRestoreInstanceState(state: Parcelable) {
+        val ss = state as SavedState
+        super.onRestoreInstanceState(ss.superState)
+        lastAngle = ss.lastAngle
+        isMenuShowing = ss.isMenuShowing
+    }
+
+    private class SavedState : BaseSavedState {
+
+        var lastAngle : Double = 0.toDouble()
+        var isMenuShowing: Boolean = false
+
+        constructor(state: Parcelable) : super(state)
+
+        private constructor(parcel: Parcel) : super(parcel) {
+            lastAngle = parcel.readDouble()
+            isMenuShowing = parcel.readInt() == 1
+        }
+
+        override fun writeToParcel(out: Parcel, flags: Int) {
+            super.writeToParcel(out, flags)
+            out.writeDouble(lastAngle)
+            out.writeInt(isMenuShowing.toInt())
+        }
+
+        companion object {
+            val CREATOR: Parcelable.Creator<SavedState> = object : Parcelable.Creator<SavedState> {
+                override fun createFromParcel(`in`: Parcel): SavedState {
+                    return SavedState(`in`)
+                }
+
+                override fun newArray(size: Int): Array<SavedState?> {
+                    return arrayOfNulls(size)
+                }
             }
         }
     }

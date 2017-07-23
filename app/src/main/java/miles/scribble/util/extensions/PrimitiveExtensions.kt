@@ -6,3 +6,7 @@ package miles.scribble.util.extensions
 fun String.containsNewLine() : Boolean {
     return contains("\n")
 }
+
+fun Boolean.toInt() : Int {
+    return if (this) 1 else 0
+}

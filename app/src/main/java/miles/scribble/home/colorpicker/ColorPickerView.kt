@@ -172,12 +172,7 @@ class ColorPickerView : FrameLayout {
         hexInput.setText(viewModel.hexString)
 
         redBar.progress = viewModel.red
-        redInput.text = viewModel.redString
-
         greenBar.progress = viewModel.green
-        greenInput.text = viewModel.greenString
-
         blueBar.progress = viewModel.blue
-        blueInput.text = viewModel.blueString
     }
 }

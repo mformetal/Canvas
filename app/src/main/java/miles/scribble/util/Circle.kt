@@ -9,16 +9,21 @@ class Circle(centerX: Float, centerY: Float, val radius: Float) {
 
     private val boundingRect: RectF = RectF()
 
-    val diameter : Float
-        get() = radius * 2
-
-    var cx : Float
+    var cx : Float = centerX
         get() = boundingRect.centerX()
-        private set
+        set(value) {
+            field = value
+            boundingRect.left = value - radius
+            boundingRect.right = value + radius
+        }
 
-    var cy : Float
+    var cy : Float = centerY
         get() = boundingRect.centerY()
-        private set
+        set(value) {
+            field = value
+            boundingRect.top = value - radius
+            boundingRect.bottom = value + radius
+        }
 
     init {
         boundingRect.set(centerX - radius,
@@ -36,15 +41,5 @@ class Circle(centerX: Float, centerY: Float, val radius: Float) {
 
     fun angleInDegrees(x: Float, y: Float): Double {
         return Math.toDegrees(Math.atan2((cy - y).toDouble(), (cx - x).toDouble()))
-    }
-
-    fun setCenterX(x: Float) {
-        boundingRect.left = x - radius
-        boundingRect.right = x + radius
-    }
-
-    fun setCenterY(y: Float) {
-        boundingRect.top = y - radius
-        boundingRect.bottom = y + radius
     }
 }
