@@ -9,6 +9,7 @@ import android.graphics.Canvas
 import miles.scribble.home.drawing.Stroke
 import miles.scribble.home.drawing.redrawable.RedrawableLines
 import miles.scribble.util.extensions.copy
+import android.graphics.Paint
 
 
 /**
@@ -45,6 +46,19 @@ class CanvasSurfaceReducer : Reducer<CanvasSurfaceEvents, HomeState> {
                                 activePointer = event.motionEvent.getPointerId(0),
                                 lastX = x, lastY = y)
                     }
+                    HomeState.DrawType.INK -> {
+                        val inkx = Math.round(x)
+                        val inky = Math.round(y - state.bitmap.height * .095f)
+                        if (0 <= inkx && inkx <= state.width - 1 &&
+                                0 <= inky && inky <= state.height - 1) {
+                            state.copy(strokeColor = state.bitmap.getPixel(inkx, inky),
+                                    activePointer = event.motionEvent.getPointerId(0),
+                                    lastX = x, lastY = y)
+                        } else {
+                            state.copy(activePointer = event.motionEvent.getPointerId(0),
+                                    lastX = x, lastY = y)
+                        }
+                    }
                 }
             }
             is CanvasSurfaceEvents.PointerDown -> {
@@ -69,6 +83,17 @@ class CanvasSurfaceReducer : Reducer<CanvasSurfaceEvents, HomeState> {
 
                         state.copy(stroke = stroke.copy(), lastX = x, lastY = y)
                     }
+                    HomeState.DrawType.INK -> {
+                        val inkx = Math.round(x)
+                        val inky = Math.round(y - state.bitmap.height * .095f)
+                        if (0 <= inkx && inkx <= state.width - 1 &&
+                                0 <= inky && inky <= state.height - 1) {
+                            state.copy(strokeColor = state.bitmap.getPixel(inkx, inky),
+                                    lastX = x, lastY = y)
+                        } else {
+                            state.copy(lastX = x, lastY = y)
+                        }
+                    }
                 }
             }
             is CanvasSurfaceEvents.TouchUp -> {
@@ -78,6 +103,12 @@ class CanvasSurfaceReducer : Reducer<CanvasSurfaceEvents, HomeState> {
                             push(RedrawableLines(state.stroke.points, state.paint))
                         }
                         state.copy(history = history, stroke = Stroke(),
+                                lastX = event.motionEvent.x, lastY = event.motionEvent.y)
+                    }
+                    HomeState.DrawType.INK -> {
+                        state.copy(paint = Paint(state.paint).apply {
+                            color = state.strokeColor
+                        }, drawType = HomeState.DrawType.DRAW,
                                 lastX = event.motionEvent.x, lastY = event.motionEvent.y)
                     }
                 }

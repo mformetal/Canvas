@@ -18,6 +18,7 @@ sealed class CircleMenuEvents : Event {
     class StrokeColorClicked(val id: Int) : CircleMenuEvents()
     class BackgroundColorClicked(val id: Int) : CircleMenuEvents()
     class EraserClicked(val isErasing: Boolean) : CircleMenuEvents()
+    class InkClicked() : CircleMenuEvents()
 
     class RedrawStarted(val isUndo: Boolean) : CircleMenuEvents()
     class Redraw(val toRedraw: Redrawable) : CircleMenuEvents()
@@ -89,6 +90,12 @@ class CircleMenuEventsReducer : Reducer<CircleMenuEvents, HomeState> {
                                 strokeWidth = HomeState.STROKE_WIDTH
                             })
                 }
+            }
+            is CircleMenuEvents.InkClicked -> {
+                state.copy(drawType = HomeState.DrawType.INK,
+                        lastX = state.bitmap.width / 2f,
+                        lastY = state.bitmap.height / 2f,
+                        isMenuOpen = false)
             }
         }
     }

@@ -40,6 +40,9 @@ data class HomeState(val isMenuOpen : Boolean = false,
                      val canvas: Canvas,
                      val onClickSubject: Subject<Int> = PublishSubject.create<Int>()) : State {
 
+    val oppositeBackgroundColor : Int
+        get() = ViewUtils.complementColor(backgroundColor)
+
     companion object {
         val INVALID_POINTER = -1
         val STROKE_WIDTH = 5f
@@ -56,6 +59,7 @@ data class HomeState(val isMenuOpen : Boolean = false,
 
     enum class DrawType {
         DRAW,
-        ERASE
+        ERASE,
+        INK
     }
 }

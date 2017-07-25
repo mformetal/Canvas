@@ -76,6 +76,19 @@ public class ViewUtils {
         return (view.getTop() + view.getBottom()) / 2f;
     }
 
+    public static int complementColor(int color) {
+        int alpha = Color.alpha(color);
+        int red = Color.red(color);
+        int blue = Color.blue(color);
+        int green = Color.green(color);
+
+        red = (~red) & 0xff;
+        blue = (~blue) & 0xff;
+        green = (~green) & 0xff;
+
+        return Color.argb(alpha, red, green, blue);
+    }
+
     public static Rect boundingRect(float centerX, float centerY, float radius) {
         Rect rect = new Rect();
         rect.left = Math.round(centerX - radius);

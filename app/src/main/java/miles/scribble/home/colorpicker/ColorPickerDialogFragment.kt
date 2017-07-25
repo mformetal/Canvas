@@ -20,6 +20,7 @@ import miles.scribble.util.extensions.inflater
 import miles.scribble.util.extensions.isLandScape
 import javax.inject.Inject
 import android.view.WindowManager
+import miles.scribble.util.ViewUtils
 
 /**
  * Created by mbpeele on 7/8/17.
@@ -77,6 +78,8 @@ class ColorPickerDialogFragment : ViewModelDialogFragment<HomeViewModel>() {
                     }
 
                     dispatcher.dispatch(event)
+
+                    ViewUtils.systemUIGone(activity.window.decorView)
 
                     dialog.dismiss()
                 })

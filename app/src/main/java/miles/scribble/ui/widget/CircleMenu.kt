@@ -32,8 +32,10 @@ import miles.scribble.R
 import miles.scribble.home.HomeActivity
 import miles.scribble.home.di.CircleMenuModule
 import miles.scribble.home.events.CircleMenuEvents
+import miles.scribble.home.viewmodel.HomeState
 import miles.scribble.home.viewmodel.HomeViewModel
 import miles.scribble.redux.core.Dispatcher
+import miles.scribble.redux.core.StateChangeListener
 import miles.scribble.util.Circle
 import miles.scribble.util.ViewUtils
 import miles.scribble.util.extensions.radius
@@ -45,7 +47,7 @@ import javax.inject.Inject
 /**
  * Created by milespeele on 8/7/15.
  */
-class CircleMenu : ViewGroup {
+class CircleMenu : ViewGroup, StateChangeListener<HomeState> {
 
     @Inject
     lateinit var viewModel : HomeViewModel
@@ -97,6 +99,7 @@ class CircleMenu : ViewGroup {
 
     private fun init() {
         (context as HomeActivity).component.circleMenuComponent(CircleMenuModule()).injectMembers(this)
+        viewModel.store.subscribe(this)
 
         setWillNotDraw(false)
         descendantFocusability = ViewGroup.FOCUS_AFTER_DESCENDANTS
@@ -177,6 +180,14 @@ class CircleMenu : ViewGroup {
                     child.alpha = 0f
                 }
             }
+        }
+    }
+
+    override fun onStateChanged(state: HomeState) {
+        if (state.isMenuOpen) {
+            show()
+        } else {
+            hide()
         }
     }
 
@@ -279,6 +290,8 @@ class CircleMenu : ViewGroup {
     }
 
     private fun dispatchClickEvent(view: View) {
+        view.performClick()
+
         when (view.id) {
             R.id.menu_redo -> {
                 if (viewModel.state.redoHistory.isEmpty()) {
@@ -321,6 +334,9 @@ class CircleMenu : ViewGroup {
 
                 eraser.isSelected = !eraser.isSelected
                 dispatcher.dispatch(CircleMenuEvents.EraserClicked(eraser.isSelected))
+            }
+            R.id.menu_ink -> {
+                dispatcher.dispatch(CircleMenuEvents.InkClicked())
             }
         }
     }
