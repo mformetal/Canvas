@@ -88,7 +88,7 @@ class CircleMenuEventsReducer : Reducer<CircleMenuEvents, HomeState> {
                             paint = Paint(state.paint).apply {
                                 color = state.strokeColor
                                 strokeWidth = HomeState.STROKE_WIDTH
-                            })
+                            }, isMenuOpen = false)
                 }
             }
             is CircleMenuEvents.InkClicked -> {
