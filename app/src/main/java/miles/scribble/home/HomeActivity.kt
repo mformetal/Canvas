@@ -68,6 +68,12 @@ class HomeActivity : ViewModelActivity<HomeViewModel>(), HasFragmentSubcomponent
         }
     }
 
+    override fun onPause() {
+        super.onPause()
+
+        viewModel.persistDrawings()
+    }
+
     override fun onDestroy() {
         super.onDestroy()
 

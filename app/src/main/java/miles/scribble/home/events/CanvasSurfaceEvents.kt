@@ -33,7 +33,7 @@ class CanvasSurfaceReducer : Reducer<CanvasSurfaceEvents, HomeState> {
             is CanvasSurfaceEvents.Resize -> {
                 val (width, height) = event
                 val scaledBitmap = Bitmap.createScaledBitmap(state.bitmap, width, height, false)
-                state.copy(width = width, height = height, bitmap = scaledBitmap, canvas = Canvas(scaledBitmap))
+                state.copy(bitmap = scaledBitmap, canvas = Canvas(scaledBitmap))
             }
             is CanvasSurfaceEvents.TouchDown -> {
                 val x = event.motionEvent.x

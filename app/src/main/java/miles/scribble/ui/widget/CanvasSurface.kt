@@ -70,7 +70,7 @@ class CanvasSurface : SurfaceView, SurfaceHolder.Callback {
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        if (!isEnabled) {
+        if (!isEnabled || !viewModel.state.isSafeToDraw) {
             return true
         }
 

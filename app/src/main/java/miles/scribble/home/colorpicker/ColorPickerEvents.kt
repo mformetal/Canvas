@@ -26,7 +26,6 @@ class ColorPickerReducer : Reducer<ColorPickerEvents, HomeState> {
             }
             is ColorPickerEvents.BackgroundColorChosen -> {
                 val backgroundColor = event.color
-                state.cachedBitmap.eraseColor(backgroundColor)
                 state.bitmap.eraseColor(backgroundColor)
                 state.copy(backgroundColor = backgroundColor, isMenuOpen = false)
             }

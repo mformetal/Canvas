@@ -12,7 +12,16 @@ import org.reactivestreams.Subscription
 import javax.inject.Inject
 import android.opengl.ETC1.getHeight
 import android.opengl.ETC1.getWidth
-
+import io.realm.Realm
+import android.graphics.Bitmap
+import android.R.attr.bitmap
+import miles.scribble.data.Drawing
+import miles.scribble.util.extensions.DateExtensions
+import miles.scribble.util.extensions.drawBitmap
+import org.threeten.bp.Instant
+import org.threeten.bp.LocalDateTime
+import org.threeten.bp.ZoneOffset
+import java.io.ByteArrayOutputStream
 
 
 /**
@@ -20,9 +29,39 @@ import android.opengl.ETC1.getWidth
  */
 class HomeViewModel @Inject constructor(homeStore: HomeStore) : StoreViewModel<HomeState, Store<HomeState>>(homeStore) {
 
+    val realm : Realm = Realm.getDefaultInstance()
+
+    override fun onCleared() {
+        super.onCleared()
+
+        realm.close()
+    }
+
+    fun persistDrawings() {
+        realm.executeTransaction {
+            val stream = ByteArrayOutputStream()
+            state.bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
+            val bytes = stream.toByteArray()
+
+            val hasCachedDrawing = it.where(Drawing::class.java).count() > 0
+            if (hasCachedDrawing) {
+                val drawing = it.where(Drawing::class.java).findFirst()
+                drawing.lastEditedMillis = DateExtensions.currentTimeInMillis
+                drawing.bytes = bytes
+                it.insertOrUpdate(drawing)
+            } else {
+                val drawing = Drawing()
+                drawing.createdAtMillis = DateExtensions.currentTimeInMillis
+                drawing.lastEditedMillis = DateExtensions.currentTimeInMillis
+                drawing.bytes = bytes
+                it.insert(drawing)
+            }
+        }
+    }
+
     fun drawToSurfaceView(canvas: Canvas?) {
-        if (state.isSafeToDraw && canvas != null) {
-            canvas.drawBitmap(state.bitmap, 0f, 0f, null)
+        if (canvas != null) {
+            canvas.drawBitmap(state.bitmap)
 
             if (state.drawType == HomeState.DrawType.INK) {
                 // To account for portrait/ landscape

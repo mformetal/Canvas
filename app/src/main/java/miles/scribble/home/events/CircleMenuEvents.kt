@@ -7,6 +7,7 @@ import miles.scribble.home.viewmodel.HomeState
 import miles.scribble.redux.core.Event
 import miles.scribble.redux.core.Reducer
 import miles.scribble.util.extensions.copy
+import miles.scribble.util.extensions.drawBitmap
 import java.util.*
 
 /**
@@ -37,11 +38,10 @@ class CircleMenuEventsReducer : Reducer<CircleMenuEvents, HomeState> {
                 state.copy(isMenuOpen = event.isMenuShowing)
             }
             is CircleMenuEvents.RedrawStarted -> {
-                workerBitmap = Bitmap.createBitmap(state.bitmap)
-                workerCanvas = Canvas(workerBitmap).apply {
-                    drawColor(Color.WHITE, PorterDuff.Mode.CLEAR)
-                    drawBitmap(state.cachedBitmap, 0f, 0f, null)
+                workerBitmap = Bitmap.createBitmap(state.bitmap).apply {
+                    eraseColor(state.backgroundColor)
                 }
+                workerCanvas = Canvas(workerBitmap)
                 val history : Stack<Redrawable>
                 val redoHistory : Stack<Redrawable>
 
@@ -66,6 +66,7 @@ class CircleMenuEventsReducer : Reducer<CircleMenuEvents, HomeState> {
             }
             is CircleMenuEvents.RedrawCompleted -> {
                 val bitmap = workerBitmap.copy(Bitmap.Config.ARGB_8888, true)
+                workerBitmap.recycle()
                 state.copy(isSafeToDraw = true, bitmap = bitmap, canvas = Canvas(bitmap))
             }
             is CircleMenuEvents.StrokeColorClicked -> {

@@ -2,6 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'realm-android'
 
 def config = rootProject.extensions.getByName("ext")
 
@@ -23,7 +24,11 @@ android {
 dependencies {
     implementation config.kotlinStdLib
 
+    implementation config.threeTenAbp
+
     implementation config.butterKnife
+
+    kapt config.fieldNamesHelper
 
     implementation config.appCompat
     kapt config.butterKnifeApt

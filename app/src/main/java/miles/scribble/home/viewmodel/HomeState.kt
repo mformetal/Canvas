@@ -5,7 +5,7 @@ import android.graphics.*
 import miles.scribble.home.drawing.Stroke
 import miles.scribble.redux.core.SimpleStore
 import miles.scribble.redux.core.State
-import miles.scribble.util.FileUtils
+import miles.scribble.util.BitmapUtils
 import miles.scribble.util.PaintStyles
 import miles.scribble.util.ViewUtils
 import miles.scribble.util.extensions.getDisplaySize
@@ -14,6 +14,10 @@ import javax.inject.Inject
 import android.support.v4.widget.ViewDragHelper.INVALID_POINTER
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
+import io.realm.Realm
+import io.realm.Sort
+import miles.scribble.data.Drawing
+import miles.scribble.data.DrawingFields
 import miles.scribble.home.drawing.redrawable.Redrawable
 
 
@@ -23,10 +27,8 @@ import miles.scribble.home.drawing.redrawable.Redrawable
 class HomeStore @Inject constructor(context: Context) : SimpleStore<HomeState>(HomeState.create(context))
 
 data class HomeState(val isMenuOpen : Boolean = false,
-                     val width : Int, val height : Int,
-                     val drawType: DrawType = HomeState.DrawType.DRAW,
-                     val cachedBitmap: Bitmap,
                      val isSafeToDraw : Boolean = true,
+                     val drawType: DrawType = HomeState.DrawType.DRAW,
                      val paint : Paint = PaintStyles.normal(ViewUtils.randomColor(), STROKE_WIDTH),
                      val backgroundColor : Int = Color.WHITE,
                      val strokeColor : Int = paint.color,
@@ -43,17 +45,36 @@ data class HomeState(val isMenuOpen : Boolean = false,
     val oppositeBackgroundColor : Int
         get() = ViewUtils.complementColor(backgroundColor)
 
+    val width : Int
+        get() = bitmap.width
+    val height : Int
+        get() = bitmap.height
+
     companion object {
         val INVALID_POINTER = -1
         val STROKE_WIDTH = 5f
 
         fun create(context: Context) : HomeState {
-            val point = context.getDisplaySize()
-            val bitmap = Bitmap.createBitmap(point.x, point.y, Bitmap.Config.ARGB_8888)
-            return HomeState(width = point.x, height = point.y, cachedBitmap = FileUtils.getCachedBitmap(context),
-                    bitmap = bitmap, canvas = Canvas(bitmap)).apply {
-                canvas.drawBitmap(cachedBitmap, 0f, 0f, null)
+            val realm = Realm.getDefaultInstance()
+            val lastDrawing = realm.where(Drawing::class.java)
+                    .findAllSorted(DrawingFields.LAST_EDITED_MILLIS, Sort.DESCENDING)
+                    .firstOrNull()
+            val bitmap = if (lastDrawing == null) {
+                val size = context.getDisplaySize()
+                Bitmap.createBitmap(size.x, size.y, Bitmap.Config.ARGB_8888).apply {
+                    eraseColor(Color.WHITE)
+                }
+            } else {
+                val options = BitmapFactory.Options().apply {
+                    inPreferredConfig = Bitmap.Config.ARGB_8888
+                    inMutable = true
+                }
+                BitmapFactory.decodeByteArray(lastDrawing.bytes, 0, lastDrawing.bytes!!.size,
+                        options)
             }
+            val state = HomeState(bitmap = bitmap, canvas = Canvas(bitmap))
+            realm.close()
+            return state
         }
     }
 

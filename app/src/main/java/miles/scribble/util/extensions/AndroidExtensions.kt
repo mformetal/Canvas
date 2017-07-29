@@ -11,13 +11,20 @@ import miles.scribble.MainApp
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.graphics.Point
 import android.net.Uri
+import android.support.design.widget.Snackbar
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat.startActivity
 import android.view.LayoutInflater
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
+import android.support.design.widget.CoordinatorLayout
+import android.R.attr.y
+import android.app.ActionBar
+import android.view.ViewGroup
 
 
 /**
@@ -54,6 +61,12 @@ fun Context.getDisplaySize() : Point {
     }
 }
 
+fun Context.getAppScreenSize() : Point {
+    return Point().apply {
+        (getSystemService(Context.WINDOW_SERVICE) as WindowManager).defaultDisplay.getSize(this)
+    }
+}
+
 fun Activity.isLandScape() : Boolean  {
     return resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 }
@@ -66,4 +79,33 @@ fun Activity.hideKeyboard() {
             imm.hideSoftInputFromWindow(it.windowToken, 0)
         }
     }
+}
+
+fun Context.navigationBarSize() : Int? {
+    val screenSize = getDisplaySize()
+    val appUsableSize = getAppScreenSize()
+    if (appUsableSize.x < screenSize.x) {
+        return appUsableSize.y
+    }
+
+    if (appUsableSize.y < screenSize.y) {
+        return screenSize.y - appUsableSize.y
+    }
+
+    return null
+}
+
+fun Snackbar.adjustImmersiveHeight() : Snackbar {
+    context.navigationBarSize()?.let {
+        val parentParams = view.layoutParams as ViewGroup.MarginLayoutParams
+        parentParams.setMargins(0, 0, 0, (0 - it))
+        view.layoutParams = parentParams
+        return this
+    }
+
+    return this
+}
+
+fun Canvas.drawBitmap(bitmap: Bitmap) {
+    drawBitmap(bitmap, 0f, 0f, null)
 }

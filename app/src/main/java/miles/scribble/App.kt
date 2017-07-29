@@ -8,6 +8,8 @@ import android.content.Context
 import dagger.Component
 import dagger.Module
 import dagger.Provides
+import io.realm.Realm
+import io.realm.RealmConfiguration
 
 import miles.scribble.dagger.activity.ActivityBindingModule
 import miles.scribble.dagger.activity.ActivityComponentBuilder
@@ -31,6 +33,11 @@ class MainApp : Application(), HasActivitySubcomponentBuilders {
 
     override fun onCreate() {
         super.onCreate()
+
+        Realm.init(this)
+        Realm.setDefaultConfiguration(RealmConfiguration.Builder()
+                .deleteRealmIfMigrationNeeded()
+                .build())
 
         applicationComponent = DaggerAppComponent.builder()
                 .appModule(AppModule(this))

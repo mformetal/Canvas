@@ -9,6 +9,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Parcel
 import android.os.Parcelable
+import android.support.design.widget.CoordinatorLayout
 import android.support.design.widget.FloatingActionButton
 import android.support.design.widget.Snackbar
 import android.util.AttributeSet
@@ -38,10 +39,7 @@ import miles.scribble.redux.core.Dispatcher
 import miles.scribble.redux.core.StateChangeListener
 import miles.scribble.util.Circle
 import miles.scribble.util.ViewUtils
-import miles.scribble.util.extensions.radius
-import miles.scribble.util.extensions.scaleDown
-import miles.scribble.util.extensions.scaleUp
-import miles.scribble.util.extensions.toInt
+import miles.scribble.util.extensions.*
 import javax.inject.Inject
 
 /**
@@ -295,7 +293,9 @@ class CircleMenu : ViewGroup, StateChangeListener<HomeState> {
         when (view.id) {
             R.id.menu_redo -> {
                 if (viewModel.state.redoHistory.isEmpty()) {
-                    Snackbar.make(this, R.string.snackbar_no_more_redo, Snackbar.LENGTH_SHORT).show()
+                    Snackbar.make(parent as CoordinatorLayout, R.string.snackbar_no_more_redo, Snackbar.LENGTH_SHORT)
+                            .adjustImmersiveHeight()
+                            .show()
                 } else {
                     dispatcher.dispatch(CircleMenuEvents.RedrawStarted(false))
 
@@ -308,7 +308,9 @@ class CircleMenu : ViewGroup, StateChangeListener<HomeState> {
             }
             R.id.menu_undo -> {
                 if (viewModel.state.history.isEmpty()) {
-                    Snackbar.make(this, R.string.snackbar_no_more_undo, Snackbar.LENGTH_SHORT).show()
+                    Snackbar.make(parent as CoordinatorLayout, R.string.snackbar_no_more_undo, Snackbar.LENGTH_SHORT)
+                            .adjustImmersiveHeight()
+                            .show()
                 } else {
                     dispatcher.dispatch(CircleMenuEvents.RedrawStarted(true))
 

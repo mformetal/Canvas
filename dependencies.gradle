@@ -21,6 +21,8 @@ ext {
 
     constraintLayout = "com.android.support.constraint:constraint-layout:1.0.2"
 
+    threeTenAbp = "com.jakewharton.threetenabp:threetenabp:1.0.5"
+
     dagger = "com.google.dagger:dagger:${daggerVersion}"
     daggerCompiler = "com.google.dagger:dagger-compiler:${daggerVersion}"
     javaxInject = "javax.annotation:jsr250-api:1.0"
@@ -47,6 +49,8 @@ ext {
     retrofitGson = "com.squareup.retrofit2:converter-gson:${retrofitVersion}"
     retrofitRx = "com.squareup.retrofit2:adapter-rxjava:${retrofitVersion}"
     httpLoggingInterceptor = "com.squareup.okhttp3:logging-interceptor:${okHttpVersion}"
+
+    fieldNamesHelper = "dk.ilios:realmfieldnameshelper:1.1.0"
 
     timber = "com.jakewharton.timber:timber:4.5.1"
 

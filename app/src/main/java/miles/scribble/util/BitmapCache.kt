@@ -1,6 +1,5 @@
 package miles.scribble.util
 
-import android.app.Activity
 import android.app.ActivityManager
 import android.content.Context
 import android.graphics.Bitmap
@@ -77,7 +76,7 @@ internal class BitmapCache(context: Context) : LruCache<Uri, Bitmap>(getMaxSize(
 
         `in`.reset()
 
-        options.inSampleSize = FileUtils.calculateInSampleSize(options, mViewWidth, mViewHeight)
+        options.inSampleSize = BitmapUtils.calculateInSampleSize(options, mViewWidth, mViewHeight)
 
         addInBitmapOptions(options)
 
