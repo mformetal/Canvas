@@ -119,7 +119,7 @@ public class LoadingAnimator extends View {
 
     public void startAnimation() {
         if (getVisibility() == View.GONE) {
-            ViewUtils.visible(this, 50);
+            ViewUtils.INSTANCE.visible(this, 50);
 
             animate()
                     .scaleY(1f)
@@ -175,7 +175,7 @@ public class LoadingAnimator extends View {
                             public void onAnimationEnd(final Animator animation) {
                                 Arrays.fill(mAnimatedEnds, mStart);
                                 mAnimatorSet = null;
-                                ViewUtils.gone(LoadingAnimator.this, delay);
+                                ViewUtils.INSTANCE.gone(LoadingAnimator.this, delay);
                                 new Handler().postDelayed(new Runnable() {
                                     @Override
                                     public void run() {

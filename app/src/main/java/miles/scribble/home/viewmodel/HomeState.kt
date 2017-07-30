@@ -19,6 +19,7 @@ import io.realm.Sort
 import miles.scribble.data.Drawing
 import miles.scribble.data.DrawingFields
 import miles.scribble.home.drawing.redrawable.Redrawable
+import miles.scribble.redux.core.Event
 
 
 /**
@@ -40,7 +41,7 @@ data class HomeState(val isMenuOpen : Boolean = false,
                      val redoHistory : Stack<Redrawable> = Stack(),
                      val bitmap: Bitmap,
                      val canvas: Canvas,
-                     val onClickSubject: Subject<Int> = PublishSubject.create<Int>()) : State {
+                     val onClickSubject: Subject<Event> = PublishSubject.create<Event>()) : State {
 
     val oppositeBackgroundColor : Int
         get() = ViewUtils.complementColor(backgroundColor)

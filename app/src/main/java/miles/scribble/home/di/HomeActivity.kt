@@ -11,6 +11,7 @@ import miles.scribble.dagger.activity.*
 import miles.scribble.dagger.fragment.FragmentComponentBuilder
 import miles.scribble.dagger.fragment.FragmentKey
 import miles.scribble.home.HomeActivity
+import miles.scribble.home.brushpicker.BrushPickerDialogFragment
 import miles.scribble.home.colorpicker.ColorPickerDialogFragment
 import miles.scribble.home.viewmodel.HomeViewModel
 
@@ -50,11 +51,16 @@ interface HomeComponent : ActivityComponent<HomeActivity> {
 
 }
 
-@Module(subcomponents = arrayOf(ColorPickerComponent::class))
+@Module(subcomponents = arrayOf(ColorPickerComponent::class, BrushPickerComponent::class))
 abstract class HomeActivityFragmentBindingModule {
 
     @Binds
     @IntoMap
     @FragmentKey(ColorPickerDialogFragment::class)
     abstract fun colorPickerBuilder(impl: ColorPickerComponent.Builder) : FragmentComponentBuilder<*, *>
+
+    @Binds
+    @IntoMap
+    @FragmentKey(BrushPickerDialogFragment::class)
+    abstract fun brushPickerBuilder(impl: BrushPickerComponent.Builder) : FragmentComponentBuilder<*, *>
 }

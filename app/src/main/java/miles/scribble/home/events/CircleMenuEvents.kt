@@ -16,10 +16,11 @@ import java.util.*
 sealed class CircleMenuEvents : Event {
 
     class ToggleClicked(val isMenuShowing: Boolean) : CircleMenuEvents()
-    class StrokeColorClicked(val id: Int) : CircleMenuEvents()
-    class BackgroundColorClicked(val id: Int) : CircleMenuEvents()
+    class StrokeColorClicked : CircleMenuEvents()
+    class BackgroundColorClicked : CircleMenuEvents()
     class EraserClicked(val isErasing: Boolean) : CircleMenuEvents()
-    class InkClicked() : CircleMenuEvents()
+    class InkClicked : CircleMenuEvents()
+    class BrushClicked : CircleMenuEvents()
 
     class RedrawStarted(val isUndo: Boolean) : CircleMenuEvents()
     class Redraw(val toRedraw: Redrawable) : CircleMenuEvents()
@@ -70,11 +71,11 @@ class CircleMenuEventsReducer : Reducer<CircleMenuEvents, HomeState> {
                 state.copy(isSafeToDraw = true, bitmap = bitmap, canvas = Canvas(bitmap))
             }
             is CircleMenuEvents.StrokeColorClicked -> {
-                state.onClickSubject.onNext(event.id)
+                state.onClickSubject.onNext(event)
                 state
             }
             is CircleMenuEvents.BackgroundColorClicked -> {
-                state.onClickSubject.onNext(event.id)
+                state.onClickSubject.onNext(event)
                 state
             }
             is CircleMenuEvents.EraserClicked -> {
@@ -97,6 +98,10 @@ class CircleMenuEventsReducer : Reducer<CircleMenuEvents, HomeState> {
                         lastX = state.bitmap.width / 2f,
                         lastY = state.bitmap.height / 2f,
                         isMenuOpen = false)
+            }
+            is CircleMenuEvents.BrushClicked -> {
+                state.onClickSubject.onNext(event)
+                state
             }
         }
     }

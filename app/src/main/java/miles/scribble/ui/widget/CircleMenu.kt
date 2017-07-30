@@ -322,10 +322,10 @@ class CircleMenu : ViewGroup, StateChangeListener<HomeState> {
                 }
             }
             R.id.menu_stroke_color -> {
-                dispatcher.dispatch(CircleMenuEvents.StrokeColorClicked(R.id.menu_stroke_color))
+                dispatcher.dispatch(CircleMenuEvents.StrokeColorClicked())
             }
             R.id.menu_canvas_color -> {
-                dispatcher.dispatch(CircleMenuEvents.BackgroundColorClicked(R.id.menu_canvas_color))
+                dispatcher.dispatch(CircleMenuEvents.BackgroundColorClicked())
             }
             R.id.menu_erase -> {
                 if (eraser.isSelected) {
@@ -339,6 +339,9 @@ class CircleMenu : ViewGroup, StateChangeListener<HomeState> {
             }
             R.id.menu_ink -> {
                 dispatcher.dispatch(CircleMenuEvents.InkClicked())
+            }
+            R.id.menu_brush -> {
+                dispatcher.dispatch(CircleMenuEvents.BrushClicked())
             }
         }
     }

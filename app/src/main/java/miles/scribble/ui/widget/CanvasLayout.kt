@@ -4,7 +4,6 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
-import android.app.Activity
 import android.content.Context
 import android.graphics.BlurMaskFilter
 import android.graphics.Canvas
@@ -15,13 +14,10 @@ import android.os.Handler
 import android.support.design.widget.CoordinatorLayout
 import android.util.AttributeSet
 import android.view.MotionEvent
-import android.view.SoundEffectConstants
-import android.view.View
 import android.widget.Toolbar
 
 import butterknife.BindView
 import butterknife.ButterKnife
-import kotlinx.android.synthetic.main.activity_home.view.*
 import miles.scribble.R
 import miles.scribble.home.HomeActivity
 import miles.scribble.home.di.CanvasLayoutModule
@@ -194,8 +190,8 @@ class CanvasLayout : CoordinatorLayout, StateChangeListener<HomeState> {
 
         private val ALPHA = object : ViewUtils.IntProperty<CanvasLayout>("alpha") {
 
-            override fun setValue(layout: CanvasLayout, value: Int) {
-                layout.paintAlpha = value
+            override fun setValue(receiver: CanvasLayout, value: Int) {
+                receiver.paintAlpha = value
             }
 
             override fun get(layout: CanvasLayout): Int {
@@ -204,8 +200,8 @@ class CanvasLayout : CoordinatorLayout, StateChangeListener<HomeState> {
         }
 
         private val RADIUS = object : ViewUtils.FloatProperty<CanvasLayout>("radius") {
-            override fun setValue(`object`: CanvasLayout, value: Float) {
-                `object`.radius = value
+            override fun setValue(receiver: CanvasLayout, value: Float) {
+                receiver.radius = value
             }
 
             override fun get(`object`: CanvasLayout): Float {

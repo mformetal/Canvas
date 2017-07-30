@@ -12,9 +12,11 @@ import miles.scribble.MainApp
 import miles.scribble.R
 import miles.scribble.dagger.fragment.FragmentComponentBuilder
 import miles.scribble.dagger.fragment.HasFragmentSubcomponentBuilders
+import miles.scribble.home.brushpicker.BrushPickerDialogFragment
 import miles.scribble.home.colorpicker.ColorPickerDialogFragment
 import miles.scribble.home.di.HomeComponent
 import miles.scribble.home.di.HomeModule
+import miles.scribble.home.events.CircleMenuEvents
 import miles.scribble.home.viewmodel.HomeViewModel
 import miles.scribble.ui.ViewModelActivity
 import miles.scribble.util.ViewUtils
@@ -27,6 +29,7 @@ class HomeActivity : ViewModelActivity<HomeViewModel>(), HasFragmentSubcomponent
 
     private val DIALOG_COLOR_PICKER_STROKE = "strokeColorPicker"
     private val DIALOG_COLOR_PICKER_BACKGROUND = "backgroundColorPicker"
+    private val DIALOG_BRUSH_PICKER = "brushPicker"
 
     private val REQUEST_PERMISSION_WRITE_SETTINGS = 1
 
@@ -56,13 +59,17 @@ class HomeActivity : ViewModelActivity<HomeViewModel>(), HasFragmentSubcomponent
 
         clickDispoable = viewModel.state.onClickSubject.subscribe {
             when (it) {
-                R.id.menu_stroke_color -> {
+                is CircleMenuEvents.StrokeColorClicked -> {
                     ColorPickerDialogFragment.newInstance(false)
                             .show(supportFragmentManager, DIALOG_COLOR_PICKER_STROKE)
                 }
-                R.id.menu_canvas_color -> {
+                is CircleMenuEvents.BackgroundColorClicked -> {
                     ColorPickerDialogFragment.newInstance(true)
                             .show(supportFragmentManager, DIALOG_COLOR_PICKER_BACKGROUND)
+                }
+                is CircleMenuEvents.BrushClicked -> {
+                    BrushPickerDialogFragment()
+                            .show(supportFragmentManager, DIALOG_BRUSH_PICKER)
                 }
             }
         }

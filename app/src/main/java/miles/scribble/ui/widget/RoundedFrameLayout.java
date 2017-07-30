@@ -82,8 +82,8 @@ public class RoundedFrameLayout extends FrameLayout {
         }
 
         @Override
-        public void setValue(RoundedFrameLayout object, float value) {
-            object.setCorner(value);
+        public void setValue(RoundedFrameLayout receiver, float value) {
+            receiver.setCorner(value);
         }
     };
 }
