@@ -49,4 +49,9 @@ dependencies {
     implementation config.lifecycle
     implementation config.lifecycleExtensions
     kapt config.lifecycleApt
+
+    testImplementation config.junit
+    testImplementation config.assertj
+    testImplementation config.mockito
+    testImplementation config.roboElectric
 }

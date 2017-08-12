@@ -29,6 +29,7 @@ import butterknife.BindView
 import butterknife.BindViews
 import butterknife.ButterKnife
 import butterknife.OnClick
+import io.reactivex.disposables.Disposable
 import miles.scribble.R
 import miles.scribble.home.HomeActivity
 import miles.scribble.home.di.CircleMenuModule
@@ -37,6 +38,7 @@ import miles.scribble.home.viewmodel.HomeState
 import miles.scribble.home.viewmodel.HomeViewModel
 import miles.scribble.redux.core.Dispatcher
 import miles.scribble.redux.core.StateChangeListener
+import miles.scribble.redux.rx.flowable
 import miles.scribble.util.Circle
 import miles.scribble.util.ViewUtils
 import miles.scribble.util.extensions.*
@@ -45,7 +47,9 @@ import javax.inject.Inject
 /**
  * Created by milespeele on 8/7/15.
  */
-class CircleMenu : ViewGroup, StateChangeListener<HomeState> {
+class CircleMenu : ViewGroup {
+
+    lateinit var flowableDisposable : Disposable
 
     @Inject
     lateinit var viewModel : HomeViewModel
@@ -97,7 +101,6 @@ class CircleMenu : ViewGroup, StateChangeListener<HomeState> {
 
     private fun init() {
         (context as HomeActivity).component.circleMenuComponent(CircleMenuModule()).injectMembers(this)
-        viewModel.store.subscribe(this)
 
         setWillNotDraw(false)
         descendantFocusability = ViewGroup.FOCUS_AFTER_DESCENDANTS
@@ -106,6 +109,21 @@ class CircleMenu : ViewGroup, StateChangeListener<HomeState> {
     override fun onFinishInflate() {
         super.onFinishInflate()
         ButterKnife.bind(this)
+
+        flowableDisposable = flowable(viewModel.store)
+                .subscribe {
+                    if (it.isMenuOpen) {
+                        show()
+                    } else {
+                        hide()
+                    }
+                }
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+
+        flowableDisposable.dispose()
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -178,14 +196,6 @@ class CircleMenu : ViewGroup, StateChangeListener<HomeState> {
                     child.alpha = 0f
                 }
             }
-        }
-    }
-
-    override fun onStateChanged(state: HomeState) {
-        if (state.isMenuOpen) {
-            show()
-        } else {
-            hide()
         }
     }
 

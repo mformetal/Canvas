@@ -18,6 +18,7 @@ import android.widget.Toolbar
 
 import butterknife.BindView
 import butterknife.ButterKnife
+import io.reactivex.disposables.Disposable
 import miles.scribble.R
 import miles.scribble.home.HomeActivity
 import miles.scribble.home.di.CanvasLayoutModule
@@ -25,13 +26,16 @@ import miles.scribble.home.drawing.CanvasPoint
 import miles.scribble.home.viewmodel.HomeState
 import miles.scribble.home.viewmodel.HomeViewModel
 import miles.scribble.redux.core.StateChangeListener
+import miles.scribble.redux.rx.flowable
 import miles.scribble.util.ViewUtils
 import javax.inject.Inject
 
 /**
  * Created by milespeele on 8/7/15.
  */
-class CanvasLayout : CoordinatorLayout, StateChangeListener<HomeState> {
+class CanvasLayout : CoordinatorLayout {
+
+    lateinit var flowableListener : Disposable
 
     @Inject
     lateinit var homeViewModel : HomeViewModel
@@ -89,7 +93,19 @@ class CanvasLayout : CoordinatorLayout, StateChangeListener<HomeState> {
 
         ButterKnife.bind(this)
 
-        homeViewModel.store.subscribe(this)
+        flowableListener = flowable(homeViewModel.store)
+                .subscribe {
+                    if (it.isMenuOpen) {
+                        dim()
+                    } else {
+                        undim()
+                    }
+                }
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        flowableListener.dispose()
     }
 
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
@@ -111,14 +127,6 @@ class CanvasLayout : CoordinatorLayout, StateChangeListener<HomeState> {
         }
 
         return false
-    }
-
-    override fun onStateChanged(state: HomeState) {
-        if (state.isMenuOpen) {
-            dim()
-        } else {
-            undim()
-        }
     }
 
     override fun draw(canvas: Canvas) {

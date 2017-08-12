@@ -59,4 +59,9 @@ ext {
     circleImageView = "de.hdodenhof:circleimageview:2.1.0"
 
     autoFitTextView = "me.grantland:autofittextview:0.2.1"
+
+    junit = "junit:junit:4.12"
+    mockito = "org.mockito:mockito-core:2.7.22"
+    assertj = "org.assertj:assertj-core:3.6.2"
+    roboElectric = "org.robolectric:robolectric:3.3.2"
 }

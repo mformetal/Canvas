@@ -26,21 +26,18 @@ interface Store<S : State> {
 }
 
 open class SimpleStore<S : State>(initialState: S,
-                             private val subscribers: CopyOnWriteArrayList<StateChangeListener<S>> =CopyOnWriteArrayList()) : Store<S> {
+                                  private val subscribers: CopyOnWriteArrayList<StateChangeListener<S>> = CopyOnWriteArrayList()) : Store<S> {
 
     override var state by Delegates.observable(initialState, {
         _, _, _ -> notifySubscribers()
     })
-    private val handler : Handler = Handler(Looper.getMainLooper())
 
     init {
         notifySubscribers()
     }
 
     private fun notifySubscribers() {
-        AndroidSchedulers.mainThread().scheduleDirect {
-            subscribers.forEach { it.onStateChanged(state) }
-        }
+        subscribers.forEach { it.onStateChanged(state) }
     }
 
     override fun subscribe(stateChangeListener: StateChangeListener<S>) {
