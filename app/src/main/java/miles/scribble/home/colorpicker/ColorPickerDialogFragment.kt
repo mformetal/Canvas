@@ -20,6 +20,7 @@ import miles.scribble.util.extensions.inflater
 import miles.scribble.util.extensions.isLandScape
 import javax.inject.Inject
 import android.view.WindowManager
+import miles.scribble.home.events.ColorPickerEvents
 import miles.scribble.util.ViewUtils
 
 /**

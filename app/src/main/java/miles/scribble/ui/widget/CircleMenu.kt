@@ -343,6 +343,9 @@ class CircleMenu : ViewGroup, StateChangeListener<HomeState> {
             R.id.menu_brush -> {
                 dispatcher.dispatch(CircleMenuEvents.BrushClicked())
             }
+            R.id.menu_image -> {
+                dispatcher.dispatch(CircleMenuEvents.PictureClicked())
+            }
         }
     }
 

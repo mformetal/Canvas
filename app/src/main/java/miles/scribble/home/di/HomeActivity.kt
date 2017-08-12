@@ -13,7 +13,14 @@ import miles.scribble.dagger.fragment.FragmentKey
 import miles.scribble.home.HomeActivity
 import miles.scribble.home.brushpicker.BrushPickerDialogFragment
 import miles.scribble.home.colorpicker.ColorPickerDialogFragment
+import miles.scribble.home.events.HomeActivityEvents
+import miles.scribble.home.events.HomeActivityReducer
+import miles.scribble.home.viewmodel.HomeState
+import miles.scribble.home.viewmodel.HomeStore
 import miles.scribble.home.viewmodel.HomeViewModel
+import miles.scribble.redux.core.Dispatcher
+import miles.scribble.redux.core.Dispatchers
+import miles.scribble.redux.core.Reducer
 
 /**
  * Created by mbpeele on 6/30/17.
@@ -28,6 +35,18 @@ class HomeModule(activity: HomeActivity) : ActivityModule<HomeActivity>(activity
     @ActivityScope
     fun viewModel(factory: ViewModelProvider.Factory) : HomeViewModel {
         return ViewModelProviders.of(activity, factory)[HomeViewModel::class.java]
+    }
+
+    @Provides
+    @ActivityScope
+    fun dispatcher(homeStore: HomeStore, reducer: Reducer<HomeActivityEvents, HomeState>) : Dispatcher<HomeActivityEvents, HomeActivityEvents> {
+        return Dispatchers.create(homeStore, reducer)
+    }
+
+    @Provides
+    @ActivityScope
+    fun reducer() : Reducer<HomeActivityEvents, HomeState> {
+        return HomeActivityReducer()
     }
 }
 

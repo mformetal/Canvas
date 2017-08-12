@@ -6,10 +6,7 @@ import miles.scribble.redux.core.Event
 import miles.scribble.redux.core.Reducer
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import miles.scribble.home.drawing.Stroke
-import miles.scribble.home.drawing.redrawable.RedrawableLines
-import miles.scribble.util.extensions.copy
-import android.graphics.Paint
+import miles.scribble.home.drawing.CanvasMotionEventHandler
 
 
 /**
@@ -27,7 +24,7 @@ sealed class CanvasSurfaceEvents : Event {
 
 }
 
-class CanvasSurfaceReducer : Reducer<CanvasSurfaceEvents, HomeState> {
+class CanvasSurfaceReducer(val canvasMotionEventHandler: CanvasMotionEventHandler) : Reducer<CanvasSurfaceEvents, HomeState> {
     override fun reduce(event: CanvasSurfaceEvents, state: HomeState): HomeState {
         return when (event) {
             is CanvasSurfaceEvents.Resize -> {
@@ -36,99 +33,22 @@ class CanvasSurfaceReducer : Reducer<CanvasSurfaceEvents, HomeState> {
                 state.copy(bitmap = scaledBitmap, canvas = Canvas(scaledBitmap))
             }
             is CanvasSurfaceEvents.TouchDown -> {
-                val x = event.motionEvent.x
-                val y = event.motionEvent.y
-
-                when (state.drawType) {
-                    HomeState.DrawType.DRAW, HomeState.DrawType.ERASE -> {
-                        state.stroke.addPoint(x, y, state.canvas, state.paint)
-                        state.copy(stroke = state.stroke.copy(),
-                                activePointer = event.motionEvent.getPointerId(0),
-                                lastX = x, lastY = y)
-                    }
-                    HomeState.DrawType.INK -> {
-                        val inkx = Math.round(x)
-                        val inky = Math.round(y - state.bitmap.height * .095f)
-                        if (0 <= inkx && inkx <= state.width - 1 &&
-                                0 <= inky && inky <= state.height - 1) {
-                            state.copy(strokeColor = state.bitmap.getPixel(inkx, inky),
-                                    activePointer = event.motionEvent.getPointerId(0),
-                                    lastX = x, lastY = y)
-                        } else {
-                            state.copy(activePointer = event.motionEvent.getPointerId(0),
-                                    lastX = x, lastY = y)
-                        }
-                    }
-                }
+                canvasMotionEventHandler.handleTouchDown(event.motionEvent, state)
             }
             is CanvasSurfaceEvents.PointerDown -> {
-                state
+                canvasMotionEventHandler.handlePointerDown(state)
             }
             is CanvasSurfaceEvents.TouchMove -> {
-                val pointerIndex = event.motionEvent.findPointerIndex(state.activePointer)
-                val x = event.motionEvent.getX(pointerIndex)
-                val y = event.motionEvent.getY(pointerIndex)
-
-                when (state.drawType) {
-                    HomeState.DrawType.DRAW, HomeState.DrawType.ERASE -> {
-                        val stroke = state.stroke.apply {
-                            for (i in 0 until event.motionEvent.historySize) {
-                                addPoint(
-                                        event.motionEvent.getHistoricalX(pointerIndex, i),
-                                        event.motionEvent.getHistoricalY(pointerIndex, i),
-                                        state.canvas, state.paint)
-                            }
-                            addPoint(x, y, state.canvas, state.paint)
-                        }
-
-                        state.copy(stroke = stroke.copy(), lastX = x, lastY = y)
-                    }
-                    HomeState.DrawType.INK -> {
-                        val inkx = Math.round(x)
-                        val inky = Math.round(y - state.bitmap.height * .095f)
-                        if (0 <= inkx && inkx <= state.width - 1 &&
-                                0 <= inky && inky <= state.height - 1) {
-                            state.copy(strokeColor = state.bitmap.getPixel(inkx, inky),
-                                    lastX = x, lastY = y)
-                        } else {
-                            state.copy(lastX = x, lastY = y)
-                        }
-                    }
-                }
+                canvasMotionEventHandler.handleTouchMove(event.motionEvent, state)
             }
             is CanvasSurfaceEvents.TouchUp -> {
-                when (state.drawType) {
-                    HomeState.DrawType.DRAW, HomeState.DrawType.ERASE -> {
-                        val history = state.history.copy().apply {
-                            push(RedrawableLines(state.stroke.points, state.paint))
-                        }
-                        state.copy(history = history, stroke = Stroke(),
-                                lastX = event.motionEvent.x, lastY = event.motionEvent.y)
-                    }
-                    HomeState.DrawType.INK -> {
-                        state.copy(paint = Paint(state.paint).apply {
-                            color = state.strokeColor
-                        }, drawType = HomeState.DrawType.DRAW,
-                                lastX = event.motionEvent.x, lastY = event.motionEvent.y)
-                    }
-                }
+                canvasMotionEventHandler.handleTouchUp(event.motionEvent, state)
             }
             is CanvasSurfaceEvents.PointerUp -> {
-                val pointerIndex = event.motionEvent.action and MotionEvent.ACTION_POINTER_INDEX_MASK shr MotionEvent.ACTION_POINTER_INDEX_SHIFT
-                val pointerId = event.motionEvent.getPointerId(pointerIndex)
-
-                if (pointerId == state.activePointer) {
-                    val newPointerIndex = if (pointerIndex == 0) 1 else 0
-                    val lastX = event.motionEvent.getX(newPointerIndex)
-                    val lastY = event.motionEvent.getY(newPointerIndex)
-                    val activePointer = event.motionEvent.getPointerId(newPointerIndex)
-                    state.copy(lastY = lastY, lastX = lastX, activePointer = activePointer)
-                } else {
-                    state
-                }
+               canvasMotionEventHandler.handlePointerUp(event.motionEvent, state)
             }
             is CanvasSurfaceEvents.MotionCancel -> {
-                state.copy(activePointer = HomeState.INVALID_POINTER)
+                canvasMotionEventHandler.handleMotionCancel(state)
             }
         }
     }

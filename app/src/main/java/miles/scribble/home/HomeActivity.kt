@@ -17,7 +17,9 @@ import miles.scribble.home.colorpicker.ColorPickerDialogFragment
 import miles.scribble.home.di.HomeComponent
 import miles.scribble.home.di.HomeModule
 import miles.scribble.home.events.CircleMenuEvents
+import miles.scribble.home.events.HomeActivityEvents
 import miles.scribble.home.viewmodel.HomeViewModel
+import miles.scribble.redux.core.Dispatcher
 import miles.scribble.ui.ViewModelActivity
 import miles.scribble.util.ViewUtils
 import miles.scribble.util.extensions.*
@@ -32,8 +34,11 @@ class HomeActivity : ViewModelActivity<HomeViewModel>(), HasFragmentSubcomponent
     private val DIALOG_BRUSH_PICKER = "brushPicker"
 
     private val REQUEST_PERMISSION_WRITE_SETTINGS = 1
+    private val REQUEST_IMPORT_CODE = 2
 
     lateinit var component : HomeComponent
+    @Inject
+    lateinit var dispatcher : Dispatcher<HomeActivityEvents, HomeActivityEvents>
     @Inject
     lateinit var fragmentComponentBuilders: Map<Class<out Fragment>, @JvmSuppressWildcards Provider<FragmentComponentBuilder<*, *>>>
 
@@ -71,6 +76,13 @@ class HomeActivity : ViewModelActivity<HomeViewModel>(), HasFragmentSubcomponent
                     BrushPickerDialogFragment()
                             .show(supportFragmentManager, DIALOG_BRUSH_PICKER)
                 }
+                is CircleMenuEvents.PictureClicked -> {
+                    val intent = Intent().apply {
+                        type = "image/*"
+                        action = Intent.ACTION_GET_CONTENT
+                    }
+                    startActivityForResult(intent, REQUEST_IMPORT_CODE)
+                }
             }
         }
     }
@@ -91,6 +103,9 @@ class HomeActivity : ViewModelActivity<HomeViewModel>(), HasFragmentSubcomponent
         when (requestCode) {
             REQUEST_PERMISSION_WRITE_SETTINGS -> {
                 setAutoRotate(true)
+            }
+            REQUEST_IMPORT_CODE -> {
+                dispatcher.dispatch(HomeActivityEvents.PictureChosen(data!!.data))
             }
             else -> {
                 super.onActivityResult(requestCode, resultCode, data)

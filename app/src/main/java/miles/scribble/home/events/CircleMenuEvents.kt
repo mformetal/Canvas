@@ -1,13 +1,12 @@
 package miles.scribble.home.events
 
 import android.graphics.*
-import miles.scribble.home.drawing.Stroke
+import miles.scribble.home.drawing.DrawType
 import miles.scribble.home.drawing.redrawable.Redrawable
 import miles.scribble.home.viewmodel.HomeState
 import miles.scribble.redux.core.Event
 import miles.scribble.redux.core.Reducer
 import miles.scribble.util.extensions.copy
-import miles.scribble.util.extensions.drawBitmap
 import java.util.*
 
 /**
@@ -21,6 +20,7 @@ sealed class CircleMenuEvents : Event {
     class EraserClicked(val isErasing: Boolean) : CircleMenuEvents()
     class InkClicked : CircleMenuEvents()
     class BrushClicked : CircleMenuEvents()
+    class PictureClicked : CircleMenuEvents()
 
     class RedrawStarted(val isUndo: Boolean) : CircleMenuEvents()
     class Redraw(val toRedraw: Redrawable) : CircleMenuEvents()
@@ -80,13 +80,13 @@ class CircleMenuEventsReducer : Reducer<CircleMenuEvents, HomeState> {
             }
             is CircleMenuEvents.EraserClicked -> {
                 if (event.isErasing) {
-                    state.copy(drawType = HomeState.DrawType.ERASE,
+                    state.copy(drawType = DrawType.Erase(),
                             paint = Paint(state.paint).apply {
                                 color = state.backgroundColor
                                 strokeWidth = 20f
                             })
                 } else {
-                    state.copy(drawType = HomeState.DrawType.DRAW,
+                    state.copy(drawType = DrawType.Normal(),
                             paint = Paint(state.paint).apply {
                                 color = state.strokeColor
                                 strokeWidth = HomeState.STROKE_WIDTH
@@ -94,12 +94,16 @@ class CircleMenuEventsReducer : Reducer<CircleMenuEvents, HomeState> {
                 }
             }
             is CircleMenuEvents.InkClicked -> {
-                state.copy(drawType = HomeState.DrawType.INK,
+                state.copy(drawType = DrawType.Ink(),
                         lastX = state.bitmap.width / 2f,
                         lastY = state.bitmap.height / 2f,
                         isMenuOpen = false)
             }
             is CircleMenuEvents.BrushClicked -> {
+                state.onClickSubject.onNext(event)
+                state
+            }
+            is CircleMenuEvents.PictureClicked -> {
                 state.onClickSubject.onNext(event)
                 state
             }

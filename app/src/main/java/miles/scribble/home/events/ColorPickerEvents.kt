@@ -1,4 +1,4 @@
-package miles.scribble.home.colorpicker
+package miles.scribble.home.events
 
 import android.graphics.Paint
 import miles.scribble.home.viewmodel.HomeState

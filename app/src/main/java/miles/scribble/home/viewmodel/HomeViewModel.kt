@@ -1,26 +1,15 @@
 package miles.scribble.home.viewmodel
 
 import android.graphics.Canvas
-import io.reactivex.Flowable
-import io.reactivex.FlowableSubscriber
-import io.reactivex.schedulers.Schedulers
-import miles.scribble.home.events.CircleMenuEvents
-import miles.scribble.redux.core.Dispatcher
 import miles.scribble.redux.core.StoreViewModel
 import miles.scribble.redux.core.Store
-import org.reactivestreams.Subscription
 import javax.inject.Inject
-import android.opengl.ETC1.getHeight
-import android.opengl.ETC1.getWidth
 import io.realm.Realm
 import android.graphics.Bitmap
-import android.R.attr.bitmap
 import miles.scribble.data.Drawing
+import miles.scribble.home.drawing.DrawType
 import miles.scribble.util.extensions.DateExtensions
 import miles.scribble.util.extensions.drawBitmap
-import org.threeten.bp.Instant
-import org.threeten.bp.LocalDateTime
-import org.threeten.bp.ZoneOffset
 import java.io.ByteArrayOutputStream
 
 
@@ -63,7 +52,7 @@ class HomeViewModel @Inject constructor(homeStore: HomeStore) : StoreViewModel<H
         if (canvas != null) {
             canvas.drawBitmap(state.bitmap)
 
-            if (state.drawType == HomeState.DrawType.INK) {
+            if (state.drawType is DrawType.Ink) {
                 // To account for portrait/ landscape
                 val majorDimen = if (canvas.width > canvas.height) canvas.width else canvas.height
                 val minorDimen = if (canvas.width > canvas.height) canvas.height else canvas.width

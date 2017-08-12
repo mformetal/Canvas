@@ -8,11 +8,8 @@ import miles.scribble.dagger.fragment.FragmentComponentBuilder
 import miles.scribble.dagger.fragment.FragmentModule
 import miles.scribble.dagger.fragment.FragmentScope
 import miles.scribble.home.brushpicker.BrushPickerDialogFragment
-import miles.scribble.home.brushpicker.BrushPickerEvents
-import miles.scribble.home.brushpicker.BrushPickerReducer
-import miles.scribble.home.colorpicker.ColorPickerDialogFragment
-import miles.scribble.home.colorpicker.ColorPickerEvents
-import miles.scribble.home.colorpicker.ColorPickerReducer
+import miles.scribble.home.events.BrushPickerEvents
+import miles.scribble.home.events.BrushPickerReducer
 import miles.scribble.home.viewmodel.HomeState
 import miles.scribble.home.viewmodel.HomeViewModel
 import miles.scribble.redux.core.Dispatcher

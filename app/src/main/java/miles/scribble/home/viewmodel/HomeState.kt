@@ -2,10 +2,10 @@ package miles.scribble.home.viewmodel
 
 import android.content.Context
 import android.graphics.*
+import android.net.Uri
 import miles.scribble.home.drawing.Stroke
 import miles.scribble.redux.core.SimpleStore
 import miles.scribble.redux.core.State
-import miles.scribble.util.BitmapUtils
 import miles.scribble.util.PaintStyles
 import miles.scribble.util.ViewUtils
 import miles.scribble.util.extensions.getDisplaySize
@@ -18,6 +18,7 @@ import io.realm.Realm
 import io.realm.Sort
 import miles.scribble.data.Drawing
 import miles.scribble.data.DrawingFields
+import miles.scribble.home.drawing.DrawType
 import miles.scribble.home.drawing.redrawable.Redrawable
 import miles.scribble.redux.core.Event
 
@@ -29,7 +30,7 @@ class HomeStore @Inject constructor(context: Context) : SimpleStore<HomeState>(H
 
 data class HomeState(val isMenuOpen : Boolean = false,
                      val isSafeToDraw : Boolean = true,
-                     val drawType: DrawType = HomeState.DrawType.DRAW,
+                     val drawType: DrawType = DrawType.Normal(),
                      val paint : Paint = PaintStyles.normal(ViewUtils.randomColor(), STROKE_WIDTH),
                      val backgroundColor : Int = Color.WHITE,
                      val strokeColor : Int = paint.color,
@@ -77,11 +78,5 @@ data class HomeState(val isMenuOpen : Boolean = false,
             realm.close()
             return state
         }
-    }
-
-    enum class DrawType {
-        DRAW,
-        ERASE,
-        INK
     }
 }
