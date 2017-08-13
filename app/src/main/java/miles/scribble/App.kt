@@ -6,6 +6,7 @@ import android.arch.lifecycle.ViewModel
 import android.arch.lifecycle.ViewModelProvider
 import android.content.Context
 import dagger.Component
+import dagger.MembersInjector
 import dagger.Module
 import dagger.Provides
 import io.realm.Realm
@@ -23,7 +24,7 @@ import javax.inject.Singleton
 /**
  * Created by milespeele on 7/3/15.
  */
-class MainApp : Application(), HasActivitySubcomponentBuilders {
+open class App : Application(), HasActivitySubcomponentBuilders {
 
     @Inject
     lateinit var activityComponentBuilders: Map<Class<out Activity>, @JvmSuppressWildcards Provider<ActivityComponentBuilder<*, *>>>
@@ -42,7 +43,7 @@ class MainApp : Application(), HasActivitySubcomponentBuilders {
         applicationComponent = DaggerAppComponent.builder()
                 .appModule(AppModule(this))
                 .build()
-        applicationComponent.inject(this)
+        applicationComponent.injectMembers(this)
     }
 
     override fun getBuilder(activityClass: Class<out Activity>): ActivityComponentBuilder<*, *> {
@@ -68,8 +69,4 @@ class AppModule(private val application: Application) {
 
 @Singleton
 @Component(modules = arrayOf(AppModule::class))
-interface AppComponent {
-
-    fun inject(app: MainApp)
-
-}
+interface AppComponent : MembersInjector<App>

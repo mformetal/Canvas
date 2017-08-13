@@ -1,15 +1,19 @@
 package miles.scribble.util
 
+import org.junit.Assert
 import org.mockito.Mockito
 
 /**
  * Created by mbpeele on 8/12/17.
  */
-inline fun <reified T : Any> mock(): T = Mockito.mock(T::class.java) as T
-
-fun <T> any(): T {
-    Mockito.any<T>()
-    return uninitialized()
+fun assertFalse(boolean: Boolean) {
+    Assert.assertFalse(boolean)
 }
 
-private fun <T> uninitialized(): T = null as T
+fun assertTrue(boolean: Boolean) {
+    Assert.assertTrue(boolean)
+}
+
+fun assertEquals(first: Any, second: Any) {
+    Assert.assertEquals(first, second)
+}

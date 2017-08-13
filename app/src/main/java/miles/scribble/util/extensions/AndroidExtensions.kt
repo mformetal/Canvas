@@ -1,36 +1,28 @@
 package miles.scribble.util.extensions
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.PendingIntent.getActivity
 import android.content.Context
 import android.os.Build
 import android.provider.Settings
-import miles.scribble.MainApp
-import android.content.Intent
+import miles.scribble.App
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Point
-import android.net.Uri
 import android.support.design.widget.Snackbar
 import android.support.v4.app.ActivityCompat
-import android.support.v4.content.ContextCompat.startActivity
 import android.view.LayoutInflater
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
-import android.support.design.widget.CoordinatorLayout
-import android.R.attr.y
-import android.app.ActionBar
 import android.view.ViewGroup
 
 
 /**
  * Created by mbpeele on 6/28/17.
  */
-fun Context.app() = applicationContext as MainApp
+fun Context.app() = applicationContext as App
 
 fun Context.isAtLeastMarshmallow() : Boolean {
     return Build.VERSION.SDK_INT >= Build.VERSION_CODES.M

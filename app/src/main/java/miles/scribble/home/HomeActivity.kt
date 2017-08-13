@@ -7,7 +7,7 @@ import android.os.Bundle
 import android.support.v4.app.Fragment
 import butterknife.ButterKnife
 import io.reactivex.disposables.Disposable
-import miles.scribble.MainApp
+import miles.scribble.App
 
 import miles.scribble.R
 import miles.scribble.dagger.fragment.FragmentComponentBuilder
@@ -44,7 +44,7 @@ class HomeActivity : ViewModelActivity<HomeViewModel>(), HasFragmentSubcomponent
 
     lateinit var clickDispoable : Disposable
 
-    override fun inject(app: MainApp) : HomeViewModel {
+    override fun inject(app: App) : HomeViewModel {
         val builder = app.getBuilder(HomeActivity::class.java)
         val componentBuilder = builder as HomeComponent.Builder
         component = componentBuilder.module(HomeModule(this)).build()

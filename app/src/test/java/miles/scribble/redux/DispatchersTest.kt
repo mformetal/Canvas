@@ -1,16 +1,15 @@
 package miles.scribble.redux
 
+import com.nhaarman.mockito_kotlin.any
 import miles.scribble.redux.core.Dispatchers
 import miles.scribble.redux.core.Reducer
 import miles.scribble.redux.core.SimpleStore
-import miles.scribble.util.mock
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.junit.MockitoJUnitRunner
-import miles.scribble.util.any
 
 /**
  * Created by mbpeele on 8/12/17.

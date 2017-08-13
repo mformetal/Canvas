@@ -26,7 +26,7 @@ import miles.scribble.redux.core.Event
 /**
  * Created by mbpeele on 6/30/17.
  */
-class HomeStore @Inject constructor(context: Context) : SimpleStore<HomeState>(HomeState.create(context))
+class HomeStore @Inject constructor(context: Context) : SimpleStore<HomeState>(HomeState.create(context.getDisplaySize()))
 
 data class HomeState(val isMenuOpen : Boolean = false,
                      val isSafeToDraw : Boolean = true,
@@ -56,14 +56,13 @@ data class HomeState(val isMenuOpen : Boolean = false,
         val INVALID_POINTER = -1
         val STROKE_WIDTH = 5f
 
-        fun create(context: Context) : HomeState {
+        fun create(displaySize : Point) : HomeState {
             val realm = Realm.getDefaultInstance()
             val lastDrawing = realm.where(Drawing::class.java)
                     .findAllSorted(DrawingFields.LAST_EDITED_MILLIS, Sort.DESCENDING)
                     .firstOrNull()
             val bitmap = if (lastDrawing == null) {
-                val size = context.getDisplaySize()
-                Bitmap.createBitmap(size.x, size.y, Bitmap.Config.ARGB_8888).apply {
+                Bitmap.createBitmap(displaySize.x, displaySize.y, Bitmap.Config.ARGB_8888).apply {
                     eraseColor(Color.WHITE)
                 }
             } else {

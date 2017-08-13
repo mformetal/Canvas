@@ -89,7 +89,7 @@ class BrushPickerDialogFragment : ViewModelDialogFragment<HomeViewModel>() {
 
     private class BrushPickerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
-        val brushName: TextView = itemView.findViewById(R.id.brush_example) as TextView
+        val brushName: TextView = itemView.findViewById(R.id.brush_example)
 
         fun bind(brush: Brush) {
             brushName.text = brush.name

@@ -6,7 +6,7 @@ import android.arch.lifecycle.ViewModel
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import miles.scribble.util.extensions.app
-import miles.scribble.MainApp
+import miles.scribble.App
 
 /**
  * Created by milespeele on 7/14/15.
@@ -24,7 +24,7 @@ abstract class ViewModelActivity<VM : ViewModel> : AppCompatActivity(), Lifecycl
         viewModel = inject(app())
     }
 
-    abstract fun inject(app: MainApp) : VM
+    abstract fun inject(app: App) : VM
 
     override fun getLifecycle(): LifecycleRegistry {
         return lifecycleRegistry

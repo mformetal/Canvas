@@ -13,10 +13,6 @@ data class Stroke(val points : ArrayList<CanvasPoint> = ArrayList()) {
 
     private val TOLERANCE = 5f
 
-    fun peek(): CanvasPoint {
-        return points.last().copy()
-    }
-
     fun addPoint(x: Float, y: Float, canvas: Canvas, paint: Paint) {
         val nextPoint: CanvasPoint = if (points.isEmpty()) {
              CanvasPoint(x, y).apply {
@@ -25,7 +21,7 @@ data class Stroke(val points : ArrayList<CanvasPoint> = ArrayList()) {
                  paint.strokeWidth = paint.strokeWidth * 2
              }
         } else {
-            val prevPoint = peek()
+            val prevPoint = points.last()
 
             if (Math.abs(prevPoint.x - x) < TOLERANCE && Math.abs(prevPoint.y - y) < TOLERANCE) {
                 return

@@ -1,11 +1,12 @@
 package miles.scribble.home.drawing
 
 import android.os.SystemClock
+import miles.scribble.util.extensions.DateExtensions
 
 /**
  * Created by mbpeele on 11/29/15.
  */
-data class CanvasPoint(var x: Float, var y: Float, var time: Long = SystemClock.currentThreadTimeMillis()) {
+data class CanvasPoint(var x: Float, var y: Float, var time: Long = DateExtensions.currentTimeInMillis) {
 
     fun computeDistance(p: CanvasPoint): Float {
         val dx = x - p.x
@@ -15,7 +16,7 @@ data class CanvasPoint(var x: Float, var y: Float, var time: Long = SystemClock.
 
     fun computeVelocity(p: CanvasPoint): Float {
         val duration = Math.abs(time - p.time)
-        return if (duration != 0L) computeDistance(p) / duration else computeDistance(p)
+        return if (duration > 0L) computeDistance(p) / duration else computeDistance(p)
     }
 
     fun computeMidpoint(p2: CanvasPoint): CanvasPoint {

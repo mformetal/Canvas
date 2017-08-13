@@ -1,10 +1,10 @@
 package miles.scribble.redux
 
+import com.nhaarman.mockito_kotlin.any
 import io.reactivex.subscribers.TestSubscriber
 import miles.scribble.redux.core.SimpleStore
 import miles.scribble.redux.core.Store
 import miles.scribble.redux.rx.flowable
-import miles.scribble.util.any
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
