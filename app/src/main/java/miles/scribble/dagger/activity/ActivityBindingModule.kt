@@ -4,7 +4,7 @@ import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap
 import miles.scribble.home.HomeActivity
-import miles.scribble.home.di.HomeComponent
+import miles.scribble.home.HomeComponent
 
 @Module(
         subcomponents = arrayOf(

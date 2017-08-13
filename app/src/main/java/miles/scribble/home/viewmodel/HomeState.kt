@@ -2,7 +2,6 @@ package miles.scribble.home.viewmodel
 
 import android.content.Context
 import android.graphics.*
-import android.net.Uri
 import miles.scribble.home.drawing.Stroke
 import miles.scribble.redux.core.SimpleStore
 import miles.scribble.redux.core.State
@@ -30,7 +29,7 @@ class HomeStore @Inject constructor(context: Context) : SimpleStore<HomeState>(H
 
 data class HomeState(val isMenuOpen : Boolean = false,
                      val isSafeToDraw : Boolean = true,
-                     val drawType: DrawType = DrawType.Normal(),
+                     val drawType: DrawType = DrawType.NORMAL,
                      val paint : Paint = PaintStyles.normal(ViewUtils.randomColor(), STROKE_WIDTH),
                      val backgroundColor : Int = Color.WHITE,
                      val strokeColor : Int = paint.color,
@@ -42,6 +41,7 @@ data class HomeState(val isMenuOpen : Boolean = false,
                      val redoHistory : Stack<Redrawable> = Stack(),
                      val bitmap: Bitmap,
                      val canvas: Canvas,
+                     val photoState: PhotoState = PhotoState(),
                      val onClickSubject: Subject<Event> = PublishSubject.create<Event>()) : State {
 
     val oppositeBackgroundColor : Int
@@ -53,7 +53,6 @@ data class HomeState(val isMenuOpen : Boolean = false,
         get() = bitmap.height
 
     companion object {
-        val INVALID_POINTER = -1
         val STROKE_WIDTH = 5f
 
         fun create(displaySize : Point) : HomeState {

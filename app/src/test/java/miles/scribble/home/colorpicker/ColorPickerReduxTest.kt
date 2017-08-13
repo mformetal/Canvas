@@ -3,8 +3,6 @@ package miles.scribble.home.colorpicker
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
-import miles.scribble.home.events.ColorPickerEvents
-import miles.scribble.home.events.ColorPickerReducer
 import miles.scribble.home.viewmodel.HomeState
 import miles.scribble.redux.core.Dispatcher
 import miles.scribble.redux.core.Dispatchers

@@ -52,31 +52,45 @@ class HomeViewModel @Inject constructor(homeStore: HomeStore) : StoreViewModel<H
         if (canvas != null) {
             canvas.drawBitmap(state.bitmap)
 
-            if (state.drawType is DrawType.Ink) {
-                // To account for portrait/ landscape
-                val majorDimen = if (canvas.width > canvas.height) canvas.width else canvas.height
-                val minorDimen = if (canvas.width > canvas.height) canvas.height else canvas.width
+            when (state.drawType) {
+                DrawType.NORMAL -> {
 
-                val lineSize = majorDimen * .1f
-                val xSpace = majorDimen * .05f
-                val middleX = state.lastX
-                val middleY = state.lastY - minorDimen * .1f
+                }
+                DrawType.INK -> {
+                    // To account for portrait/ landscape
+                    val majorDimen = if (canvas.width > canvas.height) canvas.width else canvas.height
+                    val minorDimen = if (canvas.width > canvas.height) canvas.height else canvas.width
 
-                // base "pointer"
-                state.paint.color = state.oppositeBackgroundColor
-                canvas.drawLine(middleX + xSpace / 2, middleY, middleX + xSpace + lineSize, middleY, state.paint)
-                canvas.drawLine(middleX - xSpace / 2, middleY, middleX - xSpace - lineSize, middleY, state.paint)
-                canvas.drawLine(middleX, middleY + xSpace / 2, middleX, middleY + xSpace + lineSize, state.paint)
-                canvas.drawLine(middleX, middleY - xSpace / 2, middleX, middleY - xSpace - lineSize, state.paint)
+                    val lineSize = majorDimen * .1f
+                    val xSpace = majorDimen * .05f
+                    val middleX = state.lastX
+                    val middleY = state.lastY - minorDimen * .1f
 
-                // ink circle
-                canvas.drawCircle(middleX, middleY, xSpace + lineSize, state.paint)
+                    // base "pointer"
+                    state.paint.color = state.oppositeBackgroundColor
+                    canvas.drawLine(middleX + xSpace / 2, middleY, middleX + xSpace + lineSize, middleY, state.paint)
+                    canvas.drawLine(middleX - xSpace / 2, middleY, middleX - xSpace - lineSize, middleY, state.paint)
+                    canvas.drawLine(middleX, middleY + xSpace / 2, middleX, middleY + xSpace + lineSize, state.paint)
+                    canvas.drawLine(middleX, middleY - xSpace / 2, middleX, middleY - xSpace - lineSize, state.paint)
 
-                val oldWidth = state.paint.strokeWidth
-                state.paint.strokeWidth = 20f
-                state.paint.color = state.strokeColor
-                canvas.drawCircle(middleX, middleY, xSpace + lineSize - state.paint.strokeWidth, state.paint)
-                state.paint.strokeWidth = oldWidth
+                    // ink circle
+                    canvas.drawCircle(middleX, middleY, xSpace + lineSize, state.paint)
+
+                    val oldWidth = state.paint.strokeWidth
+                    state.paint.strokeWidth = 20f
+                    state.paint.color = state.strokeColor
+                    canvas.drawCircle(middleX, middleY, xSpace + lineSize - state.paint.strokeWidth, state.paint)
+                    state.paint.strokeWidth = oldWidth
+                }
+                DrawType.ERASE -> {
+
+                }
+                DrawType.PICTURE -> {
+                    val saveCount = canvas.save()
+                    canvas.concat(state.photoState.matrix)
+                    canvas.drawBitmap(state.photoState.photoBitmap!!, 0f, 0f, null)
+                    canvas.restoreToCount(saveCount)
+                }
             }
         }
     }

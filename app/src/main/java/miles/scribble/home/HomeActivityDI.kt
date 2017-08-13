@@ -1,4 +1,4 @@
-package miles.scribble.home.di
+package miles.scribble.home
 
 import android.arch.lifecycle.ViewModelProvider
 import android.arch.lifecycle.ViewModelProviders
@@ -10,13 +10,12 @@ import dagger.multibindings.IntoMap
 import miles.scribble.dagger.activity.*
 import miles.scribble.dagger.fragment.FragmentComponentBuilder
 import miles.scribble.dagger.fragment.FragmentKey
-import miles.scribble.home.HomeActivity
 import miles.scribble.home.brushpicker.BrushPickerDialogFragment
 import miles.scribble.home.colorpicker.ColorPickerDialogFragment
-import miles.scribble.home.events.HomeActivityEvents
-import miles.scribble.home.events.HomeActivityReducer
+import miles.scribble.home.brushpicker.BrushPickerComponent
+import miles.scribble.home.colorpicker.ColorPickerComponent
+import miles.scribble.home.di.*
 import miles.scribble.home.viewmodel.HomeState
-import miles.scribble.home.viewmodel.HomeStore
 import miles.scribble.home.viewmodel.HomeViewModel
 import miles.scribble.redux.core.Dispatcher
 import miles.scribble.redux.core.Dispatchers
@@ -39,14 +38,14 @@ class HomeModule(activity: HomeActivity) : ActivityModule<HomeActivity>(activity
 
     @Provides
     @ActivityScope
-    fun dispatcher(homeStore: HomeStore, reducer: Reducer<HomeActivityEvents, HomeState>) : Dispatcher<HomeActivityEvents, HomeActivityEvents> {
-        return Dispatchers.create(homeStore, reducer)
+    fun dispatcher(homeViewModel: HomeViewModel, reducer: Reducer<HomeActivityEvents, HomeState>) : Dispatcher<HomeActivityEvents, HomeActivityEvents> {
+        return Dispatchers.create(homeViewModel.store, reducer)
     }
 
     @Provides
     @ActivityScope
     fun reducer() : Reducer<HomeActivityEvents, HomeState> {
-        return HomeActivityReducer()
+        return HomeActivityEventsReducer()
     }
 }
 

@@ -17,3 +17,11 @@ fun assertTrue(boolean: Boolean) {
 fun assertEquals(first: Any, second: Any) {
     Assert.assertEquals(first, second)
 }
+
+fun assertNotEquals(first: Any, second: Any) {
+    Assert.assertNotEquals(first, second)
+}
+
+fun assertNotNull(nonNullArgument: Any) {
+    Assert.assertNotNull(nonNullArgument)
+}

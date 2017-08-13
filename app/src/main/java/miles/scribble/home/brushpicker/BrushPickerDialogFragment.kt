@@ -5,7 +5,6 @@ import android.graphics.Paint
 import android.os.Bundle
 import android.support.v7.app.AlertDialog
 import android.support.v7.widget.GridLayoutManager
-import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -15,8 +14,6 @@ import butterknife.BindView
 import butterknife.ButterKnife
 import miles.scribble.R
 import miles.scribble.dagger.fragment.HasFragmentSubcomponentBuilders
-import miles.scribble.home.di.BrushPickerComponent
-import miles.scribble.home.di.BrushPickerModule
 import miles.scribble.home.viewmodel.HomeViewModel
 import miles.scribble.ui.ViewModelDialogFragment
 import miles.scribble.util.PaintStyles
@@ -52,7 +49,7 @@ class BrushPickerDialogFragment : ViewModelDialogFragment<HomeViewModel>() {
 
         val currentColor = viewModel.state.paint.color
         val brushes = listOf(
-                Brush("Normal", PaintStyles.normal(currentColor, 5f))
+                Brush("NORMAL", PaintStyles.normal(currentColor, 5f))
         )
         recycler.layoutManager = GridLayoutManager(activity, 3)
         recycler.adapter = BrushPickerAdapter(inflater, brushes)

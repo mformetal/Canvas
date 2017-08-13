@@ -10,10 +10,12 @@ import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Matrix
 import android.graphics.Point
 import android.support.design.widget.Snackbar
 import android.support.v4.app.ActivityCompat
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
 import android.view.ViewGroup
@@ -100,4 +102,23 @@ fun Snackbar.adjustImmersiveHeight() : Snackbar {
 
 fun Canvas.drawBitmap(bitmap: Bitmap) {
     drawBitmap(bitmap, 0f, 0f, null)
+}
+
+fun Matrix.identity() : Matrix {
+    val values = floatArrayOf(1f, 0f, 0f, 0f, 1f, 0f, 0f, 0f, 1f)
+    setValues(values)
+    return this
+}
+
+fun MotionEvent.distance() : Float {
+    val dx = getX(0) - getX(1)
+    val dy = getY(0) - getY(1)
+    return Math.sqrt((dx * dx + dy * dy).toDouble()).toFloat()
+}
+
+fun MotionEvent.angle() : Float {
+    val dx = getX(0) - getX(1)
+    val dy = getY(0) - getY(1)
+    val radians = Math.atan2(dy.toDouble(), dx.toDouble())
+    return Math.toDegrees(radians).toFloat()
 }

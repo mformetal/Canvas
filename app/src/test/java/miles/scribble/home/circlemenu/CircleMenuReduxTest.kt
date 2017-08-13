@@ -2,15 +2,10 @@ package miles.scribble.home.circlemenu
 
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
 import io.reactivex.observers.TestObserver
-import io.reactivex.subscribers.TestSubscriber
 import miles.scribble.home.drawing.DrawType
 import miles.scribble.home.events.CircleMenuEvents
 import miles.scribble.home.events.CircleMenuEventsReducer
-import miles.scribble.home.events.ColorPickerEvents
-import miles.scribble.home.events.ColorPickerReducer
 import miles.scribble.home.viewmodel.HomeState
 import miles.scribble.redux.core.*
 import miles.scribble.util.assertEquals
@@ -20,7 +15,6 @@ import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.junit.MockitoJUnitRunner
 import org.robolectric.RobolectricTestRunner
 
 /**
@@ -91,7 +85,7 @@ class CircleMenuReduxTest {
         val event = CircleMenuEvents.InkClicked()
         dispatcher.dispatch(event)
 
-        assertTrue(state.drawType is DrawType.Ink)
+        assertTrue(state.drawType == DrawType.INK)
         assertEquals(state.lastX, state.bitmap.width / 2f)
         assertEquals(state.lastY, state.bitmap.height / 2f)
         assertFalse(state.isMenuOpen)
@@ -102,14 +96,14 @@ class CircleMenuReduxTest {
         CircleMenuEvents.EraserClicked(isErasing = true).let {
             dispatcher.dispatch(it)
 
-            assertTrue(state.drawType is DrawType.Erase)
+            assertTrue(state.drawType == DrawType.ERASE)
             assertEquals(state.paint.color, state.backgroundColor)
         }
 
         CircleMenuEvents.EraserClicked(isErasing = false).let {
             dispatcher.dispatch(it)
 
-            assertTrue(state.drawType is DrawType.Normal)
+            assertTrue(state.drawType == DrawType.NORMAL)
             assertEquals(state.paint.color, state.strokeColor)
         }
     }

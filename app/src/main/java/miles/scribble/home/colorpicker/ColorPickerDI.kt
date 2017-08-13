@@ -1,4 +1,4 @@
-package miles.scribble.home.di
+package miles.scribble.home.colorpicker
 
 import dagger.Module
 import dagger.Provides
@@ -7,9 +7,6 @@ import miles.scribble.dagger.fragment.FragmentComponent
 import miles.scribble.dagger.fragment.FragmentComponentBuilder
 import miles.scribble.dagger.fragment.FragmentModule
 import miles.scribble.dagger.fragment.FragmentScope
-import miles.scribble.home.colorpicker.ColorPickerDialogFragment
-import miles.scribble.home.events.ColorPickerEvents
-import miles.scribble.home.events.ColorPickerReducer
 import miles.scribble.home.viewmodel.HomeState
 import miles.scribble.home.viewmodel.HomeViewModel
 import miles.scribble.redux.core.Dispatcher

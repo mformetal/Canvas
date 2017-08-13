@@ -80,13 +80,13 @@ class CircleMenuEventsReducer : Reducer<CircleMenuEvents, HomeState> {
             }
             is CircleMenuEvents.EraserClicked -> {
                 if (event.isErasing) {
-                    state.copy(drawType = DrawType.Erase(),
+                    state.copy(drawType = DrawType.ERASE,
                             paint = Paint(state.paint).apply {
                                 color = state.backgroundColor
                                 strokeWidth = 20f
                             })
                 } else {
-                    state.copy(drawType = DrawType.Normal(),
+                    state.copy(drawType = DrawType.NORMAL,
                             paint = Paint(state.paint).apply {
                                 color = state.strokeColor
                                 strokeWidth = HomeState.STROKE_WIDTH
@@ -94,7 +94,7 @@ class CircleMenuEventsReducer : Reducer<CircleMenuEvents, HomeState> {
                 }
             }
             is CircleMenuEvents.InkClicked -> {
-                state.copy(drawType = DrawType.Ink(),
+                state.copy(drawType = DrawType.INK,
                         lastX = state.bitmap.width / 2f,
                         lastY = state.bitmap.height / 2f,
                         isMenuOpen = false)

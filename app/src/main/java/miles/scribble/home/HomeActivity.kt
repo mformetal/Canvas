@@ -14,10 +14,7 @@ import miles.scribble.dagger.fragment.FragmentComponentBuilder
 import miles.scribble.dagger.fragment.HasFragmentSubcomponentBuilders
 import miles.scribble.home.brushpicker.BrushPickerDialogFragment
 import miles.scribble.home.colorpicker.ColorPickerDialogFragment
-import miles.scribble.home.di.HomeComponent
-import miles.scribble.home.di.HomeModule
 import miles.scribble.home.events.CircleMenuEvents
-import miles.scribble.home.events.HomeActivityEvents
 import miles.scribble.home.viewmodel.HomeViewModel
 import miles.scribble.redux.core.Dispatcher
 import miles.scribble.ui.ViewModelActivity
@@ -105,7 +102,7 @@ class HomeActivity : ViewModelActivity<HomeViewModel>(), HasFragmentSubcomponent
                 setAutoRotate(true)
             }
             REQUEST_IMPORT_CODE -> {
-                dispatcher.dispatch(HomeActivityEvents.PictureChosen(data!!.data))
+                dispatcher.dispatch(HomeActivityEvents.PictureChosen(contentResolver, data!!.data))
             }
             else -> {
                 super.onActivityResult(requestCode, resultCode, data)

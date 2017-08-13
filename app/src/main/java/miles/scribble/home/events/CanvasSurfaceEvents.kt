@@ -36,7 +36,7 @@ class CanvasSurfaceReducer(val canvasMotionEventHandler: CanvasMotionEventHandle
                 canvasMotionEventHandler.handleTouchDown(event.motionEvent, state)
             }
             is CanvasSurfaceEvents.PointerDown -> {
-                canvasMotionEventHandler.handlePointerDown(state)
+                canvasMotionEventHandler.handlePointerDown(event.motionEvent, state)
             }
             is CanvasSurfaceEvents.TouchMove -> {
                 canvasMotionEventHandler.handleTouchMove(event.motionEvent, state)

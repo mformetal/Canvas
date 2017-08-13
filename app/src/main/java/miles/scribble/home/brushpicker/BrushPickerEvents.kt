@@ -1,4 +1,4 @@
-package miles.scribble.home.events
+package miles.scribble.home.brushpicker
 
 import android.graphics.Paint
 import miles.scribble.home.viewmodel.HomeState

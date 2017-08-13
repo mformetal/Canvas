@@ -9,8 +9,6 @@ import butterknife.BindView
 import butterknife.ButterKnife
 import miles.scribble.R
 import miles.scribble.dagger.fragment.HasFragmentSubcomponentBuilders
-import miles.scribble.home.di.ColorPickerComponent
-import miles.scribble.home.di.ColorPickerModule
 import miles.scribble.home.viewmodel.HomeViewModel
 import miles.scribble.redux.core.Dispatcher
 import miles.scribble.ui.ViewModelDialogFragment
@@ -20,7 +18,6 @@ import miles.scribble.util.extensions.inflater
 import miles.scribble.util.extensions.isLandScape
 import javax.inject.Inject
 import android.view.WindowManager
-import miles.scribble.home.events.ColorPickerEvents
 import miles.scribble.util.ViewUtils
 
 /**
