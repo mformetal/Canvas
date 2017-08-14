@@ -18,6 +18,7 @@ import io.realm.Sort
 import miles.scribble.data.Drawing
 import miles.scribble.data.DrawingFields
 import miles.scribble.home.drawing.DrawType
+import miles.scribble.home.drawing.redrawable.DrawHistory
 import miles.scribble.home.drawing.redrawable.Redrawable
 import miles.scribble.redux.core.Event
 
@@ -37,8 +38,7 @@ data class HomeState(val isMenuOpen : Boolean = false,
                      val activePointer : Int = INVALID_POINTER,
                      val lastX : Float = 0f,
                      val lastY : Float = 0f,
-                     val history: Stack<Redrawable> = Stack(),
-                     val redoHistory : Stack<Redrawable> = Stack(),
+                     val history : DrawHistory = DrawHistory(),
                      val bitmap: Bitmap,
                      val canvas: Canvas,
                      val photoState: PhotoState = PhotoState(),

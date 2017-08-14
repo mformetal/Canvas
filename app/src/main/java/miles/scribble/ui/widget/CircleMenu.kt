@@ -302,33 +302,29 @@ class CircleMenu : ViewGroup {
 
         when (view.id) {
             R.id.menu_redo -> {
-                if (viewModel.state.redoHistory.isEmpty()) {
+                if (viewModel.state.history.canRedo) {
+                    dispatcher.dispatch(CircleMenuEvents.RedrawStarted(false))
+
+                    dispatcher.dispatch(CircleMenuEvents.Redraw())
+
+                    dispatcher.dispatch(CircleMenuEvents.RedrawCompleted())
+                } else {
                     Snackbar.make(parent as CoordinatorLayout, R.string.snackbar_no_more_redo, Snackbar.LENGTH_SHORT)
                             .adjustImmersiveHeight()
                             .show()
-                } else {
-                    dispatcher.dispatch(CircleMenuEvents.RedrawStarted(false))
-
-                    for (any in viewModel.state.history) {
-                        dispatcher.dispatch(CircleMenuEvents.Redraw(any))
-                    }
-
-                    dispatcher.dispatch(CircleMenuEvents.RedrawCompleted())
                 }
             }
             R.id.menu_undo -> {
-                if (viewModel.state.history.isEmpty()) {
+                if (viewModel.state.history.canUndo) {
+                    dispatcher.dispatch(CircleMenuEvents.RedrawStarted(true))
+
+                    dispatcher.dispatch(CircleMenuEvents.Redraw())
+
+                    dispatcher.dispatch(CircleMenuEvents.RedrawCompleted())
+                } else {
                     Snackbar.make(parent as CoordinatorLayout, R.string.snackbar_no_more_undo, Snackbar.LENGTH_SHORT)
                             .adjustImmersiveHeight()
                             .show()
-                } else {
-                    dispatcher.dispatch(CircleMenuEvents.RedrawStarted(true))
-
-                    for (any in viewModel.state.history) {
-                        dispatcher.dispatch(CircleMenuEvents.Redraw(any))
-                    }
-
-                    dispatcher.dispatch(CircleMenuEvents.RedrawCompleted())
                 }
             }
             R.id.menu_stroke_color -> {

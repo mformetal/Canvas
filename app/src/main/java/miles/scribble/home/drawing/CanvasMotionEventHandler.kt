@@ -148,10 +148,9 @@ class CanvasMotionEventHandler {
     fun handleTouchUp(motionEvent: MotionEvent, state: HomeState) : HomeState {
         return when (state.drawType) {
             DrawType.NORMAL, DrawType.ERASE -> {
-                val history = state.history.copy().apply {
-                    push(RedrawableLines(state.stroke.points, state.paint))
-                }
-                state.copy(history = history, stroke = Stroke(),
+                val redrawable = RedrawableLines(state.stroke.points, state.paint)
+                state.history.push(redrawable)
+                state.copy(stroke = Stroke(),
                         lastX = motionEvent.x, lastY = motionEvent.y)
             }
             DrawType.INK -> {

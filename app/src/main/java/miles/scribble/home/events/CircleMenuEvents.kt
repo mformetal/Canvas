@@ -23,7 +23,7 @@ sealed class CircleMenuEvents : Event {
     class PictureClicked : CircleMenuEvents()
 
     class RedrawStarted(val isUndo: Boolean) : CircleMenuEvents()
-    class Redraw(val toRedraw: Redrawable) : CircleMenuEvents()
+    class Redraw : CircleMenuEvents()
     class RedrawCompleted : CircleMenuEvents()
 
 }
@@ -43,26 +43,16 @@ class CircleMenuEventsReducer : Reducer<CircleMenuEvents, HomeState> {
                     eraseColor(state.backgroundColor)
                 }
                 workerCanvas = Canvas(workerBitmap)
-                val history : Stack<Redrawable>
-                val redoHistory : Stack<Redrawable>
 
                 if (event.isUndo) {
-                    history = state.history.copy()
-                    val popped = history.pop()
-                    redoHistory = state.redoHistory.copy().apply {
-                        push(popped)
-                    }
+                    state.history.undo()
                 } else {
-                    redoHistory = state.redoHistory.copy()
-                    val popped = redoHistory.pop()
-                    history = state.history.copy().apply {
-                        push(popped)
-                    }
+                    state.history.redo()
                 }
-                state.copy(isSafeToDraw = false, redoHistory = redoHistory, history = history)
+                state.copy(isSafeToDraw = false)
             }
             is CircleMenuEvents.Redraw -> {
-                event.toRedraw.draw(workerCanvas)
+                state.history.redraw(workerCanvas)
                 state
             }
             is CircleMenuEvents.RedrawCompleted -> {

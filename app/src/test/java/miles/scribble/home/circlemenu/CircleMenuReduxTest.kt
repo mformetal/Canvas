@@ -2,19 +2,27 @@ package miles.scribble.home.circlemenu
 
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Paint
+import com.nhaarman.mockito_kotlin.any
+import com.nhaarman.mockito_kotlin.spy
+import com.nhaarman.mockito_kotlin.verify
 import io.reactivex.observers.TestObserver
 import miles.scribble.home.drawing.DrawType
+import miles.scribble.home.drawing.redrawable.DrawHistory
+import miles.scribble.home.drawing.redrawable.RedrawableLines
 import miles.scribble.home.events.CircleMenuEvents
 import miles.scribble.home.events.CircleMenuEventsReducer
 import miles.scribble.home.viewmodel.HomeState
 import miles.scribble.redux.core.*
 import miles.scribble.util.assertEquals
 import miles.scribble.util.assertFalse
+import miles.scribble.util.assertNotEquals
 import miles.scribble.util.assertTrue
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mockito
 import org.robolectric.RobolectricTestRunner
 
 /**
@@ -30,7 +38,8 @@ class CircleMenuReduxTest {
 
     @Before
     fun setup() {
-        store = SimpleStore(HomeState(canvas = Canvas(), bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)))
+        store = SimpleStore(HomeState(canvas = Canvas(), bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888),
+                history = spy(DrawHistory())))
         val reducer = CircleMenuEventsReducer()
         dispatcher = Dispatchers.create(store, reducer)
     }
@@ -38,10 +47,10 @@ class CircleMenuReduxTest {
     @Test
     fun testMenuTogglesWhenDispatchingToggleEvent() {
         dispatcher.dispatch(CircleMenuEvents.ToggleClicked(true))
-        Assert.assertTrue(state.isMenuOpen)
+        assertTrue(state.isMenuOpen)
 
         dispatcher.dispatch(CircleMenuEvents.ToggleClicked(false))
-        Assert.assertFalse(state.isMenuOpen)
+        assertFalse(state.isMenuOpen)
     }
 
     @Test
@@ -106,5 +115,40 @@ class CircleMenuReduxTest {
             assertTrue(state.drawType == DrawType.NORMAL)
             assertEquals(state.paint.color, state.strokeColor)
         }
+    }
+
+    @Test
+    fun testDispatchingInitialRedrawEvent() {
+        state.history.push(RedrawableLines(listOf(), Paint()))
+
+        dispatcher.dispatch(CircleMenuEvents.RedrawStarted(isUndo = true))
+        assertFalse(state.isSafeToDraw)
+        verify(state.history).undo()
+
+        dispatcher.dispatch(CircleMenuEvents.RedrawStarted(isUndo = false))
+        assertFalse(state.isSafeToDraw)
+        verify(state.history).redo()
+    }
+
+    @Test
+    fun testDispatchingRedrawRequestEvent() {
+        state.history.push(RedrawableLines(listOf(), Paint()))
+
+        dispatcher.dispatch(CircleMenuEvents.RedrawStarted(isUndo = true))
+        dispatcher.dispatch(CircleMenuEvents.Redraw())
+        verify(state.history).redraw(any())
+    }
+
+    @Test
+    fun testDispatchingCompletedRedrawEvent() {
+        val oldBitmap = state.bitmap
+        val oldCanvas = state.canvas
+        state.history.push(RedrawableLines(listOf(), Paint()))
+        dispatcher.dispatch(CircleMenuEvents.RedrawStarted(isUndo = true))
+        dispatcher.dispatch(CircleMenuEvents.Redraw())
+        dispatcher.dispatch(CircleMenuEvents.RedrawCompleted())
+        assertTrue(state.isSafeToDraw)
+        assertNotEquals(oldBitmap, state.bitmap)
+        assertNotEquals(oldCanvas, state.canvas)
     }
 }
