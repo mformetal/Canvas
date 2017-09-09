@@ -2,14 +2,6 @@ package miles.scribble.home.viewmodel
 
 import android.content.Context
 import android.graphics.*
-import miles.scribble.home.drawing.Stroke
-import miles.scribble.redux.core.SimpleStore
-import miles.scribble.redux.core.State
-import miles.scribble.util.PaintStyles
-import miles.scribble.util.ViewUtils
-import miles.scribble.util.extensions.getDisplaySize
-import java.util.*
-import javax.inject.Inject
 import android.support.v4.widget.ViewDragHelper.INVALID_POINTER
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
@@ -18,9 +10,15 @@ import io.realm.Sort
 import miles.scribble.data.Drawing
 import miles.scribble.data.DrawingFields
 import miles.scribble.home.drawing.DrawType
+import miles.scribble.home.drawing.Stroke
 import miles.scribble.home.drawing.redrawable.DrawHistory
-import miles.scribble.home.drawing.redrawable.Redrawable
 import miles.scribble.redux.core.Event
+import miles.scribble.redux.core.SimpleStore
+import miles.scribble.redux.core.State
+import miles.scribble.util.PaintStyles
+import miles.scribble.util.ViewUtils
+import miles.scribble.util.extensions.getDisplaySize
+import javax.inject.Inject
 
 
 /**
@@ -58,7 +56,7 @@ data class HomeState(val isMenuOpen : Boolean = false,
         fun create(displaySize : Point) : HomeState {
             val realm = Realm.getDefaultInstance()
             val lastDrawing = realm.where(Drawing::class.java)
-                    .findAllSorted(DrawingFields.LAST_EDITED_MILLIS, Sort.DESCENDING)
+                    .findAllSorted(DrawingFields.LAST_EDITED_AT, Sort.DESCENDING)
                     .firstOrNull()
             val bitmap = if (lastDrawing == null) {
                 Bitmap.createBitmap(displaySize.x, displaySize.y, Bitmap.Config.ARGB_8888).apply {

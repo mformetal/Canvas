@@ -1,10 +1,6 @@
 package miles.scribble.ui.widget
 
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
-import android.animation.AnimatorSet
-import android.animation.ObjectAnimator
-import android.animation.PropertyValuesHolder
+import android.animation.*
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Parcel
@@ -20,28 +16,18 @@ import android.view.ViewGroup
 import android.view.animation.AnticipateInterpolator
 import android.view.animation.DecelerateInterpolator
 import android.view.animation.OvershootInterpolator
-
-import java.util.ArrayList
-import java.util.Collections
-import java.util.Comparator
-
-import butterknife.BindView
-import butterknife.BindViews
-import butterknife.ButterKnife
-import butterknife.OnClick
 import io.reactivex.disposables.Disposable
 import miles.scribble.R
 import miles.scribble.home.HomeActivity
 import miles.scribble.home.di.CircleMenuModule
 import miles.scribble.home.events.CircleMenuEvents
-import miles.scribble.home.viewmodel.HomeState
 import miles.scribble.home.viewmodel.HomeViewModel
 import miles.scribble.redux.core.Dispatcher
-import miles.scribble.redux.core.StateChangeListener
 import miles.scribble.redux.rx.flowable
 import miles.scribble.util.Circle
 import miles.scribble.util.ViewUtils
 import miles.scribble.util.extensions.*
+import java.util.*
 import javax.inject.Inject
 
 /**
@@ -56,16 +42,9 @@ class CircleMenu : ViewGroup {
     @Inject
     lateinit var dispatcher : Dispatcher<CircleMenuEvents, CircleMenuEvents>
 
-    @BindView(R.id.menu_toggle)
-    internal lateinit var toggle: FloatingActionButton
-    @BindView(R.id.menu_erase)
-    internal lateinit var eraser: FloatingActionButton
-    @BindView(R.id.menu_upload)
-    internal lateinit var saver: FloatingActionButton
-
-    @BindViews(R.id.menu_upload, R.id.menu_text, R.id.menu_stroke_color, R.id.menu_canvas_color,
-            R.id.menu_ink, R.id.menu_brush, R.id.menu_undo, R.id.menu_redo, R.id.menu_erase, R.id.menu_image)
-    internal lateinit var buttonsList: List<@JvmSuppressWildcards FloatingActionButton>
+    internal val toggle by lazyInflate<FloatingActionButton>(R.id.menu_toggle)
+    internal val eraser by lazyInflate<FloatingActionButton>(R.id.menu_erase)
+    internal val saver by lazyInflate<FloatingActionButton>(R.id.menu_upload)
 
     private lateinit var circle: Circle
     private var clickedItem: FloatingActionButton? = null
@@ -108,7 +87,6 @@ class CircleMenu : ViewGroup {
 
     override fun onFinishInflate() {
         super.onFinishInflate()
-        ButterKnife.bind(this)
 
         flowableDisposable = flowable(viewModel.store)
                 .subscribe {
@@ -118,6 +96,10 @@ class CircleMenu : ViewGroup {
                         hide()
                     }
                 }
+
+        toggle.setOnClickListener {
+            toggleMenu()
+        }
     }
 
     override fun onDetachedFromWindow() {
@@ -262,6 +244,18 @@ class CircleMenu : ViewGroup {
         return true
     }
 
+    private fun toggleMenu() {
+        if (!isAnimating) {
+            dispatcher.dispatch(CircleMenuEvents.ToggleClicked(!isMenuShowing))
+
+            if (isMenuShowing) {
+                hide()
+            } else {
+                show()
+            }
+        }
+    }
+
     private fun rotateToggleOpen() {
         ObjectAnimator.ofFloat(toggle, View.ROTATION,
                 toggle.rotation, toggle.rotation - 135f).start()
@@ -270,7 +264,7 @@ class CircleMenu : ViewGroup {
     private fun rotateToggleClosed() {
         ObjectAnimator.ofFloat(toggle, View.ROTATION,
                 toggle.rotation, toggle.rotation - 135f)
-                .setDuration((HIDE_DIFF + DURATION + DELAY_INCREMENT * buttonsList.size).toLong())
+                .setDuration((HIDE_DIFF + DURATION + DELAY_INCREMENT * 10).toLong())
                 .start()
     }
 
@@ -282,19 +276,6 @@ class CircleMenu : ViewGroup {
 
     private fun getClickedItem(x: Float, y: Float): FloatingActionButton? {
         return itemPositions.firstOrNull { it.contains(x, y) }?.fab
-    }
-
-    @OnClick(R.id.menu_toggle)
-    fun toggleMenu() {
-        if (!isAnimating) {
-            dispatcher.dispatch(CircleMenuEvents.ToggleClicked(!isMenuShowing))
-
-            if (isMenuShowing) {
-                hide()
-            } else {
-                show()
-            }
-        }
     }
 
     private fun dispatchClickEvent(view: View) {

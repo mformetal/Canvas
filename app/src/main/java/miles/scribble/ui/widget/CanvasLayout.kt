@@ -9,25 +9,20 @@ import android.graphics.BlurMaskFilter
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
-import android.graphics.Rect
 import android.os.Handler
 import android.support.design.widget.CoordinatorLayout
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.widget.Toolbar
-
-import butterknife.BindView
-import butterknife.ButterKnife
 import io.reactivex.disposables.Disposable
 import miles.scribble.R
 import miles.scribble.home.HomeActivity
 import miles.scribble.home.di.CanvasLayoutModule
 import miles.scribble.home.drawing.CanvasPoint
-import miles.scribble.home.viewmodel.HomeState
 import miles.scribble.home.viewmodel.HomeViewModel
-import miles.scribble.redux.core.StateChangeListener
 import miles.scribble.redux.rx.flowable
 import miles.scribble.util.ViewUtils
+import miles.scribble.util.extensions.lazyInflate
 import javax.inject.Inject
 
 /**
@@ -35,19 +30,15 @@ import javax.inject.Inject
  */
 class CanvasLayout : CoordinatorLayout {
 
-    lateinit var flowableListener : Disposable
+    private lateinit var flowableListener : Disposable
 
     @Inject
     lateinit var homeViewModel : HomeViewModel
 
-    @BindView(R.id.canvas_surface)
-    internal lateinit var surface: CanvasSurface
-    @BindView(R.id.canvas_fab_menu)
-    internal lateinit var circleMenu: CircleMenu
-    @BindView(R.id.canvas_toolbar)
-    internal lateinit var toolbar: Toolbar
+    private val surface by lazyInflate<CanvasSurface>(R.id.canvas_surface)
+    private val circleMenu by lazyInflate<CircleMenu>(R.id.canvas_fab_menu)
+    private val toolbar by lazyInflate<Toolbar>(R.id.canvas_toolbar)
 
-    private val mRect = Rect()
     private lateinit var mShadowPaint: Paint
     private val mHandler: Handler = Handler()
     private var radius: Float = 0.toFloat()
@@ -90,8 +81,6 @@ class CanvasLayout : CoordinatorLayout {
 
     override fun onFinishInflate() {
         super.onFinishInflate()
-
-        ButterKnife.bind(this)
 
         flowableListener = flowable(homeViewModel.store)
                 .subscribe {

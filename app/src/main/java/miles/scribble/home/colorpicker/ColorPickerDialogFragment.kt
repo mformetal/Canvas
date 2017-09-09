@@ -5,20 +5,15 @@ import android.app.Dialog
 import android.content.DialogInterface
 import android.os.Bundle
 import android.support.v7.app.AlertDialog
-import butterknife.BindView
-import butterknife.ButterKnife
+import android.view.WindowManager
 import miles.scribble.R
 import miles.scribble.dagger.fragment.HasFragmentSubcomponentBuilders
 import miles.scribble.home.viewmodel.HomeViewModel
 import miles.scribble.redux.core.Dispatcher
 import miles.scribble.ui.ViewModelDialogFragment
-import miles.scribble.util.extensions.getDisplaySize
-import miles.scribble.util.extensions.hideKeyboard
-import miles.scribble.util.extensions.inflater
-import miles.scribble.util.extensions.isLandScape
-import javax.inject.Inject
-import android.view.WindowManager
 import miles.scribble.util.ViewUtils
+import miles.scribble.util.extensions.*
+import javax.inject.Inject
 
 /**
  * Created by mbpeele on 7/8/17.
@@ -28,8 +23,7 @@ class ColorPickerDialogFragment : ViewModelDialogFragment<HomeViewModel>() {
     private val KEY_CURRENT_COLOR = "currentColor"
     private val KEY_TO_FILL = "fill"
 
-    @BindView(R.id.picker)
-    lateinit var colorPicker : ColorPickerView
+    private val colorPicker by lazyInflate<ColorPickerView>(R.id.picker)
     @Inject
     lateinit var dispatcher : Dispatcher<ColorPickerEvents, ColorPickerEvents>
 
@@ -55,9 +49,7 @@ class ColorPickerDialogFragment : ViewModelDialogFragment<HomeViewModel>() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         super.onCreateDialog(savedInstanceState)
 
-        val view = activity.inflater().inflate(R.layout.color_picker_fragment, null, false).apply {
-            ButterKnife.bind(this@ColorPickerDialogFragment, this)
-        }
+        val view = activity.inflater().inflate(R.layout.color_picker_fragment, null, false)
 
         val toFill = arguments.getBoolean(KEY_TO_FILL)
         val color = savedInstanceState?.getInt(KEY_CURRENT_COLOR) ?:

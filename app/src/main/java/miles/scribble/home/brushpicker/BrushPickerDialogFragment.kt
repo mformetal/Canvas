@@ -10,24 +10,21 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import butterknife.BindView
-import butterknife.ButterKnife
 import miles.scribble.R
 import miles.scribble.dagger.fragment.HasFragmentSubcomponentBuilders
 import miles.scribble.home.viewmodel.HomeViewModel
 import miles.scribble.ui.ViewModelDialogFragment
 import miles.scribble.util.PaintStyles
 import miles.scribble.util.extensions.inflater
+import miles.scribble.util.extensions.lazyInflate
 
 /**
  * Created by mbpeele on 7/29/17.
  */
 class BrushPickerDialogFragment : ViewModelDialogFragment<HomeViewModel>() {
 
-    @BindView(R.id.brush_picker_recycler)
-    lateinit var recycler : RecyclerView
-    @BindView(R.id.current_brush)
-    lateinit var currentBrushView: BrushExampleView
+    private val recycler by lazyInflate<RecyclerView>(R.id.brush_picker_recycler)
+    private val currentBrushView by lazyInflate<BrushExampleView>(R.id.current_brush)
 
     override fun inject(hasFragmentSubcomponentBuilders: HasFragmentSubcomponentBuilders): HomeViewModel {
         val builder = hasFragmentSubcomponentBuilders.getBuilder(BrushPickerDialogFragment::class.java)
@@ -41,9 +38,7 @@ class BrushPickerDialogFragment : ViewModelDialogFragment<HomeViewModel>() {
         super.onCreateDialog(savedInstanceState)
 
         val inflater = activity.inflater()
-        val view = inflater.inflate(R.layout.brush_picker_fragment, null, false).apply {
-            ButterKnife.bind(this@BrushPickerDialogFragment, this)
-        }
+        val view = inflater.inflate(R.layout.brush_picker_fragment, null, false)
 
         currentBrushView.paint = viewModel.state.paint
 
@@ -56,10 +51,10 @@ class BrushPickerDialogFragment : ViewModelDialogFragment<HomeViewModel>() {
 
         return AlertDialog.Builder(activity)
                 .setView(view)
-                .setPositiveButton(android.R.string.ok, { dialog, which ->
+                .setPositiveButton(android.R.string.ok, { _, _ ->
 
                 })
-                .setNegativeButton(android.R.string.cancel, { dialog, which ->
+                .setNegativeButton(android.R.string.cancel, { _, _ ->
 
                 })
                 .create()

@@ -3,22 +3,21 @@ package miles.scribble.util.extensions
 import android.Manifest
 import android.app.Activity
 import android.content.Context
-import android.os.Build
-import android.provider.Settings
-import miles.scribble.App
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Matrix
 import android.graphics.Point
+import android.os.Build
+import android.provider.Settings
+import android.support.annotation.IdRes
 import android.support.design.widget.Snackbar
 import android.support.v4.app.ActivityCompat
-import android.view.LayoutInflater
-import android.view.MotionEvent
-import android.view.WindowManager
+import android.support.v4.app.Fragment
+import android.view.*
 import android.view.inputmethod.InputMethodManager
-import android.view.ViewGroup
+import miles.scribble.App
 
 
 /**
@@ -121,4 +120,16 @@ fun MotionEvent.angle() : Float {
     val dy = getY(0) - getY(1)
     val radians = Math.atan2(dy.toDouble(), dx.toDouble())
     return Math.toDegrees(radians).toFloat()
+}
+
+fun <T : View> View.lazyInflate(@IdRes layoutId: Int) : Lazy<T> {
+    return lazy { findViewById<T>(layoutId) }
+}
+
+fun <T : View> Fragment.lazyInflate(@IdRes layoutId: Int) : Lazy<T> {
+    return lazy { view!!.findViewById<T>(layoutId) }
+}
+
+fun <T : View> Activity.lazyInflate(@IdRes layoutId: Int) : Lazy<T> {
+    return lazy { findViewById<T>(layoutId) }
 }

@@ -5,21 +5,22 @@ import android.content.pm.ActivityInfo
 import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.Fragment
-import butterknife.ButterKnife
 import io.reactivex.disposables.Disposable
 import miles.scribble.App
-
 import miles.scribble.R
 import miles.scribble.dagger.fragment.FragmentComponentBuilder
 import miles.scribble.dagger.fragment.HasFragmentSubcomponentBuilders
 import miles.scribble.home.brushpicker.BrushPickerDialogFragment
+import miles.scribble.home.choosepicture.ChoosePictureFragment
 import miles.scribble.home.colorpicker.ColorPickerDialogFragment
 import miles.scribble.home.events.CircleMenuEvents
 import miles.scribble.home.viewmodel.HomeViewModel
 import miles.scribble.redux.core.Dispatcher
 import miles.scribble.ui.ViewModelActivity
 import miles.scribble.util.ViewUtils
-import miles.scribble.util.extensions.*
+import miles.scribble.util.extensions.hasWriteSettingsPermission
+import miles.scribble.util.extensions.isAtLeastMarshmallow
+import miles.scribble.util.extensions.setAutoRotate
 import javax.inject.Inject
 import javax.inject.Provider
 
@@ -56,8 +57,6 @@ class HomeActivity : ViewModelActivity<HomeViewModel>(), HasFragmentSubcomponent
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
-
-        ButterKnife.bind(this)
 
         clickDispoable = viewModel.state.onClickSubject.subscribe {
             when (it) {
@@ -97,15 +96,16 @@ class HomeActivity : ViewModelActivity<HomeViewModel>(), HasFragmentSubcomponent
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
         when (requestCode) {
             REQUEST_PERMISSION_WRITE_SETTINGS -> {
                 setAutoRotate(true)
             }
             REQUEST_IMPORT_CODE -> {
-                dispatcher.dispatch(HomeActivityEvents.PictureChosen(contentResolver, data!!.data))
-            }
-            else -> {
-                super.onActivityResult(requestCode, resultCode, data)
+                supportFragmentManager.beginTransaction()
+                        .add(R.id.canvas_layout, ChoosePictureFragment.newInstance(data!!.data))
+                        .commit()
             }
         }
     }

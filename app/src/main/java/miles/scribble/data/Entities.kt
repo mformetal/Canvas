@@ -1,6 +1,5 @@
 package miles.scribble.data
 
-import io.realm.RealmList
 import io.realm.RealmObject
 
 /**
@@ -10,3 +9,4 @@ open class Drawing(
         var createdAtMillis : Long = 0L,
         var lastEditedMillis : Long = 0L,
         var bytes: ByteArray ?= null) : RealmObject()
+

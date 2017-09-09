@@ -14,36 +14,28 @@ import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.SeekBar
 import android.widget.TextView
-import butterknife.BindView
-import butterknife.ButterKnife
 import miles.scribble.R
 import miles.scribble.util.extensions.inflater
 import miles.scribble.util.android.FixedTextDrawable
+import miles.scribble.util.extensions.lazyInflate
 
 /**
  * Created by mbpeele on 7/8/17.
  */
 class ColorPickerView : FrameLayout {
 
-    @BindView(R.id.current_color)
-    lateinit var currentColorView : View
-    @BindView(R.id.red_bar)
-    lateinit var redBar : SeekBar
-    @BindView(R.id.red_input)
-    lateinit var redInput : TextView
+    private val currentColorView by lazyInflate<View>(R.id.current_color)
 
-    @BindView(R.id.green_bar)
-    lateinit var greenBar : SeekBar
-    @BindView(R.id.green_input)
-    lateinit var greenInput : TextView
+    private val redBar by lazyInflate<SeekBar>(R.id.red_bar)
+    private val redInput by lazyInflate<TextView>(R.id.red_input)
 
-    @BindView(R.id.blue_bar)
-    lateinit var blueBar : SeekBar
-    @BindView(R.id.blue_input)
-    lateinit var blueInput : TextView
+    private val greenBar by lazyInflate<SeekBar>(R.id.green_bar)
+    private val greenInput by lazyInflate<TextView>(R.id.green_input)
 
-    @BindView(R.id.hex_input)
-    lateinit var hexInput : EditText
+    private val blueBar by lazyInflate<SeekBar>(R.id.blue_bar)
+    private val blueInput by lazyInflate<TextView>(R.id.blue_input)
+
+    private val hexInput by lazyInflate<EditText>(R.id.hex_input)
 
     lateinit var viewModel : ColorPickerViewModel
 
@@ -66,7 +58,6 @@ class ColorPickerView : FrameLayout {
 
     override fun onFinishInflate() {
         super.onFinishInflate()
-        ButterKnife.bind(this)
 
         viewModel = ColorPickerViewModel { oldColor : Int, newColor: Int ->
             val colorViewAnimator = ObjectAnimator.ofArgb(oldColor, newColor)
