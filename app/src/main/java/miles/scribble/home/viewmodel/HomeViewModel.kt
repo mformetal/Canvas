@@ -1,17 +1,17 @@
 package miles.scribble.home.viewmodel
 
-import android.graphics.Canvas
-import miles.scribble.redux.core.StoreViewModel
-import miles.scribble.redux.core.Store
-import javax.inject.Inject
-import io.realm.Realm
 import android.graphics.Bitmap
+import android.graphics.Canvas
+import io.realm.Realm
 import miles.scribble.data.Drawing
 import miles.scribble.home.drawing.DrawType
+import miles.scribble.redux.core.Store
+import miles.scribble.redux.core.StoreViewModel
 import miles.scribble.util.extensions.DateExtensions
 import miles.scribble.util.extensions.drawBitmap
+import miles.scribble.util.extensions.largest
 import java.io.ByteArrayOutputStream
-
+import javax.inject.Inject
 
 /**
  * Created by mbpeele on 6/28/17.
@@ -58,8 +58,8 @@ class HomeViewModel @Inject constructor(homeStore: HomeStore) : StoreViewModel<H
                 }
                 DrawType.INK -> {
                     // To account for portrait/ landscape
-                    val majorDimen = if (canvas.width > canvas.height) canvas.width else canvas.height
-                    val minorDimen = if (canvas.width > canvas.height) canvas.height else canvas.width
+                    val majorDimen = canvas.width.largest(canvas.height)
+                    val minorDimen = canvas.width.largest(canvas.height)
 
                     val lineSize = majorDimen * .1f
                     val xSpace = majorDimen * .05f

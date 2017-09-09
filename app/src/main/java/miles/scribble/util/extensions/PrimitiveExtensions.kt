@@ -10,3 +10,7 @@ fun String.containsNewLine() : Boolean {
 fun Boolean.toInt() : Int {
     return if (this) 1 else 0
 }
+
+fun Int.largest(otherInt: Int) : Int {
+    return if (this > otherInt) this else otherInt
+}
