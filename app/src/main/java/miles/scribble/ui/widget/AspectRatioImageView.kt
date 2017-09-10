@@ -1,10 +1,8 @@
 package miles.scribble.ui.widget
 
 import android.content.Context
-import android.content.res.TypedArray
 import android.support.v7.widget.AppCompatImageView
 import android.util.AttributeSet
-
 import miles.scribble.R
 
 /**
@@ -12,24 +10,26 @@ import miles.scribble.R
  */
 class AspectRatioImageView : AppCompatImageView {
 
-    var aspectRatio: Float = 0.toFloat()
+    private var aspectRatio: Float = DEFAULT_ASPECT_RATIO
         set(value) {
             if (aspectRatioEnabled) {
+                field = value
                 requestLayout()
             }
         }
 
-    var aspectRatioEnabled: Boolean = false
+    private var aspectRatioEnabled: Boolean = false
         set(value) {
+            field = value
             requestLayout()
         }
 
-    var dominantMeasurement: Int = 0
+    private var dominantMeasurement: Int = 0
         set(value) {
             if (dominantMeasurement != MEASUREMENT_HEIGHT && dominantMeasurement != MEASUREMENT_WIDTH) {
                 throw IllegalArgumentException("Invalid measurement type.")
             }
-            this.dominantMeasurement = dominantMeasurement
+            field = value
             requestLayout()
         }
 
@@ -48,9 +48,9 @@ class AspectRatioImageView : AppCompatImageView {
     private fun init(attributeSet: AttributeSet?) {
         if (attributeSet != null) {
             val a = context.obtainStyledAttributes(attributeSet, R.styleable.AspectRatioImageView)
-            aspectRatio = a.getFloat(R.styleable.AspectRatioImageView_aspectRatio, DEFAULT_ASPECT_RATIO)
             aspectRatioEnabled = a.getBoolean(R.styleable.AspectRatioImageView_aspectRatioEnabled,
                     DEFAULT_ASPECT_RATIO_ENABLED)
+            aspectRatio = a.getFloat(R.styleable.AspectRatioImageView_aspectRatio, DEFAULT_ASPECT_RATIO)
             dominantMeasurement = a.getInt(R.styleable.AspectRatioImageView_dominantMeasurement,
                     DEFAULT_DOMINANT_MEASUREMENT)
             a.recycle()

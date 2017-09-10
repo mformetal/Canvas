@@ -103,9 +103,11 @@ class HomeActivity : ViewModelActivity<HomeViewModel>(), HasFragmentSubcomponent
                 setAutoRotate(true)
             }
             REQUEST_IMPORT_CODE -> {
-                supportFragmentManager.beginTransaction()
-                        .add(R.id.canvas_layout, ChoosePictureFragment.newInstance(data!!.data))
-                        .commit()
+                data?.data?.let {
+                    supportFragmentManager.beginTransaction()
+                            .add(R.id.canvas_layout, ChoosePictureFragment.newInstance(it))
+                            .commit()
+                }
             }
         }
     }

@@ -14,6 +14,7 @@ import android.provider.Settings
 import android.support.annotation.IdRes
 import android.support.design.widget.Snackbar
 import android.support.v4.app.ActivityCompat
+import android.support.v4.app.DialogFragment
 import android.support.v4.app.Fragment
 import android.view.*
 import android.view.inputmethod.InputMethodManager
@@ -128,6 +129,10 @@ fun <T : View> View.lazyInflate(@IdRes layoutId: Int) : Lazy<T> {
 
 fun <T : View> Fragment.lazyInflate(@IdRes layoutId: Int) : Lazy<T> {
     return lazy { view!!.findViewById<T>(layoutId) }
+}
+
+fun <T : View> DialogFragment.lazyInflate(view: View, @IdRes layoutId: Int) : Lazy<T> {
+    return lazy { view.findViewById<T>(layoutId) }
 }
 
 fun <T : View> Activity.lazyInflate(@IdRes layoutId: Int) : Lazy<T> {

@@ -29,3 +29,11 @@ internal class GrayScaleTransformation : BitmapTransformation() {
         messageDigest.update("GrayScale".toByteArray())
     }
 }
+
+internal class NoTransformation : BitmapTransformation() {
+    override fun updateDiskCacheKey(messageDigest: MessageDigest?) {
+
+    }
+
+    override fun transform(pool: BitmapPool, toTransform: Bitmap, outWidth: Int, outHeight: Int): Bitmap = toTransform
+}

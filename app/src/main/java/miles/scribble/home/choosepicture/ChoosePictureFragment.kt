@@ -9,13 +9,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.TextView
 import com.bumptech.glide.load.resource.bitmap.BitmapTransformation
 import miles.scribble.BuildConfig
 import miles.scribble.R
 import miles.scribble.home.choosepicture.transformation.GrayScaleTransformation
-import miles.scribble.home.choosepicture.transformation.TransformationType
+import miles.scribble.home.choosepicture.transformation.NoTransformation
 import miles.scribble.ui.glide.GlideApp
+import miles.scribble.util.RecyclerSpacingDecoration
 import miles.scribble.util.extensions.lazyInflate
 
 /**
@@ -51,7 +51,10 @@ class ChoosePictureFragment : Fragment() {
 
         picture.setImageURI(uri)
 
-        val transformations = listOf(Pair(TransformationType.GRAY_SCALE, GrayScaleTransformation()))
+        val transformations = listOf(
+                NoTransformation(),
+               GrayScaleTransformation())
+        filtersRecycler.addItemDecoration(RecyclerSpacingDecoration(resources.getDimensionPixelSize(R.dimen.spacing_micro)))
         filtersRecycler.layoutManager = GridLayoutManager(activity, 4)
         filtersRecycler.adapter = ImageTransformationAdapter(transformations)
     }
@@ -64,15 +67,15 @@ class ChoosePictureFragment : Fragment() {
     }
 
     private inner class ImageTransformationAdapter(
-            private val transformations: List<Pair<TransformationType, BitmapTransformation>>) : RecyclerView.Adapter<ImageTransformationAdapter.ImageTransformationViewHolder>() {
+            private val transformations: List<BitmapTransformation>) : RecyclerView.Adapter<ImageTransformationAdapter.ImageTransformationViewHolder>() {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageTransformationViewHolder {
             val inflater = LayoutInflater.from(parent.context)
-            val view = inflater.inflate(R.layout.view_holder_image_filter, parent, false)
+            val view = inflater.inflate(R.layout.view_transformed_image_holder, parent, false)
             return ImageTransformationViewHolder(view).apply {
                 itemView.setOnClickListener {
                     if (adapterPosition != RecyclerView.NO_POSITION) {
-                        transformCurrentImage(transformations[adapterPosition].second)
+                        transformCurrentImage(transformations[adapterPosition])
                     }
                 }
             }
@@ -86,12 +89,10 @@ class ChoosePictureFragment : Fragment() {
 
         private inner class ImageTransformationViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
-            fun bind(transformation: Pair<TransformationType, BitmapTransformation>) {
-                itemView.findViewById<TextView>(R.id.filter_name).text = transformation.first.description
-
+            fun bind(transformation: BitmapTransformation) {
                 GlideApp.with(this@ChoosePictureFragment)
                         .load(uri)
-                        .transform(transformation.second)
+                        .transform(transformation)
                         .into(itemView.findViewById(R.id.filtered_image))
             }
         }

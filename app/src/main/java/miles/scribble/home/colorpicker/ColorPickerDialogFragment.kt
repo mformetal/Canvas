@@ -12,7 +12,10 @@ import miles.scribble.home.viewmodel.HomeViewModel
 import miles.scribble.redux.core.Dispatcher
 import miles.scribble.ui.ViewModelDialogFragment
 import miles.scribble.util.ViewUtils
-import miles.scribble.util.extensions.*
+import miles.scribble.util.extensions.getDisplaySize
+import miles.scribble.util.extensions.hideKeyboard
+import miles.scribble.util.extensions.inflater
+import miles.scribble.util.extensions.isLandScape
 import javax.inject.Inject
 
 /**
@@ -23,7 +26,7 @@ class ColorPickerDialogFragment : ViewModelDialogFragment<HomeViewModel>() {
     private val KEY_CURRENT_COLOR = "currentColor"
     private val KEY_TO_FILL = "fill"
 
-    private val colorPicker by lazyInflate<ColorPickerView>(R.id.picker)
+    private lateinit var colorPicker : ColorPickerView
     @Inject
     lateinit var dispatcher : Dispatcher<ColorPickerEvents, ColorPickerEvents>
 
@@ -49,7 +52,9 @@ class ColorPickerDialogFragment : ViewModelDialogFragment<HomeViewModel>() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         super.onCreateDialog(savedInstanceState)
 
-        val view = activity.inflater().inflate(R.layout.color_picker_fragment, null, false)
+        val view = activity.inflater().inflate(R.layout.color_picker_fragment, null, false).apply {
+            colorPicker = findViewById(R.id.picker)
+        }
 
         val toFill = arguments.getBoolean(KEY_TO_FILL)
         val color = savedInstanceState?.getInt(KEY_CURRENT_COLOR) ?:

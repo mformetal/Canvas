@@ -1,16 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white" >
+    android:background="@android:color/white">
 
-    <ImageView
+    <miles.scribble.ui.widget.AspectRatioImageView
         android:id="@+id/picture"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight=".7" />
+        android:layout_height="wrap_content"
+        app:aspectRatioEnabled="true"
+        app:aspectRatio="1.0"
+        app:dominantMeasurement="width" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/filters_recycler"

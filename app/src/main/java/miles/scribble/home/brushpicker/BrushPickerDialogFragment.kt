@@ -16,15 +16,14 @@ import miles.scribble.home.viewmodel.HomeViewModel
 import miles.scribble.ui.ViewModelDialogFragment
 import miles.scribble.util.PaintStyles
 import miles.scribble.util.extensions.inflater
-import miles.scribble.util.extensions.lazyInflate
 
 /**
  * Created by mbpeele on 7/29/17.
  */
 class BrushPickerDialogFragment : ViewModelDialogFragment<HomeViewModel>() {
 
-    private val recycler by lazyInflate<RecyclerView>(R.id.brush_picker_recycler)
-    private val currentBrushView by lazyInflate<BrushExampleView>(R.id.current_brush)
+    private lateinit var recycler : RecyclerView
+    private lateinit var currentBrushView : BrushExampleView
 
     override fun inject(hasFragmentSubcomponentBuilders: HasFragmentSubcomponentBuilders): HomeViewModel {
         val builder = hasFragmentSubcomponentBuilders.getBuilder(BrushPickerDialogFragment::class.java)
@@ -38,7 +37,10 @@ class BrushPickerDialogFragment : ViewModelDialogFragment<HomeViewModel>() {
         super.onCreateDialog(savedInstanceState)
 
         val inflater = activity.inflater()
-        val view = inflater.inflate(R.layout.brush_picker_fragment, null, false)
+        val view = inflater.inflate(R.layout.brush_picker_fragment, null, false).apply {
+            recycler = findViewById(R.id.brush_picker_recycler)
+            currentBrushView = findViewById(R.id.current_brush)
+        }
 
         currentBrushView.paint = viewModel.state.paint
 
