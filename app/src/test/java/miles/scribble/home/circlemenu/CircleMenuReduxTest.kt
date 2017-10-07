@@ -7,22 +7,22 @@ import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.spy
 import com.nhaarman.mockito_kotlin.verify
 import io.reactivex.observers.TestObserver
+import miles.redux.core.Dispatchers
+import miles.redux.core.SimpleStore
+import miles.redux.core.Store
 import miles.scribble.home.drawing.DrawType
 import miles.scribble.home.drawing.redrawable.DrawHistory
 import miles.scribble.home.drawing.redrawable.RedrawableLines
 import miles.scribble.home.events.CircleMenuEvents
 import miles.scribble.home.events.CircleMenuEventsReducer
 import miles.scribble.home.viewmodel.HomeState
-import miles.scribble.redux.core.*
 import miles.scribble.util.assertEquals
 import miles.scribble.util.assertFalse
 import miles.scribble.util.assertNotEquals
 import miles.scribble.util.assertTrue
-import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito
 import org.robolectric.RobolectricTestRunner
 
 /**

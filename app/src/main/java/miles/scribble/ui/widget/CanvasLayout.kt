@@ -15,15 +15,12 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.widget.Toolbar
 import io.reactivex.disposables.Disposable
+import miles.redux.rx.flowable
 import miles.scribble.R
-import miles.scribble.home.HomeActivity
-import miles.scribble.home.di.CanvasLayoutModule
 import miles.scribble.home.drawing.CanvasPoint
 import miles.scribble.home.viewmodel.HomeViewModel
-import miles.scribble.redux.rx.flowable
 import miles.scribble.util.ViewUtils
 import miles.scribble.util.extensions.lazyInflate
-import javax.inject.Inject
 
 /**
  * Created by milespeele on 8/7/15.
@@ -32,7 +29,6 @@ class CanvasLayout : CoordinatorLayout {
 
     private lateinit var flowableListener : Disposable
 
-    @Inject
     lateinit var homeViewModel : HomeViewModel
 
     private val surface by lazyInflate<CanvasSurface>(R.id.canvas_surface)
@@ -67,8 +63,6 @@ class CanvasLayout : CoordinatorLayout {
     }
 
     private fun init() {
-        (context as HomeActivity).component.canvasLayoutComponent(CanvasLayoutModule()).injectMembers(this)
-
         mShadowPaint = Paint(Paint.ANTI_ALIAS_FLAG)
         mShadowPaint.color = Color.BLACK
         mShadowPaint.alpha = 0

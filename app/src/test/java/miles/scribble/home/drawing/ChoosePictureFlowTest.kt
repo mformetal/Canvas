@@ -7,10 +7,10 @@ import miles.scribble.home.HomeActivityEvents
 import miles.scribble.home.HomeActivityEventsReducer
 import miles.scribble.home.viewmodel.HomeState
 import miles.scribble.home.viewmodel.HomeViewModel
-import miles.scribble.redux.core.Dispatcher
-import miles.scribble.redux.core.Dispatchers
-import miles.scribble.redux.core.SimpleStore
-import miles.scribble.redux.core.Store
+import miles.redux.core.Dispatcher
+import miles.redux.core.Dispatchers
+import miles.redux.core.SimpleStore
+import miles.redux.core.Store
 import miles.scribble.util.assertEquals
 import miles.scribble.util.assertFalse
 import miles.scribble.util.assertNotEquals

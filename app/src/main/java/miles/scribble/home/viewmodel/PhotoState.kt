@@ -3,7 +3,7 @@ package miles.scribble.home.viewmodel
 import android.graphics.Bitmap
 import android.graphics.Matrix
 import android.graphics.PointF
-import miles.scribble.redux.core.State
+import miles.redux.core.State
 
 /**
  * Created by mbpeele on 8/13/17.

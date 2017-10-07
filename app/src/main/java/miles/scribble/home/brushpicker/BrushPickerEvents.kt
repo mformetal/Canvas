@@ -2,8 +2,8 @@ package miles.scribble.home.brushpicker
 
 import android.graphics.Paint
 import miles.scribble.home.viewmodel.HomeState
-import miles.scribble.redux.core.Event
-import miles.scribble.redux.core.Reducer
+import miles.redux.core.Event
+import miles.redux.core.Reducer
 
 /**
  * Created by mbpeele on 7/29/17.

@@ -7,8 +7,8 @@ import android.graphics.Matrix
 import android.net.Uri
 import miles.scribble.home.drawing.DrawType
 import miles.scribble.home.viewmodel.HomeState
-import miles.scribble.redux.core.Event
-import miles.scribble.redux.core.Reducer
+import miles.redux.core.Event
+import miles.redux.core.Reducer
 import miles.scribble.util.extensions.identity
 
 

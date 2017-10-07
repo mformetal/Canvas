@@ -2,12 +2,9 @@ package miles.scribble.home.events
 
 import android.graphics.*
 import miles.scribble.home.drawing.DrawType
-import miles.scribble.home.drawing.redrawable.Redrawable
 import miles.scribble.home.viewmodel.HomeState
-import miles.scribble.redux.core.Event
-import miles.scribble.redux.core.Reducer
-import miles.scribble.util.extensions.copy
-import java.util.*
+import miles.redux.core.Event
+import miles.redux.core.Reducer
 
 /**
  * Created by mbpeele on 6/30/17.

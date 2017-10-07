@@ -4,28 +4,23 @@ import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.net.Uri
 import android.os.Bundle
-import android.support.v4.app.Fragment
 import io.reactivex.disposables.Disposable
+import miles.redux.core.Dispatcher
 import miles.scribble.App
 import miles.scribble.R
-import miles.scribble.dagger.fragment.FragmentComponentBuilder
-import miles.scribble.dagger.fragment.HasFragmentSubcomponentBuilders
 import miles.scribble.home.brushpicker.BrushPickerDialogFragment
 import miles.scribble.home.choosepicture.ChoosePictureFragment
 import miles.scribble.home.colorpicker.ColorPickerDialogFragment
 import miles.scribble.home.events.CircleMenuEvents
 import miles.scribble.home.viewmodel.HomeViewModel
-import miles.scribble.redux.core.Dispatcher
 import miles.scribble.ui.ViewModelActivity
 import miles.scribble.util.ViewUtils
 import miles.scribble.util.extensions.hasWriteSettingsPermission
 import miles.scribble.util.extensions.isAtLeastMarshmallow
 import miles.scribble.util.extensions.setAutoRotate
-import javax.inject.Inject
-import javax.inject.Provider
 
 
-class HomeActivity : ViewModelActivity<HomeViewModel>(), HasFragmentSubcomponentBuilders {
+class HomeActivity : ViewModelActivity<HomeViewModel>() {
 
     private val DIALOG_COLOR_PICKER_STROKE = "strokeColorPicker"
     private val DIALOG_COLOR_PICKER_BACKGROUND = "backgroundColorPicker"
@@ -34,24 +29,12 @@ class HomeActivity : ViewModelActivity<HomeViewModel>(), HasFragmentSubcomponent
     private val REQUEST_PERMISSION_WRITE_SETTINGS = 1
     private val REQUEST_IMPORT_CODE = 2
 
-    lateinit var component : HomeComponent
-    @Inject
     lateinit var dispatcher : Dispatcher<HomeActivityEvents, HomeActivityEvents>
-    @Inject
-    lateinit var fragmentComponentBuilders: Map<Class<out Fragment>, @JvmSuppressWildcards Provider<FragmentComponentBuilder<*, *>>>
 
     lateinit var clickDispoable : Disposable
 
     override fun inject(app: App) : HomeViewModel {
-        val builder = app.getBuilder(HomeActivity::class.java)
-        val componentBuilder = builder as HomeComponent.Builder
-        component = componentBuilder.module(HomeModule(this)).build()
-        component.injectMembers(this)
-        return component.viewModel()
-    }
-
-    override fun getBuilder(fragmentClass: Class<out Fragment>): FragmentComponentBuilder<*, *> {
-        return fragmentComponentBuilders.get(fragmentClass)!!.get()
+        TODO()
     }
 
     public override fun onCreate(savedInstanceState: Bundle?) {

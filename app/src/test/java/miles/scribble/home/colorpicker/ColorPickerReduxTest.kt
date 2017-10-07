@@ -4,10 +4,10 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import miles.scribble.home.viewmodel.HomeState
-import miles.scribble.redux.core.Dispatcher
-import miles.scribble.redux.core.Dispatchers
-import miles.scribble.redux.core.SimpleStore
-import miles.scribble.redux.core.Store
+import miles.redux.core.Dispatcher
+import miles.redux.core.Dispatchers
+import miles.redux.core.SimpleStore
+import miles.redux.core.Store
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test

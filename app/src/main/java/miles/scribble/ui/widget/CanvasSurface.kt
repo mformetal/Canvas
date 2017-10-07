@@ -8,24 +8,16 @@ import android.view.MotionEvent
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.View
-
-import javax.inject.Inject
-
-import miles.scribble.home.HomeActivity
-import miles.scribble.home.di.CanvasSurfaceModule
+import miles.redux.core.Dispatcher
 import miles.scribble.home.events.CanvasSurfaceEvents
-import miles.scribble.home.viewmodel.HomeState
 import miles.scribble.home.viewmodel.HomeViewModel
-import miles.scribble.redux.core.Dispatcher
 
 /**
  * Created by Miles Peele on 10/2/2015.
  */
 class CanvasSurface : SurfaceView, SurfaceHolder.Callback {
 
-    @Inject
     lateinit var viewModel: HomeViewModel
-    @Inject
     lateinit var dispatcher : Dispatcher<CanvasSurfaceEvents, CanvasSurfaceEvents>
     private lateinit var drawingThread: DrawingThread
 
@@ -42,8 +34,6 @@ class CanvasSurface : SurfaceView, SurfaceHolder.Callback {
     }
 
     fun init() {
-        (context as HomeActivity).component.canvasSurfaceComponent(CanvasSurfaceModule()).injectMembers(this)
-
         setLayerType(View.LAYER_TYPE_NONE, null)
 
         setWillNotDraw(false)

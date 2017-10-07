@@ -17,18 +17,15 @@ import android.view.animation.AnticipateInterpolator
 import android.view.animation.DecelerateInterpolator
 import android.view.animation.OvershootInterpolator
 import io.reactivex.disposables.Disposable
+import miles.redux.core.Dispatcher
+import miles.redux.rx.flowable
 import miles.scribble.R
-import miles.scribble.home.HomeActivity
-import miles.scribble.home.di.CircleMenuModule
 import miles.scribble.home.events.CircleMenuEvents
 import miles.scribble.home.viewmodel.HomeViewModel
-import miles.scribble.redux.core.Dispatcher
-import miles.scribble.redux.rx.flowable
 import miles.scribble.util.Circle
 import miles.scribble.util.ViewUtils
 import miles.scribble.util.extensions.*
 import java.util.*
-import javax.inject.Inject
 
 /**
  * Created by milespeele on 8/7/15.
@@ -37,9 +34,7 @@ class CircleMenu : ViewGroup {
 
     lateinit var flowableDisposable : Disposable
 
-    @Inject
     lateinit var viewModel : HomeViewModel
-    @Inject
     lateinit var dispatcher : Dispatcher<CircleMenuEvents, CircleMenuEvents>
 
     internal val toggle by lazyInflate<FloatingActionButton>(R.id.menu_toggle)
@@ -79,8 +74,6 @@ class CircleMenu : ViewGroup {
     }
 
     private fun init() {
-        (context as HomeActivity).component.circleMenuComponent(CircleMenuModule()).injectMembers(this)
-
         setWillNotDraw(false)
         descendantFocusability = ViewGroup.FOCUS_AFTER_DESCENDANTS
     }

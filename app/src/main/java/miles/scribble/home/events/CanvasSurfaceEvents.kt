@@ -2,8 +2,8 @@ package miles.scribble.home.events
 
 import android.view.MotionEvent
 import miles.scribble.home.viewmodel.HomeState
-import miles.scribble.redux.core.Event
-import miles.scribble.redux.core.Reducer
+import miles.redux.core.Event
+import miles.redux.core.Reducer
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import miles.scribble.home.drawing.CanvasMotionEventHandler

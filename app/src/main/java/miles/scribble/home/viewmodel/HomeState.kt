@@ -5,26 +5,21 @@ import android.graphics.*
 import android.support.v4.widget.ViewDragHelper.INVALID_POINTER
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
-import io.realm.Realm
-import io.realm.Sort
-import miles.scribble.data.Drawing
-import miles.scribble.data.DrawingFields
+import miles.redux.core.Event
+import miles.redux.core.SimpleStore
+import miles.redux.core.State
 import miles.scribble.home.drawing.DrawType
 import miles.scribble.home.drawing.Stroke
 import miles.scribble.home.drawing.redrawable.DrawHistory
-import miles.scribble.redux.core.Event
-import miles.scribble.redux.core.SimpleStore
-import miles.scribble.redux.core.State
 import miles.scribble.util.PaintStyles
 import miles.scribble.util.ViewUtils
 import miles.scribble.util.extensions.getDisplaySize
-import javax.inject.Inject
 
 
 /**
  * Created by mbpeele on 6/30/17.
  */
-class HomeStore @Inject constructor(context: Context) : SimpleStore<HomeState>(HomeState.create(context.getDisplaySize()))
+class HomeStore(context: Context) : SimpleStore<HomeState>(HomeState.create(context.getDisplaySize()))
 
 data class HomeState(val isMenuOpen : Boolean = false,
                      val isSafeToDraw : Boolean = true,
@@ -54,25 +49,10 @@ data class HomeState(val isMenuOpen : Boolean = false,
         val STROKE_WIDTH = 5f
 
         fun create(displaySize : Point) : HomeState {
-            val realm = Realm.getDefaultInstance()
-            val lastDrawing = realm.where(Drawing::class.java)
-                    .findAllSorted(DrawingFields.LAST_EDITED_AT, Sort.DESCENDING)
-                    .firstOrNull()
-            val bitmap = if (lastDrawing == null) {
-                Bitmap.createBitmap(displaySize.x, displaySize.y, Bitmap.Config.ARGB_8888).apply {
-                    eraseColor(Color.WHITE)
-                }
-            } else {
-                val options = BitmapFactory.Options().apply {
-                    inPreferredConfig = Bitmap.Config.ARGB_8888
-                    inMutable = true
-                }
-                BitmapFactory.decodeByteArray(lastDrawing.bytes, 0, lastDrawing.bytes!!.size,
-                        options)
+            val bitmap = Bitmap.createBitmap(displaySize.x, displaySize.y, Bitmap.Config.ARGB_8888).apply {
+                eraseColor(Color.WHITE)
             }
-            val state = HomeState(bitmap = bitmap, canvas = Canvas(bitmap))
-            realm.close()
-            return state
+            return HomeState(bitmap = bitmap, canvas = Canvas(bitmap))
         }
     }
 }

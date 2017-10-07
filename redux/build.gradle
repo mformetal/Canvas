@@ -1,0 +1,13 @@
+apply plugin: 'kotlin'
+
+sourceCompatibility = "1.7"
+targetCompatibility = "1.7"
+
+dependencies {
+    implementation rootProject.ext.kotlin
+    implementation rootProject.ext.rxJava
+
+    testImplementation rootProject.ext.junit
+    testImplementation rootProject.ext.assertk
+    testImplementation rootProject.ext.mockitoKotlin
+}

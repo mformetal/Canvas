@@ -6,17 +6,15 @@ import android.content.DialogInterface
 import android.os.Bundle
 import android.support.v7.app.AlertDialog
 import android.view.WindowManager
+import miles.redux.core.Dispatcher
 import miles.scribble.R
-import miles.scribble.dagger.fragment.HasFragmentSubcomponentBuilders
 import miles.scribble.home.viewmodel.HomeViewModel
-import miles.scribble.redux.core.Dispatcher
 import miles.scribble.ui.ViewModelDialogFragment
 import miles.scribble.util.ViewUtils
 import miles.scribble.util.extensions.getDisplaySize
 import miles.scribble.util.extensions.hideKeyboard
 import miles.scribble.util.extensions.inflater
 import miles.scribble.util.extensions.isLandScape
-import javax.inject.Inject
 
 /**
  * Created by mbpeele on 7/8/17.
@@ -27,7 +25,6 @@ class ColorPickerDialogFragment : ViewModelDialogFragment<HomeViewModel>() {
     private val KEY_TO_FILL = "fill"
 
     private lateinit var colorPicker : ColorPickerView
-    @Inject
     lateinit var dispatcher : Dispatcher<ColorPickerEvents, ColorPickerEvents>
 
     companion object {
@@ -41,12 +38,8 @@ class ColorPickerDialogFragment : ViewModelDialogFragment<HomeViewModel>() {
         }
     }
 
-    override fun inject(hasFragmentSubcomponentBuilders: HasFragmentSubcomponentBuilders): HomeViewModel {
-        val builder = hasFragmentSubcomponentBuilders.getBuilder(ColorPickerDialogFragment::class.java)
-        val componentBuilder = builder as ColorPickerComponent.Builder
-        val component = componentBuilder.module(ColorPickerModule(this)).build()
-        component.injectMembers(this)
-        return component.viewModel()
+    override fun inject(): HomeViewModel {
+        TODO()
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {

@@ -1,51 +1,18 @@
 package miles.scribble.home.viewmodel
 
-import android.graphics.Bitmap
 import android.graphics.Canvas
-import io.realm.Realm
-import miles.scribble.data.Drawing
+import miles.redux.core.Store
 import miles.scribble.home.drawing.DrawType
-import miles.scribble.redux.core.Store
 import miles.scribble.redux.core.StoreViewModel
-import miles.scribble.util.extensions.DateExtensions
 import miles.scribble.util.extensions.drawBitmap
 import miles.scribble.util.extensions.largest
-import java.io.ByteArrayOutputStream
-import javax.inject.Inject
 
 /**
  * Created by mbpeele on 6/28/17.
  */
-class HomeViewModel @Inject constructor(homeStore: HomeStore) : StoreViewModel<HomeState, Store<HomeState>>(homeStore) {
-
-    val realm : Realm = Realm.getDefaultInstance()
-
-    override fun onCleared() {
-        super.onCleared()
-
-        realm.close()
-    }
+class HomeViewModel(homeStore: HomeStore) : StoreViewModel<HomeState, Store<HomeState>>(homeStore) {
 
     fun persistDrawings() {
-        realm.executeTransaction {
-            val stream = ByteArrayOutputStream()
-            state.bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
-            val bytes = stream.toByteArray()
-
-            val hasCachedDrawing = it.where(Drawing::class.java).count() > 0
-            if (hasCachedDrawing) {
-                val drawing = it.where(Drawing::class.java).findFirst()
-                drawing.lastEditedMillis = DateExtensions.currentTimeInMillis
-                drawing.bytes = bytes
-                it.insertOrUpdate(drawing)
-            } else {
-                val drawing = Drawing()
-                drawing.createdAtMillis = DateExtensions.currentTimeInMillis
-                drawing.lastEditedMillis = DateExtensions.currentTimeInMillis
-                drawing.bytes = bytes
-                it.insert(drawing)
-            }
-        }
     }
 
     fun drawToSurfaceView(canvas: Canvas?) {

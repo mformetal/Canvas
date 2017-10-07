@@ -11,7 +11,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import miles.scribble.R
-import miles.scribble.dagger.fragment.HasFragmentSubcomponentBuilders
 import miles.scribble.home.viewmodel.HomeViewModel
 import miles.scribble.ui.ViewModelDialogFragment
 import miles.scribble.util.PaintStyles
@@ -25,12 +24,8 @@ class BrushPickerDialogFragment : ViewModelDialogFragment<HomeViewModel>() {
     private lateinit var recycler : RecyclerView
     private lateinit var currentBrushView : BrushExampleView
 
-    override fun inject(hasFragmentSubcomponentBuilders: HasFragmentSubcomponentBuilders): HomeViewModel {
-        val builder = hasFragmentSubcomponentBuilders.getBuilder(BrushPickerDialogFragment::class.java)
-        val componentBuilder = builder as BrushPickerComponent.Builder
-        val component = componentBuilder.module(BrushPickerModule(this)).build()
-        component.injectMembers(this)
-        return component.viewModel()
+    override fun inject(): HomeViewModel {
+        TODO()
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
