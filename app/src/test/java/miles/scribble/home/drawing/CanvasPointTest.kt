@@ -1,6 +1,7 @@
 package miles.scribble.home.drawing
 
-import miles.scribble.util.assertEquals
+import assertk.assert
+import assertk.assertions.isEqualTo
 import miles.scribble.util.extensions.DateExtensions
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -25,11 +26,11 @@ class CanvasPointTest {
 
     @Test
     fun testExpectedDistance() {
-        assertEquals(firstPoint.computeDistance(secondPoint), distance)
+        assert(firstPoint.computeDistance(secondPoint)).isEqualTo(distance)
     }
 
     @Test
     fun testExpectedVelocity() {
-        assertEquals(distance / duration, firstPoint.computeVelocity(secondPoint))
+        assert(distance / duration).isEqualTo(firstPoint.computeVelocity(secondPoint))
     }
 }

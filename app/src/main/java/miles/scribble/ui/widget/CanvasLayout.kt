@@ -20,6 +20,7 @@ import miles.scribble.R
 import miles.scribble.home.drawing.CanvasPoint
 import miles.scribble.home.viewmodel.HomeViewModel
 import miles.scribble.util.ViewUtils
+import miles.scribble.util.extensions.kodi
 import miles.scribble.util.extensions.lazyInflate
 
 /**
@@ -63,6 +64,8 @@ class CanvasLayout : CoordinatorLayout {
     }
 
     private fun init() {
+        homeViewModel = context.kodi.instance()
+
         mShadowPaint = Paint(Paint.ANTI_ALIAS_FLAG)
         mShadowPaint.color = Color.BLACK
         mShadowPaint.alpha = 0

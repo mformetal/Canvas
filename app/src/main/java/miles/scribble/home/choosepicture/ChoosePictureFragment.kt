@@ -93,7 +93,7 @@ class ChoosePictureFragment : Fragment() {
                 GlideApp.with(this@ChoosePictureFragment)
                         .load(uri)
                         .transform(transformation)
-                        .into(itemView.findViewById(R.id.filtered_image))
+                        .into(itemView.findViewById<ImageView>(R.id.filtered_image))
             }
         }
     }

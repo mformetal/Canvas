@@ -2,12 +2,11 @@ package miles.scribble.home.drawing
 
 import android.graphics.Canvas
 import android.graphics.Paint
+import assertk.assert
+import assertk.assertions.isEqualTo
 import com.nhaarman.mockito_kotlin.*
-import miles.scribble.util.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito
-import org.mockito.junit.MockitoJUnitRunner
 import org.robolectric.RobolectricTestRunner
 
 /**
@@ -26,7 +25,7 @@ class StrokeTest {
         val point = CanvasPoint(0f, 0f)
         stroke.addPoint(point.x, point.y, canvas, paint)
 
-        assertEquals(stroke.points.size, 1)
+        assert(stroke.points.size).isEqualTo(1)
 
         verify(canvas).drawPoint(point.x, point.y, paint)
         verify(paint, times(2)).strokeWidth
@@ -41,7 +40,7 @@ class StrokeTest {
         stroke.addPoint(initialPoint.x, initialPoint.y, canvas, paint)
         stroke.addPoint(additionalPoint.x, additionalPoint.y, canvas, paint)
 
-        assertEquals(stroke.points.size, 2)
+        assert(stroke.points.size).isEqualTo( 2)
 
         verify(canvas).drawLine(initialPoint.x, initialPoint.y, additionalPoint.x, additionalPoint.y, paint)
     }
@@ -58,6 +57,6 @@ class StrokeTest {
 
         stroke.addPoint(additionalPoint.x, additionalPoint.y, canvas, paint)
 
-        assertEquals(stroke.points.size, 1)
+        assert(stroke.points.size).isEqualTo(1)
     }
 }

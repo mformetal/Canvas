@@ -27,11 +27,13 @@ dependencies {
 
     implementation "com.jakewharton.threetenabp:threetenabp:1.0.5"
 
-    implementation "com.android.support:appcompat-v7:26.1.0"
-    implementation "com.android.support:design:26.1.0"
+    def supportLib = "26.1.0"
+    implementation "com.android.support:appcompat-v7:${supportLib}"
+    implementation "com.android.support:design:${supportLib}"
 
-    implementation 'com.github.bumptech.glide:glide:4.1.1'
-    kapt 'com.github.bumptech.glide:compiler:4.1.1'
+    def glide = "4.1.1"
+    implementation "com.github.bumptech.glide:glide:${glide}"
+    kapt "com.github.bumptech.glide:compiler:${glide}"
 
     implementation "io.reactivex.rxjava2:rxandroid:2.0.1"
     implementation ext.rxJava

@@ -3,18 +3,19 @@ package miles.scribble.home.drawing
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.net.Uri
-import miles.scribble.home.HomeActivityEvents
-import miles.scribble.home.HomeActivityEventsReducer
-import miles.scribble.home.viewmodel.HomeState
-import miles.scribble.home.viewmodel.HomeViewModel
+import assertk.assert
+import assertk.assertions.isEqualTo
+import assertk.assertions.isFalse
+import assertk.assertions.isNotEqualTo
+import assertk.assertions.isNotNull
 import miles.redux.core.Dispatcher
 import miles.redux.core.Dispatchers
 import miles.redux.core.SimpleStore
 import miles.redux.core.Store
-import miles.scribble.util.assertEquals
-import miles.scribble.util.assertFalse
-import miles.scribble.util.assertNotEquals
-import miles.scribble.util.assertNotNull
+import miles.scribble.home.HomeActivityEvents
+import miles.scribble.home.HomeActivityEventsReducer
+import miles.scribble.home.viewmodel.HomeState
+import miles.scribble.home.viewmodel.HomeViewModel
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -45,15 +46,15 @@ class ChoosePictureFlowTest {
         val oldState = state
         dispatcher.dispatch(HomeActivityEvents.PictureChosen(RuntimeEnvironment.application.contentResolver,
                 Uri.EMPTY))
-        assertNotEquals(oldState, state)
+        assert(oldState).isNotEqualTo(state)
     }
 
     @Test
     fun testDispatchingPictureChosenEventMutatesCorrectState() {
         dispatcher.dispatch(HomeActivityEvents.PictureChosen(RuntimeEnvironment.application.contentResolver,
                 Uri.EMPTY))
-        assertEquals(state.drawType, DrawType.PICTURE)
-        assertNotNull(state.photoState.photoBitmap!!) // superfluous I know
-        assertFalse(state.isMenuOpen)
+        assert(state.drawType).isEqualTo(DrawType.PICTURE)
+        assert(state.photoState.photoBitmap).isNotNull()
+        assert(state.isMenuOpen).isFalse()
     }
 }

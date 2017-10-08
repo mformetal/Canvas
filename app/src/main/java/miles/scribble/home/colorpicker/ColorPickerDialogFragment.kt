@@ -6,26 +6,30 @@ import android.content.DialogInterface
 import android.os.Bundle
 import android.support.v7.app.AlertDialog
 import android.view.WindowManager
+import miles.kodi.Kodi
+import miles.kodi.api.Delinker
+import miles.kodi.api.inject
+import miles.kodi.module.provider
 import miles.redux.core.Dispatcher
+import miles.redux.core.Dispatchers
 import miles.scribble.R
+import miles.scribble.home.HomeActivity
 import miles.scribble.home.viewmodel.HomeViewModel
-import miles.scribble.ui.ViewModelDialogFragment
+import miles.scribble.ui.KodiDialogFragment
 import miles.scribble.util.ViewUtils
-import miles.scribble.util.extensions.getDisplaySize
-import miles.scribble.util.extensions.hideKeyboard
-import miles.scribble.util.extensions.inflater
-import miles.scribble.util.extensions.isLandScape
+import miles.scribble.util.extensions.*
 
 /**
  * Created by mbpeele on 7/8/17.
  */
-class ColorPickerDialogFragment : ViewModelDialogFragment<HomeViewModel>() {
+class ColorPickerDialogFragment : KodiDialogFragment() {
 
     private val KEY_CURRENT_COLOR = "currentColor"
     private val KEY_TO_FILL = "fill"
 
     private lateinit var colorPicker : ColorPickerView
-    lateinit var dispatcher : Dispatcher<ColorPickerEvents, ColorPickerEvents>
+    val dispatcher : Dispatcher<ColorPickerEvents, ColorPickerEvents> by inject(activity.kodi)
+    val viewModel : HomeViewModel by inject(activity.app)
 
     companion object {
         @SuppressLint("NewApi")
@@ -38,8 +42,12 @@ class ColorPickerDialogFragment : ViewModelDialogFragment<HomeViewModel>() {
         }
     }
 
-    override fun inject(): HomeViewModel {
-        TODO()
+    override fun installModule(kodi: Kodi): Delinker {
+        return kodi.link(HomeActivity::class, this::class, {
+            bind<Dispatcher<ColorPickerEvents, ColorPickerEvents>>() from provider {
+                Dispatchers.create(kodi.instance<HomeViewModel>().store, ColorPickerReducer())
+            }
+        })
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {

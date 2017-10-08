@@ -3,12 +3,14 @@ package miles.scribble.home.colorpicker
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
-import miles.scribble.home.viewmodel.HomeState
+import assertk.assert
+import assertk.assertions.isEqualTo
+import assertk.assertions.isFalse
 import miles.redux.core.Dispatcher
 import miles.redux.core.Dispatchers
 import miles.redux.core.SimpleStore
 import miles.redux.core.Store
-import org.junit.Assert
+import miles.scribble.home.viewmodel.HomeState
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -37,14 +39,14 @@ class ColorPickerReduxTest {
     @Test
     fun testDispatchingStrokeColorEventChangesHomeStateStrokeColor() {
         dispatcher.dispatch(ColorPickerEvents.StrokeColorChosen(color))
-        Assert.assertEquals(state.strokeColor, color)
-        Assert.assertFalse(state.isMenuOpen)
+        assert(state.strokeColor).isEqualTo(color)
+        assert(state.isMenuOpen).isFalse()
     }
 
     @Test
     fun testDispatchBackgroundColorEventChangesHomeStateBackgroundColor() {
         dispatcher.dispatch(ColorPickerEvents.BackgroundColorChosen(color))
-        Assert.assertEquals(state.backgroundColor, color)
-        Assert.assertFalse(state.isMenuOpen)
+        assert(state.backgroundColor).isEqualTo(color)
+        assert(state.isMenuOpen).isFalse()
     }
 }

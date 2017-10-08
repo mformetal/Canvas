@@ -3,23 +3,21 @@ package miles.scribble.home.circlemenu
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
+import assertk.assert
+import assertk.assertions.isEqualTo
+import assertk.assertions.isFalse
 import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.spy
 import com.nhaarman.mockito_kotlin.verify
 import io.reactivex.observers.TestObserver
-import miles.redux.core.Dispatchers
-import miles.redux.core.SimpleStore
-import miles.redux.core.Store
+import miles.redux.core.*
 import miles.scribble.home.drawing.DrawType
 import miles.scribble.home.drawing.redrawable.DrawHistory
 import miles.scribble.home.drawing.redrawable.RedrawableLines
 import miles.scribble.home.events.CircleMenuEvents
 import miles.scribble.home.events.CircleMenuEventsReducer
 import miles.scribble.home.viewmodel.HomeState
-import miles.scribble.util.assertEquals
-import miles.scribble.util.assertFalse
-import miles.scribble.util.assertNotEquals
-import miles.scribble.util.assertTrue
+import org.junit.Assert.assertNotEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -47,10 +45,10 @@ class CircleMenuReduxTest {
     @Test
     fun testMenuTogglesWhenDispatchingToggleEvent() {
         dispatcher.dispatch(CircleMenuEvents.ToggleClicked(true))
-        assertTrue(state.isMenuOpen)
+        assert(state.isMenuOpen)
 
         dispatcher.dispatch(CircleMenuEvents.ToggleClicked(false))
-        assertFalse(state.isMenuOpen)
+        assert(state.isMenuOpen)
     }
 
     @Test
@@ -94,10 +92,10 @@ class CircleMenuReduxTest {
         val event = CircleMenuEvents.InkClicked()
         dispatcher.dispatch(event)
 
-        assertTrue(state.drawType == DrawType.INK)
-        assertEquals(state.lastX, state.bitmap.width / 2f)
-        assertEquals(state.lastY, state.bitmap.height / 2f)
-        assertFalse(state.isMenuOpen)
+        assert(state.drawType == DrawType.INK)
+        assert(state.lastX).isEqualTo(state.bitmap.width / 2f)
+        assert(state.lastY).isEqualTo(state.bitmap.height / 2f)
+        assert(state.isMenuOpen).isFalse()
     }
 
     @Test
@@ -105,15 +103,15 @@ class CircleMenuReduxTest {
         CircleMenuEvents.EraserClicked(isErasing = true).let {
             dispatcher.dispatch(it)
 
-            assertTrue(state.drawType == DrawType.ERASE)
-            assertEquals(state.paint.color, state.backgroundColor)
+            assert(state.drawType == DrawType.ERASE)
+            assert(state.paint.color).isEqualTo(state.backgroundColor)
         }
 
         CircleMenuEvents.EraserClicked(isErasing = false).let {
             dispatcher.dispatch(it)
 
-            assertTrue(state.drawType == DrawType.NORMAL)
-            assertEquals(state.paint.color, state.strokeColor)
+            assert(state.drawType == DrawType.NORMAL)
+            assert(state.paint.color).isEqualTo(state.strokeColor)
         }
     }
 
@@ -122,11 +120,11 @@ class CircleMenuReduxTest {
         state.history.push(RedrawableLines(listOf(), Paint()))
 
         dispatcher.dispatch(CircleMenuEvents.RedrawStarted(isUndo = true))
-        assertFalse(state.isSafeToDraw)
+        assert(state.isSafeToDraw).isFalse()
         verify(state.history).undo()
 
         dispatcher.dispatch(CircleMenuEvents.RedrawStarted(isUndo = false))
-        assertFalse(state.isSafeToDraw)
+        assert(state.isSafeToDraw).isFalse()
         verify(state.history).redo()
     }
 
@@ -147,7 +145,7 @@ class CircleMenuReduxTest {
         dispatcher.dispatch(CircleMenuEvents.RedrawStarted(isUndo = true))
         dispatcher.dispatch(CircleMenuEvents.Redraw())
         dispatcher.dispatch(CircleMenuEvents.RedrawCompleted())
-        assertTrue(state.isSafeToDraw)
+        assert(state.isSafeToDraw)
         assertNotEquals(oldBitmap, state.bitmap)
         assertNotEquals(oldCanvas, state.canvas)
     }

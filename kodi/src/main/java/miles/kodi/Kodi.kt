@@ -1,9 +1,9 @@
 package miles.kodi
 
+import miles.kodi.api.Delinker
 import miles.kodi.api.HasKodi
-import miles.kodi.api.Unbinder
-import miles.kodi.internal.Link
 import miles.kodi.internal.Node
+import miles.kodi.internal.NodeDelinker
 import miles.kodi.module.Module
 import miles.kodi.provider.LazyProvider
 import miles.kodi.provider.Provider
@@ -27,16 +27,21 @@ class Kodi : HasKodi {
     }
 
     fun root(block: Module.() -> Unit) {
-        val module = Module().apply(block)
-        root = Node(module, ROOT)
+        let {
+            val module = Module().apply(block)
+            root = Node(module, ROOT)
+        }
     }
 
-    fun link(parent: KClass<*>, scope: KClass<*>, module: Module) : Unbinder {
+    fun link(parent: KClass<*>, scope: KClass<*>, init: Module.() -> Unit) : Delinker {
         val parentNode = root.search { it.scope == parent } ?: throw IllegalArgumentException("Parent scope $scope not found.")
+        val module = Module().apply(init)
         val childNode = Node(module, scope)
         parentNode.addChild(childNode)
-        return Link(parentNode, childNode)
+        return NodeDelinker(parentNode, childNode)
     }
+
+    inline fun <reified T: Any> T.link(parent: KClass<*>, noinline init: Module.() -> Unit) : Delinker = link(parent, T::class, init)
 
     inline fun <reified T> instance(tag: String = "") : T {
         val key = T::class.simpleName + tag
@@ -63,4 +68,11 @@ inline fun <T> HasKodi.factory(crossinline block: HasKodi.() -> T) : Provider<T>
     return object : Provider<T> {
         override fun provide(): T = block.invoke(kodi)
     }
+}
+
+inline fun <T> HasKodi.singletonFactory(crossinline block: HasKodi.() -> T) : Provider<T> {
+    val provider = object : Provider<T> {
+        override fun provide(): T = block.invoke(kodi)
+    }
+    return LazyProvider(provider)
 }

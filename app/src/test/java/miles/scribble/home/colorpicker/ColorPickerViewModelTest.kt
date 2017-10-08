@@ -1,7 +1,10 @@
 package miles.scribble.home.colorpicker
 
-import com.nhaarman.mockito_kotlin.*
-import org.junit.Assert
+import assertk.assert
+import assertk.assertions.isEqualTo
+import com.nhaarman.mockito_kotlin.mock
+import com.nhaarman.mockito_kotlin.verify
+import com.nhaarman.mockito_kotlin.verifyZeroInteractions
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -38,13 +41,13 @@ class ColorPickerViewModelTest {
     @Test
     fun testHexStringFromCurrentColor() {
         viewModel.currentColor = "000000".toLong(16).toInt()
-        Assert.assertEquals("#" + viewModel.hexString, "#000000")
+        assert("#" + viewModel.hexString).isEqualTo("#000000")
 
         viewModel.currentColor = "FFFFFF".toLong(16).toInt()
-        Assert.assertEquals("#" + viewModel.hexString, "#FFFFFF")
+        assert("#" + viewModel.hexString).isEqualTo("#FFFFFF")
 
         viewModel.currentColor = "FF0000".toLong(16).toInt()
-        Assert.assertEquals("#" + viewModel.hexString, "#FF0000")
+        assert("#" + viewModel.hexString).isEqualTo("#FF0000")
     }
 
     @Test
@@ -52,6 +55,6 @@ class ColorPickerViewModelTest {
         val oldColor = viewModel.currentColor
         (0 until 5)
                 .map { "0".repeat(it) }
-                .forEach { Assert.assertEquals(viewModel.currentColor, oldColor) }
+                .forEach { assert(viewModel.currentColor).isEqualTo(oldColor) }
     }
 }

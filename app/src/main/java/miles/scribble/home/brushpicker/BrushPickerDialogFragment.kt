@@ -10,22 +10,35 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import miles.kodi.Kodi
+import miles.kodi.api.Delinker
+import miles.kodi.api.inject
+import miles.kodi.module.provider
+import miles.redux.core.Dispatcher
+import miles.redux.core.Dispatchers
 import miles.scribble.R
+import miles.scribble.home.HomeActivity
 import miles.scribble.home.viewmodel.HomeViewModel
-import miles.scribble.ui.ViewModelDialogFragment
+import miles.scribble.ui.KodiDialogFragment
 import miles.scribble.util.PaintStyles
 import miles.scribble.util.extensions.inflater
+import miles.scribble.util.extensions.kodi
 
 /**
  * Created by mbpeele on 7/29/17.
  */
-class BrushPickerDialogFragment : ViewModelDialogFragment<HomeViewModel>() {
+class BrushPickerDialogFragment : KodiDialogFragment() {
 
     private lateinit var recycler : RecyclerView
     private lateinit var currentBrushView : BrushExampleView
+    val viewModel : HomeViewModel by inject(activity.kodi)
 
-    override fun inject(): HomeViewModel {
-        TODO()
+    override fun installModule(kodi: Kodi): Delinker {
+        return kodi.link(HomeActivity::class, this::class, {
+            bind<Dispatcher<BrushPickerEvents, BrushPickerEvents>>() from provider {
+                Dispatchers.create(kodi.instance<HomeViewModel>().store, BrushPickerReducer())
+            }
+        })
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {

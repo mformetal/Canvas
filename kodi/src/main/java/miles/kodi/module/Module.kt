@@ -22,7 +22,7 @@ class Module {
         return Binding(T::class.simpleName + tag)
     }
 
-    infix inline fun <reified T> Binding<T>.by(provider: Provider<T>) {
+    infix inline fun <reified T> Binding<T>.from(provider: Provider<T>) {
         this.provider = provider
         providers.put(key, this)
     }

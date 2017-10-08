@@ -1,26 +1,30 @@
 package miles.scribble.home
 
+import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.net.Uri
 import android.os.Bundle
 import io.reactivex.disposables.Disposable
-import miles.redux.core.Dispatcher
-import miles.scribble.App
+import miles.kodi.Kodi
+import miles.kodi.api.Delinker
+import miles.kodi.api.inject
+import miles.kodi.module.singleton
 import miles.scribble.R
 import miles.scribble.home.brushpicker.BrushPickerDialogFragment
 import miles.scribble.home.choosepicture.ChoosePictureFragment
 import miles.scribble.home.colorpicker.ColorPickerDialogFragment
 import miles.scribble.home.events.CircleMenuEvents
 import miles.scribble.home.viewmodel.HomeViewModel
-import miles.scribble.ui.ViewModelActivity
+import miles.scribble.ui.KodiActivity
 import miles.scribble.util.ViewUtils
+import miles.scribble.util.extensions.app
 import miles.scribble.util.extensions.hasWriteSettingsPermission
 import miles.scribble.util.extensions.isAtLeastMarshmallow
 import miles.scribble.util.extensions.setAutoRotate
 
 
-class HomeActivity : ViewModelActivity<HomeViewModel>() {
+class HomeActivity : KodiActivity() {
 
     private val DIALOG_COLOR_PICKER_STROKE = "strokeColorPicker"
     private val DIALOG_COLOR_PICKER_BACKGROUND = "backgroundColorPicker"
@@ -29,12 +33,15 @@ class HomeActivity : ViewModelActivity<HomeViewModel>() {
     private val REQUEST_PERMISSION_WRITE_SETTINGS = 1
     private val REQUEST_IMPORT_CODE = 2
 
-    lateinit var dispatcher : Dispatcher<HomeActivityEvents, HomeActivityEvents>
-
+    val viewModel : HomeViewModel by inject(app)
     lateinit var clickDispoable : Disposable
 
-    override fun inject(app: App) : HomeViewModel {
-        TODO()
+    override fun installModule(kodi: Kodi): Delinker {
+        return kodi.link(Kodi.ROOT, this::class, {
+            bind<HomeViewModel>() from singleton {
+                ViewModelProviders.of(this@HomeActivity)[HomeViewModel::class.java]
+            }
+        })
     }
 
     public override fun onCreate(savedInstanceState: Bundle?) {

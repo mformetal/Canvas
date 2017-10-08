@@ -18,7 +18,7 @@ class ModuleTest {
     @Test
     fun testRetrievingDependency() {
         val module = module {
-            bind<String>() by provider { "bro" }
+            bind<String>() from provider { "bro" }
         }
 
         val dependency = module.get<String>()
@@ -28,15 +28,15 @@ class ModuleTest {
     @Test(expected = IllegalStateException::class)
     fun testBindingSameDependencyClass() {
         module {
-            bind<String>() by provider { "bro" }
-            bind<String>() by provider { "this" }
+            bind<String>() from provider { "bro" }
+            bind<String>() from provider { "this" }
         }
     }
 
     @Test
     fun testRetrievingNewInstanceProvider() {
         val module = module {
-            bind<Thing>() by provider { Thing() }
+            bind<Thing>() from provider { Thing() }
         }
 
         val first = module.get<Thing>()
@@ -47,7 +47,7 @@ class ModuleTest {
     @Test
     fun testRetrievingFromSingletonProvider() {
         val module = module {
-            bind<Thing>() by singleton { Thing(string = UUID.randomUUID().toString()) }
+            bind<Thing>() from singleton { Thing(string = UUID.randomUUID().toString()) }
         }
 
         val first = module.get<Thing>()
@@ -59,7 +59,7 @@ class ModuleTest {
     fun testAddingChildModules() {
         val root = module {
             submodule(module {
-                bind<Int>() by provider { 5 }
+                bind<Int>() from provider { 5 }
             })
         }
 
@@ -70,9 +70,9 @@ class ModuleTest {
     @Test
     fun testFactoryCreation() {
         val module = module {
-            bind<String>() by provider { "bro" }
-            bind<Int>() by provider { 5 }
-            bind<Thing>() by factory { Thing(get(), get()) }
+            bind<String>() from provider { "bro" }
+            bind<Int>() from provider { 5 }
+            bind<Thing>() from factory { Thing(get(), get()) }
         }
 
         val thing = module.get<Thing>()
@@ -83,8 +83,8 @@ class ModuleTest {
     @Test(expected = IllegalStateException::class)
     fun testFactoryCreationWithoutNecessaryDependencies() {
         val module = module {
-            bind<String>() by provider { "bro" }
-            bind<Thing>() by factory { Thing(get(), get()) }
+            bind<String>() from provider { "bro" }
+            bind<Thing>() from factory { Thing(get(), get()) }
         }
 
         module.get<Thing>()
@@ -93,9 +93,9 @@ class ModuleTest {
     @Test
     fun testFactoryCreationWithTags() {
         val module = module {
-            bind<String>("first") by provider { "bro" }
-            bind<Int>() by provider { 5 }
-            bind<Thing>() by provider { Thing(get("first"), get()) }
+            bind<String>("first") from provider { "bro" }
+            bind<Int>() from provider { 5 }
+            bind<Thing>() from provider { Thing(get("first"), get()) }
         }
 
         val thing = module.get<Thing>()

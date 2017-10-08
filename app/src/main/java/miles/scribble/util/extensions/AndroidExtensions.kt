@@ -18,13 +18,15 @@ import android.support.v4.app.DialogFragment
 import android.support.v4.app.Fragment
 import android.view.*
 import android.view.inputmethod.InputMethodManager
+import miles.kodi.Kodi
 import miles.scribble.App
 
 
 /**
  * Created by mbpeele on 6/28/17.
  */
-fun Context.app() = applicationContext as App
+val Context.app : App get() = applicationContext as App
+val Context.kodi : Kodi get() = app.kodi
 
 fun Context.isAtLeastMarshmallow() : Boolean {
     return Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
