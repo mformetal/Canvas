@@ -21,6 +21,7 @@ android {
 
 dependencies {
     implementation project(":redux")
+    implementation project(":kodi")
 
     implementation ext.kotlin
 

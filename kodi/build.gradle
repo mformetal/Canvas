@@ -5,7 +5,7 @@ targetCompatibility = "1.7"
 
 dependencies {
     implementation rootProject.ext.kotlin
-    implementation rootProject.ext.rxJava
+    implementation rootProject.ext.kotlinReflect
 
     testImplementation rootProject.ext.junit
     testImplementation rootProject.ext.assertk
