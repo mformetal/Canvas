@@ -5,12 +5,14 @@ import java.util.*
 import kotlin.reflect.KClass
 
 /**
- * Created by mbpeele on 10/7/17.
+ * Created from mbpeele on 10/7/17.
  */
-class Node(val module: Module,
-           var scope: KClass<*>,
-           var parent: Node?= null,
-           var children: MutableList<Node> = mutableListOf()) {
+@PublishedApi
+internal class Node(
+        val module: Module,
+        var scope: KClass<*>,
+        var parent: Node?= null,
+        var children: MutableList<Node> = mutableListOf()) {
 
     fun addChild(node: Node) {
         if (node == this) {

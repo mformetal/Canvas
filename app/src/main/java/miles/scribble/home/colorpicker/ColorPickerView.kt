@@ -20,7 +20,7 @@ import miles.scribble.util.android.FixedTextDrawable
 import miles.scribble.util.extensions.lazyInflate
 
 /**
- * Created by mbpeele on 7/8/17.
+ * Created from mbpeele on 7/8/17.
  */
 class ColorPickerView : FrameLayout {
 

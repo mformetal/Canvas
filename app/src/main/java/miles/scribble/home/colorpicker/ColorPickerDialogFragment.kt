@@ -20,7 +20,7 @@ import miles.scribble.util.ViewUtils
 import miles.scribble.util.extensions.*
 
 /**
- * Created by mbpeele on 7/8/17.
+ * Created from mbpeele on 7/8/17.
  */
 class ColorPickerDialogFragment : KodiDialogFragment() {
 

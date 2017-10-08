@@ -23,7 +23,7 @@ import miles.scribble.App
 
 
 /**
- * Created by mbpeele on 6/28/17.
+ * Created from mbpeele on 6/28/17.
  */
 val Context.app : App get() = applicationContext as App
 val Context.kodi : Kodi get() = app.kodi

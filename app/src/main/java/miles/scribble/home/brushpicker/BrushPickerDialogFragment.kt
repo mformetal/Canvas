@@ -25,7 +25,7 @@ import miles.scribble.util.extensions.inflater
 import miles.scribble.util.extensions.kodi
 
 /**
- * Created by mbpeele on 7/29/17.
+ * Created from mbpeele on 7/29/17.
  */
 class BrushPickerDialogFragment : KodiDialogFragment() {
 

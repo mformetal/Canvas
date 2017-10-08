@@ -5,74 +5,53 @@ import miles.kodi.api.HasKodi
 import miles.kodi.internal.Node
 import miles.kodi.internal.NodeDelinker
 import miles.kodi.module.Module
-import miles.kodi.provider.LazyProvider
-import miles.kodi.provider.Provider
 import kotlin.reflect.KClass
 
 /**
- * Created by mbpeele on 10/7/17.
+ * Created from mbpeele on 10/7/17.
  */
-class Kodi : HasKodi {
+class Kodi private constructor(val root: Node): HasKodi {
 
     override val kodi: Kodi get() = this
+    private val instancer: Instancer = Instancer(this)
 
     companion object {
         val ROOT = Kodi::class
-    }
 
-    lateinit var root: Node
-
-    fun root(module: Module) {
-        root = Node(module, ROOT)
-    }
-
-    fun root(block: Module.() -> Unit) {
-        let {
-            val module = Module().apply(block)
-            root = Node(module, ROOT)
+        fun init(block: Module.(Kodi) -> Unit) : Kodi {
+            val rootModule = Module()
+            val rootNode = Node(rootModule, ROOT)
+            return Kodi(rootNode).apply {
+                block.invoke(rootModule, this)
+            }
         }
     }
 
-    fun link(parent: KClass<*>, scope: KClass<*>, init: Module.() -> Unit) : Delinker {
+    fun module(block: Module.() -> Unit) = Module().apply(block)
+
+    fun link(parent: KClass<*>, scope: KClass<*>, init: Module.(Instancer) -> Unit) : Delinker {
         val parentNode = root.search { it.scope == parent } ?: throw IllegalArgumentException("Parent scope $scope not found.")
-        val module = Module().apply(init)
+        val module = Module().apply {
+            init.invoke(this, instancer)
+        }
         val childNode = Node(module, scope)
         parentNode.addChild(childNode)
         return NodeDelinker(parentNode, childNode)
     }
 
-    inline fun <reified T: Any> T.link(parent: KClass<*>, noinline init: Module.() -> Unit) : Delinker = link(parent, T::class, init)
-
     inline fun <reified T> instance(tag: String = "") : T {
-        val key = T::class.simpleName + tag
-        val node = root.search { it.module.providers.contains(key) }
+        val node = root.search { it.module.exists<T>() }
                 ?: throw IllegalStateException("No binding with the specified key ${T::class.simpleName + tag} exists.")
         @Suppress("RemoveExplicitTypeArguments")
-        return node.module.get<T>()
+        return node.module.get<T>(tag)
     }
 }
 
-fun kodi(block: Kodi.() -> Unit) = Kodi().apply(block)
+class Instancer(private val kodi: Kodi) {
 
-inline fun <T> HasKodi.provider(crossinline block: () -> T) =
-        object : Provider<T> {
-            override fun provide() = block.invoke()
-        }
+    inline fun <reified T> instance(tag: String = "") : T = `access$kodi`.instance(tag)
 
-inline fun <T> HasKodi.singleton(crossinline block: () -> T) : Provider<T> {
-    val provider = provider(block)
-    return LazyProvider(provider)
-}
-
-inline fun <T> HasKodi.factory(crossinline block: HasKodi.() -> T) : Provider<T> {
-    return object : Provider<T> {
-        override fun provide(): T = block.invoke(kodi)
-    }
-}
-
-inline fun <T> HasKodi.singletonFactory(crossinline block: HasKodi.() -> T) : Provider<T> {
-    val provider = object : Provider<T> {
-        override fun provide(): T = block.invoke(kodi)
-    }
-    return LazyProvider(provider)
+    @PublishedApi
+    internal val `access$kodi`: Kodi
+        get() = kodi
 }

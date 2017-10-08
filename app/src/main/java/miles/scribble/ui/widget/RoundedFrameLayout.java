@@ -11,7 +11,7 @@ import android.widget.FrameLayout;
 import miles.scribble.util.ViewUtils;
 
 /**
- * Created by mbpeele on 12/23/15.
+ * Created from mbpeele on 12/23/15.
  */
 public class RoundedFrameLayout extends FrameLayout {
 

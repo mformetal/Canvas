@@ -12,7 +12,7 @@ import android.view.View
 import java.util.Random
 
 /**
- * Created by mbpeele on 11/4/15.
+ * Created from mbpeele on 11/4/15.
  */
 object ViewUtils {
 

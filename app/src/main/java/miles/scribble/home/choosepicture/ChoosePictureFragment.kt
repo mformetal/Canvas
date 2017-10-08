@@ -19,7 +19,7 @@ import miles.scribble.util.RecyclerSpacingDecoration
 import miles.scribble.util.extensions.lazyInflate
 
 /**
- * Created by mbpeele on 8/18/17.
+ * Created from mbpeele on 8/18/17.
  */
 class ChoosePictureFragment : Fragment() {
 

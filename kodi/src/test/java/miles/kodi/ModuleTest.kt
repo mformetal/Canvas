@@ -3,21 +3,18 @@ package miles.kodi
 import assertk.assert
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEqualTo
-import miles.kodi.module.factory
-import miles.kodi.module.module
-import miles.kodi.module.provider
-import miles.kodi.module.singleton
+import miles.kodi.module.Module
 import org.junit.Test
 import java.util.*
 
 /**
- * Created by mbpeele on 10/7/17.
+ * Created from mbpeele on 10/7/17.
  */
 class ModuleTest {
 
     @Test
     fun testRetrievingDependency() {
-        val module = module {
+        val module = Module().apply {
             bind<String>() from provider { "bro" }
         }
 
@@ -27,15 +24,15 @@ class ModuleTest {
 
     @Test(expected = IllegalStateException::class)
     fun testBindingSameDependencyClass() {
-        module {
-            bind<String>() from provider { "bro" }
-            bind<String>() from provider { "this" }
+        Module().apply {
+            bind<Thing>() from provider { Thing() }
+            bind<Thing>() from provider { Thing() }
         }
     }
 
     @Test
     fun testRetrievingNewInstanceProvider() {
-        val module = module {
+        val module = Module().apply {
             bind<Thing>() from provider { Thing() }
         }
 
@@ -46,7 +43,7 @@ class ModuleTest {
 
     @Test
     fun testRetrievingFromSingletonProvider() {
-        val module = module {
+        val module = Module().apply {
             bind<Thing>() from singleton { Thing(string = UUID.randomUUID().toString()) }
         }
 
@@ -57,10 +54,10 @@ class ModuleTest {
 
     @Test
     fun testAddingChildModules() {
-        val root = module {
-            submodule(module {
+        val root = Module().apply {
+            submodule {
                 bind<Int>() from provider { 5 }
-            })
+            }
         }
 
         val dependency = root.get<Int>()
@@ -69,10 +66,10 @@ class ModuleTest {
 
     @Test
     fun testFactoryCreation() {
-        val module = module {
+        val module = Module().apply {
             bind<String>() from provider { "bro" }
             bind<Int>() from provider { 5 }
-            bind<Thing>() from factory { Thing(get(), get()) }
+            bind<Thing>() from provider { Thing(get(), get()) }
         }
 
         val thing = module.get<Thing>()
@@ -80,11 +77,11 @@ class ModuleTest {
         assert(thing.int).isEqualTo(5)
     }
 
-    @Test(expected = IllegalStateException::class)
+    @Test(expected = NullPointerException::class)
     fun testFactoryCreationWithoutNecessaryDependencies() {
-        val module = module {
+        val module = Module().apply {
             bind<String>() from provider { "bro" }
-            bind<Thing>() from factory { Thing(get(), get()) }
+            bind<Thing>() from provider { Thing(get(), get()) }
         }
 
         module.get<Thing>()
@@ -92,7 +89,7 @@ class ModuleTest {
 
     @Test
     fun testFactoryCreationWithTags() {
-        val module = module {
+        val module = Module().apply {
             bind<String>("first") from provider { "bro" }
             bind<Int>() from provider { 5 }
             bind<Thing>() from provider { Thing(get("first"), get()) }

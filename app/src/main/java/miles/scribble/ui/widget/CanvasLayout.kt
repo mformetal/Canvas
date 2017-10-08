@@ -24,7 +24,7 @@ import miles.scribble.util.extensions.kodi
 import miles.scribble.util.extensions.lazyInflate
 
 /**
- * Created by milespeele on 8/7/15.
+ * Created from milespeele on 8/7/15.
  */
 class CanvasLayout : CoordinatorLayout {
 

@@ -21,7 +21,7 @@ import android.content.pm.ApplicationInfo.FLAG_LARGE_HEAP
 import android.view.WindowManager
 
 /**
- * Created by mbpeele on 1/5/16.
+ * Created from mbpeele on 1/5/16.
  */
 private fun getMaxSize(context: Context): Int {
     val am = context.getSystemService(ACTIVITY_SERVICE) as ActivityManager

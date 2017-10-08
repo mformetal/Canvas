@@ -5,7 +5,7 @@
 @rem
 @rem ##########################################################################
 
-@rem Set local scope for the variables by windows NT shell
+@rem Set local scope for the variables from windows NT shell
 if "%OS%"=="Windows_NT" setlocal
 
 set DIRNAME=%~dp0
@@ -21,7 +21,7 @@ if defined JAVA_HOME goto findJavaFromJavaHome
 
 set JAVA_EXE=java.exe
 %JAVA_EXE% -version >NUL 2>&1
-if "%ERRORLEVEL%" == "0" goto init
+if "%ERRORLEVEL%" == "0" goto lazyInit
 
 echo.
 echo ERROR: JAVA_HOME is not set and no 'java' command could be found in your PATH.
@@ -35,7 +35,7 @@ goto fail
 set JAVA_HOME=%JAVA_HOME:"=%
 set JAVA_EXE=%JAVA_HOME%/bin/java.exe
 
-if exist "%JAVA_EXE%" goto init
+if exist "%JAVA_EXE%" goto lazyInit
 
 echo.
 echo ERROR: JAVA_HOME is set to an invalid directory: %JAVA_HOME%
@@ -45,7 +45,7 @@ echo location of your Java installation.
 
 goto fail
 
-:init
+:lazyInit
 @rem Get command-line arguments, handling Windows variants
 
 if not "%OS%" == "Windows_NT" goto win9xME_args
@@ -69,7 +69,7 @@ set CLASSPATH=%APP_HOME%\gradle\wrapper\gradle-wrapper.jar
 "%JAVA_EXE%" %DEFAULT_JVM_OPTS% %JAVA_OPTS% %GRADLE_OPTS% "-Dorg.gradle.appname=%APP_BASE_NAME%" -classpath "%CLASSPATH%" org.gradle.wrapper.GradleWrapperMain %CMD_LINE_ARGS%
 
 :end
-@rem End local scope for the variables by windows NT shell
+@rem End local scope for the variables from windows NT shell
 if "%ERRORLEVEL%"=="0" goto mainEnd
 
 :fail

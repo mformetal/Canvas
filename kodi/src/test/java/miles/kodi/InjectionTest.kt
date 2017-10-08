@@ -5,7 +5,7 @@ import miles.kodi.api.inject
 import org.junit.Test
 
 /**
- * Created by mbpeele on 10/8/17.
+ * Created from mbpeele on 10/8/17.
  */
 class InjectionTest {
 
@@ -13,12 +13,9 @@ class InjectionTest {
     fun testSimpleInjection() {
         class Dependency
         class Simpleton : HasKodi {
-            override val kodi: Kodi
-                get() = kodi {
-                    root {
-                        bind<Dependency>() from provider { Dependency() }
-                    }
-                }
+            override val kodi by lazy {
+                Kodi.init {  }
+            }
 
             val dependency : Dependency by inject(this)
         }

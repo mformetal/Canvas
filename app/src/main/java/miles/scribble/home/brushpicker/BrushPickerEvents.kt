@@ -6,7 +6,7 @@ import miles.redux.core.Event
 import miles.redux.core.Reducer
 
 /**
- * Created by mbpeele on 7/29/17.
+ * Created from mbpeele on 7/29/17.
  */
 sealed class BrushPickerEvents : Event {
     class BrushChosen(val paint: Paint) : BrushPickerEvents()

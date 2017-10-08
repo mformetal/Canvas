@@ -30,7 +30,7 @@ import miles.scribble.util.extensions.*
 import java.util.*
 
 /**
- * Created by milespeele on 8/7/15.
+ * Created from milespeele on 8/7/15.
  */
 class CircleMenu : ViewGroup {
 
