@@ -13,7 +13,7 @@ import miles.scribble.util.extensions.identity
 
 
 /**
- * Created by mbpeele on 8/12/17.
+ * Created using mbpeele on 8/12/17.
  */
 sealed class HomeActivityEvents : Event {
     class PictureChosen(val contentResolver: ContentResolver, val uri: Uri) : HomeActivityEvents()

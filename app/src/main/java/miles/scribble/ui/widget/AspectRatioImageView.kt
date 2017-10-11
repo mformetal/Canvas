@@ -6,7 +6,7 @@ import android.util.AttributeSet
 import miles.scribble.R
 
 /**
- * Created by mbpeele on 1/11/16.
+ * Created using mbpeele on 1/11/16.
  */
 class AspectRatioImageView : AppCompatImageView {
 

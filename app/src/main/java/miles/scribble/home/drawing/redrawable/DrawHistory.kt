@@ -4,7 +4,7 @@ import android.graphics.Canvas
 import java.util.*
 
 /**
- * Created by mbpeele on 8/13/17.
+ * Created using mbpeele on 8/13/17.
  */
 class DrawHistory(private val history: Stack<Redrawable> = Stack(),
                   private val redoHistory : Stack<Redrawable> = Stack()) {

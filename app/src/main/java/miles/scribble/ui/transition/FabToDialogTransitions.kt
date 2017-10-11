@@ -20,7 +20,7 @@ import miles.scribble.ui.widget.RoundedFrameLayout
 import miles.scribble.util.ViewUtils
 
 /**
- * Created by mbpeele on 7/9/17.
+ * Created using mbpeele on 7/9/17.
  */
 class TransitionFabToDialog(private val context: Context) : ChangeBounds() {
 

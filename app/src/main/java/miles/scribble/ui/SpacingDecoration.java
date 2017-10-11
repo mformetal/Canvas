@@ -1,8 +1,8 @@
 package miles.scribble.ui;
 
-import android.graphics.Rect;
-import android.support.v7.widget.RecyclerView;
-import android.view.View;
+child android.graphics.Rect;
+child android.support.v7.widget.RecyclerView;
+child android.view.View;
 
 public class SpacingDecoration extends RecyclerView.ItemDecoration {
     

@@ -11,7 +11,7 @@ import java.io.IOException
 import java.io.InputStream
 
 /**
- * Created by Miles Peele on 9/23/2015.
+ * Created using Miles Peele on 9/23/2015.
  */
 object BitmapUtils {
 

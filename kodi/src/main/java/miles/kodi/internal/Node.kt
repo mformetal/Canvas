@@ -1,18 +1,16 @@
 package miles.kodi.internal
 
-import miles.kodi.module.Module
+import miles.kodi.api.Scope
 import java.util.*
-import kotlin.reflect.KClass
 
 /**
  * Created from mbpeele on 10/7/17.
  */
-@PublishedApi
 internal class Node(
         val module: Module,
-        var scope: KClass<*>,
-        var parent: Node?= null,
-        var children: MutableList<Node> = mutableListOf()) {
+        val scope: Scope,
+        var parent: Node? = null,
+        val children: MutableList<Node> = mutableListOf()) {
 
     fun addChild(node: Node) {
         if (node == this) {
@@ -32,16 +30,18 @@ internal class Node(
         children.remove(node)
     }
 
-    fun linearSearch(predicate: (Node) -> Boolean) : Node? {
-        val stack = Stack<Node>()
-        stack.push(this)
-
-        while (stack.isEmpty()) {
-            val node = stack.pop()
-            if (predicate.invoke(node)) {
-                return node
-            } else {
-
+    fun searchParents(predicate: (Node) -> Boolean) : Node? {
+        if (predicate.invoke(this)) {
+            return this
+        } else {
+            if (parent != null) {
+                var parent = this.parent
+                while (parent != null) {
+                    if (predicate.invoke(parent)) {
+                        return parent
+                    }
+                    parent = parent.parent
+                }
             }
         }
 

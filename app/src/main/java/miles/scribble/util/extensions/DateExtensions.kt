@@ -4,7 +4,7 @@ import org.threeten.bp.Instant
 import org.threeten.bp.ZoneOffset
 
 /**
- * Created by mbpeele on 7/29/17.
+ * Created using mbpeele on 7/29/17.
  */
 object DateExtensions {
 

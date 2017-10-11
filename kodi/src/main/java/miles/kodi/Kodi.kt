@@ -1,58 +1,55 @@
 package miles.kodi
 
-import miles.kodi.api.HasKodi
-import miles.kodi.api.KodiBuilder
-import miles.kodi.api.ScopeRegistry
+import miles.kodi.api.*
+import miles.kodi.internal.KodiModule
 import miles.kodi.internal.Node
 import miles.kodi.internal.NodeRegistry
-import miles.kodi.module.Module
-import kotlin.reflect.KClass
+import miles.kodi.internal.Module
 
 /**
- * Created from mbpeele on 10/7/17.
+ * Created by peelemil on 10/11/17.
  */
-class Kodi private constructor(internal val root: Node): HasKodi {
-
-    override val kodi: Kodi get() = this
-
-    @PublishedApi
-    internal val accessRoot : Node
-        get() = root
-
-    @PublishedApi
-    internal val accessNodeRegistry = { parent: Node, child: Node ->
-        NodeRegistry(parent, child)
-    }
+class Kodi private constructor(internal val root: Node) {
 
     companion object {
-        fun init(block: Module.(Kodi) -> Unit) : Kodi {
-            val rootModule = Module()
-            val rootNode = Node(rootModule, Kodi::class)
-            return Kodi(rootNode).apply {
-                block.invoke(rootModule, this)
-            }
+        internal val ROOT_SCOPE = scoped<Kodi>()
+
+        fun init(builder: KodiBuilder.() -> Unit) : Kodi {
+            val module = Module().apply(builder)
+            val rootNode = Node(module, ROOT_SCOPE)
+            return Kodi(rootNode)
         }
     }
 
-    inline fun <reified T> rootScope(block: KodiBuilder.() -> Unit) : ScopeRegistry {
-        val builder = KodiBuilder(Module(), this).apply(block)
-        val node = Node(builder.module, T::class)
-        accessRoot.addChild(node)
-        return accessNodeRegistry.invoke(accessRoot, node)
+    fun scope(builder: ScopeBuilder.() -> Unit) : ScopeRegistry {
+        val scopeBuilder = KodiScopeBuilder(this).apply(builder)
+        return NodeRegistry(scopeBuilder.parent, scopeBuilder.childNode)
+    }
+}
+
+internal class KodiScopeBuilder(private val kodi: Kodi) : ScopeBuilder {
+
+    var parent : Node = kodi.root
+    lateinit var childNode : Node
+    lateinit var childScope : Scope
+    lateinit var kodiModule: KodiModule
+
+    override fun dependsOn(scope: Scope) : ScopeBuilder {
+        parent = kodi.root.search { it.scope == scope }
+            ?: throw IllegalArgumentException("No matching scope $scope exists.")
+        return this
     }
 
-    inline fun <reified T> dependingScope(dependsOn: KClass<*>, block: Module.() -> Unit) : ScopeRegistry {
-        val parent = accessRoot.search { it.scope == dependsOn } ?: throw IllegalArgumentException("Parent scope ${dependsOn.qualifiedName} not found.")
-        val module = Module().apply(block)
-        val node = Node(module, T::class)
-        parent.addChild(node)
-        return accessNodeRegistry.invoke(parent, node)
+    override fun with(scope: Scope) : ScopeBuilder {
+        childScope = scope
+        return this
     }
 
-    inline fun <reified T> instance(tag: String = "") : T {
-        val node = accessRoot.search { it.module.exists<T>() }
-                ?: throw IllegalStateException("No binding with the specified key ${T::class.simpleName + tag}")
-        @Suppress("RemoveExplicitTypeArguments")
-        return node.module.get<T>(tag)
+    override fun build(block: KodiBuilder.() -> Unit) : ScopeBuilder {
+        val module = Module()
+        childNode = Node(module, childScope)
+        parent.addChild(childNode)
+        kodiModule = KodiModule(childNode, module).apply(block)
+        return this
     }
 }

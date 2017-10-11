@@ -7,7 +7,7 @@ import android.os.SystemClock
 import java.util.ArrayList
 
 /**
- * Created by mbpeele on 11/23/15.
+ * Created using mbpeele on 11/23/15.
  */
 data class Stroke(val points : ArrayList<CanvasPoint> = ArrayList()) {
 

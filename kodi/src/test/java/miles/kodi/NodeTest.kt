@@ -1,8 +1,15 @@
 package miles.kodi
 
+import miles.kodi.api.Scope
+import miles.kodi.internal.Module
 import miles.kodi.internal.Node
-import miles.kodi.module.Module
+import miles.kodi.internal.NodeRegistry
 import org.junit.Test
+import assertk.assert
+import assertk.assertions.contains
+import assertk.assertions.isEmpty
+import assertk.assertions.isEqualTo
+import assertk.assertions.isNull
 
 /**
  * Created from mbpeele on 10/7/17.
@@ -11,8 +18,8 @@ class NodeTest {
 
     @Test
     fun testAddingChildNodes() {
-        val root = Node(Module(), Node::class)
-        val child = Node(Module(), Node::class)
+        val root = testNode()
+        val child = testNode()
         root.addChild(child)
 
         assert(child.parent == root)
@@ -21,8 +28,8 @@ class NodeTest {
 
     @Test
     fun testRemovingChildNodes() {
-        val root = Node(Module(), Node::class)
-        val child = Node(Module(), Node::class)
+        val root = testNode()
+        val child = testNode()
         root.addChild(child)
         root.removeChild(child)
 
@@ -32,14 +39,26 @@ class NodeTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun testRemovingChildWithoutValidParent() {
-        val root = Node(Module(), Node::class)
-        val child = Node(Module(), Node::class)
+        val root = testNode()
+        val child = testNode()
         root.removeChild(child)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testAddingChildNodeToItself() {
-        val node = Node(Module(), Node::class)
+        val node = testNode()
         node.addChild(node)
     }
+
+    @Test
+    fun testUnregisteringRegistryRemovesChildFromParent() {
+        val parent = testNode()
+        val child = testNode()
+        parent.addChild(child)
+        NodeRegistry(parent, child).unregister()
+        assert(child.parent).isNull()
+        assert(parent.children).isEmpty()
+    }
+
+    private fun testNode() = Node(Module(), Scope(Node::class))
 }

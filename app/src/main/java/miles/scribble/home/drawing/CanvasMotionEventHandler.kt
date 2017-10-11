@@ -13,7 +13,7 @@ import android.support.v4.widget.ViewDragHelper.INVALID_POINTER
 import miles.scribble.home.viewmodel.PhotoMode
 
 /**
- * Created by mbpeele on 8/12/17.
+ * Created using mbpeele on 8/12/17.
  */
 class CanvasMotionEventHandler {
 

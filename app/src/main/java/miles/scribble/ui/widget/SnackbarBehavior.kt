@@ -8,7 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 
 /**
- * Created by mbpeele on 9/4/15.
+ * Created using mbpeele on 9/4/15.
  */
 class SnackbarBehavior(context: Context, attrs: AttributeSet) : CoordinatorLayout.Behavior<ViewGroup>() {
 

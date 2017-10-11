@@ -8,7 +8,7 @@ import android.graphics.EmbossMaskFilter
 import android.graphics.Paint
 
 /**
- * Created by Miles Peele on 7/26/2015.
+ * Created using Miles Peele on 7/26/2015.
  */
 object PaintStyles {
 

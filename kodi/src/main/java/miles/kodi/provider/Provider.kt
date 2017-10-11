@@ -1,7 +1,5 @@
 package miles.kodi.provider
 
-import miles.kodi.api.HasKodi
-
 /**
  * Created from mbpeele on 10/7/17.
  */
@@ -16,14 +14,4 @@ class LazyProvider<out T>(private val provider: Provider<T>) : Provider<T> {
 
     override fun provide(): T = value
 
-}
-
-inline fun <reified T> HasKodi.provider(crossinline block: HasKodi.() -> T) =
-        object : Provider<T> {
-            override fun provide() = block.invoke(kodi)
-        }
-
-inline fun <reified T> HasKodi.singleton(crossinline block: HasKodi.() -> T) : Provider<T> {
-    val provider = provider(block)
-    return LazyProvider(provider)
 }

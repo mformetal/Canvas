@@ -6,7 +6,7 @@ import android.text.TextPaint
 import android.widget.TextView
 
 /**
- * Created by mbpeele on 7/18/17.
+ * Created using mbpeele on 7/18/17.
  */
 class FixedTextDrawable(private val fixedText: String, textView: TextView) : Drawable() {
 

@@ -10,7 +10,7 @@ import android.widget.EditText
 import android.widget.TextView
 
 /**
- * Created by mbpeele on 6/25/17.
+ * Created using mbpeele on 6/25/17.
  */
 fun View.systemUIGone() {
     systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or

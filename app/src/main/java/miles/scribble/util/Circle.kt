@@ -3,7 +3,7 @@ package miles.scribble.util
 import android.graphics.RectF
 
 /**
- * Created by mbpeele on 12/17/15.
+ * Created using mbpeele on 12/17/15.
  */
 class Circle(centerX: Float, centerY: Float, val radius: Float) {
 

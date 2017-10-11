@@ -4,7 +4,7 @@ import android.os.SystemClock
 import miles.scribble.util.extensions.DateExtensions
 
 /**
- * Created by mbpeele on 11/29/15.
+ * Created using mbpeele on 11/29/15.
  */
 data class CanvasPoint(var x: Float, var y: Float, var time: Long = DateExtensions.currentTimeInMillis) {
 

@@ -7,7 +7,7 @@ import miles.kodi.api.HasKodi
 /**
  * Created from milespeele on 7/3/15.
  */
-class App : Application(), HasKodi {
+class App : Application() {
 
     override val kodi by lazy {
         Kodi.init {  }

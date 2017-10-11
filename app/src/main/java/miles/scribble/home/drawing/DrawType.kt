@@ -3,7 +3,7 @@ package miles.scribble.home.drawing
 import android.net.Uri
 
 /**
- * Created by mbpeele on 8/12/17.
+ * Created using mbpeele on 8/12/17.
  */
 enum class DrawType {
     NORMAL,

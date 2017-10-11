@@ -1,32 +1,35 @@
 package miles.kodi.api
 
-import miles.kodi.Kodi
-import miles.kodi.module.Builder
-import miles.kodi.module.Module
+import miles.kodi.internal.BindingBuilder
 import miles.kodi.provider.LazyProvider
 import miles.kodi.provider.Provider
+import kotlin.reflect.KClass
 
 /**
- * Created by mbpeele on 10/10/17.
+ * Created using peelemil on 10/11/17.
  */
-class KodiBuilder internal constructor(val module: Module, override val kodi: Kodi) : HasKodi {
+interface KodiBuilder {
 
-    @Suppress("RemoveExplicitTypeArguments")
-    inline fun <reified T> instance(tag: String = "") : T = kodi.instance<T>(tag)
+    fun child(builder: KodiBuilder.() -> Unit)
 
-    inline fun <reified T> bind(tag: String = "") : Builder = module.bind<T>(tag)
+    fun <T : Any> bind(tag: String = "", type: KClass<T>) : BindingBuilder
 
-    infix inline fun <reified T> Builder.with(provider: Provider<T>) {
-        module.providers.put(key, provider)
-    }
+    infix fun <T> BindingBuilder.using(provider: Provider<T>)
 
-    inline fun <reified T> provider(crossinline block: () -> T) =
-            object : Provider<T> {
-                override fun provide() = block.invoke()
-            }
+    fun <T : Any> get(tag: String = "", type: KClass<T>) : T
+}
 
-    inline fun <reified T> singleton(crossinline block: () -> T) : Provider<T> {
-        val provider = provider(block)
-        return LazyProvider(provider)
-    }
+inline fun <reified T : Any> KodiBuilder.bind(tag: String = "") : BindingBuilder =
+    bind(tag, T::class)
+
+inline fun <reified T : Any> KodiBuilder.get(key: String = "") = get(key, T::class)
+
+inline fun <reified T> provider(crossinline block: () -> T) =
+        object : Provider<T> {
+            override fun provide() = block.invoke()
+        }
+
+inline fun <reified T> singleton(crossinline block: () -> T) : Provider<T> {
+    val provider = provider(block)
+    return LazyProvider(provider)
 }

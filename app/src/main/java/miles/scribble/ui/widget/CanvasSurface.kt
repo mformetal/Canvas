@@ -13,7 +13,7 @@ import miles.scribble.home.events.CanvasSurfaceEvents
 import miles.scribble.home.viewmodel.HomeViewModel
 
 /**
- * Created by Miles Peele on 10/2/2015.
+ * Created using Miles Peele on 10/2/2015.
  */
 class CanvasSurface : SurfaceView, SurfaceHolder.Callback {
 

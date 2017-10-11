@@ -7,7 +7,7 @@ import miles.redux.core.State
 import miles.redux.core.Store
 
 /**
- * Created by mbpeele on 6/30/17.
+ * Created using mbpeele on 6/30/17.
  */
 open class StoreViewModel<S : State, out SR : Store<S>>(val store: SR) : ViewModel() {
 

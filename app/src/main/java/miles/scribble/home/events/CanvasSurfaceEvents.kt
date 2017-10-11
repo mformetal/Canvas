@@ -10,7 +10,7 @@ import miles.scribble.home.drawing.CanvasMotionEventHandler
 
 
 /**
- * Created by mbpeele on 6/30/17.
+ * Created using mbpeele on 6/30/17.
  */
 sealed class CanvasSurfaceEvents : Event {
 

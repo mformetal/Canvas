@@ -12,7 +12,7 @@ import miles.scribble.R
 
 
 /**
- * Created by mbpeele on 7/23/17.
+ * Created using mbpeele on 7/23/17.
  */
 fun View.scaleDown(scaleX: Float, scaleY: Float, duration : Long = 350) : ObjectAnimator {
     return ObjectAnimator.ofPropertyValuesHolder(this,

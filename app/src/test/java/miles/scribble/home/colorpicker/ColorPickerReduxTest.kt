@@ -17,7 +17,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 /**
- * Created by mbpeele on 8/12/17.
+ * Created using mbpeele on 8/12/17.
  */
 @RunWith(RobolectricTestRunner::class)
 class ColorPickerReduxTest {

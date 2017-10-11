@@ -9,7 +9,7 @@ import java.security.MessageDigest
 
 
 /**
- * Created by mbpeele on 8/18/17.
+ * Created using mbpeele on 8/18/17.
  */
 internal class GrayScaleTransformation : BitmapTransformation() {
 

@@ -5,7 +5,7 @@ import android.graphics.Paint
 import miles.scribble.home.drawing.CanvasPoint
 
 /**
- * Created by mbpeele on 1/4/16.
+ * Created using mbpeele on 1/4/16.
  */
 internal class RedrawableLines(points: List<CanvasPoint>, paint: Paint) : Redrawable {
 

@@ -7,7 +7,7 @@ import miles.kodi.api.ScopeRegistry
 import miles.scribble.util.extensions.app
 
 /**
- * Created by mbpeele on 10/8/17.
+ * Created using mbpeele on 10/8/17.
  */
 abstract class KodiActivity : AppCompatActivity() {
 

@@ -6,7 +6,7 @@ import android.graphics.PointF
 import miles.redux.core.State
 
 /**
- * Created by mbpeele on 8/13/17.
+ * Created using mbpeele on 8/13/17.
  */
 data class PhotoState(val matrix: Matrix = Matrix(),
                       var photoBitmap : Bitmap?= null,

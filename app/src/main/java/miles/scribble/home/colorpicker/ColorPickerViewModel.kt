@@ -3,7 +3,7 @@ package miles.scribble.home.colorpicker
 import android.graphics.Color
 
 /**
- * Created by mbpeele on 7/18/17.
+ * Created using mbpeele on 7/18/17.
  */
 class ColorPickerViewModel(currentColor : Int = Color.BLACK, private val colorChangeListener: (Int, Int) -> Unit) {
 

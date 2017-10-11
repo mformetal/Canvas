@@ -8,7 +8,7 @@ import miles.scribble.util.extensions.drawBitmap
 import miles.scribble.util.extensions.largest
 
 /**
- * Created by mbpeele on 6/28/17.
+ * Created using mbpeele on 6/28/17.
  */
 class HomeViewModel(homeStore: HomeStore) : StoreViewModel<HomeState, Store<HomeState>>(homeStore) {
 

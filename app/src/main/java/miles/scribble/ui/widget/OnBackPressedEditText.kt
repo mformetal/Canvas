@@ -7,7 +7,7 @@ import android.view.KeyEvent
 import android.view.inputmethod.InputMethodManager
 
 /**
- * Created by mbpeele on 9/2/15.
+ * Created using mbpeele on 9/2/15.
  */
 class OnBackPressedEditText : AppCompatEditText {
 

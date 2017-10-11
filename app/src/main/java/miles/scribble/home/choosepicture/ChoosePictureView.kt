@@ -5,7 +5,7 @@ import android.util.AttributeSet
 import android.widget.FrameLayout
 
 /**
- * Created by mbpeele on 9/10/17.
+ * Created using mbpeele on 9/10/17.
  */
 class ChoosePictureView : FrameLayout {
 

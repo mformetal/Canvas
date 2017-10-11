@@ -11,7 +11,7 @@ import android.R.attr.path
 
 
 /**
- * Created by mbpeele on 7/29/17.
+ * Created using mbpeele on 7/29/17.
  */
 class BrushExampleView : View {
 

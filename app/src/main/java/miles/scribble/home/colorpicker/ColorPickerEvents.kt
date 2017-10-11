@@ -6,7 +6,7 @@ import miles.redux.core.Event
 import miles.redux.core.Reducer
 
 /**
- * Created by mbpeele on 7/22/17.
+ * Created using mbpeele on 7/22/17.
  */
 sealed class ColorPickerEvents : Event {
 

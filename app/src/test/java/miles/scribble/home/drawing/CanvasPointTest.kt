@@ -8,7 +8,7 @@ import org.junit.runner.RunWith
 import org.mockito.junit.MockitoJUnitRunner
 
 /**
- * Created by mbpeele on 8/12/17.
+ * Created using mbpeele on 8/12/17.
  */
 @RunWith(MockitoJUnitRunner::class)
 class CanvasPointTest {
