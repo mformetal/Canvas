@@ -1,10 +1,7 @@
 package miles.kodi
 
 import miles.kodi.api.*
-import miles.kodi.internal.KodiModule
-import miles.kodi.internal.Node
-import miles.kodi.internal.NodeRegistry
-import miles.kodi.internal.Module
+import miles.kodi.internal.*
 
 /**
  * Created by peelemil on 10/11/17.
@@ -25,6 +22,13 @@ class Kodi private constructor(internal val root: Node) {
         val scopeBuilder = KodiScopeBuilder(this).apply(builder)
         return NodeRegistry(scopeBuilder.parent, scopeBuilder.childNode)
     }
+
+    fun <T> instance(scope: Scope, key: String) : T {
+        val child = root.search { it.scope == scope } ?: throw NoMatchingScopeException(scope)
+        val result = child.searchParents { it.module.providers.containsKey(key) } ?: throw NoMatchingKeyException(key)
+        @Suppress("UNCHECKED_CAST")
+        return result.module.providers[key]!!.provide() as T
+    }
 }
 
 internal class KodiScopeBuilder(private val kodi: Kodi) : ScopeBuilder {
@@ -35,8 +39,7 @@ internal class KodiScopeBuilder(private val kodi: Kodi) : ScopeBuilder {
     lateinit var kodiModule: KodiModule
 
     override fun dependsOn(scope: Scope) : ScopeBuilder {
-        parent = kodi.root.search { it.scope == scope }
-            ?: throw IllegalArgumentException("No matching scope $scope exists.")
+        parent = kodi.root.search { it.scope == scope } ?: throw NoMatchingScopeException(scope)
         return this
     }
 

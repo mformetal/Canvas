@@ -19,9 +19,9 @@ internal class Module : KodiBuilder {
 
     override fun <T : Any> bind(tag: String, type: KClass<T>) : BindingBuilder {
         if (providers.keys.contains(type.simpleName) && tag.isEmpty()) {
-            throw IllegalStateException("Module cannot contain build of the same class without specifying a Tag.")
+            throw AmbiguousBindingException()
         } else if (providers.keys.contains(type.simpleName + tag)) {
-            throw IllegalStateException("Module cannot contain two build with the same Key.")
+            throw DuplicateBindingException()
         }
 
         val key = type.key(tag)

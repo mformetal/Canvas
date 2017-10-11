@@ -14,7 +14,7 @@ internal class Node(
 
     fun addChild(node: Node) {
         if (node == this) {
-            throw IllegalArgumentException("Cannot cyclically add $node to itself.")
+            throw CyclicalNodeAdditionException(node)
         }
 
         node.parent = this
@@ -23,7 +23,7 @@ internal class Node(
 
     fun removeChild(node: Node) {
         if (!children.contains(node) || node.parent != this) {
-            throw IllegalArgumentException("Node $node is not a child of $this")
+            throw RemovingNonChildNodeException(node, this)
         }
 
         node.parent = null
