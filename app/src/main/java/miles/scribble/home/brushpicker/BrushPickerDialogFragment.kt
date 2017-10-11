@@ -11,7 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import miles.kodi.Kodi
-import miles.kodi.api.Delinker
+import miles.kodi.api.ScopeRegistry
 import miles.kodi.api.inject
 import miles.kodi.module.provider
 import miles.redux.core.Dispatcher
@@ -33,7 +33,7 @@ class BrushPickerDialogFragment : KodiDialogFragment() {
     private lateinit var currentBrushView : BrushExampleView
     val viewModel : HomeViewModel by inject(activity.kodi)
 
-    override fun installModule(kodi: Kodi): Delinker {
+    override fun installModule(kodi: Kodi): ScopeRegistry {
         return kodi.link(HomeActivity::class, this::class, {
             bind<Dispatcher<BrushPickerEvents, BrushPickerEvents>>() from provider {
                 Dispatchers.create(kodi.instance<HomeViewModel>().store, BrushPickerReducer())

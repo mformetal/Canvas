@@ -17,9 +17,9 @@ class KodiTest {
 
         }
 
-        kodi.link(Kodi.ROOT, Activity::class, {
-
-        })
+        kodi.rootScope<KodiTest> {
+            bind<String>() with provider { "DUDE" }
+        }
 
         kodi.root.run {
             assert(children.size == 1)
@@ -30,10 +30,6 @@ class KodiTest {
     @Test
     fun testLinkingToChildrenOfRoot() {
         val kodi = Kodi.init {  }
-
-        kodi.link(Kodi.ROOT, Activity::class, {
-
-        })
 
         kodi.link(Activity::class, Fragment::class, {
 
@@ -49,11 +45,11 @@ class KodiTest {
     fun testUnbindingNode() {
         val kodi = Kodi.init {  }
 
-        val link = kodi.link(Kodi.ROOT, Activity::class, {
+        val registry = kodi.rootScope<Activity> {
 
-        })
+        }
 
-        link.delink()
+        registry.unregister()
 
         assert(kodi.root.children.isEmpty())
     }

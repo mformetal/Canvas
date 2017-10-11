@@ -5,11 +5,11 @@ import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.net.Uri
 import android.os.Bundle
+import android.system.Os.bind
 import io.reactivex.disposables.Disposable
 import miles.kodi.Kodi
-import miles.kodi.api.Delinker
+import miles.kodi.api.ScopeRegistry
 import miles.kodi.api.inject
-import miles.kodi.module.singleton
 import miles.scribble.R
 import miles.scribble.home.brushpicker.BrushPickerDialogFragment
 import miles.scribble.home.choosepicture.ChoosePictureFragment
@@ -22,6 +22,7 @@ import miles.scribble.util.extensions.app
 import miles.scribble.util.extensions.hasWriteSettingsPermission
 import miles.scribble.util.extensions.isAtLeastMarshmallow
 import miles.scribble.util.extensions.setAutoRotate
+import java.util.Collections.singleton
 
 
 class HomeActivity : KodiActivity() {
@@ -36,7 +37,7 @@ class HomeActivity : KodiActivity() {
     val viewModel : HomeViewModel by inject(app)
     lateinit var clickDispoable : Disposable
 
-    override fun installModule(kodi: Kodi): Delinker {
+    override fun installModule(kodi: Kodi): ScopeRegistry {
         return kodi.link(Kodi.ROOT, this::class, {
             bind<HomeViewModel>() from singleton {
                 ViewModelProviders.of(this@HomeActivity)[HomeViewModel::class.java]

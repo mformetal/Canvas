@@ -3,7 +3,7 @@ package miles.scribble.ui
 import android.os.Bundle
 import android.support.v4.app.DialogFragment
 import miles.kodi.Kodi
-import miles.kodi.api.Delinker
+import miles.kodi.api.ScopeRegistry
 import miles.scribble.util.extensions.app
 
 /**
@@ -11,7 +11,7 @@ import miles.scribble.util.extensions.app
  */
 abstract class KodiDialogFragment : DialogFragment() {
 
-    var delinker : Delinker?= null
+    var scopeRegistry: ScopeRegistry?= null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installModule(activity.app.kodi)
@@ -21,10 +21,10 @@ abstract class KodiDialogFragment : DialogFragment() {
     override fun onDestroy() {
         super.onDestroy()
 
-        delinker?.delink()
-        delinker = null
+        scopeRegistry?.unregister()
+        scopeRegistry = null
     }
 
-    abstract fun installModule(kodi: Kodi) : Delinker
+    abstract fun installModule(kodi: Kodi) : ScopeRegistry
 
 }

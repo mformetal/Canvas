@@ -5,11 +5,11 @@ import android.app.Dialog
 import android.content.DialogInterface
 import android.os.Bundle
 import android.support.v7.app.AlertDialog
+import android.system.Os.bind
 import android.view.WindowManager
 import miles.kodi.Kodi
-import miles.kodi.api.Delinker
+import miles.kodi.api.ScopeRegistry
 import miles.kodi.api.inject
-import miles.kodi.module.provider
 import miles.redux.core.Dispatcher
 import miles.redux.core.Dispatchers
 import miles.scribble.R
@@ -42,7 +42,7 @@ class ColorPickerDialogFragment : KodiDialogFragment() {
         }
     }
 
-    override fun installModule(kodi: Kodi): Delinker {
+    override fun installModule(kodi: Kodi): ScopeRegistry {
         return kodi.link(HomeActivity::class, this::class, {
             bind<Dispatcher<ColorPickerEvents, ColorPickerEvents>>() from provider {
                 Dispatchers.create(kodi.instance<HomeViewModel>().store, ColorPickerReducer())

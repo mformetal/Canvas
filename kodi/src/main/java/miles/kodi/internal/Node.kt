@@ -32,6 +32,22 @@ internal class Node(
         children.remove(node)
     }
 
+    fun linearSearch(predicate: (Node) -> Boolean) : Node? {
+        val stack = Stack<Node>()
+        stack.push(this)
+
+        while (stack.isEmpty()) {
+            val node = stack.pop()
+            if (predicate.invoke(node)) {
+                return node
+            } else {
+
+            }
+        }
+
+        return null
+    }
+
     fun search(predicate: (Node) -> Boolean) : Node? {
         val stack = Stack<Node>()
         stack.push(this)

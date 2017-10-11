@@ -6,7 +6,7 @@ import miles.kodi.provider.Provider
 /**
  * Created from mbpeele on 10/7/17.
  */
-class Module {
+internal class Module {
 
     @PublishedApi
     internal val providers: HashMap<String, Provider<*>> = HashMap()

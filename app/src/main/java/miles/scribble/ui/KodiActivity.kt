@@ -3,7 +3,7 @@ package miles.scribble.ui
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import miles.kodi.Kodi
-import miles.kodi.api.Delinker
+import miles.kodi.api.ScopeRegistry
 import miles.scribble.util.extensions.app
 
 /**
@@ -11,7 +11,7 @@ import miles.scribble.util.extensions.app
  */
 abstract class KodiActivity : AppCompatActivity() {
 
-    var delinker : Delinker ?= null
+    var scopeRegistry: ScopeRegistry ?= null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installModule(app.kodi)
@@ -21,9 +21,9 @@ abstract class KodiActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
 
-        delinker?.delink()
-        delinker = null
+        scopeRegistry?.unregister()
+        scopeRegistry = null
     }
 
-    abstract fun installModule(kodi: Kodi) : Delinker
+    abstract fun installModule(kodi: Kodi) : ScopeRegistry
 }
