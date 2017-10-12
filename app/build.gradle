@@ -21,7 +21,8 @@ android {
 
 dependencies {
     implementation project(":redux")
-    implementation project(":kodi")
+
+    implementation 'com.github.mformetal:kodi:v0.1.0'
 
     implementation ext.kotlin
 
