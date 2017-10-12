@@ -39,7 +39,8 @@ internal class Module : KodiBuilder {
     }
 }
 
-internal fun KClass<*>.key(tag: String) = simpleName + tag
+@PublishedApi
+internal fun KClass<*>.key(tag: String = "") = simpleName + tag
 
 internal fun module(block: Module.() -> Unit) = Module().apply(block)
 

@@ -11,7 +11,7 @@ internal class KodiModule(internal val nodeOfModule: Node,
 
     override fun <T : Any> get(tag: String, type: KClass<T>): T {
         val key = type.key(tag)
-        val node = nodeOfModule.searchParents { it.module.providers.contains(key) }
+        val node = nodeOfModule.searchUpToRoot { it.module.providers.contains(key) }
         @Suppress("FoldInitializerAndIfToElvis")
         if (node == null) {
             throw IllegalStateException("No binding with key $key exists for scope ${nodeOfModule.scope}.")

@@ -30,7 +30,7 @@ internal class Node(
         children.remove(node)
     }
 
-    fun searchParents(predicate: (Node) -> Boolean) : Node? {
+    fun searchUpToRoot(predicate: (Node) -> Boolean) : Node? {
         if (predicate.invoke(this)) {
             return this
         } else {

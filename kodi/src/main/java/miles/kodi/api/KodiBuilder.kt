@@ -24,12 +24,15 @@ inline fun <reified T : Any> KodiBuilder.bind(tag: String = "") : BindingBuilder
 
 inline fun <reified T : Any> KodiBuilder.get(key: String = "") = get(key, T::class)
 
-inline fun <reified T> provider(crossinline block: () -> T) =
+inline fun <T> provider(crossinline block: () -> T) =
         object : Provider<T> {
             override fun provide() = block.invoke()
         }
 
-inline fun <reified T> singleton(crossinline block: () -> T) : Provider<T> {
+inline fun <T> singleton(crossinline block: () -> T) : Provider<T> {
     val provider = provider(block)
     return LazyProvider(provider)
 }
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun <T> component(instance: T) : Provider<T> = provider { instance }

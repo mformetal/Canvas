@@ -6,6 +6,7 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import miles.kodi.api.*
+import miles.kodi.internal.key
 import java.util.*
 
 /**
@@ -162,6 +163,46 @@ class KodiTest {
 
         val result = kodi.root.search { it.scope == scoped<Activity>() }
         assert(result).isNull()
+    }
+
+    @Test
+    fun testBindingSameClassInSameScopeInDifferentPlacesWithoutTag() {
+        val first = "1"
+        val second = "2"
+
+        val kodi = Kodi.init {
+            bind<DependencyOne>() using provider { DependencyOne(first) }
+        }
+
+        kodi.scope {
+            with(scoped<Activity>())
+            build {
+                bind<DependencyOne>() using provider { DependencyOne(second) }
+            }
+        }
+
+        val instance = kodi.get<DependencyOne>(scoped<Activity>())
+        assert(instance.id).isEqualTo(second)
+    }
+
+    @Test
+    fun testBindingSameClassInSameScopeInDifferentPlacesWithTag() {
+        val first = "1"
+        val second = "2"
+
+        val kodi = Kodi.init {
+            bind<DependencyOne>("app") using provider { DependencyOne(first) }
+        }
+
+        kodi.scope {
+            with(scoped<Activity>())
+            build {
+                bind<DependencyOne>() using provider { DependencyOne(second) }
+            }
+        }
+
+        val instance = kodi.get<DependencyOne>(scoped<Activity>(), "app")
+        assert(instance.id).isEqualTo(first)
     }
 
     class Activity
