@@ -12,14 +12,14 @@ interface KodiBuilder {
 
     fun child(builder: KodiBuilder.() -> Unit)
 
-    fun <T : Any> bind(tag: String = "", type: KClass<T>) : BindingBuilder
+    fun <T : Any> bind(tag: String = "", type: KClass<T>) : BindingBuilder<T>
 
-    infix fun <T> BindingBuilder.using(provider: Provider<T>)
+    infix fun <T> BindingBuilder<T>.using(provider: Provider<T>)
 
     fun <T : Any> get(tag: String = "", type: KClass<T>) : T
 }
 
-inline fun <reified T : Any> KodiBuilder.bind(tag: String = "") : BindingBuilder =
+inline fun <reified T : Any> KodiBuilder.bind(tag: String = "") : BindingBuilder<T> =
     bind(tag, T::class)
 
 inline fun <reified T : Any> KodiBuilder.get(key: String = "") = get(key, T::class)

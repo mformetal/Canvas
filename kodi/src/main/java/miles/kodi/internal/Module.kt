@@ -17,7 +17,7 @@ internal class Module : KodiBuilder {
         providers.putAll(module.providers)
     }
 
-    override fun <T : Any> bind(tag: String, type: KClass<T>) : BindingBuilder {
+    override fun <T : Any> bind(tag: String, type: KClass<T>) : BindingBuilder<T> {
         if (providers.keys.contains(type.simpleName) && tag.isEmpty()) {
             throw AmbiguousBindingException()
         } else if (providers.keys.contains(type.simpleName + tag)) {
@@ -28,7 +28,7 @@ internal class Module : KodiBuilder {
         return BindingBuilder(key)
     }
 
-    override fun <T> BindingBuilder.using(provider: Provider<T>) {
+    override fun <T> BindingBuilder<T>.using(provider: Provider<T>) {
         providers.put(key, provider)
     }
 
@@ -41,4 +41,6 @@ internal class Module : KodiBuilder {
     fun KClass<*>.key(tag: String) = simpleName + tag
 }
 
-class BindingBuilder(val key: String)
+internal fun module(block: Module.() -> Unit) = Module().apply(block)
+
+class BindingBuilder<T>(val key: String)
