@@ -8,12 +8,14 @@ import android.support.v7.app.AlertDialog
 import android.system.Os.bind
 import android.view.WindowManager
 import miles.kodi.Kodi
-import miles.kodi.api.ScopeRegistry
-import miles.kodi.api.inject
+import miles.kodi.api.*
+import miles.kodi.api.injection.register
 import miles.redux.core.Dispatcher
 import miles.redux.core.Dispatchers
+import miles.redux.core.Store
 import miles.scribble.R
 import miles.scribble.home.HomeActivity
+import miles.scribble.home.viewmodel.HomeState
 import miles.scribble.home.viewmodel.HomeViewModel
 import miles.scribble.ui.KodiDialogFragment
 import miles.scribble.util.ViewUtils
@@ -28,8 +30,8 @@ class ColorPickerDialogFragment : KodiDialogFragment() {
     private val KEY_TO_FILL = "fill"
 
     private lateinit var colorPicker : ColorPickerView
-    val dispatcher : Dispatcher<ColorPickerEvents, ColorPickerEvents> by inject(activity.kodi)
-    val viewModel : HomeViewModel by inject(activity.app)
+    val dispatcher : Dispatcher<ColorPickerEvents, ColorPickerEvents> by injector.register()
+    val viewModel : HomeViewModel by injector.register()
 
     companion object {
         @SuppressLint("NewApi")
@@ -43,11 +45,15 @@ class ColorPickerDialogFragment : KodiDialogFragment() {
     }
 
     override fun installModule(kodi: Kodi): ScopeRegistry {
-        return kodi.link(HomeActivity::class, this::class, {
-            bind<Dispatcher<ColorPickerEvents, ColorPickerEvents>>() from provider {
-                Dispatchers.create(kodi.instance<HomeViewModel>().store, ColorPickerReducer())
+        return kodi.scope {
+            dependsOn(scoped<HomeActivity>())
+            with(scoped<ColorPickerDialogFragment>())
+            build {
+                bind<Dispatcher<ColorPickerEvents, ColorPickerEvents>>() using provider {
+                    Dispatchers.create(get(), ColorPickerReducer())
+                }
             }
-        })
+        }
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {

@@ -8,13 +8,15 @@ import android.os.Bundle
 import android.system.Os.bind
 import io.reactivex.disposables.Disposable
 import miles.kodi.Kodi
-import miles.kodi.api.ScopeRegistry
-import miles.kodi.api.inject
+import miles.kodi.api.*
+import miles.kodi.api.injection.register
+import miles.redux.core.Store
 import miles.scribble.R
 import miles.scribble.home.brushpicker.BrushPickerDialogFragment
 import miles.scribble.home.choosepicture.ChoosePictureFragment
 import miles.scribble.home.colorpicker.ColorPickerDialogFragment
 import miles.scribble.home.events.CircleMenuEvents
+import miles.scribble.home.viewmodel.HomeState
 import miles.scribble.home.viewmodel.HomeViewModel
 import miles.scribble.ui.KodiActivity
 import miles.scribble.util.ViewUtils
@@ -34,15 +36,17 @@ class HomeActivity : KodiActivity() {
     private val REQUEST_PERMISSION_WRITE_SETTINGS = 1
     private val REQUEST_IMPORT_CODE = 2
 
-    val viewModel : HomeViewModel by inject(app)
+    val viewModel : HomeViewModel by injector.register()
     lateinit var clickDispoable : Disposable
 
     override fun installModule(kodi: Kodi): ScopeRegistry {
-        return kodi.link(Kodi.ROOT, this::class, {
-            bind<HomeViewModel>() from singleton {
-                ViewModelProviders.of(this@HomeActivity)[HomeViewModel::class.java]
+        return kodi.scope {
+            with(scoped<HomeActivity>())
+            build {
+                bind<HomeViewModel>() using provider { ViewModelProviders.of(this@HomeActivity)[HomeViewModel::class.java] }
+                bind<Store<HomeState>>() using provider { get<HomeViewModel>().store }
             }
-        })
+        }
     }
 
     public override fun onCreate(savedInstanceState: Bundle?) {

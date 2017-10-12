@@ -8,9 +8,16 @@ import android.view.MotionEvent
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.View
+import miles.kodi.api.scoped
 import miles.redux.core.Dispatcher
+import miles.redux.core.Dispatchers
+import miles.scribble.home.HomeActivity
+import miles.scribble.home.drawing.CanvasMotionEventHandler
 import miles.scribble.home.events.CanvasSurfaceEvents
+import miles.scribble.home.events.CanvasSurfaceReducer
+import miles.scribble.home.events.CircleMenuEventsReducer
 import miles.scribble.home.viewmodel.HomeViewModel
+import miles.scribble.util.extensions.kodi
 
 /**
  * Created using Miles Peele on 10/2/2015.
@@ -34,7 +41,8 @@ class CanvasSurface : SurfaceView, SurfaceHolder.Callback {
     }
 
     fun init() {
-        setLayerType(View.LAYER_TYPE_NONE, null)
+        viewModel = context.kodi.get(scoped<HomeActivity>())
+        dispatcher = Dispatchers.create(viewModel.store, CanvasSurfaceReducer(CanvasMotionEventHandler()))
 
         setWillNotDraw(false)
         isSaveEnabled = true

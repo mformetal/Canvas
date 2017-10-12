@@ -5,6 +5,8 @@ package miles.kodi.api
  */
 interface ScopeRegistry {
 
+    val scope : Scope
+
     fun unregister()
 
 }

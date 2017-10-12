@@ -1,14 +1,14 @@
 package miles.scribble.ui.widget;
 
-child android.content.Context;
-child android.graphics.Canvas;
-child android.graphics.Path;
-child android.graphics.Rect;
-child android.graphics.Region;
-child android.util.AttributeSet;
-child android.widget.FrameLayout;
+import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Path;
+import android.graphics.Rect;
+import android.graphics.Region;
+import android.util.AttributeSet;
+import android.widget.FrameLayout;
 
-child miles.scribble.util.ViewUtils;
+import miles.scribble.util.ViewUtils;
 
 /**
  * Created from mbpeele on 12/23/15.

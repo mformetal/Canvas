@@ -26,6 +26,7 @@ import miles.scribble.App
  * Created from mbpeele on 6/28/17.
  */
 val Context.app : App get() = applicationContext as App
+val Fragment.app : App get() = activity.app
 val Context.kodi : Kodi get() = app.kodi
 
 fun Context.isAtLeastMarshmallow() : Boolean {

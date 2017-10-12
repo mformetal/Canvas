@@ -15,8 +15,10 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.widget.Toolbar
 import io.reactivex.disposables.Disposable
+import miles.kodi.api.scoped
 import miles.redux.rx.flowable
 import miles.scribble.R
+import miles.scribble.home.HomeActivity
 import miles.scribble.home.drawing.CanvasPoint
 import miles.scribble.home.viewmodel.HomeViewModel
 import miles.scribble.util.ViewUtils
@@ -30,7 +32,7 @@ class CanvasLayout : CoordinatorLayout {
 
     private lateinit var flowableListener : Disposable
 
-    lateinit var homeViewModel : HomeViewModel
+    private lateinit var homeViewModel : HomeViewModel
 
     private val surface by lazyInflate<CanvasSurface>(R.id.canvas_surface)
     private val circleMenu by lazyInflate<CircleMenu>(R.id.canvas_fab_menu)
@@ -64,7 +66,7 @@ class CanvasLayout : CoordinatorLayout {
     }
 
     private fun init() {
-        homeViewModel = context.kodi.instance()
+        homeViewModel = context.kodi.get(scoped<HomeActivity>())
 
         mShadowPaint = Paint(Paint.ANTI_ALIAS_FLAG)
         mShadowPaint.color = Color.BLACK

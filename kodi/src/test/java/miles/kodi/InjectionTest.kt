@@ -10,7 +10,6 @@ import assertk.assert
 import assertk.assertions.isEqualTo
 import miles.kodi.api.injection.InjectionRegistry
 import miles.kodi.internal.InjectNotCalledException
-import java.util.*
 
 /**
  * Created by peelemil on 10/11/17.
@@ -55,6 +54,6 @@ class InjectionTest {
 
         val string: String by injector.register()
 
-        fun inject(kodi: Kodi) = injector.inject(kodi)
+        fun inject(kodi: Kodi) = injector.inject(kodi, )
     }
 }

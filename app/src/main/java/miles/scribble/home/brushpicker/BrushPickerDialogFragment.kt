@@ -11,9 +11,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import miles.kodi.Kodi
-import miles.kodi.api.ScopeRegistry
-import miles.kodi.api.inject
-import miles.kodi.module.provider
+import miles.kodi.api.*
+import miles.kodi.api.injection.register
 import miles.redux.core.Dispatcher
 import miles.redux.core.Dispatchers
 import miles.scribble.R
@@ -31,14 +30,18 @@ class BrushPickerDialogFragment : KodiDialogFragment() {
 
     private lateinit var recycler : RecyclerView
     private lateinit var currentBrushView : BrushExampleView
-    val viewModel : HomeViewModel by inject(activity.kodi)
+    val viewModel : HomeViewModel by injector.register()
 
     override fun installModule(kodi: Kodi): ScopeRegistry {
-        return kodi.link(HomeActivity::class, this::class, {
-            bind<Dispatcher<BrushPickerEvents, BrushPickerEvents>>() from provider {
-                Dispatchers.create(kodi.instance<HomeViewModel>().store, BrushPickerReducer())
+        return kodi.scope {
+            dependsOn(scoped<HomeActivity>())
+            with(scoped<BrushPickerDialogFragment>())
+            build {
+                bind<Dispatcher<BrushPickerEvents, BrushPickerEvents>>() using provider {
+                    Dispatchers.create(get(), BrushPickerReducer())
+                }
             }
-        })
+        }
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {

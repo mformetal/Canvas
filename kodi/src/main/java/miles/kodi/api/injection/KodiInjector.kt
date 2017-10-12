@@ -10,7 +10,7 @@ import kotlin.reflect.KProperty
 /**
  * Created by peelemil on 10/11/17.
  */
-class KodiInjector(val scope: Scope) : InjectionRegistry {
+class KodiInjector : InjectionRegistry {
 
     private val injectionProperties: MutableSet<InjectionProperty<*>> = mutableSetOf()
 
@@ -20,7 +20,7 @@ class KodiInjector(val scope: Scope) : InjectionRegistry {
         return injection
     }
 
-    override fun inject(kodi: Kodi) {
+    override fun inject(kodi: Kodi, scope: Scope) {
         injectionProperties.forEach { it.provide(kodi, scope) }
         injectionProperties.clear()
     }

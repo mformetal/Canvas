@@ -1,30 +1,30 @@
 package miles.scribble.ui.widget;
 
-child android.animation.Animator;
-child android.animation.AnimatorListenerAdapter;
-child android.animation.AnimatorSet;
-child android.animation.ObjectAnimator;
-child android.animation.PropertyValuesHolder;
-child android.animation.ValueAnimator;
-child android.content.Context;
-child android.graphics.Canvas;
-child android.graphics.Paint;
-child android.graphics.Path;
-child android.graphics.PorterDuff;
-child android.graphics.Rect;
-child android.graphics.drawable.Drawable;
-child android.os.Handler;
-child android.support.v4.content.ContextCompat;
-child android.util.AttributeSet;
-child android.view.View;
-child android.view.animation.AnticipateOvershootInterpolator;
-child android.view.animation.DecelerateInterpolator;
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
+import android.animation.PropertyValuesHolder;
+import android.animation.ValueAnimator;
+import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Path;
+import android.graphics.PorterDuff;
+import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
+import android.os.Handler;
+import android.support.v4.content.ContextCompat;
+import android.util.AttributeSet;
+import android.view.View;
+import android.view.animation.AnticipateOvershootInterpolator;
+import android.view.animation.DecelerateInterpolator;
 
-child java.util.ArrayList;
-child java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Arrays;
 
-child miles.scribble.R;
-child miles.scribble.util.ViewUtils;
+import miles.scribble.R;
+import miles.scribble.util.ViewUtils;
 
 /**
  * Created from mbpeele on 1/6/16.

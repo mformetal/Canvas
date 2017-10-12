@@ -17,10 +17,12 @@ import android.view.animation.AnticipateInterpolator
 import android.view.animation.DecelerateInterpolator
 import android.view.animation.OvershootInterpolator
 import io.reactivex.disposables.Disposable
+import miles.kodi.api.scoped
 import miles.redux.core.Dispatcher
 import miles.redux.core.Dispatchers
 import miles.redux.rx.flowable
 import miles.scribble.R
+import miles.scribble.home.HomeActivity
 import miles.scribble.home.events.CircleMenuEvents
 import miles.scribble.home.events.CircleMenuEventsReducer
 import miles.scribble.home.viewmodel.HomeViewModel
@@ -76,7 +78,7 @@ class CircleMenu : ViewGroup {
     }
 
     private fun init() {
-        viewModel = context.kodi.instance()
+        viewModel = context.kodi.get(scoped<HomeActivity>())
         dispatcher = Dispatchers.create(viewModel.store, CircleMenuEventsReducer())
 
         setWillNotDraw(false)
