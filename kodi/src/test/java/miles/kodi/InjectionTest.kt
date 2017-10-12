@@ -8,6 +8,9 @@ import miles.kodi.api.scoped
 import org.junit.Test
 import assertk.assert
 import assertk.assertions.isEqualTo
+import miles.kodi.api.injection.InjectionRegistry
+import miles.kodi.internal.InjectNotCalledException
+import java.util.*
 
 /**
  * Created by peelemil on 10/11/17.
@@ -19,38 +22,38 @@ class InjectionTest {
         val kodi = Kodi.init {  }
 
         kodi.scope {
-            with(scoped<Injectable>())
+            with(scoped<SimpleInjection>())
             build {
                 bind<String>() using provider { "BRO" }
             }
         }
 
-        val injectable = Injectable()
+        val injectable = SimpleInjection()
 
         injectable.inject(kodi)
 
         assert(injectable.string).isEqualTo("BRO")
     }
 
-    @Test(expected = UninitializedPropertyAccessException::class)
+    @Test(expected = InjectNotCalledException::class)
     fun testInjectionWithoutCallingInject() {
         val kodi = Kodi.init {  }
 
         kodi.scope {
-            with(scoped<Injectable>())
+            with(scoped<SimpleInjection>())
             build {
                 bind<String>() using provider { "BRO" }
             }
         }
 
-        Injectable().string
+        SimpleInjection().string
     }
 
-    class Injectable {
+    class SimpleInjection {
 
-        private val injector = KodiInjector(scoped<Injectable>())
+        private val injector : InjectionRegistry = KodiInjector(scoped<SimpleInjection>())
 
-        val string : String by injector.register()
+        val string: String by injector.register()
 
         fun inject(kodi: Kodi) = injector.inject(kodi)
     }

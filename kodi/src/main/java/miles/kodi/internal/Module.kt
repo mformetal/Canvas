@@ -37,9 +37,9 @@ internal class Module : KodiBuilder {
         @Suppress("UNCHECKED_CAST")
         return providers[key]!!.provide() as T
     }
-
-    fun KClass<*>.key(tag: String) = simpleName + tag
 }
+
+internal fun KClass<*>.key(tag: String) = simpleName + tag
 
 internal fun module(block: Module.() -> Unit) = Module().apply(block)
 
