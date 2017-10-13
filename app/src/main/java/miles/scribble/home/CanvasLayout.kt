@@ -1,4 +1,4 @@
-package miles.scribble.ui.widget
+package miles.scribble.home
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
@@ -18,7 +18,6 @@ import io.reactivex.disposables.Disposable
 import miles.kodi.api.scoped
 import miles.redux.rx.flowable
 import miles.scribble.R
-import miles.scribble.home.HomeActivity
 import miles.scribble.home.drawing.CanvasPoint
 import miles.scribble.home.viewmodel.HomeViewModel
 import miles.scribble.util.ViewUtils

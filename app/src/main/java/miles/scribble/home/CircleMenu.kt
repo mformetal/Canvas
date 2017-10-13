@@ -1,4 +1,4 @@
-package miles.scribble.ui.widget
+package miles.scribble.home
 
 import android.animation.*
 import android.annotation.SuppressLint
@@ -22,7 +22,6 @@ import miles.redux.core.Dispatcher
 import miles.redux.core.Dispatchers
 import miles.redux.rx.flowable
 import miles.scribble.R
-import miles.scribble.home.HomeActivity
 import miles.scribble.home.events.CircleMenuEvents
 import miles.scribble.home.events.CircleMenuEventsReducer
 import miles.scribble.home.viewmodel.HomeViewModel

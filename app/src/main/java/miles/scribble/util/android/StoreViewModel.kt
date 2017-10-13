@@ -1,7 +1,5 @@
-package miles.scribble.redux.core
+package miles.scribble.util.android
 
-import android.app.Application
-import android.arch.lifecycle.AndroidViewModel
 import android.arch.lifecycle.ViewModel
 import miles.redux.core.State
 import miles.redux.core.Store

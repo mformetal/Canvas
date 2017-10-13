@@ -35,21 +35,21 @@ private fun getMaxSize(context: Context): Int {
 
 internal class BitmapCache(context: Context) : LruCache<Uri, Bitmap>(getMaxSize(context)) {
 
-    val mReusableBitmaps: MutableSet<SoftReference<Bitmap>> = Collections.synchronizedSet(HashSet<SoftReference<Bitmap>>())
-    val mViewWidth: Int
-    val mViewHeight: Int
+    val reusableBitmaps: MutableSet<SoftReference<Bitmap>> = Collections.synchronizedSet(HashSet<SoftReference<Bitmap>>())
+    val viewWidth: Int
+    val viewHeight: Int
 
     init {
         val size = Point().apply {
             (context.getSystemService(Context.WINDOW_SERVICE) as WindowManager).defaultDisplay.getSize(this)
         }
-        mViewWidth = size.x
-        mViewHeight = size.y
+        viewWidth = size.x
+        viewHeight = size.y
     }
 
     override fun onItemEvicted(key: Uri?, item: Bitmap?) {
         super.onItemEvicted(key, item)
-        mReusableBitmaps.add(SoftReference<Bitmap>(item))
+        reusableBitmaps.add(SoftReference<Bitmap>(item))
     }
 
     @Throws(IOException::class)
@@ -76,7 +76,7 @@ internal class BitmapCache(context: Context) : LruCache<Uri, Bitmap>(getMaxSize(
 
         `in`.reset()
 
-        options.inSampleSize = BitmapUtils.calculateInSampleSize(options, mViewWidth, mViewHeight)
+        options.inSampleSize = calculateInSampleSize(options, viewWidth, viewHeight)
 
         addInBitmapOptions(options)
 
@@ -96,9 +96,9 @@ internal class BitmapCache(context: Context) : LruCache<Uri, Bitmap>(getMaxSize(
     private fun getBitmapFromReusableSet(options: BitmapFactory.Options): Bitmap? {
         var bitmap: Bitmap? = null
 
-        if (mReusableBitmaps.isNotEmpty()) {
-            synchronized(mReusableBitmaps) {
-                val iterator = mReusableBitmaps.iterator()
+        if (reusableBitmaps.isNotEmpty()) {
+            synchronized(reusableBitmaps) {
+                val iterator = reusableBitmaps.iterator()
                 var item: Bitmap?
 
                 while (iterator.hasNext()) {
@@ -128,15 +128,31 @@ internal class BitmapCache(context: Context) : LruCache<Uri, Bitmap>(getMaxSize(
     }
 
     private fun getBytesPerPixel(config: Bitmap.Config): Int {
-        if (config == Bitmap.Config.ARGB_8888) {
-            return 4
-        } else if (config == Bitmap.Config.RGB_565) {
-            return 2
-        } else if (config == Bitmap.Config.ARGB_4444) {
-            return 2
-        } else if (config == Bitmap.Config.ALPHA_8) {
-            return 1
+        return when (config) {
+            Bitmap.Config.ARGB_8888 -> 4
+            Bitmap.Config.RGB_565 -> 2
+            Bitmap.Config.ARGB_4444 -> 2
+            Bitmap.Config.ALPHA_8 -> 1
+            else -> 1
         }
-        return 1
+    }
+
+    private fun calculateInSampleSize(options: BitmapFactory.Options,
+                              reqWidth: Int, reqHeight: Int): Int {
+        val height = options.outHeight
+        val width = options.outWidth
+        var inSampleSize = 1
+
+        if (height > reqHeight || width > reqWidth) {
+
+            val halfHeight = height / 2
+            val halfWidth = width / 2
+
+            while (halfHeight / inSampleSize > reqHeight && halfWidth / inSampleSize > reqWidth) {
+                inSampleSize *= 2
+            }
+        }
+
+        return inSampleSize
     }
 }

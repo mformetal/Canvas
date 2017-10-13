@@ -10,6 +10,8 @@ import miles.redux.core.Dispatcher
 import miles.redux.core.Dispatchers
 import miles.redux.core.SimpleStore
 import miles.redux.core.Store
+import miles.scribble.home.events.ColorPickerEvents
+import miles.scribble.home.events.ColorPickerReducer
 import miles.scribble.home.viewmodel.HomeState
 import org.junit.Before
 import org.junit.Test

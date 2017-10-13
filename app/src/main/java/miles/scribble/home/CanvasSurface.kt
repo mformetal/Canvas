@@ -1,4 +1,4 @@
-package miles.scribble.ui.widget
+package miles.scribble.home
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -7,15 +7,12 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.SurfaceHolder
 import android.view.SurfaceView
-import android.view.View
 import miles.kodi.api.scoped
 import miles.redux.core.Dispatcher
 import miles.redux.core.Dispatchers
-import miles.scribble.home.HomeActivity
 import miles.scribble.home.drawing.CanvasMotionEventHandler
 import miles.scribble.home.events.CanvasSurfaceEvents
 import miles.scribble.home.events.CanvasSurfaceReducer
-import miles.scribble.home.events.CircleMenuEventsReducer
 import miles.scribble.home.viewmodel.HomeViewModel
 import miles.scribble.util.extensions.kodi
 

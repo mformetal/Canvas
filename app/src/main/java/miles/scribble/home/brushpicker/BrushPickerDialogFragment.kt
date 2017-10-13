@@ -20,11 +20,12 @@ import miles.redux.core.Dispatcher
 import miles.redux.core.Dispatchers
 import miles.scribble.R
 import miles.scribble.home.HomeActivity
+import miles.scribble.home.events.BrushPickerEvents
+import miles.scribble.home.events.BrushPickerReducer
 import miles.scribble.home.viewmodel.HomeViewModel
 import miles.scribble.ui.KodiDialogFragment
 import miles.scribble.util.PaintStyles
 import miles.scribble.util.extensions.inflater
-import miles.scribble.util.extensions.kodi
 
 /**
  * Created from mbpeele on 7/29/17.

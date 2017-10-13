@@ -1,4 +1,4 @@
-package miles.scribble.home
+package miles.scribble.home.events
 
 import android.content.ContentResolver
 import android.graphics.Bitmap

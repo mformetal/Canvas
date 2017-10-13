@@ -1,4 +1,4 @@
-<miles.scribble.ui.widget.CanvasLayout
+<miles.scribble.home.CanvasLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:visibility="gone" />
 
-    <miles.scribble.ui.widget.CanvasSurface
+    <miles.scribble.home.CanvasSurface
         android:id="@+id/canvas_surface"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
@@ -25,4 +25,4 @@
         android:layout_gravity="bottom|center_horizontal"
         app:layout_behavior="miles.scribble.ui.widget.SnackbarBehavior" />
 
-</miles.scribble.ui.widget.CanvasLayout>
+</miles.scribble.home.CanvasLayout>

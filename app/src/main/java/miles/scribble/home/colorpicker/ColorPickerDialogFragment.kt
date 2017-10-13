@@ -5,7 +5,6 @@ import android.app.Dialog
 import android.content.DialogInterface
 import android.os.Bundle
 import android.support.v7.app.AlertDialog
-import android.system.Os.bind
 import android.view.WindowManager
 import miles.kodi.Kodi
 import miles.kodi.api.*
@@ -15,10 +14,10 @@ import miles.kodi.api.injection.register
 import miles.kodi.provider.provider
 import miles.redux.core.Dispatcher
 import miles.redux.core.Dispatchers
-import miles.redux.core.Store
 import miles.scribble.R
 import miles.scribble.home.HomeActivity
-import miles.scribble.home.viewmodel.HomeState
+import miles.scribble.home.events.ColorPickerEvents
+import miles.scribble.home.events.ColorPickerReducer
 import miles.scribble.home.viewmodel.HomeViewModel
 import miles.scribble.ui.KodiDialogFragment
 import miles.scribble.util.ViewUtils

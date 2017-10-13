@@ -3,9 +3,9 @@ package miles.scribble.home.viewmodel
 import android.graphics.Canvas
 import miles.redux.core.Store
 import miles.scribble.home.drawing.DrawType
-import miles.scribble.redux.core.StoreViewModel
+import miles.scribble.util.android.StoreViewModel
 import miles.scribble.util.extensions.drawBitmap
-import miles.scribble.util.extensions.largest
+import miles.scribble.util.extensions.larger
 
 /**
  * Created using mbpeele on 6/28/17.
@@ -25,8 +25,8 @@ class HomeViewModel(homeStore: HomeStore) : StoreViewModel<HomeState, Store<Home
                 }
                 DrawType.INK -> {
                     // To account for portrait/ landscape
-                    val majorDimen = canvas.width.largest(canvas.height)
-                    val minorDimen = canvas.width.largest(canvas.height)
+                    val majorDimen = canvas.width larger canvas.height
+                    val minorDimen = canvas.width larger canvas.height
 
                     val lineSize = majorDimen * .1f
                     val xSpace = majorDimen * .05f

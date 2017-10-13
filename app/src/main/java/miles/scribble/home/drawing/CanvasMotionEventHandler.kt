@@ -7,7 +7,6 @@ import android.view.MotionEvent
 import miles.scribble.home.drawing.redrawable.RedrawableLines
 import miles.scribble.home.viewmodel.HomeState
 import miles.scribble.util.extensions.angle
-import miles.scribble.util.extensions.copy
 import miles.scribble.util.extensions.distance
 import android.support.v4.widget.ViewDragHelper.INVALID_POINTER
 import miles.scribble.home.viewmodel.PhotoMode

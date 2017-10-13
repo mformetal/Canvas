@@ -12,8 +12,8 @@ import miles.redux.core.Dispatcher
 import miles.redux.core.Dispatchers
 import miles.redux.core.SimpleStore
 import miles.redux.core.Store
-import miles.scribble.home.HomeActivityEvents
-import miles.scribble.home.HomeActivityEventsReducer
+import miles.scribble.home.events.HomeActivityEvents
+import miles.scribble.home.events.HomeActivityEventsReducer
 import miles.scribble.home.viewmodel.HomeState
 import miles.scribble.home.viewmodel.HomeViewModel
 import org.junit.Before
