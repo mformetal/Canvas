@@ -9,7 +9,10 @@ import android.system.Os.bind
 import io.reactivex.disposables.Disposable
 import miles.kodi.Kodi
 import miles.kodi.api.*
+import miles.kodi.api.builder.bind
+import miles.kodi.api.builder.get
 import miles.kodi.api.injection.register
+import miles.kodi.provider.provider
 import miles.redux.core.Store
 import miles.scribble.R
 import miles.scribble.home.brushpicker.BrushPickerDialogFragment
@@ -41,8 +44,7 @@ class HomeActivity : KodiActivity() {
 
     override fun installModule(kodi: Kodi): ScopeRegistry {
         return kodi.scope {
-            with(scoped<HomeActivity>())
-            build {
+            build(scoped<HomeActivity>()) {
                 bind<HomeViewModel>() using provider { ViewModelProviders.of(this@HomeActivity)[HomeViewModel::class.java] }
                 bind<Store<HomeState>>() using provider { get<HomeViewModel>().store }
             }

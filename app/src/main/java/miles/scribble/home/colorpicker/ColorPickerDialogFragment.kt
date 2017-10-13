@@ -9,7 +9,10 @@ import android.system.Os.bind
 import android.view.WindowManager
 import miles.kodi.Kodi
 import miles.kodi.api.*
+import miles.kodi.api.builder.bind
+import miles.kodi.api.builder.get
 import miles.kodi.api.injection.register
+import miles.kodi.provider.provider
 import miles.redux.core.Dispatcher
 import miles.redux.core.Dispatchers
 import miles.redux.core.Store
@@ -47,8 +50,7 @@ class ColorPickerDialogFragment : KodiDialogFragment() {
     override fun installModule(kodi: Kodi): ScopeRegistry {
         return kodi.scope {
             dependsOn(scoped<HomeActivity>())
-            with(scoped<ColorPickerDialogFragment>())
-            build {
+            build(scoped<ColorPickerDialogFragment>()) {
                 bind<Dispatcher<ColorPickerEvents, ColorPickerEvents>>() using provider {
                     Dispatchers.create(get(), ColorPickerReducer())
                 }

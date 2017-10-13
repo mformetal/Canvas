@@ -66,7 +66,7 @@ class CanvasLayout : CoordinatorLayout {
     }
 
     private fun init() {
-        homeViewModel = context.kodi.get(scoped<HomeActivity>())
+        homeViewModel = context.kodi.instance(scoped<HomeActivity>())
 
         mShadowPaint = Paint(Paint.ANTI_ALIAS_FLAG)
         mShadowPaint.color = Color.BLACK

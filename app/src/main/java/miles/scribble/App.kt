@@ -2,8 +2,8 @@ package miles.scribble
 
 import android.app.Application
 import miles.kodi.Kodi
-import miles.kodi.api.bind
-import miles.kodi.api.component
+import miles.kodi.api.builder.bind
+import miles.kodi.provider.component
 
 /**
  * Created from milespeele on 7/3/15.

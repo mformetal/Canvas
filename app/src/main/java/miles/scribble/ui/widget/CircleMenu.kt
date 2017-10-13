@@ -78,7 +78,7 @@ class CircleMenu : ViewGroup {
     }
 
     private fun init() {
-        viewModel = context.kodi.get(scoped<HomeActivity>())
+        viewModel = context.kodi.instance(scoped<HomeActivity>())
         dispatcher = Dispatchers.create(viewModel.store, CircleMenuEventsReducer())
 
         setWillNotDraw(false)

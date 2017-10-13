@@ -12,7 +12,10 @@ import android.view.ViewGroup
 import android.widget.TextView
 import miles.kodi.Kodi
 import miles.kodi.api.*
+import miles.kodi.api.builder.bind
+import miles.kodi.api.builder.get
 import miles.kodi.api.injection.register
+import miles.kodi.provider.provider
 import miles.redux.core.Dispatcher
 import miles.redux.core.Dispatchers
 import miles.scribble.R
@@ -35,8 +38,7 @@ class BrushPickerDialogFragment : KodiDialogFragment() {
     override fun installModule(kodi: Kodi): ScopeRegistry {
         return kodi.scope {
             dependsOn(scoped<HomeActivity>())
-            with(scoped<BrushPickerDialogFragment>())
-            build {
+            build(scoped<BrushPickerDialogFragment>()) {
                 bind<Dispatcher<BrushPickerEvents, BrushPickerEvents>>() using provider {
                     Dispatchers.create(get(), BrushPickerReducer())
                 }
