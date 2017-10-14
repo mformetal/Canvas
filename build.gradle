@@ -3,11 +3,11 @@ buildscript {
 
     repositories {
         jcenter()
-        maven { url 'https://maven.google.com' }
+        google()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.0.0-beta7'
+        classpath 'com.android.tools.build:gradle:2.3.3'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}"
         classpath "org.jetbrains.kotlin:kotlin-android-extensions:${kotlinVersion}"
     }
@@ -30,13 +30,6 @@ task wrapper(type: Wrapper) {
 }
 
 ext {
-    buildToolsVersion = "26.0.2"
-    jdkVersion = '1.8'
-    minSdkVersion = 21
-    targetSdkVersion = 26
-    compileSdkVersion = 26
-    applicationId = "miles.scribble"
-
     kotlin = "org.jetbrains.kotlin:kotlin-stdlib-jre7:${kotlinVersion}"
     kotlinReflect = "org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}"
 

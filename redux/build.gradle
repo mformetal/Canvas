@@ -4,10 +4,10 @@ sourceCompatibility = "1.7"
 targetCompatibility = "1.7"
 
 dependencies {
-    implementation rootProject.ext.kotlin
-    implementation rootProject.ext.rxJava
+    compile rootProject.ext.kotlin
+    compile rootProject.ext.rxJava
 
-    testImplementation rootProject.ext.junit
-    testImplementation rootProject.ext.assertk
-    testImplementation rootProject.ext.mockitoKotlin
+    testCompile rootProject.ext.junit
+    testCompile rootProject.ext.assertk
+    testCompile rootProject.ext.mockitoKotlin
 }
