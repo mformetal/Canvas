@@ -1,12 +1,15 @@
 package miles.scribble.home.events
 
-import android.view.MotionEvent
-import miles.scribble.home.viewmodel.HomeState
-import miles.redux.core.Event
-import miles.redux.core.Reducer
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.Paint.FILTER_BITMAP_FLAG
+import android.graphics.Rect
+import android.view.MotionEvent
+import miles.redux.core.Event
+import miles.redux.core.Reducer
 import miles.scribble.home.drawing.CanvasMotionEventHandler
+import miles.scribble.home.viewmodel.HomeState
 
 
 /**
@@ -29,8 +32,13 @@ class CanvasSurfaceReducer(val canvasMotionEventHandler: CanvasMotionEventHandle
         return when (event) {
             is CanvasSurfaceEvents.Resize -> {
                 val (width, height) = event
-                val scaledBitmap = Bitmap.createScaledBitmap(state.bitmap, width, height, false)
-                state.copy(bitmap = scaledBitmap, canvas = Canvas(scaledBitmap))
+                val scaledBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+                val canvas = Canvas(scaledBitmap)
+                canvas.drawBitmap(state.bitmap,
+                        Rect(0, 0, state.bitmap.width, state.bitmap.height),
+                        Rect(0, 0, width, height),
+                        Paint(FILTER_BITMAP_FLAG))
+                state.copy(bitmap = scaledBitmap, canvas = canvas)
             }
             is CanvasSurfaceEvents.TouchDown -> {
                 canvasMotionEventHandler.handleTouchDown(event.motionEvent, state)
