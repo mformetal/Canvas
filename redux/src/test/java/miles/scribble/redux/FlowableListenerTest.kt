@@ -57,6 +57,5 @@ class FlowableListenerTest {
         simpleStore.state = SimpleState(2)
         testSubscriber.assertValueCount(1)
         assert(testSubscriber.isCancelled)
-        assert(testSubscriber.isTerminated)
     }
 }

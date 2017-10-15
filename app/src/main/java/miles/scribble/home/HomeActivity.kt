@@ -1,7 +1,5 @@
 package miles.scribble.home
 
-import android.arch.lifecycle.ViewModel
-import android.arch.lifecycle.ViewModelProvider
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.net.Uri
@@ -14,7 +12,6 @@ import miles.kodi.api.builder.get
 import miles.kodi.api.injection.register
 import miles.kodi.api.scoped
 import miles.kodi.provider.provider
-import miles.kodi.provider.singleton
 import miles.redux.core.Store
 import miles.scribble.R
 import miles.scribble.home.brushpicker.BrushPickerDialogFragment
@@ -22,7 +19,6 @@ import miles.scribble.home.choosepicture.ChoosePictureFragment
 import miles.scribble.home.colorpicker.ColorPickerDialogFragment
 import miles.scribble.home.events.CircleMenuEvents
 import miles.scribble.home.viewmodel.HomeState
-import miles.scribble.home.viewmodel.HomeStore
 import miles.scribble.home.viewmodel.HomeViewModel
 import miles.scribble.ui.KodiActivity
 import miles.scribble.util.ViewUtils
@@ -46,14 +42,6 @@ class HomeActivity : KodiActivity() {
     override fun installModule(kodi: Kodi): ScopeRegistry {
         return kodi.scope {
             build(scoped<HomeActivity>()) {
-                bind<HomeViewModel>() using singleton {
-                    object : ViewModelProvider.Factory {
-                        override fun <T : ViewModel?> create(modelClass: Class<T>?): T {
-                            @Suppress("UNCHECKED_CAST")
-                            return HomeViewModel(HomeStore(this@HomeActivity)) as T
-                        }
-                    }.create(HomeViewModel::class.java)
-                }
                 bind<Store<HomeState>>() using provider { get<HomeViewModel>().store }
             }
         }
@@ -91,7 +79,7 @@ class HomeActivity : KodiActivity() {
     override fun onPause() {
         super.onPause()
 
-        viewModel.persistDrawings()
+        viewModel.cacheDrawing()
     }
 
     override fun onDestroy() {
@@ -120,7 +108,7 @@ class HomeActivity : KodiActivity() {
     override fun onResume() {
         super.onResume()
 
-        ViewUtils.systemUIGone(window.decorView)
+        ViewUtils.hideSystemUI(window.decorView)
 
         if (hasWriteSettingsPermission()) {
             setAutoRotate(true)

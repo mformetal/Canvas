@@ -1,18 +1,38 @@
 package miles.scribble.home.viewmodel
 
+import android.arch.lifecycle.AndroidViewModel
+import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.Canvas
-import miles.redux.core.Store
+import io.reactivex.schedulers.Schedulers
+import miles.scribble.App
 import miles.scribble.home.drawing.DrawType
-import miles.scribble.util.android.StoreViewModel
 import miles.scribble.util.extensions.drawBitmap
 import miles.scribble.util.extensions.larger
+import java.io.ByteArrayOutputStream
 
 /**
  * Created using mbpeele on 6/28/17.
  */
-class HomeViewModel(homeStore: HomeStore) : StoreViewModel<HomeState, Store<HomeState>>(homeStore) {
+const val CACHED_DRAWING_NAME = "NAME"
 
-    fun persistDrawings() {
+class HomeViewModel(val store: HomeStore, app: App) : AndroidViewModel(app) {
+
+    val state : HomeState
+        get() = store.state
+
+    fun cacheDrawing() {
+        Schedulers.io()
+                .scheduleDirect {
+                    getApplication<App>()
+                            .openFileOutput(CACHED_DRAWING_NAME, Context.MODE_PRIVATE)
+                            .use {
+                                val stream = ByteArrayOutputStream()
+                                state.bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
+                                val bytes = stream.toByteArray()
+                                it.write(bytes)
+                            }
+                }
     }
 
     fun drawToSurfaceView(canvas: Canvas?) {

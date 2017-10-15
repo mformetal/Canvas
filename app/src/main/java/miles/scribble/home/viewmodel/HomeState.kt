@@ -1,7 +1,9 @@
 package miles.scribble.home.viewmodel
 
-import android.content.Context
-import android.graphics.*
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
 import android.support.v4.widget.ViewDragHelper.INVALID_POINTER
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
@@ -13,13 +15,12 @@ import miles.scribble.home.drawing.Stroke
 import miles.scribble.home.drawing.redrawable.DrawHistory
 import miles.scribble.util.PaintStyles
 import miles.scribble.util.ViewUtils
-import miles.scribble.util.extensions.getDisplaySize
 
 
 /**
  * Created using mbpeele on 6/30/17.
  */
-class HomeStore(context: Context) : SimpleStore<HomeState>(HomeState.create(context.getDisplaySize()))
+class HomeStore(bitmap: Bitmap) : SimpleStore<HomeState>(HomeState.create(bitmap))
 
 data class HomeState(val isMenuOpen : Boolean = false,
                      val isSafeToDraw : Boolean = true,
@@ -48,10 +49,7 @@ data class HomeState(val isMenuOpen : Boolean = false,
     companion object {
         val STROKE_WIDTH = 5f
 
-        fun create(displaySize : Point) : HomeState {
-            val bitmap = Bitmap.createBitmap(displaySize.x, displaySize.y, Bitmap.Config.ARGB_8888).apply {
-                eraseColor(Color.WHITE)
-            }
+        fun create(bitmap: Bitmap) : HomeState {
             return HomeState(bitmap = bitmap, canvas = Canvas(bitmap))
         }
     }

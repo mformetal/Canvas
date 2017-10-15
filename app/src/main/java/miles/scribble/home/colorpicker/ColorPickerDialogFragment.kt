@@ -7,10 +7,11 @@ import android.os.Bundle
 import android.support.v7.app.AlertDialog
 import android.view.WindowManager
 import miles.kodi.Kodi
-import miles.kodi.api.*
+import miles.kodi.api.ScopeRegistry
 import miles.kodi.api.builder.bind
 import miles.kodi.api.builder.get
 import miles.kodi.api.injection.register
+import miles.kodi.api.scoped
 import miles.kodi.provider.provider
 import miles.redux.core.Dispatcher
 import miles.redux.core.Dispatchers
@@ -21,7 +22,10 @@ import miles.scribble.home.events.ColorPickerReducer
 import miles.scribble.home.viewmodel.HomeViewModel
 import miles.scribble.ui.KodiDialogFragment
 import miles.scribble.util.ViewUtils
-import miles.scribble.util.extensions.*
+import miles.scribble.util.extensions.getDisplaySize
+import miles.scribble.util.extensions.hideKeyboard
+import miles.scribble.util.extensions.inflater
+import miles.scribble.util.extensions.isLandScape
 
 /**
  * Created from mbpeele on 7/8/17.
@@ -82,7 +86,7 @@ class ColorPickerDialogFragment : KodiDialogFragment() {
 
                     dispatcher.dispatch(event)
 
-                    ViewUtils.systemUIGone(activity.window.decorView)
+                    ViewUtils.hideSystemUI(activity.window.decorView)
 
                     dialog.dismiss()
                 })

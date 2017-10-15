@@ -110,7 +110,7 @@ class CanvasLayout : CoordinatorLayout {
                     circleMenu.isEnabled = true
                 }
             }
-            MotionEvent.ACTION_MOVE -> mHandler.postDelayed({ ViewUtils.systemUIGone(rootView) }, 350)
+            MotionEvent.ACTION_MOVE -> mHandler.postDelayed({ ViewUtils.hideSystemUI(rootView) }, 350)
         }
 
         return false
