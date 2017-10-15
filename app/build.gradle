@@ -17,6 +17,17 @@ android {
     lintOptions {
         abortOnError false
     }
+
+    productFlavors {
+        dev {
+            aaptOptions.cruncherEnabled = false
+
+            resConfigs "en"
+
+            splits.abi.enable = false
+            splits.density.enable = false
+        }
+    }
 }
 
 dependencies {
