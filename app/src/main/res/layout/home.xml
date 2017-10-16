@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:id="@+id/canvas_layout" >
 
-    <Toolbar
+    <android.support.v7.widget.Toolbar
         android:id="@+id/canvas_toolbar"
         android:title="@string/app_name"
         android:layout_width="match_parent"

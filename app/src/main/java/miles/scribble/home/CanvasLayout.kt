@@ -11,9 +11,9 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.os.Handler
 import android.support.design.widget.CoordinatorLayout
+import android.support.v7.widget.Toolbar
 import android.util.AttributeSet
 import android.view.MotionEvent
-import android.widget.Toolbar
 import io.reactivex.disposables.Disposable
 import miles.kodi.api.scoped
 import miles.redux.rx.flowable

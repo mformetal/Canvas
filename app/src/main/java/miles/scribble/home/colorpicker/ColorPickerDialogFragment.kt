@@ -64,7 +64,7 @@ class ColorPickerDialogFragment : KodiDialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         super.onCreateDialog(savedInstanceState)
 
-        val view = activity.inflater().inflate(R.layout.color_picker_fragment, null, false).apply {
+        val view = activity.inflater().inflate(R.layout.color_picker_parent, null, false).apply {
             colorPicker = findViewById(R.id.picker)
         }
 

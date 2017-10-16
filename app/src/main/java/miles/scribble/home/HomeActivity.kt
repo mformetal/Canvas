@@ -1,9 +1,12 @@
 package miles.scribble.home
 
+import android.Manifest
 import android.content.Intent
 import android.content.pm.ActivityInfo
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
+import android.support.v4.app.ActivityCompat
 import io.reactivex.disposables.Disposable
 import miles.kodi.Kodi
 import miles.kodi.api.ScopeRegistry
@@ -34,7 +37,7 @@ class HomeActivity : KodiActivity() {
     private val DIALOG_BRUSH_PICKER = "brushPicker"
 
     private val REQUEST_PERMISSION_WRITE_SETTINGS = 1
-    private val REQUEST_IMPORT_CODE = 2
+    private val REQUEST_EXTERNAL_STORAGE_PERMISSION = 2
 
     val viewModel : HomeViewModel by injector.register()
     lateinit var clickDispoable : Disposable
@@ -49,7 +52,7 @@ class HomeActivity : KodiActivity() {
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_home)
+        setContentView(R.layout.home)
 
         clickDispoable = viewModel.state.onClickSubject.subscribe {
             when (it) {
@@ -66,11 +69,17 @@ class HomeActivity : KodiActivity() {
                             .show(supportFragmentManager, DIALOG_BRUSH_PICKER)
                 }
                 is CircleMenuEvents.PictureClicked -> {
-                    val intent = Intent().apply {
-                        type = "image/*"
-                        action = Intent.ACTION_GET_CONTENT
+                    val hasPermission = ActivityCompat.checkSelfPermission(this,
+                            Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+                    if (hasPermission) {
+                        supportFragmentManager.beginTransaction()
+                                .add(R.id.canvas_layout, ChoosePictureFragment.newInstance())
+                                .commit()
+                    } else {
+                        ActivityCompat.requestPermissions(this,
+                                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+                                REQUEST_EXTERNAL_STORAGE_PERMISSION)
                     }
-                    startActivityForResult(intent, REQUEST_IMPORT_CODE)
                 }
             }
         }
@@ -95,12 +104,18 @@ class HomeActivity : KodiActivity() {
             REQUEST_PERMISSION_WRITE_SETTINGS -> {
                 setAutoRotate(true)
             }
-            REQUEST_IMPORT_CODE -> {
-                data?.data?.let {
-                    supportFragmentManager.beginTransaction()
-                            .add(R.id.canvas_layout, ChoosePictureFragment.newInstance(it))
-                            .commit()
-                }
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        if (requestCode == REQUEST_EXTERNAL_STORAGE_PERMISSION) {
+            val permissionIsGranted = grantResults[0] == PackageManager.PERMISSION_GRANTED
+            if (permissionIsGranted) {
+                supportFragmentManager.beginTransaction()
+                        .add(R.id.canvas_layout, ChoosePictureFragment.newInstance())
+                        .commitAllowingStateLoss()
             }
         }
     }
