@@ -10,7 +10,6 @@
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/spacing_micro"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" >
     
         <android.support.v7.widget.Toolbar
@@ -22,6 +21,14 @@
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
         
     </android.support.design.widget.AppBarLayout>
+    
+    <miles.scribble.ui.widget.AspectRatioImageView
+        android:id="@+id/chosen_picture"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:aspectRatioEnabled="true"
+        app:aspectRatio="1.0"
+        app:dominantMeasurement="width" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/choose_picture_recycler"

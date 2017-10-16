@@ -13,6 +13,6 @@ import com.bumptech.glide.module.AppGlideModule
 class CanvasGlideModule : AppGlideModule() {
 
     override fun applyOptions(context: Context?, builder: GlideBuilder) {
-        builder.setLogLevel(Log.DEBUG)
+        builder.setLogLevel(Log.VERBOSE)
     }
 }
