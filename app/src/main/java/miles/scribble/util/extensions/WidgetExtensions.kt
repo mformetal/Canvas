@@ -1,13 +1,12 @@
 package miles.scribble.util.extensions
 
-import android.animation.ObjectAnimator
-import android.animation.PropertyValuesHolder
 import android.content.Context
-import android.support.design.widget.FloatingActionButton
 import android.view.View
+import android.view.ViewTreeObserver
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.TextView
+import java.lang.ref.SoftReference
 
 /**
  * Created using mbpeele on 6/25/17.
@@ -38,4 +37,28 @@ fun TextView.textString() : String {
 fun EditText.closeKeyboard() {
     val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
     imm.hideSoftInputFromWindow(windowToken, 0)
+}
+
+fun <T: View> T.addPreDrawListener(listener: (T) -> Unit) {
+    val softReference = SoftReference(this)
+
+    val view = this
+    val viewTreeObserver = viewTreeObserver
+    viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
+        override fun onPreDraw(): Boolean {
+            if (viewTreeObserver.isAlive) {
+                viewTreeObserver.removeOnPreDrawListener(this)
+            } else {
+                view.viewTreeObserver.removeOnPreDrawListener(this)
+            }
+
+            val reference = softReference.get()
+            return if (reference != null) {
+                listener.invoke(reference)
+                true
+            } else {
+                false
+            }
+        }
+    })
 }

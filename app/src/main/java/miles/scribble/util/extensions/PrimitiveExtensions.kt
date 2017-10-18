@@ -11,3 +11,7 @@ infix fun Int.larger(otherInt: Int) : Int {
     return if (this > otherInt) this else otherInt
 }
 
+fun smallerOf(first: Int, second: Int) : Int {
+    return if (first > second) second else first
+}
+

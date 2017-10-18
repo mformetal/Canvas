@@ -5,24 +5,30 @@ import android.database.Cursor
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
-import android.support.v4.app.Fragment
 import android.support.v4.app.LoaderManager
 import android.support.v4.content.CursorLoader
 import android.support.v4.content.Loader
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.support.v7.widget.Toolbar
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import com.bumptech.glide.Glide
-import com.bumptech.glide.ListPreloader
-import com.bumptech.glide.RequestBuilder
-import com.bumptech.glide.integration.recyclerview.RecyclerViewPreloader
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
-import com.bumptech.glide.util.FixedPreloadSizeProvider
+import miles.kodi.Kodi
+import miles.kodi.api.ScopeRegistry
+import miles.kodi.api.builder.bind
+import miles.kodi.api.builder.get
+import miles.kodi.api.injection.register
+import miles.kodi.api.scoped
+import miles.kodi.provider.provider
+import miles.redux.core.Dispatcher
+import miles.redux.core.Dispatchers
 import miles.scribble.R
+import miles.scribble.home.HomeActivity
+import miles.scribble.home.events.HomeActivityEvents
+import miles.scribble.home.events.HomeActivityEventsReducer
+import miles.scribble.ui.KodiFragment
 import miles.scribble.ui.glide.GlideApp
 import miles.scribble.util.RecyclerSpacingDecoration
 import miles.scribble.util.extensions.lazyInflate
@@ -30,12 +36,15 @@ import miles.scribble.util.extensions.lazyInflate
 /**
  * Created from mbpeele on 8/18/17.
  */
-class ChoosePictureFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor> {
+class ChoosePictureFragment : KodiFragment(), LoaderManager.LoaderCallbacks<Cursor> {
 
     private lateinit var adapter : ImageLoadingAdapter
-    private val toolbar by lazyInflate<Toolbar>(R.id.choose_picture_toolbar)
+    private val choosePicture by lazyInflate<ImageView>(R.id.choose_picture)
     private val chosenPicture by lazyInflate<ImageView>(R.id.chosen_picture)
     private val recycler by lazyInflate<RecyclerView>(R.id.choose_picture_recycler)
+    private var chosenUri : Uri? = null
+
+    private val dispatcher : Dispatcher<HomeActivityEvents, HomeActivity> by injector.register()
 
     companion object {
         fun newInstance() : ChoosePictureFragment {
@@ -43,10 +52,39 @@ class ChoosePictureFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor> 
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        activity.supportLoaderManager.initLoader(0, null, this)
+    override fun installModule(kodi: Kodi): ScopeRegistry {
+        return kodi.scope {
+            dependsOn(scoped<HomeActivity>())
+            build(scoped<ChoosePictureFragment>(), {
+                bind<Dispatcher<HomeActivityEvents, HomeActivityEvents>>() using provider {
+                    Dispatchers.create(get(), HomeActivityEventsReducer())
+                }
+            })
+        }
+    }
 
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.choose_picture, container!!, false)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        choosePicture.setOnClickListener {
+            chosenUri?.let {
+                dispatcher.dispatch(HomeActivityEvents.PictureChosen(activity.contentResolver, it))
+
+                activity.supportFragmentManager.beginTransaction()
+                        .remove(this@ChoosePictureFragment)
+                        .commit()
+            }
+        }
+    }
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+
+        activity.supportLoaderManager.initLoader(0, null, this@ChoosePictureFragment)
     }
 
     override fun onLoadFinished(loader: Loader<Cursor>, cursor: Cursor) {
@@ -64,31 +102,10 @@ class ChoosePictureFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor> 
                 uris.add(uri)
             }
 
-            cursor.close()
-
-            val width = view!!.measuredWidth / 4
-            val preLoadSizeProvider = FixedPreloadSizeProvider<Uri>(width, width)
-            val preLoadModelProvider = object : ListPreloader.PreloadModelProvider<Uri> {
-                override fun getPreloadRequestBuilder(item: Uri): RequestBuilder<*> {
-                    return GlideApp.with(this@ChoosePictureFragment)
-                            .load(item)
-                            .centerCrop()
-                            .override(width, width)
-                            .transition(DrawableTransitionOptions.withCrossFade())
-                }
-
-                override fun getPreloadItems(position: Int): MutableList<Uri> {
-                    return mutableListOf(uris[position])
-                }
-            }
-            val preloader = RecyclerViewPreloader<Uri>(
-                    Glide.with(this), preLoadModelProvider, preLoadSizeProvider, 8)
-
-            adapter = ImageLoadingAdapter(uris, LayoutInflater.from(activity), width, width)
+            adapter = ImageLoadingAdapter(uris, LayoutInflater.from(activity))
             adapter.setHasStableIds(true)
 
             recycler.addItemDecoration(RecyclerSpacingDecoration(resources.getDimensionPixelSize(R.dimen.spacing_micro)))
-            recycler.addOnScrollListener(preloader)
             recycler.layoutManager = GridLayoutManager(activity, 4)
             recycler.adapter = adapter
         }
@@ -104,6 +121,8 @@ class ChoosePictureFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor> 
     }
 
     private fun setChosenPicture(uri: Uri, imageView: ImageView) {
+        chosenUri = uri
+
         GlideApp.with(this@ChoosePictureFragment)
                 .load(uri)
                 .centerCrop()
@@ -111,9 +130,8 @@ class ChoosePictureFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor> 
     }
 
     private inner class ImageLoadingAdapter(private var uris: List<Uri>,
-                                            private val inflater: LayoutInflater,
-                                            private val width: Int,
-                                            private val height: Int) : RecyclerView.Adapter<ImageLoadingAdapter.ImageViewHolder>() {
+                                            private val inflater: LayoutInflater)
+        : RecyclerView.Adapter<ImageLoadingAdapter.ImageViewHolder>() {
 
         override fun getItemId(position: Int): Long {
             return ContentUris.parseId(uris[position])
@@ -143,7 +161,6 @@ class ChoosePictureFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor> 
                         .load(uri)
                         .centerCrop()
                         .transition(DrawableTransitionOptions.withCrossFade())
-                        .override(width, height)
                         .into(itemView.findViewById(R.id.image))
             }
         }

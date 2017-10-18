@@ -46,9 +46,6 @@ dependencies {
     def glide = "4.2.0"
     compile "com.github.bumptech.glide:glide:${glide}"
     kapt "com.github.bumptech.glide:compiler:${glide}"
-    compile ("com.github.bumptech.glide:recyclerview-integration:${glide}") {
-        transitive = false
-    }
 
     compile "io.reactivex.rxjava2:rxandroid:2.0.1"
     compile ext.rxJava
