@@ -110,10 +110,13 @@ class CircleMenu : ViewGroup {
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         measureChildWithMargins(toggle, widthMeasureSpec, 0, heightMeasureSpec, 0)
 
-        (0..childCount - 1)
-                .map { getChildAt(it) }
-                .filter { it !== toggle }
-                .forEach { measureChildWithMargins(it, widthMeasureSpec, 0, heightMeasureSpec, 0) }
+        @Suppress("LoopToCallChain")
+        for (i in 0 until childCount) {
+            val child = getChildAt(i)
+            if (child != toggle) {
+                measureChildWithMargins(child, widthMeasureSpec, 0, heightMeasureSpec, 0)
+            }
+        }
 
         val width = View.getDefaultSize(suggestedMinimumWidth, widthMeasureSpec)
 
@@ -145,7 +148,7 @@ class CircleMenu : ViewGroup {
                 r / 2 + toggle.measuredWidth / 2,
                 measuredHeight - lps.bottomMargin)
 
-        circle = Circle(ViewUtils.relativeCenterX(toggle), ViewUtils.relativeCenterY(toggle),
+        circle = Circle(toggle.relativeCenterX(), toggle.relativeCenterY(),
                 toggle.measuredHeight * 3.75f)
         itemPositions.add(ItemPosition(toggle, cx, cy, toggle.radius()))
 

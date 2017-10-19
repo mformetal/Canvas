@@ -1,22 +1,19 @@
 package miles.scribble.util.extensions
 
-import android.Manifest
 import android.app.Activity
 import android.content.Context
-import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Matrix
 import android.graphics.Point
 import android.os.Build
-import android.provider.Settings
-import android.support.annotation.IdRes
 import android.support.design.widget.Snackbar
-import android.support.v4.app.ActivityCompat
-import android.support.v4.app.DialogFragment
 import android.support.v4.app.Fragment
-import android.view.*
+import android.view.LayoutInflater
+import android.view.MotionEvent
+import android.view.ViewGroup
+import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
 import miles.kodi.Kodi
 import miles.scribble.App
@@ -31,21 +28,6 @@ val Context.kodi : Kodi get() = app.kodi
 
 fun Context.isAtLeastMarshmallow() : Boolean {
     return Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
-}
-
-fun Context.hasWriteSettingsPermission() : Boolean {
-    return if (isAtLeastMarshmallow()) {
-        Settings.System.canWrite(this)
-    } else {
-        ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_SETTINGS) ==
-                PackageManager.PERMISSION_GRANTED
-    }
-}
-
-fun Activity.setAutoRotate(enable: Boolean) {
-    if (hasWriteSettingsPermission()) {
-        Settings.System.putInt(contentResolver, Settings.System.ACCELEROMETER_ROTATION, if (enable) 1 else 0)
-    }
 }
 
 fun Activity.inflater() : LayoutInflater {
@@ -124,20 +106,4 @@ fun MotionEvent.angle() : Float {
     val dy = getY(0) - getY(1)
     val radians = Math.atan2(dy.toDouble(), dx.toDouble())
     return Math.toDegrees(radians).toFloat()
-}
-
-fun <T : View> View.lazyInflate(@IdRes layoutId: Int) : Lazy<T> {
-    return lazy { findViewById<T>(layoutId) }
-}
-
-fun <T : View> Fragment.lazyInflate(@IdRes layoutId: Int) : Lazy<T> {
-    return lazy { view!!.findViewById<T>(layoutId) }
-}
-
-fun <T : View> DialogFragment.lazyInflate(view: View, @IdRes layoutId: Int) : Lazy<T> {
-    return lazy { view.findViewById<T>(layoutId) }
-}
-
-fun <T : View> Activity.lazyInflate(@IdRes layoutId: Int) : Lazy<T> {
-    return lazy { findViewById<T>(layoutId) }
 }

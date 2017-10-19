@@ -1,12 +1,17 @@
 package miles.scribble.util.extensions
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
+import android.animation.ObjectAnimator
+import android.app.Activity
 import android.content.Context
+import android.support.annotation.IdRes
+import android.support.v4.app.DialogFragment
+import android.support.v4.app.Fragment
 import android.view.View
-import android.view.ViewTreeObserver
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.TextView
-import java.lang.ref.SoftReference
 
 /**
  * Created using mbpeele on 6/25/17.
@@ -39,26 +44,48 @@ fun EditText.closeKeyboard() {
     imm.hideSoftInputFromWindow(windowToken, 0)
 }
 
-fun <T: View> T.addPreDrawListener(listener: (T) -> Unit) {
-    val softReference = SoftReference(this)
+fun View.relativeCenterX(): Float {
+    return (left + right) / 2f
+}
 
-    val view = this
-    val viewTreeObserver = viewTreeObserver
-    viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
-        override fun onPreDraw(): Boolean {
-            if (viewTreeObserver.isAlive) {
-                viewTreeObserver.removeOnPreDrawListener(this)
-            } else {
-                view.viewTreeObserver.removeOnPreDrawListener(this)
-            }
+fun View.relativeCenterY(): Float {
+    return (top + bottom) / 2f
+}
 
-            val reference = softReference.get()
-            return if (reference != null) {
-                listener.invoke(reference)
-                true
-            } else {
-                false
-            }
+fun View.goneAnimator(): ObjectAnimator {
+    val gone = ObjectAnimator.ofFloat(this, View.ALPHA, 1f, 0f)
+    gone.duration = 350L
+    gone.addListener(object : AnimatorListenerAdapter() {
+        override fun onAnimationEnd(animation: Animator) {
+            this@goneAnimator.visibility = View.GONE
         }
     })
+    return gone
+}
+
+fun View.visibleAnimator(): ObjectAnimator {
+    val visibility = ObjectAnimator.ofFloat(this, View.ALPHA, 0f, 1f)
+    visibility.duration = 350L
+    visibility.addListener(object : AnimatorListenerAdapter() {
+        override fun onAnimationStart(animation: Animator) {
+            this@visibleAnimator.visibility = View.VISIBLE
+        }
+    })
+    return visibility
+}
+
+fun <T : View> View.lazyInflate(@IdRes layoutId: Int) : Lazy<T> {
+    return lazy { findViewById<T>(layoutId) }
+}
+
+fun <T : View> Fragment.lazyInflate(@IdRes layoutId: Int) : Lazy<T> {
+    return lazy { view!!.findViewById<T>(layoutId) }
+}
+
+fun <T : View> DialogFragment.lazyInflate(view: View, @IdRes layoutId: Int) : Lazy<T> {
+    return lazy { view.findViewById<T>(layoutId) }
+}
+
+fun <T : View> Activity.lazyInflate(@IdRes layoutId: Int) : Lazy<T> {
+    return lazy { findViewById<T>(layoutId) }
 }

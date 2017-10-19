@@ -1,10 +1,7 @@
 package miles.scribble.home
 
 import android.Manifest
-import android.content.Intent
-import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import io.reactivex.disposables.Disposable
@@ -24,10 +21,7 @@ import miles.scribble.home.events.CircleMenuEvents
 import miles.scribble.home.viewmodel.HomeState
 import miles.scribble.home.viewmodel.HomeViewModel
 import miles.scribble.ui.KodiActivity
-import miles.scribble.util.ViewUtils
-import miles.scribble.util.extensions.hasWriteSettingsPermission
-import miles.scribble.util.extensions.isAtLeastMarshmallow
-import miles.scribble.util.extensions.setAutoRotate
+import miles.scribble.util.extensions.systemUIGone
 
 
 class HomeActivity : KodiActivity() {
@@ -36,11 +30,10 @@ class HomeActivity : KodiActivity() {
     private val DIALOG_COLOR_PICKER_BACKGROUND = "backgroundColorPicker"
     private val DIALOG_BRUSH_PICKER = "brushPicker"
 
-    private val REQUEST_PERMISSION_WRITE_SETTINGS = 1
-    private val REQUEST_EXTERNAL_STORAGE_PERMISSION = 2
+    private val REQUEST_EXTERNAL_STORAGE_PERMISSION = 1
 
-    val viewModel : HomeViewModel by injector.register()
-    lateinit var clickDispoable : Disposable
+    private val viewModel : HomeViewModel by injector.register()
+    private lateinit var clickDispoable : Disposable
 
     override fun installModule(kodi: Kodi): ScopeRegistry {
         return kodi.scope {
@@ -85,6 +78,13 @@ class HomeActivity : KodiActivity() {
         }
     }
 
+
+    override fun onResume() {
+        super.onResume()
+
+        window.decorView.systemUIGone()
+    }
+
     override fun onPause() {
         super.onPause()
 
@@ -95,16 +95,6 @@ class HomeActivity : KodiActivity() {
         super.onDestroy()
 
         clickDispoable.dispose()
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        when (requestCode) {
-            REQUEST_PERMISSION_WRITE_SETTINGS -> {
-                setAutoRotate(true)
-            }
-        }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -118,29 +108,5 @@ class HomeActivity : KodiActivity() {
                         .commitAllowingStateLoss()
             }
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-
-        ViewUtils.hideSystemUI(window.decorView)
-
-        if (hasWriteSettingsPermission()) {
-            setAutoRotate(true)
-            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR
-        } else {
-            if (isAtLeastMarshmallow()) {
-                val intent = Intent(android.provider.Settings.ACTION_MANAGE_WRITE_SETTINGS)
-                intent.data = Uri.parse("package:" + packageName)
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                startActivity(intent)
-            }
-        }
-    }
-
-    override fun onStop() {
-        super.onStop()
-
-        setAutoRotate(false)
     }
 }

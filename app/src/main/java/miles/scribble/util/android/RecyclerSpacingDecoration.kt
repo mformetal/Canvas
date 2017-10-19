@@ -1,4 +1,4 @@
-package miles.scribble.util
+package miles.scribble.util.android
 
 import android.graphics.Rect
 import android.support.v7.widget.GridLayoutManager

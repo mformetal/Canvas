@@ -56,7 +56,6 @@ class CanvasSurface : SurfaceView, SurfaceHolder.Callback {
     }
 
     override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
-        dispatcher.dispatch(CanvasSurfaceEvents.Resize(width, height))
     }
 
     override fun surfaceDestroyed(holder: SurfaceHolder) {

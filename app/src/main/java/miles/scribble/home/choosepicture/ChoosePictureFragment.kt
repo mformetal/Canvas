@@ -30,7 +30,7 @@ import miles.scribble.home.events.HomeActivityEvents
 import miles.scribble.home.events.HomeActivityEventsReducer
 import miles.scribble.ui.KodiFragment
 import miles.scribble.ui.glide.GlideApp
-import miles.scribble.util.RecyclerSpacingDecoration
+import miles.scribble.util.android.RecyclerSpacingDecoration
 import miles.scribble.util.extensions.lazyInflate
 
 /**

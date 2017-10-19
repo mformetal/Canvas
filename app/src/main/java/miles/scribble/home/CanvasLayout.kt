@@ -21,8 +21,7 @@ import miles.scribble.R
 import miles.scribble.home.drawing.CanvasPoint
 import miles.scribble.home.viewmodel.HomeViewModel
 import miles.scribble.util.ViewUtils
-import miles.scribble.util.extensions.kodi
-import miles.scribble.util.extensions.lazyInflate
+import miles.scribble.util.extensions.*
 
 /**
  * Created from milespeele on 8/7/15.
@@ -110,7 +109,7 @@ class CanvasLayout : CoordinatorLayout {
                     circleMenu.isEnabled = true
                 }
             }
-            MotionEvent.ACTION_MOVE -> mHandler.postDelayed({ ViewUtils.hideSystemUI(rootView) }, 350)
+            MotionEvent.ACTION_MOVE -> mHandler.postDelayed({ rootView.systemUIGone() }, 350)
         }
 
         return false
@@ -139,7 +138,7 @@ class CanvasLayout : CoordinatorLayout {
 
             val radius = ObjectAnimator.ofFloat(this, RADIUS, togglePoint.computeDistance(targetPoint)).setDuration(200)
 
-            val visibility = ViewUtils.visibleAnimator(toolbar)
+            val visibility = toolbar.visibleAnimator()
 
             val set = AnimatorSet()
             set.playTogether(alpha, radius, visibility)
@@ -158,7 +157,7 @@ class CanvasLayout : CoordinatorLayout {
 
             val radius = ObjectAnimator.ofFloat(this, RADIUS, 0F).setDuration(400)
 
-            val visibility = ViewUtils.goneAnimator(toolbar)
+            val visibility = toolbar.goneAnimator()
 
             val set = AnimatorSet()
             set.playTogether(alpha, radius, visibility)

@@ -21,11 +21,7 @@ import miles.scribble.home.events.ColorPickerEvents
 import miles.scribble.home.events.ColorPickerReducer
 import miles.scribble.home.viewmodel.HomeViewModel
 import miles.scribble.ui.KodiDialogFragment
-import miles.scribble.util.ViewUtils
-import miles.scribble.util.extensions.getDisplaySize
-import miles.scribble.util.extensions.hideKeyboard
-import miles.scribble.util.extensions.inflater
-import miles.scribble.util.extensions.isLandScape
+import miles.scribble.util.extensions.*
 
 /**
  * Created from mbpeele on 7/8/17.
@@ -86,7 +82,7 @@ class ColorPickerDialogFragment : KodiDialogFragment() {
 
                     dispatcher.dispatch(event)
 
-                    ViewUtils.hideSystemUI(activity.window.decorView)
+                    activity.window.decorView.systemUIGone()
 
                     dialog.dismiss()
                 })
