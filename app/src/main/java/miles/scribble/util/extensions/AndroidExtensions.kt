@@ -15,7 +15,7 @@ import android.view.MotionEvent
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
-import miles.kodi.Kodi
+import mformetal.kodi.core.Kodi
 import miles.scribble.App
 
 
@@ -23,7 +23,8 @@ import miles.scribble.App
  * Created from mbpeele on 6/28/17.
  */
 val Context.app : App get() = applicationContext as App
-val Fragment.app : App get() = activity.app
+val Fragment.app : App get() = activity!!.app
+val Fragment.safeActivity : Activity get() = activity!!
 val Context.kodi : Kodi get() = app.kodi
 
 fun Context.isAtLeastMarshmallow() : Boolean {

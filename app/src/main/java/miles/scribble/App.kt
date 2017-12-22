@@ -1,24 +1,21 @@
 package miles.scribble
 
 import android.app.Application
-import miles.kodi.Kodi
-import miles.kodi.api.builder.bind
-import miles.kodi.provider.component
-import miles.kodi.provider.singleton
+import mformetal.kodi.android.KodiApp
+import mformetal.kodi.core.Kodi
+import mformetal.kodi.core.api.builder.bind
+import mformetal.kodi.core.provider.component
+import mformetal.kodi.core.provider.singleton
 import miles.scribble.home.viewmodel.HomeViewModel
 import miles.scribble.home.viewmodel.HomeViewModelFactory
 
 /**
  * Created from milespeele on 7/3/15.
  */
-class App : Application() {
+class App : KodiApp() {
 
-    lateinit var kodi : Kodi
-
-    override fun onCreate() {
-        super.onCreate()
-
-        kodi = Kodi.init {
+    override fun createRootKodi(): Kodi {
+        return Kodi.init {
             val app = this@App
 
             bind<Application>() using component(app)

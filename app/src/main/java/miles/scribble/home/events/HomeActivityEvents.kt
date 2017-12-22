@@ -5,10 +5,10 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.net.Uri
+import miles.dispatch.core.Event
+import miles.dispatch.core.Reducer
 import miles.scribble.home.drawing.DrawType
 import miles.scribble.home.viewmodel.HomeState
-import miles.redux.core.Event
-import miles.redux.core.Reducer
 import miles.scribble.util.extensions.identity
 
 

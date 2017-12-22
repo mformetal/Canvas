@@ -15,6 +15,4 @@ class ChoosePictureView : FrameLayout {
 
     constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
 
-
-
 }

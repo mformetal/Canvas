@@ -5,58 +5,47 @@ apply plugin: 'kotlin-kapt'
 def ext = rootProject.extensions.getByName("ext")
 
 android {
-    compileSdkVersion 26
-    buildToolsVersion "26.0.2"
+    compileSdkVersion 27
+    buildToolsVersion "27.0.2"
 
     defaultConfig {
         minSdkVersion 21
-        targetSdkVersion 26
+        targetSdkVersion 27
         applicationId "mformetal.scribble"
     }
 
     lintOptions {
         abortOnError false
     }
-
-    productFlavors {
-        dev {
-            aaptOptions.cruncherEnabled = false
-
-            resConfigs "en"
-
-            splits.abi.enable = false
-            splits.density.enable = false
-        }
-    }
 }
 
 dependencies {
-    compile project(":redux")
+    implementation ext.kotlin
 
-    compile 'com.github.mformetal:kodi:0.2.0-alpha'
+    implementation "com.jakewharton.threetenabp:threetenabp:1.0.5"
 
-    compile ext.kotlin
+    def supportLib = "27.0.2"
+    implementation "com.android.support:appcompat-v7:${supportLib}"
+    implementation "com.android.support:design:${supportLib}"
 
-    compile "com.jakewharton.threetenabp:threetenabp:1.0.5"
-
-    def supportLib = "26.1.0"
-    compile "com.android.support:appcompat-v7:${supportLib}"
-    compile "com.android.support:design:${supportLib}"
+    //noinspection GradleDependency
+    implementation "com.github.mformetal:Kodi:Development-SNAPSHOT"
+    implementation 'com.github.mformetal:Dispatch:master-SNAPSHOT'
 
     def glide = "4.2.0"
-    compile "com.github.bumptech.glide:glide:${glide}"
+    implementation "com.github.bumptech.glide:glide:${glide}"
     kapt "com.github.bumptech.glide:compiler:${glide}"
 
-    compile "io.reactivex.rxjava2:rxandroid:2.0.1"
-    compile ext.rxJava
+    implementation "io.reactivex.rxjava2:rxandroid:2.0.1"
+    implementation ext.rxJava
 
-    compile "android.arch.lifecycle:runtime:1.0.0"
-    compile "android.arch.lifecycle:extensions:1.0.0-alpha9-1"
-    kapt  "android.arch.lifecycle:compiler:1.0.0-alpha9-1"
+    implementation "android.arch.lifecycle:runtime:1.0.3"
+    implementation "android.arch.lifecycle:extensions:1.0.0"
+    kapt  "android.arch.lifecycle:compiler:1.0.0"
 
-    testCompile ext.kotlin
-    testCompile ext.junit
-    testCompile ext.assertk
-    testCompile "org.robolectric:robolectric:3.3.2"
-    testCompile ext.mockitoKotlin
+    testImplementation ext.kotlin
+    testImplementation ext.junit
+    testImplementation ext.assertk
+    testImplementation "org.robolectric:robolectric:3.5.1"
+    testImplementation ext.mockitoKotlin
 }

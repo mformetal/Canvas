@@ -7,15 +7,14 @@ import android.graphics.Paint
 import android.support.v4.widget.ViewDragHelper.INVALID_POINTER
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
-import miles.redux.core.Event
-import miles.redux.core.SimpleStore
-import miles.redux.core.State
+import miles.dispatch.core.SimpleStore
+import miles.dispatch.core.Event
+import miles.dispatch.core.State
 import miles.scribble.home.drawing.DrawType
 import miles.scribble.home.drawing.Stroke
 import miles.scribble.home.drawing.redrawable.DrawHistory
 import miles.scribble.util.PaintStyles
 import miles.scribble.util.ViewUtils
-
 
 /**
  * Created using mbpeele on 6/30/17.

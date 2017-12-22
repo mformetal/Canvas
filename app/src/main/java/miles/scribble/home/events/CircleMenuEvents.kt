@@ -1,10 +1,13 @@
 package miles.scribble.home.events
 
-import android.graphics.*
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Paint
+import miles.dispatch.core.Event
+import miles.dispatch.core.Reducer
 import miles.scribble.home.drawing.DrawType
 import miles.scribble.home.viewmodel.HomeState
-import miles.redux.core.Event
-import miles.redux.core.Reducer
+
 
 /**
  * Created using mbpeele on 6/30/17.

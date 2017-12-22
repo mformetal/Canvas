@@ -10,22 +10,24 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import miles.kodi.Kodi
-import miles.kodi.api.*
-import miles.kodi.api.builder.bind
-import miles.kodi.api.builder.get
-import miles.kodi.api.injection.register
-import miles.kodi.provider.provider
-import miles.redux.core.Dispatcher
-import miles.redux.core.Dispatchers
+import mformetal.kodi.android.KodiDialogFragment
+import mformetal.kodi.core.Kodi
+import mformetal.kodi.core.api.ScopeRegistry
+import mformetal.kodi.core.api.builder.bind
+import mformetal.kodi.core.api.builder.get
+import mformetal.kodi.core.api.injection.register
+import mformetal.kodi.core.api.scoped
+import mformetal.kodi.core.provider.provider
+import miles.dispatch.core.Dispatcher
+import miles.dispatch.core.Dispatchers
 import miles.scribble.R
 import miles.scribble.home.HomeActivity
 import miles.scribble.home.events.BrushPickerEvents
 import miles.scribble.home.events.BrushPickerReducer
 import miles.scribble.home.viewmodel.HomeViewModel
-import miles.scribble.ui.KodiDialogFragment
 import miles.scribble.util.PaintStyles
 import miles.scribble.util.extensions.inflater
+import miles.scribble.util.extensions.safeActivity
 
 /**
  * Created from mbpeele on 7/29/17.
@@ -37,20 +39,19 @@ class BrushPickerDialogFragment : KodiDialogFragment() {
     val viewModel : HomeViewModel by injector.register()
 
     override fun installModule(kodi: Kodi): ScopeRegistry {
-        return kodi.scope {
-            dependsOn(scoped<HomeActivity>())
-            build(scoped<BrushPickerDialogFragment>()) {
-                bind<Dispatcher<BrushPickerEvents, BrushPickerEvents>>() using provider {
-                    Dispatchers.create(get(), BrushPickerReducer())
+        return kodi.scopeBuilder()
+                .dependsOn(scoped<HomeActivity>())
+                .build(scoped<BrushPickerDialogFragment>()) {
+                    bind<Dispatcher<BrushPickerEvents, BrushPickerEvents>>() using provider {
+                        Dispatchers.create(get(), BrushPickerReducer())
+                    }
                 }
-            }
-        }
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         super.onCreateDialog(savedInstanceState)
 
-        val inflater = activity.inflater()
+        val inflater = safeActivity.inflater()
         val view = inflater.inflate(R.layout.brush_picker_fragment, null, false).apply {
             recycler = findViewById(R.id.brush_picker_recycler)
             currentBrushView = findViewById(R.id.current_brush)
@@ -65,7 +66,7 @@ class BrushPickerDialogFragment : KodiDialogFragment() {
         recycler.layoutManager = GridLayoutManager(activity, 3)
         recycler.adapter = BrushPickerAdapter(inflater, brushes)
 
-        return AlertDialog.Builder(activity)
+        return AlertDialog.Builder(safeActivity)
                 .setView(view)
                 .setPositiveButton(android.R.string.ok, { _, _ ->
 

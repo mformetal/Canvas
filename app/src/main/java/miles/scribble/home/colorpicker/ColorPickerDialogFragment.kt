@@ -6,21 +6,21 @@ import android.content.DialogInterface
 import android.os.Bundle
 import android.support.v7.app.AlertDialog
 import android.view.WindowManager
-import miles.kodi.Kodi
-import miles.kodi.api.ScopeRegistry
-import miles.kodi.api.builder.bind
-import miles.kodi.api.builder.get
-import miles.kodi.api.injection.register
-import miles.kodi.api.scoped
-import miles.kodi.provider.provider
-import miles.redux.core.Dispatcher
-import miles.redux.core.Dispatchers
+import mformetal.kodi.android.KodiDialogFragment
+import mformetal.kodi.core.Kodi
+import mformetal.kodi.core.api.ScopeRegistry
+import mformetal.kodi.core.api.builder.bind
+import mformetal.kodi.core.api.builder.get
+import mformetal.kodi.core.api.injection.register
+import mformetal.kodi.core.api.scoped
+import mformetal.kodi.core.provider.provider
+import miles.dispatch.core.Dispatcher
+import miles.dispatch.core.Dispatchers
 import miles.scribble.R
 import miles.scribble.home.HomeActivity
 import miles.scribble.home.events.ColorPickerEvents
 import miles.scribble.home.events.ColorPickerReducer
 import miles.scribble.home.viewmodel.HomeViewModel
-import miles.scribble.ui.KodiDialogFragment
 import miles.scribble.util.extensions.*
 
 /**
@@ -28,7 +28,6 @@ import miles.scribble.util.extensions.*
  */
 class ColorPickerDialogFragment : KodiDialogFragment() {
 
-    private val KEY_CURRENT_COLOR = "currentColor"
     private val KEY_TO_FILL = "fill"
 
     private lateinit var colorPicker : ColorPickerView
@@ -47,29 +46,27 @@ class ColorPickerDialogFragment : KodiDialogFragment() {
     }
 
     override fun installModule(kodi: Kodi): ScopeRegistry {
-        return kodi.scope {
-            dependsOn(scoped<HomeActivity>())
-            build(scoped<ColorPickerDialogFragment>()) {
-                bind<Dispatcher<ColorPickerEvents, ColorPickerEvents>>() using provider {
-                    Dispatchers.create(get(), ColorPickerReducer())
+        return kodi.scopeBuilder()
+                .dependsOn(scoped<HomeActivity>())
+                .build(scoped<ColorPickerDialogFragment>()) {
+                    bind<Dispatcher<ColorPickerEvents, ColorPickerEvents>>() using provider {
+                        Dispatchers.create(get(), ColorPickerReducer())
+                    }
                 }
-            }
-        }
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         super.onCreateDialog(savedInstanceState)
 
-        val view = activity.inflater().inflate(R.layout.color_picker_parent, null, false).apply {
+        val view = safeActivity.inflater().inflate(R.layout.color_picker_parent, null, false).apply {
             colorPicker = findViewById(R.id.picker)
         }
 
-        val toFill = arguments.getBoolean(KEY_TO_FILL)
-        val color = savedInstanceState?.getInt(KEY_CURRENT_COLOR) ?:
-                if (toFill) viewModel.state.backgroundColor else viewModel.state.paint.color
+        val toFill = arguments!!.getBoolean(KEY_TO_FILL)
+        val color = if (toFill) viewModel.state.backgroundColor else viewModel.state.paint.color
         colorPicker.setColor(color)
 
-        return AlertDialog.Builder(activity)
+        return AlertDialog.Builder(safeActivity)
                 .setView(view)
                 .setPositiveButton(R.string.positive_button, { dialog, _ ->
                     val chosenColor = colorPicker.viewModel.currentColor
@@ -82,7 +79,7 @@ class ColorPickerDialogFragment : KodiDialogFragment() {
 
                     dispatcher.dispatch(event)
 
-                    activity.window.decorView.systemUIGone()
+                    safeActivity.window.decorView.systemUIGone()
 
                     dialog.dismiss()
                 })
@@ -93,18 +90,12 @@ class ColorPickerDialogFragment : KodiDialogFragment() {
     override fun onResume() {
         super.onResume()
 
-        if (activity.isLandScape()) {
-            val point = activity.getDisplaySize()
+        if (safeActivity.isLandScape()) {
+            val point = safeActivity.getDisplaySize()
             val desiredWidth = (point.x * .9f).toInt()
 
             dialog.window.setLayout(desiredWidth, WindowManager.LayoutParams.MATCH_PARENT)
         }
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-
-        outState.putInt(KEY_CURRENT_COLOR, colorPicker.viewModel.currentColor)
     }
 
     override fun onDismiss(dialog: DialogInterface?) {

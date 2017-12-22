@@ -15,20 +15,20 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
-import miles.kodi.Kodi
-import miles.kodi.api.ScopeRegistry
-import miles.kodi.api.builder.bind
-import miles.kodi.api.builder.get
-import miles.kodi.api.injection.register
-import miles.kodi.api.scoped
-import miles.kodi.provider.provider
-import miles.redux.core.Dispatcher
-import miles.redux.core.Dispatchers
+import mformetal.kodi.android.KodiFragment
+import mformetal.kodi.core.Kodi
+import mformetal.kodi.core.api.ScopeRegistry
+import mformetal.kodi.core.api.builder.bind
+import mformetal.kodi.core.api.builder.get
+import mformetal.kodi.core.api.injection.register
+import mformetal.kodi.core.api.scoped
+import mformetal.kodi.core.provider.provider
+import miles.dispatch.core.Dispatcher
+import miles.dispatch.core.Dispatchers
 import miles.scribble.R
 import miles.scribble.home.HomeActivity
 import miles.scribble.home.events.HomeActivityEvents
 import miles.scribble.home.events.HomeActivityEventsReducer
-import miles.scribble.ui.KodiFragment
 import miles.scribble.ui.glide.GlideApp
 import miles.scribble.util.android.RecyclerSpacingDecoration
 import miles.scribble.util.extensions.lazyInflate
@@ -53,14 +53,13 @@ class ChoosePictureFragment : KodiFragment(), LoaderManager.LoaderCallbacks<Curs
     }
 
     override fun installModule(kodi: Kodi): ScopeRegistry {
-        return kodi.scope {
-            dependsOn(scoped<HomeActivity>())
-            build(scoped<ChoosePictureFragment>(), {
-                bind<Dispatcher<HomeActivityEvents, HomeActivityEvents>>() using provider {
-                    Dispatchers.create(get(), HomeActivityEventsReducer())
+        return kodi.scopeBuilder()
+                .dependsOn(scoped<HomeActivity>())
+                .build(scoped<ChoosePictureFragment>()) {
+                    bind<Dispatcher<HomeActivityEvents, HomeActivityEvents>>() using provider {
+                        Dispatchers.create(get(), HomeActivityEventsReducer())
+                    }
                 }
-            })
-        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -72,9 +71,9 @@ class ChoosePictureFragment : KodiFragment(), LoaderManager.LoaderCallbacks<Curs
 
         choosePicture.setOnClickListener {
             chosenUri?.let {
-                dispatcher.dispatch(HomeActivityEvents.PictureChosen(activity.contentResolver, it))
+                dispatcher.dispatch(HomeActivityEvents.PictureChosen(activity!!.contentResolver, it))
 
-                activity.supportFragmentManager.beginTransaction()
+                activity!!.supportFragmentManager.beginTransaction()
                         .remove(this@ChoosePictureFragment)
                         .commit()
             }
@@ -84,7 +83,7 @@ class ChoosePictureFragment : KodiFragment(), LoaderManager.LoaderCallbacks<Curs
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        activity.supportLoaderManager.initLoader(0, null, this@ChoosePictureFragment)
+        activity!!.supportLoaderManager.initLoader(0, null, this@ChoosePictureFragment)
     }
 
     override fun onLoadFinished(loader: Loader<Cursor>, cursor: Cursor) {
@@ -113,7 +112,7 @@ class ChoosePictureFragment : KodiFragment(), LoaderManager.LoaderCallbacks<Curs
 
     override fun onCreateLoader(id: Int, args: Bundle?): Loader<Cursor> {
         val projection = arrayOf(MediaStore.Images.Media.DATA, MediaStore.Images.ImageColumns._ID)
-        return CursorLoader(activity, MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection, null, null, null)
+        return CursorLoader(activity!!, MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection, null, null, null)
     }
 
     override fun onLoaderReset(loader: Loader<Cursor>) {
@@ -161,7 +160,7 @@ class ChoosePictureFragment : KodiFragment(), LoaderManager.LoaderCallbacks<Curs
                         .load(uri)
                         .centerCrop()
                         .transition(DrawableTransitionOptions.withCrossFade())
-                        .into(itemView.findViewById(R.id.image))
+                        .into(itemView.findViewById<ImageView>(R.id.image))
             }
         }
     }

@@ -11,7 +11,7 @@ import java.io.File
 
 class HomeViewModelFactory(private val app: App) : ViewModelProvider.Factory {
 
-    override fun <T : ViewModel?> create(modelClass: Class<T>?): T {
+    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
         val cachedDrawingFile = File("${app.filesDir}/$CACHED_DRAWING_NAME")
         val bitmap = if (cachedDrawingFile.exists()) {
             app.openFileInput(CACHED_DRAWING_NAME)

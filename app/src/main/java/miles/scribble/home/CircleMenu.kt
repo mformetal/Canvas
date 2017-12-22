@@ -17,10 +17,10 @@ import android.view.animation.AnticipateInterpolator
 import android.view.animation.DecelerateInterpolator
 import android.view.animation.OvershootInterpolator
 import io.reactivex.disposables.Disposable
-import miles.kodi.api.scoped
-import miles.redux.core.Dispatcher
-import miles.redux.core.Dispatchers
-import miles.redux.rx.flowable
+import mformetal.kodi.core.api.scoped
+import miles.dispatch.core.Dispatcher
+import miles.dispatch.core.Dispatchers
+import miles.dispatch.rx.asFlowable
 import miles.scribble.R
 import miles.scribble.home.events.CircleMenuEvents
 import miles.scribble.home.events.CircleMenuEventsReducer
@@ -87,7 +87,8 @@ class CircleMenu : ViewGroup {
     override fun onFinishInflate() {
         super.onFinishInflate()
 
-        flowableDisposable = flowable(viewModel.store)
+        flowableDisposable = viewModel.store
+                .asFlowable()
                 .subscribe {
                     if (it.isMenuOpen) {
                         show()

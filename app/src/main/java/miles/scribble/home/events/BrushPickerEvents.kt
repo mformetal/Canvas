@@ -1,9 +1,9 @@
 package miles.scribble.home.events
 
 import android.graphics.Paint
+import miles.dispatch.core.Event
+import miles.dispatch.core.Reducer
 import miles.scribble.home.viewmodel.HomeState
-import miles.redux.core.Event
-import miles.redux.core.Reducer
 
 /**
  * Created from mbpeele on 7/29/17.

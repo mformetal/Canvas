@@ -7,9 +7,9 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.SurfaceHolder
 import android.view.SurfaceView
-import miles.kodi.api.scoped
-import miles.redux.core.Dispatcher
-import miles.redux.core.Dispatchers
+import mformetal.kodi.core.api.scoped
+import miles.dispatch.core.Dispatcher
+import miles.dispatch.core.Dispatchers
 import miles.scribble.home.drawing.CanvasMotionEventHandler
 import miles.scribble.home.events.CanvasSurfaceEvents
 import miles.scribble.home.events.CanvasSurfaceReducer

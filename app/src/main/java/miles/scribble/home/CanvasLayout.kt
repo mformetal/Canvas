@@ -15,8 +15,8 @@ import android.support.v7.widget.Toolbar
 import android.util.AttributeSet
 import android.view.MotionEvent
 import io.reactivex.disposables.Disposable
-import miles.kodi.api.scoped
-import miles.redux.rx.flowable
+import mformetal.kodi.core.api.scoped
+import miles.dispatch.rx.asFlowable
 import miles.scribble.R
 import miles.scribble.home.drawing.CanvasPoint
 import miles.scribble.home.viewmodel.HomeViewModel
@@ -79,7 +79,8 @@ class CanvasLayout : CoordinatorLayout {
     override fun onFinishInflate() {
         super.onFinishInflate()
 
-        flowableListener = flowable(homeViewModel.store)
+        flowableListener = homeViewModel.store
+                .asFlowable()
                 .subscribe {
                     if (it.isMenuOpen) {
                         dim()

@@ -1,18 +1,20 @@
 package miles.scribble.home
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import io.reactivex.disposables.Disposable
-import miles.kodi.Kodi
-import miles.kodi.api.ScopeRegistry
-import miles.kodi.api.builder.bind
-import miles.kodi.api.builder.get
-import miles.kodi.api.injection.register
-import miles.kodi.api.scoped
-import miles.kodi.provider.provider
-import miles.redux.core.Store
+import mformetal.kodi.android.KodiActivity
+import mformetal.kodi.core.Kodi
+import mformetal.kodi.core.api.ScopeRegistry
+import mformetal.kodi.core.api.builder.bind
+import mformetal.kodi.core.api.builder.get
+import mformetal.kodi.core.api.injection.register
+import mformetal.kodi.core.api.scoped
+import mformetal.kodi.core.provider.provider
+import miles.dispatch.core.Store
 import miles.scribble.R
 import miles.scribble.home.brushpicker.BrushPickerDialogFragment
 import miles.scribble.home.choosepicture.ChoosePictureFragment
@@ -20,9 +22,7 @@ import miles.scribble.home.colorpicker.ColorPickerDialogFragment
 import miles.scribble.home.events.CircleMenuEvents
 import miles.scribble.home.viewmodel.HomeState
 import miles.scribble.home.viewmodel.HomeViewModel
-import miles.scribble.ui.KodiActivity
 import miles.scribble.util.extensions.systemUIGone
-
 
 class HomeActivity : KodiActivity() {
 
@@ -36,13 +36,13 @@ class HomeActivity : KodiActivity() {
     private lateinit var clickDispoable : Disposable
 
     override fun installModule(kodi: Kodi): ScopeRegistry {
-        return kodi.scope {
-            build(scoped<HomeActivity>()) {
-                bind<Store<HomeState>>() using provider { get<HomeViewModel>().store }
-            }
-        }
+        return kodi.scopeBuilder()
+                .build(scoped<HomeActivity>()) {
+                    bind<Store<HomeState>>() using provider { get<HomeViewModel>().store }
+                }
     }
 
+    @SuppressLint("MissingSuperCall")
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.home)
@@ -91,6 +91,7 @@ class HomeActivity : KodiActivity() {
         viewModel.cacheDrawing()
     }
 
+    @SuppressLint("MissingSuperCall")
     override fun onDestroy() {
         super.onDestroy()
 
