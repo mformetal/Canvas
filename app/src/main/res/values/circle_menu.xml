@@ -3,5 +3,7 @@
 
     <string name="snackbar_no_more_redo">Nothing more to redo!</string>
     <string name="snackbar_no_more_undo">Nothing more to undo!</string>
+    <string name="dialog_title_clear_canvas">Clear Canvas?</string>
+    <string name="dialog_message_clear_canvas">Pressing \'Yes\' will delete the contents of this drawing.</string>
 
 </resources>

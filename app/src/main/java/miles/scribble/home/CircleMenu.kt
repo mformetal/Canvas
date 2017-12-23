@@ -8,6 +8,7 @@ import android.os.Parcelable
 import android.support.design.widget.CoordinatorLayout
 import android.support.design.widget.FloatingActionButton
 import android.support.design.widget.Snackbar
+import android.support.v7.app.AlertDialog
 import android.util.AttributeSet
 import android.view.GestureDetector
 import android.view.MotionEvent
@@ -26,7 +27,6 @@ import miles.scribble.home.events.CircleMenuEvents
 import miles.scribble.home.events.CircleMenuEventsReducer
 import miles.scribble.home.viewmodel.HomeViewModel
 import miles.scribble.util.Circle
-import miles.scribble.util.ViewUtils
 import miles.scribble.util.extensions.*
 import java.util.*
 
@@ -326,6 +326,17 @@ class CircleMenu : ViewGroup {
 
                 eraser.isSelected = !eraser.isSelected
                 dispatcher.dispatch(CircleMenuEvents.EraserClicked(eraser.isSelected))
+            }
+            R.id.menu_clear -> {
+                AlertDialog.Builder(context)
+                        .setTitle(R.string.dialog_title_clear_canvas)
+                        .setMessage(R.string.dialog_message_clear_canvas)
+                        .setPositiveButton(android.R.string.yes, { _, _ ->
+                            dispatcher.dispatch(CircleMenuEvents.ClearCanvasClicked())
+                        })
+                        .setNegativeButton(android.R.string.no, null)
+                        .create()
+                        .show()
             }
             R.id.menu_ink -> {
                 dispatcher.dispatch(CircleMenuEvents.InkClicked())

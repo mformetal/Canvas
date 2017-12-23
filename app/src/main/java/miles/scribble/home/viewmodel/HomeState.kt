@@ -7,8 +7,8 @@ import android.graphics.Paint
 import android.support.v4.widget.ViewDragHelper.INVALID_POINTER
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
-import miles.dispatch.core.SimpleStore
 import miles.dispatch.core.Event
+import miles.dispatch.core.SimpleStore
 import miles.dispatch.core.State
 import miles.scribble.home.drawing.DrawType
 import miles.scribble.home.drawing.Stroke
@@ -32,10 +32,10 @@ data class HomeState(val isMenuOpen : Boolean = false,
                      val lastX : Float = 0f,
                      val lastY : Float = 0f,
                      val history : DrawHistory = DrawHistory(),
-                     val bitmap: Bitmap,
-                     val canvas: Canvas,
-                     val photoState: PhotoState = PhotoState(),
-                     val onClickSubject: Subject<Event> = PublishSubject.create<Event>()) : State {
+                     val bitmap : Bitmap,
+                     val canvas : Canvas,
+                     val photoState : PhotoState = PhotoState(),
+                     val onClickSubject : Subject<Event> = PublishSubject.create<Event>()) : State {
 
     val oppositeBackgroundColor : Int
         get() = ViewUtils.complementColor(backgroundColor)

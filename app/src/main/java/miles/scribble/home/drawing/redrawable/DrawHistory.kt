@@ -27,4 +27,9 @@ class DrawHistory(private val history: Stack<Redrawable> = Stack(),
     fun redraw(canvas: Canvas) {
         history.forEach { it.draw(canvas) }
     }
+
+    fun clear() {
+        history.clear()
+        redoHistory.clear()
+    }
 }

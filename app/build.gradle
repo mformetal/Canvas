@@ -30,7 +30,7 @@ dependencies {
 
     //noinspection GradleDependency
     implementation "com.github.mformetal:Kodi:Development-SNAPSHOT"
-    implementation 'com.github.mformetal:Dispatch:master-SNAPSHOT'
+    implementation 'com.github.mformetal:Dispatch:Development-SNAPSHOT'
 
     def glide = "4.2.0"
     implementation "com.github.bumptech.glide:glide:${glide}"

@@ -2,10 +2,12 @@ package miles.scribble.home.events
 
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Paint
 import miles.dispatch.core.Event
 import miles.dispatch.core.Reducer
 import miles.scribble.home.drawing.DrawType
+import miles.scribble.home.drawing.Stroke
 import miles.scribble.home.viewmodel.HomeState
 
 
@@ -17,6 +19,7 @@ sealed class CircleMenuEvents : Event {
     class ToggleClicked(val isMenuShowing: Boolean) : CircleMenuEvents()
     class StrokeColorClicked : CircleMenuEvents()
     class BackgroundColorClicked : CircleMenuEvents()
+    class ClearCanvasClicked : CircleMenuEvents()
     class EraserClicked(val isErasing: Boolean) : CircleMenuEvents()
     class InkClicked : CircleMenuEvents()
     class BrushClicked : CircleMenuEvents()
@@ -96,6 +99,13 @@ class CircleMenuEventsReducer : Reducer<CircleMenuEvents, HomeState> {
             is CircleMenuEvents.PictureClicked -> {
                 state.onClickSubject.onNext(event)
                 state
+            }
+            is CircleMenuEvents.ClearCanvasClicked -> {
+                state.copy(backgroundColor = Color.WHITE,
+                        stroke = Stroke()).apply {
+                    history.clear()
+                    canvas.drawColor(Color.WHITE)
+                }
             }
         }
     }
