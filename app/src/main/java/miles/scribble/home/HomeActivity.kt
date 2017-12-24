@@ -78,6 +78,16 @@ class HomeActivity : KodiActivity() {
         }
     }
 
+    override fun onBackPressed() {
+        val choosePictureFragment = supportFragmentManager.findFragmentById(R.id.canvas_layout)
+        if (choosePictureFragment == null) {
+            super.onBackPressed()
+        } else {
+            supportFragmentManager.beginTransaction()
+                    .remove(choosePictureFragment)
+                    .commit()
+        }
+    }
 
     override fun onResume() {
         super.onResume()

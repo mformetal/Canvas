@@ -44,7 +44,7 @@ class ChoosePictureFragment : KodiFragment(), LoaderManager.LoaderCallbacks<Curs
     private val recycler by lazyInflate<RecyclerView>(R.id.choose_picture_recycler)
     private var chosenUri : Uri? = null
 
-    private val dispatcher : Dispatcher<HomeActivityEvents, HomeActivity> by injector.register()
+    private val dispatcher : Dispatcher<HomeActivityEvents, HomeActivityEvents> by injector.register()
 
     companion object {
         fun newInstance() : ChoosePictureFragment {
