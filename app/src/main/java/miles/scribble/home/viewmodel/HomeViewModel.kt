@@ -4,35 +4,35 @@ import android.arch.lifecycle.AndroidViewModel
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import io.reactivex.schedulers.Schedulers
 import miles.scribble.App
 import miles.scribble.home.drawing.DrawType
 import miles.scribble.util.extensions.drawBitmap
 import miles.scribble.util.extensions.larger
 import java.io.ByteArrayOutputStream
+import java.util.concurrent.ExecutorService
 
 /**
  * Created using mbpeele on 6/28/17.
  */
 const val CACHED_DRAWING_NAME = "NAME"
 
-class HomeViewModel(val store: HomeStore, app: App) : AndroidViewModel(app) {
+class HomeViewModel(val store: HomeStore, app: App,
+                    val threadExecutor: ExecutorService) : AndroidViewModel(app) {
 
     val state : HomeState
         get() = store.state
 
     fun cacheDrawing() {
-        Schedulers.io()
-                .scheduleDirect {
-                    getApplication<App>()
-                            .openFileOutput(CACHED_DRAWING_NAME, Context.MODE_PRIVATE)
-                            .use {
-                                val stream = ByteArrayOutputStream()
-                                state.bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
-                                val bytes = stream.toByteArray()
-                                it.write(bytes)
-                            }
-                }
+        threadExecutor.submit {
+            getApplication<App>()
+                    .openFileOutput(CACHED_DRAWING_NAME, Context.MODE_PRIVATE)
+                    .use {
+                        val stream = ByteArrayOutputStream()
+                        state.bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
+                        val bytes = stream.toByteArray()
+                        it.write(bytes)
+                    }
+        }
     }
 
     fun drawToSurfaceView(canvas: Canvas?) {

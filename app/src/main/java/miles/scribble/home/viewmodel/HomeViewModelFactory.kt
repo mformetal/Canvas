@@ -8,6 +8,7 @@ import android.graphics.Color
 import miles.scribble.App
 import miles.scribble.util.extensions.getDisplaySize
 import java.io.File
+import java.util.concurrent.Executors
 
 class HomeViewModelFactory(private val app: App) : ViewModelProvider.Factory {
 
@@ -30,6 +31,6 @@ class HomeViewModelFactory(private val app: App) : ViewModelProvider.Factory {
         }
 
         @Suppress("UNCHECKED_CAST")
-        return HomeViewModel(HomeStore(bitmap), app) as T
+        return HomeViewModel(HomeStore(bitmap), app, Executors.newSingleThreadExecutor()) as T
     }
 }
