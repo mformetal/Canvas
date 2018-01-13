@@ -2,6 +2,7 @@ package miles.scribble.home
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.arch.lifecycle.ViewModelProviders
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
@@ -22,6 +23,7 @@ import miles.scribble.home.colorpicker.ColorPickerDialogFragment
 import miles.scribble.home.events.CircleMenuEvents
 import miles.scribble.home.viewmodel.HomeState
 import miles.scribble.home.viewmodel.HomeViewModel
+import miles.scribble.home.viewmodel.HomeViewModelFactory
 import miles.scribble.util.extensions.systemUIGone
 
 class HomeActivity : KodiActivity() {
@@ -38,6 +40,9 @@ class HomeActivity : KodiActivity() {
     override fun installModule(kodi: Kodi): ScopeRegistry {
         return kodi.scopeBuilder()
                 .build(scoped<HomeActivity>()) {
+                    bind<HomeViewModel>() using provider {
+                        ViewModelProviders.of(this@HomeActivity, get<HomeViewModelFactory>())[HomeViewModel::class.java]
+                    }
                     bind<Store<HomeState>>() using provider { get<HomeViewModel>().store }
                 }
     }
