@@ -13,7 +13,7 @@ import miles.dispatch.core.State
 import miles.scribble.home.drawing.DrawType
 import miles.scribble.home.drawing.Stroke
 import miles.scribble.home.drawing.redrawable.DrawHistory
-import miles.scribble.util.PaintStyles
+import miles.scribble.home.brushpicker.PaintStyles
 import miles.scribble.util.ViewUtils
 
 /**

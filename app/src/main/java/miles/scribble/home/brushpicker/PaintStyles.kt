@@ -1,11 +1,6 @@
-package miles.scribble.util
+package miles.scribble.home.brushpicker
 
-import android.graphics.BlurMaskFilter
-import android.graphics.ComposePathEffect
-import android.graphics.CornerPathEffect
-import android.graphics.DashPathEffect
-import android.graphics.EmbossMaskFilter
-import android.graphics.Paint
+import android.graphics.*
 
 /**
  * Created using Miles Peele on 7/26/2015.

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="brush_normal">Normal</string>
+    <string name="brush_dots">Dots</string>
+    <string name="brush_emboss">Emboss</string>
+    <string name="brush_deboss">Deboss</string>
+    <string name="brush_shadow">Shadow</string>
+    <string name="brush_inner_shadow">Inner Shadow</string>
+    <string name="brush_outer_shadow">Outer Shadow</string>
+    <string name="brush_solid_shadow">Solid Shadow</string>
+
+</resources>

@@ -1,15 +1,4 @@
 <resources>
     <string name="app_name">Scribble</string>
 
-    <string-array name="paint_examples">
-        <item>normal</item>
-        <item>dots</item>
-        <item>emboss</item>
-        <item>deboss</item>
-        <item>normalShadow</item>
-        <item>innerShadow</item>
-        <item>outerShadow</item>
-        <item>solidShadow</item>
-    </string-array>
-
 </resources>

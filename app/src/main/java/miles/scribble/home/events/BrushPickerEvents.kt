@@ -16,7 +16,7 @@ class BrushPickerReducer : Reducer<BrushPickerEvents, HomeState> {
     override fun reduce(event: BrushPickerEvents, state: HomeState): HomeState {
         return when (event) {
             is BrushPickerEvents.BrushChosen -> {
-                state.copy(paint = event.paint)
+                state.copy(paint = event.paint, isMenuOpen = false)
             }
         }
     }
