@@ -6,10 +6,10 @@ import android.graphics.Color
 import assertk.assert
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
-import miles.redux.core.Dispatcher
-import miles.redux.core.Dispatchers
-import miles.redux.core.SimpleStore
-import miles.redux.core.Store
+import miles.dispatch.core.Dispatcher
+import miles.dispatch.core.Dispatchers
+import miles.dispatch.core.SimpleStore
+import miles.dispatch.core.Store
 import miles.scribble.home.events.ColorPickerEvents
 import miles.scribble.home.events.ColorPickerReducer
 import miles.scribble.home.viewmodel.HomeState

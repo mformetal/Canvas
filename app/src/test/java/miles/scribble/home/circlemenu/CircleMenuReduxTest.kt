@@ -10,7 +10,7 @@ import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.spy
 import com.nhaarman.mockito_kotlin.verify
 import io.reactivex.observers.TestObserver
-import miles.redux.core.*
+import miles.dispatch.core.*
 import miles.scribble.home.drawing.DrawType
 import miles.scribble.home.drawing.redrawable.DrawHistory
 import miles.scribble.home.drawing.redrawable.RedrawableLines

@@ -8,10 +8,10 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotNull
-import miles.redux.core.Dispatcher
-import miles.redux.core.Dispatchers
-import miles.redux.core.SimpleStore
-import miles.redux.core.Store
+import miles.dispatch.core.Dispatcher
+import miles.dispatch.core.Dispatchers
+import miles.dispatch.core.SimpleStore
+import miles.dispatch.core.Store
 import miles.scribble.home.events.HomeActivityEvents
 import miles.scribble.home.events.HomeActivityEventsReducer
 import miles.scribble.home.viewmodel.HomeState
