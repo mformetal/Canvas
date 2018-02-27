@@ -77,7 +77,7 @@ class CircleMenuEventsReducer : Reducer<CircleMenuEvents, HomeState> {
                             paint = Paint(state.paint).apply {
                                 color = state.backgroundColor
                                 strokeWidth = 20f
-                            })
+                            }, isMenuOpen = false)
                 } else {
                     state.copy(drawType = DrawType.NORMAL,
                             paint = Paint(state.paint).apply {

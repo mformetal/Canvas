@@ -153,7 +153,7 @@ class CircleMenu : ViewGroup {
                 toggle.measuredHeight * 3.75f)
         itemPositions.add(ItemPosition(toggle, cx, cy, toggle.radius()))
 
-        val mItemRadius = (toggle.measuredHeight * 3).toFloat()
+        val mItemRadius = (toggle.measuredHeight * 2.25).toFloat()
         val count = childCount
         val slice = Math.toRadians(360.0 / (count - 1))
 

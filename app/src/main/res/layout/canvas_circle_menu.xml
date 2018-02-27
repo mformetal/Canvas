@@ -13,7 +13,7 @@
         android:layout_margin="@dimen/fab_margin"
         android:padding="@dimen/fab_padding"
         app:elevation="@dimen/fab_elevation"
-        app:fabSize="mini" />
+        app:fabSize="normal" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/menu_upload"
